@@ -1,0 +1,62 @@
+# Render Blueprint – Energy Precision PMS
+# Deploy via: Dashboard → New → Blueprint → Connect repo https://github.com/wastwagon/Energy-Presissions-PMS
+# Plans: use free/starter for Render startup; upgrade to standard/pro as needed.
+
+databases:
+  - name: energy-pms-db
+    databaseName: energy_pms
+    user: energy_pms
+    plan: free  # 90-day free; then basic-256mb or starter for paid
+    region: oregon
+
+services:
+  - type: web
+    name: energy-pms-backend
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile.prod
+    dockerContext: ./backend
+    plan: free  # free tier; use starter for paid startup
+    region: oregon
+    healthCheckPath: /api/health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: energy-pms-db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ALGORITHM
+        value: HS256
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: "1440"
+      - key: COMPANY_NAME
+        value: Energy Precisions
+      - key: COMPANY_ADDRESS
+        value: Haatso - Ecomog
+      - key: CORS_ORIGINS
+        sync: false  # Set to your frontend URL after deploy (e.g. https://energy-pms-frontend.onrender.com)
+      - key: COMPANY_PHONE
+        sync: false
+      - key: COMPANY_EMAIL
+        sync: false
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        value: "587"
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false
+      - key: SMTP_FROM_EMAIL
+        sync: false
+
+  - type: web
+    name: energy-pms-frontend
+    runtime: docker
+    dockerfilePath: ./frontend/Dockerfile.prod
+    dockerContext: ./frontend
+    plan: free  # free tier; use starter for paid startup
+    region: oregon
+    envVars:
+      - key: REACT_APP_API_URL
+        sync: false  # Set to your backend URL after deploy (e.g. https://energy-pms-backend.onrender.com)

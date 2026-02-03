@@ -1,0 +1,56 @@
+# Multi-stage build for production
+FROM node:18-alpine AS builder
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies
+RUN npm install --legacy-peer-deps
+
+# Fix ajv-keywords compatibility issue
+RUN cd node_modules/ajv && \
+    mkdir -p dist/compile && \
+    if [ -f "lib/compile/codegen/index.js" ]; then \
+      echo "module.exports = require('../../lib/compile/codegen');" > dist/compile/codegen.js; \
+    elif [ -f "lib/compile/codegen.js" ]; then \
+      echo "module.exports = require('../../lib/compile/codegen');" > dist/compile/codegen.js; \
+    else \
+      echo "module.exports = {};" > dist/compile/codegen.js; \
+    fi || true
+
+# Copy application code
+COPY . .
+
+# Build the application
+# REACT_APP_API_URL must be set at build time for React
+# Default to placeholder, will be replaced at runtime via nginx
+ARG REACT_APP_API_URL=http://localhost:8000
+ENV REACT_APP_API_URL=$REACT_APP_API_URL
+
+RUN npm run build
+
+# Production stage
+FROM nginx:alpine
+
+# Install Node.js for the injection script
+RUN apk add --no-cache nodejs npm
+
+# Copy built files from builder
+COPY --from=builder /app/build /usr/share/nginx/html
+
+# Copy nginx configuration
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Copy injection script and entrypoint
+COPY inject-api-url.js /inject-api-url.js
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /inject-api-url.js /docker-entrypoint.sh
+
+# Expose port
+EXPOSE 80
+
+# Start nginx with API URL injection
+CMD ["/docker-entrypoint.sh"]
+
