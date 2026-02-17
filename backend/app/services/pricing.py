@@ -307,53 +307,10 @@ def generate_quote_items_from_sizing(
         ))
         sort_order += 1
     
-    # 6. Installation
-    # Calculate total equipment cost (panels, inverter, battery, mounting, BOS)
+    # Equipment total for installation % (panels, inverter, battery, mounting, BOS only – exclude transport)
     total_equipment_cost = sum(item.total_price for item in items)
     
-    installation_product = db.query(Product).filter(
-        Product.product_type == ProductType.INSTALLATION,
-        Product.is_active == True
-    ).first()
-    
-    if installation_product:
-        # Use product pricing
-        if installation_product.price_type == "percentage":
-            unit_price = total_equipment_cost * (installation_product.base_price / 100)
-        elif installation_product.price_type == "per_kw":
-            unit_price = installation_product.base_price * sizing_result.system_size_kw
-        elif installation_product.price_type == "fixed":
-            unit_price = installation_product.base_price
-        else:
-            unit_price = installation_product.base_price
-        
-        items.append(QuoteItem(
-            quote_id=quote_id,
-            product_id=installation_product.id,
-            description="Installation",
-            quantity=1,
-            unit_price=unit_price,
-            total_price=unit_price,
-            sort_order=sort_order
-        ))
-        sort_order += 1
-    else:
-        # Fallback to settings: installation_cost_percent (percentage of total equipment cost)
-        installation_cost_percent = get_setting_value(db, "installation_cost_percent", 10.0)
-        unit_price = total_equipment_cost * (installation_cost_percent / 100)
-        
-        items.append(QuoteItem(
-            quote_id=quote_id,
-            product_id=None,  # No product, using setting
-            description=f"Installation ({installation_cost_percent:.1f}% of total equipment cost)",
-            quantity=1,
-            unit_price=unit_price,
-            total_price=unit_price,
-            sort_order=sort_order
-        ))
-        sort_order += 1
-    
-    # 7. Transport
+    # 6. Transport & Logistics (before Installation – display order: Panel, Inverter, Battery, BOS, Transport, Installation)
     transport_product = db.query(Product).filter(
         Product.product_type == ProductType.TRANSPORT,
         Product.is_active == True
@@ -371,16 +328,53 @@ def generate_quote_items_from_sizing(
         ))
         sort_order += 1
     else:
-        # Fallback to settings: transport_cost_fixed
         transport_cost = get_setting_value(db, "transport_cost_fixed", 1000.0)
-        
         items.append(QuoteItem(
             quote_id=quote_id,
-            product_id=None,  # No product, using setting
+            product_id=None,
             description="Transport & Logistics",
             quantity=1,
             unit_price=transport_cost,
             total_price=transport_cost,
+            sort_order=sort_order
+        ))
+        sort_order += 1
+    
+    # 7. Installation (percentage of total_equipment_cost – panels, inverter, battery, mounting, BOS only)
+    installation_product = db.query(Product).filter(
+        Product.product_type == ProductType.INSTALLATION,
+        Product.is_active == True
+    ).first()
+    
+    if installation_product:
+        if installation_product.price_type == "percentage":
+            unit_price = total_equipment_cost * (installation_product.base_price / 100)
+        elif installation_product.price_type == "per_kw":
+            unit_price = installation_product.base_price * sizing_result.system_size_kw
+        elif installation_product.price_type == "fixed":
+            unit_price = installation_product.base_price
+        else:
+            unit_price = installation_product.base_price
+        items.append(QuoteItem(
+            quote_id=quote_id,
+            product_id=installation_product.id,
+            description="Installation",
+            quantity=1,
+            unit_price=unit_price,
+            total_price=unit_price,
+            sort_order=sort_order
+        ))
+        sort_order += 1
+    else:
+        installation_cost_percent = get_setting_value(db, "installation_cost_percent", 10.0)
+        unit_price = total_equipment_cost * (installation_cost_percent / 100)
+        items.append(QuoteItem(
+            quote_id=quote_id,
+            product_id=None,
+            description=f"Installation ({installation_cost_percent:.1f}% of total equipment cost)",
+            quantity=1,
+            unit_price=unit_price,
+            total_price=unit_price,
             sort_order=sort_order
         ))
         sort_order += 1

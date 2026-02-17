@@ -191,20 +191,20 @@ async def create_quote(
             for item in items:
                 if item.product_id:
                     product = db.query(Product).filter(Product.id == item.product_id).first()
-                    if product and product.product_type.value in ["panel", "inverter", "battery", "mounting"]:
-                        # Equipment: panels, inverters, batteries, mounting structures
+                    if product and product.product_type.value in ["panel", "inverter", "battery", "mounting", "bos"]:
+                        # Equipment: panels, inverters, batteries, mounting, BOS (matches recalculator & verification)
                         equipment_subtotal += item.total_price
                     else:
-                        # Services: BOS, installation, transport, etc.
+                        # Services: installation, transport, etc.
                         services_subtotal += item.total_price
                 else:
-                    # Items without product_id (using settings) are services
-                    # Check description to categorize
+                    # Items without product_id (using settings)
                     desc_lower = item.description.lower()
-                    if any(keyword in desc_lower for keyword in ["bos", "balance of system", "installation", "transport", "logistics", "maintenance"]):
+                    if "bos" in desc_lower or "balance of system" in desc_lower:
+                        equipment_subtotal += item.total_price
+                    elif any(keyword in desc_lower for keyword in ["installation", "transport", "logistics", "maintenance"]):
                         services_subtotal += item.total_price
                     else:
-                        # Default to services if unclear
                         services_subtotal += item.total_price
             
             db_quote.equipment_subtotal = equipment_subtotal
@@ -405,30 +405,34 @@ async def delete_quote_item(
     if not item:
         raise HTTPException(status_code=404, detail="Quote item not found")
     
-    # Determine if it's equipment or service
+    # Determine if it's equipment or service (mounting counts so recalc updates BOS/Installation)
     is_equipment = False
     if item.product_id:
         product = db.query(Product).filter(Product.id == item.product_id).first()
-        if product and product.product_type.value in ["panel", "inverter", "battery"]:
+        if product and product.product_type.value in ["panel", "inverter", "battery", "mounting"]:
+            is_equipment = True
+    else:
+        desc_lower = (item.description or "").lower()
+        if "bos" in desc_lower or "balance of system" in desc_lower:
             is_equipment = True
     
-    # Update quote totals
+    # Delete the item first so recalculate_dependent_items uses the correct remaining items
+    db.delete(item)
+    db.flush()
+    
+    # Update quote totals (recalculate BOS, Installation, and grand total from remaining items)
     if is_equipment:
-        quote.equipment_subtotal -= item.total_price
-        # Recalculate BOS and Installation if equipment item deleted
         recalculate_dependent_items(db, quote_id)
     else:
-        quote.services_subtotal -= item.total_price
         # Recalculate grand total for non-equipment items
+        quote.services_subtotal -= item.total_price
         subtotal = quote.equipment_subtotal + quote.services_subtotal
         tax_amount = subtotal * (quote.tax_percent / 100)
         discount_amount = subtotal * (quote.discount_percent / 100)
         quote.tax_amount = tax_amount
         quote.discount_amount = discount_amount
         quote.grand_total = subtotal + tax_amount - discount_amount
-    
-    db.delete(item)
-    db.commit()
+        db.commit()
     return None
 
 

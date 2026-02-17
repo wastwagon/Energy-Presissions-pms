@@ -416,8 +416,8 @@ QUOTATION_TEMPLATE = """
                     </tr>
                 </thead>
                 <tbody>
-                    {% if quote.items %}
-                    {% for item in quote.items %}
+                    {% if sorted_items %}
+                    {% for item in sorted_items %}
                     <tr>
                         <td>{{ item.description }}</td>
                         <td class="text-right">{{ item.unit_price|format_currency }}</td>
@@ -772,14 +772,38 @@ def generate_quotation_pdf(
             print(f"Error reading logo file: {e}")
             logo_data_uri = None
     
+    # Fixed display order: Panel, Inverter, Battery, Mounting, BOS, Transport, Installation (Installation last)
+    def _quote_item_display_order(item):
+        d = (item.description or "").upper()
+        if "PANEL" in d:
+            return 0
+        if "INVERTER" in d:
+            return 1
+        if "BATTERY" in d:
+            return 2
+        if "MOUNTING" in d:
+            return 3
+        if "BOS" in d or "BALANCE OF SYSTEM" in d:
+            return 4
+        if "TRANSPORT" in d or "LOGISTICS" in d:
+            return 5
+        if "INSTALLATION" in d:
+            return 6
+        return 7
+
+    sorted_items = sorted(
+        quote.items or [],
+        key=lambda x: (_quote_item_display_order(x), x.sort_order if x.sort_order is not None else 0),
+    )
+
     # Render template
     # Create Jinja2 environment with custom filter
     env = Environment()
     env.filters['format_currency'] = format_currency
-    
     template = env.from_string(QUOTATION_TEMPLATE)
     html_content = template.render(
         quote=quote,
+        sorted_items=sorted_items,
         customer=customer,
         project=project,
         sizing_result=sizing_result,

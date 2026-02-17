@@ -22,6 +22,8 @@ services:
       dockerfile: Dockerfile
     container_name: energy_pms_backend
     environment:
+      # If DATABASE_URL is set (e.g. Render external URL), backend uses it; else uses local db
+      DATABASE_URL: ${DATABASE_URL:-}
       POSTGRES_USER: ${POSTGRES_USER:-energy_pms}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
       POSTGRES_DB: ${POSTGRES_DB:-energy_pms}

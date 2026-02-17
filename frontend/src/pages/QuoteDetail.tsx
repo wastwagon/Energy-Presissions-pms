@@ -572,7 +572,22 @@ const QuoteDetail: React.FC = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {quote.items?.sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0)).map((item) => {
+                {(() => {
+                  const displayOrder = (item: QuoteItem) => {
+                    const d = (item.description || '').toUpperCase();
+                    if (d.includes('PANEL')) return 0;
+                    if (d.includes('INVERTER')) return 1;
+                    if (d.includes('BATTERY')) return 2;
+                    if (d.includes('MOUNTING')) return 3;
+                    if (d.includes('BOS') || d.includes('BALANCE OF SYSTEM')) return 4;
+                    if (d.includes('TRANSPORT') || d.includes('LOGISTICS')) return 5;
+                    if (d.includes('INSTALLATION')) return 6;
+                    return 7;
+                  };
+                  const sorted = [...(quote.items || [])].sort(
+                    (a, b) => displayOrder(a) - displayOrder(b) || (a.sort_order ?? 0) - (b.sort_order ?? 0)
+                  );
+                  return sorted.map((item) => {
                   const isBOS = item.description.toUpperCase().includes('BOS') || item.description.includes('Balance of System');
                   const isInstallation = item.description.includes('Installation') && !item.description.includes('Transport');
                   const currentPercentage = extractPercentage(item.description);
@@ -643,7 +658,7 @@ const QuoteDetail: React.FC = () => {
                       </TableCell>
                     </TableRow>
                   );
-                })}
+                }); })()}
               </TableBody>
             </Table>
           </TableContainer>

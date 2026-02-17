@@ -122,7 +122,7 @@ python -m app.scripts.setup_bank_details
 
 - **Backend 500 / DB errors:** In backend **Shell**, run `alembic upgrade head` and `python -m app.scripts.init_db`.
 - **Frontend “can’t reach API”:** Set **REACT_APP_API_URL** to the backend URL and redeploy the frontend.
-- **CORS errors:** Set **CORS_ORIGINS** on the backend to the frontend URL (no trailing slash), then redeploy.
+   - **CORS errors:** The backend allows `https://energyprecisions.com` and `https://www.energyprecisions.com` automatically when running on Render. If your frontend is elsewhere, set **CORS_ORIGINS** on the backend to that URL (no trailing slash), then redeploy.
 
 ---
 
