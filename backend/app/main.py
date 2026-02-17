@@ -19,28 +19,22 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# CORS configuration - supports both environment variable and default origins
+# CORS configuration - env CORS_ORIGINS overrides; else use defaults (localhost + production)
 cors_origins_env = os.getenv("CORS_ORIGINS", "").strip()
 if cors_origins_env:
-    # Parse comma-separated origins from environment variable
     cors_origins = [origin.strip() for origin in cors_origins_env.split(",") if origin.strip()]
 else:
-    # Default: localhost for development
     cors_origins = [
         "http://localhost:3000",
         "http://localhost:5000",
         "http://localhost:5173",
         "http://localhost:8080",
         "http://localhost:8081",
+        "https://energyprecisions.com",
+        "https://www.energyprecisions.com",
+        "http://energyprecisions.com",
+        "http://www.energyprecisions.com",
     ]
-    # When running on Render (production), allow production frontend
-    if os.getenv("RENDER"):
-        cors_origins.extend([
-            "https://energyprecisions.com",
-            "https://www.energyprecisions.com",
-            "http://energyprecisions.com",
-            "http://www.energyprecisions.com",
-        ])
 
 # CORS middleware
 app.add_middleware(
