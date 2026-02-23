@@ -9,20 +9,13 @@ import {
   CardContent,
   Avatar,
   Chip,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
   Stack,
   Divider,
-  IconButton,
 } from '@mui/material';
 import {
-  ExpandMore as ExpandMoreIcon,
   CheckCircle as CheckCircleIcon,
   TrendingUp as TrendingUpIcon,
   Nature as EcoIcon,
-  BatteryChargingFull as BatteryIcon,
-  SolarPower as SolarPowerIcon,
   Verified as VerifiedIcon,
   LocalShipping as ShippingIcon,
   SupportAgent as SupportIcon,
@@ -30,8 +23,6 @@ import {
   FlashOn as SpeedIcon,
   EmojiEvents as PremiumIcon,
   LocationOn as LocationIcon,
-  Phone as PhoneIcon,
-  Email as EmailIcon,
   ArrowForward as ArrowForwardIcon,
   Star as StarIcon,
   Business as BusinessIcon,
@@ -42,8 +33,6 @@ import { Link } from 'react-router-dom';
 import websiteContent from '../../data/extracted_content.json';
 
 const Home: React.FC = () => {
-  const content = websiteContent;
-
   return (
     <Box>
       {/* Premium Hero Section */}

@@ -122,7 +122,14 @@ python -m app.scripts.setup_bank_details
 
 - **Backend 500 / DB errors:** In backend **Shell**, run `alembic upgrade head` and `python -m app.scripts.init_db`.
 - **Frontend “can’t reach API”:** Set **REACT_APP_API_URL** to the backend URL and redeploy the frontend.
-   - **CORS errors:** The backend allows `https://energyprecisions.com` and `https://www.energyprecisions.com` automatically when running on Render. If your frontend is elsewhere, set **CORS_ORIGINS** on the backend to that URL (no trailing slash), then redeploy.
+   - **CORS errors ("No 'Access-Control-Allow-Origin' header"):**
+  - **Important:** When `CORS_ORIGINS` is set, it **replaces** the default list entirely. If you set it to only `https://energy-pms-frontend.onrender.com`, requests from `https://energyprecisions.com` will be blocked.
+  - **Fix:** In Render Dashboard → **energy-pms-backend** → **Environment**, set **CORS_ORIGINS** to include **all** frontend origins (comma-separated, no trailing slashes), e.g.:
+    ```
+    https://energyprecisions.com,https://www.energyprecisions.com,https://energy-pms-frontend.onrender.com
+    ```
+  - Or leave **CORS_ORIGINS** empty/unset to use defaults (localhost + energyprecisions.com).
+  - Redeploy the backend after changing CORS.
 
 ---
 

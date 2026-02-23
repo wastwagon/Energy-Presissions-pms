@@ -6,9 +6,7 @@ import {
   Grid,
   Card,
   CardContent,
-  CardMedia,
   Button,
-  Stack,
   Chip,
   Divider,
 } from '@mui/material';
@@ -24,19 +22,8 @@ import {
   SupportAgent as SupportIcon,
 } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
-import websiteContent from '../../data/extracted_content.json';
-
-const serviceImages: { [key: string]: string } = {
-  'Residential Solar Installation': '/website_images/post38.png',
-  'Battery Storage Solutions': '/website_images/post39.png',
-  'Commercial Solar Installation': '/website_images/post32-min-394x474.webp',
-  'Solar Energy Consultation': '/website_images/post33-min-394x474.webp',
-  'Energy Efficiency Audits and System Monitoring': '/website_images/image-394x474.webp',
-  'Product Sales and Expert Consultation': '/website_images/ChatGPT.png',
-};
 
 const Services: React.FC = () => {
-  const content = websiteContent;
 
   const premiumServices = [
     {

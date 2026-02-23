@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Box, Container, Typography, Button, Card, CardContent, Alert, CircularProgress } from '@mui/material';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { CheckCircle as CheckCircleIcon } from '@mui/icons-material';
@@ -14,23 +14,7 @@ const CheckoutSuccess: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (orderNumber) {
-      verifyOrder();
-    } else {
-      setError('No order number provided');
-      setLoading(false);
-    }
-  }, [orderNumber]);
-
-  useEffect(() => {
-    // Clear cart on successful payment
-    if (order && order.payment_status === 'paid') {
-      clearCart();
-    }
-  }, [order, clearCart]);
-
-  const verifyOrder = async () => {
+  const verifyOrder = useCallback(async () => {
     try {
       setLoading(true);
       const response = await api.get(`/payments/paystack/verify/${orderNumber}`);
@@ -47,7 +31,23 @@ const CheckoutSuccess: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [orderNumber]);
+
+  useEffect(() => {
+    if (orderNumber) {
+      verifyOrder();
+    } else {
+      setError('No order number provided');
+      setLoading(false);
+    }
+  }, [orderNumber, verifyOrder]);
+
+  useEffect(() => {
+    // Clear cart on successful payment
+    if (order && order.payment_status === 'paid') {
+      clearCart();
+    }
+  }, [order, clearCart]);
 
   if (loading) {
     return (

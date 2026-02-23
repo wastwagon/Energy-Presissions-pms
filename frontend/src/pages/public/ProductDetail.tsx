@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Container, Typography, Grid, Button, Card, CardContent } from '@mui/material';
+import { Box, Container, Typography, Grid, Button, Card } from '@mui/material';
 import { ShoppingCart as ShoppingCartIcon } from '@mui/icons-material';
 import { useParams, useNavigate } from 'react-router-dom';
 

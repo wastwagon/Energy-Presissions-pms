@@ -11,14 +11,12 @@ import {
   Chip,
 } from '@mui/material';
 import {
-  CheckCircle as CheckCircleIcon,
   LocationOn as LocationIcon,
   Business as BusinessIcon,
   People as PeopleIcon,
   TrendingUp as TrendingUpIcon,
   Nature as EcoIcon,
   Security as SecurityIcon,
-  Star as StarIcon,
   Phone as PhoneIcon,
   Email as EmailIcon,
 } from '@mui/icons-material';
