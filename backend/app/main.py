@@ -20,9 +20,11 @@ app = FastAPI(
 )
 
 # CORS configuration - env CORS_ORIGINS overrides; else use defaults (localhost + production)
+# allow_origin_regex matches Render subdomains (e.g. energy-pms-frontend-0m3k.onrender.com)
 cors_origins_env = os.getenv("CORS_ORIGINS", "").strip()
 if cors_origins_env:
     cors_origins = [origin.strip() for origin in cors_origins_env.split(",") if origin.strip()]
+    cors_origin_regex = None  # Explicit list takes precedence
 else:
     cors_origins = [
         "http://localhost:3000",
@@ -35,15 +37,18 @@ else:
         "http://energyprecisions.com",
         "http://www.energyprecisions.com",
     ]
+    # Allow any Render frontend subdomain when CORS_ORIGINS not set
+    cors_origin_regex = r"https://energy-pms-frontend-[a-z0-9]+\.onrender\.com"
 
-# CORS middleware
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=cors_origins,
+cors_kwargs = dict(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+if cors_origin_regex:
+    cors_kwargs["allow_origin_regex"] = cors_origin_regex
+
+app.add_middleware(CORSMiddleware, allow_origins=cors_origins, **cors_kwargs)
 
 # Include routers
 app.include_router(auth.router, prefix="/api")
