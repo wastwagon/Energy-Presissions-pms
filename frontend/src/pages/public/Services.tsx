@@ -6,6 +6,7 @@ import {
   Grid,
   Card,
   CardContent,
+  CardMedia,
   Button,
   Chip,
   Divider,
@@ -22,6 +23,7 @@ import {
   SupportAgent as SupportIcon,
 } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
+import { colors } from '../../theme/colors';
 
 const Services: React.FC = () => {
 
@@ -38,8 +40,8 @@ const Services: React.FC = () => {
         '10-Year Warranty',
         'Maintenance Support',
       ],
-      image: '/website_images/post38.png',
-      color: '#00E676',
+      image: 'https://images.unsplash.com/photo-1509391366360-2e959784a276?w=800',
+      color: colors.green,
     },
     {
       icon: <BusinessIcon sx={{ fontSize: '3rem' }} />,
@@ -53,8 +55,8 @@ const Services: React.FC = () => {
         'Scalable Solutions',
         '24/7 Monitoring',
       ],
-      image: '/website_images/post32-min-394x474.webp',
-      color: '#1a4d7a',
+      image: 'https://images.unsplash.com/photo-1559302504-64aae0ca2a3d?w=800',
+      color: colors.blueBlack,
     },
     {
       icon: <FactoryIcon sx={{ fontSize: '3rem' }} />,
@@ -68,8 +70,8 @@ const Services: React.FC = () => {
         'Dedicated Support Team',
         'Energy Management',
       ],
-      image: '/website_images/post39.png',
-      color: '#00E676',
+      image: 'https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=800',
+      color: colors.green,
     },
     {
       icon: <BatteryIcon sx={{ fontSize: '3rem' }} />,
@@ -83,8 +85,8 @@ const Services: React.FC = () => {
         'Backup Power Solutions',
         'Grid Independence',
       ],
-      image: '/website_images/post39.png',
-      color: '#1a4d7a',
+      image: 'https://images.unsplash.com/photo-1559302504-64aae0ca2a3d?w=800',
+      color: colors.blueBlack,
     },
     {
       icon: <SolarPowerIcon sx={{ fontSize: '3rem' }} />,
@@ -98,8 +100,8 @@ const Services: React.FC = () => {
         'Financing Options',
         'Government Incentive Guidance',
       ],
-      image: '/website_images/post33-min-394x474.webp',
-      color: '#00E676',
+      image: 'https://images.unsplash.com/photo-1509391366360-2e959784a276?w=800',
+      color: colors.green,
     },
     {
       icon: <EngineeringIcon sx={{ fontSize: '3rem' }} />,
@@ -113,8 +115,8 @@ const Services: React.FC = () => {
         'Cleaning Services',
         'Annual System Inspections',
       ],
-      image: '/website_images/image-394x474.webp',
-      color: '#1a4d7a',
+      image: 'https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=800',
+      color: colors.blueBlack,
     },
   ];
 
@@ -123,7 +125,7 @@ const Services: React.FC = () => {
       {/* Hero Section */}
       <Box
         sx={{
-          bgcolor: '#1a4d7a',
+          bgcolor: colors.blueBlack,
           color: 'white',
           py: { xs: 8, md: 12 },
           position: 'relative',
@@ -135,7 +137,7 @@ const Services: React.FC = () => {
             <Chip
               label="OUR SERVICES"
               sx={{
-                bgcolor: '#00E676',
+                bgcolor: colors.green,
                 color: 'white',
                 fontWeight: 'bold',
                 mb: 3,
@@ -182,27 +184,47 @@ const Services: React.FC = () => {
                     flexDirection: 'column',
                     borderRadius: 3,
                     overflow: 'hidden',
-                    border: '2px solid #e0e0e0',
+                    border: `2px solid ${colors.gray200}`,
                     transition: 'all 0.3s ease',
                     '&:hover': {
                       transform: 'translateY(-8px)',
                       boxShadow: '0 16px 48px rgba(0,0,0,0.15)',
-                      borderColor: service.color,
+                      borderColor: colors.green,
                     },
                   }}
                 >
                   <Box
                     sx={{
-                      height: 200,
-                      bgcolor: service.color,
+                      height: 220,
+                      overflow: 'hidden',
                       position: 'relative',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      color: 'white',
+                      bgcolor: colors.gray200,
                     }}
                   >
-                    <Box>{service.icon}</Box>
+                    <CardMedia
+                      component="img"
+                      image={service.image}
+                      alt={service.title}
+                      sx={{
+                        height: '100%',
+                        objectFit: 'cover',
+                        transition: 'transform 0.5s ease',
+                        '&:hover': { transform: 'scale(1.05)' },
+                      }}
+                    />
+                    <Box
+                      sx={{
+                        position: 'absolute',
+                        top: 16,
+                        left: 16,
+                        color: 'white',
+                        bgcolor: 'rgba(0,0,0,0.5)',
+                        borderRadius: 1,
+                        p: 1,
+                      }}
+                    >
+                      {service.icon}
+                    </Box>
                   </Box>
                   <CardContent sx={{ flexGrow: 1, p: 4 }}>
                     <Typography
@@ -210,7 +232,7 @@ const Services: React.FC = () => {
                       sx={{
                         mb: 2,
                         fontWeight: 700,
-                        color: '#1a4d7a',
+                        color: colors.blueBlack,
                       }}
                     >
                       {service.title}
@@ -251,14 +273,14 @@ const Services: React.FC = () => {
                       fullWidth
                       endIcon={<ArrowForwardIcon />}
                       sx={{
-                        bgcolor: service.color,
+                        bgcolor: service.color as string,
                         color: 'white',
                         py: 1.5,
                         fontWeight: 600,
                         textTransform: 'none',
                         fontSize: '1rem',
                         '&:hover': {
-                          bgcolor: service.color === '#00E676' ? '#00C85F' : '#0d3a5a',
+                          bgcolor: service.color === colors.green ? colors.greenDark : colors.blueBlackLight,
                           transform: 'translateY(-2px)',
                           boxShadow: `0 8px 24px ${service.color}40`,
                         },
@@ -282,7 +304,7 @@ const Services: React.FC = () => {
             <Chip
               label="OUR PROCESS"
               sx={{
-                bgcolor: '#00E676',
+                bgcolor: colors.green,
                 color: 'white',
                 fontWeight: 'bold',
                 mb: 2,
@@ -360,7 +382,7 @@ const Services: React.FC = () => {
                       width: 100,
                       height: 100,
                       borderRadius: '50%',
-                      bgcolor: '#00E676',
+                      bgcolor: colors.green,
                       color: 'white',
                       display: 'flex',
                       alignItems: 'center',
@@ -401,7 +423,7 @@ const Services: React.FC = () => {
             <Chip
               label="OUR GUARANTEES"
               sx={{
-                bgcolor: '#00E676',
+                bgcolor: colors.green,
                 color: 'white',
                 fontWeight: 'bold',
                 mb: 2,
@@ -452,7 +474,7 @@ const Services: React.FC = () => {
                     p: 4,
                     borderRadius: 3,
                     textAlign: 'center',
-                    border: '2px solid #00E676',
+                    border: `2px solid ${colors.green}`,
                     bgcolor: '#f8f9fa',
                     transition: 'all 0.3s ease',
                     '&:hover': {
@@ -486,7 +508,7 @@ const Services: React.FC = () => {
       <Box
         sx={{
           py: { xs: 8, md: 12 },
-          background: 'linear-gradient(135deg, #1a4d7a 0%, #0d3a5a 100%)',
+          background: `linear-gradient(135deg, ${colors.blueBlack} 0%, ${colors.blueBlackLight} 100%)`,
           color: 'white',
         }}
       >
@@ -522,7 +544,7 @@ const Services: React.FC = () => {
               to="/contact?action=quote"
               endIcon={<ArrowForwardIcon />}
               sx={{
-                bgcolor: '#00E676',
+                bgcolor: colors.green,
                 color: 'white',
                 px: 5,
                 py: 1.8,
@@ -530,7 +552,7 @@ const Services: React.FC = () => {
                 fontWeight: 600,
                 textTransform: 'none',
                 borderRadius: 2,
-                '&:hover': { bgcolor: '#00C85F' },
+                '&:hover': { bgcolor: colors.greenDark },
               }}
             >
               Get Free Consultation

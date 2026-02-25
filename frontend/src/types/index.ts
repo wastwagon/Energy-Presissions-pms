@@ -276,6 +276,8 @@ export interface Product {
   capacity_kwh?: number;
   price_type: string;
   base_price: number;
+  image_url?: string;
+  category?: string;
   is_active: boolean;
   created_at: string;
 }

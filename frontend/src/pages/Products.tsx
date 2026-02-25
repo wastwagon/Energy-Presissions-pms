@@ -17,10 +17,15 @@ import {
   TableRow,
   IconButton,
   MenuItem,
+  FormControlLabel,
+  Switch,
 } from '@mui/material';
-import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
+import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon, CloudUpload as UploadIcon, PhotoLibrary as LibraryIcon } from '@mui/icons-material';
 import api from '../services/api';
 import { Product, ProductType } from '../types';
+import MediaPicker from '../components/MediaPicker';
+
+const API_BASE = (window as any).REACT_APP_API_URL || process.env.REACT_APP_API_URL || 'http://localhost:8000';
 import { useAuth } from '../contexts/AuthContext';
 
 const Products: React.FC = () => {
@@ -39,6 +44,8 @@ const Products: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Product | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [mediaPickerOpen, setMediaPickerOpen] = useState(false);
   const [formData, setFormData] = useState({
     product_type: ProductType.PANEL,
     brand: '',
@@ -48,6 +55,9 @@ const Products: React.FC = () => {
     capacity_kwh: 0,
     price_type: 'fixed',
     base_price: 0,
+    image_url: '',
+    category: '',
+    is_active: true,
   });
 
   useEffect(() => {
@@ -75,6 +85,9 @@ const Products: React.FC = () => {
         capacity_kwh: product.capacity_kwh || 0,
         price_type: product.price_type,
         base_price: product.base_price || 0,
+        image_url: product.image_url || '',
+        category: product.category || '',
+        is_active: product.is_active ?? true,
       });
     } else {
       setEditing(null);
@@ -87,6 +100,9 @@ const Products: React.FC = () => {
         capacity_kwh: 0,
         price_type: 'fixed',
         base_price: 0,
+        image_url: '',
+        category: '',
+        is_active: true,
       });
     }
     setOpen(true);
@@ -108,6 +124,29 @@ const Products: React.FC = () => {
       handleClose();
     } catch (error) {
       console.error('Error saving product:', error);
+    }
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file (jpg, png, gif, webp)');
+      return;
+    }
+    try {
+      setUploading(true);
+      const formDataUpload = new FormData();
+      formDataUpload.append('file', file);
+      const response = await api.post('/products/upload-image', formDataUpload);
+      const url = response.data?.url;
+      if (url) setFormData((prev) => ({ ...prev, image_url: url }));
+    } catch (err: any) {
+      console.error('Upload failed:', err);
+      alert(err.response?.data?.detail || 'Upload failed');
+    } finally {
+      setUploading(false);
+      e.target.value = '';
     }
   };
 
@@ -149,18 +188,21 @@ const Products: React.FC = () => {
               <TableCell>Type</TableCell>
               <TableCell>Brand</TableCell>
               <TableCell>Model</TableCell>
+              <TableCell>Category</TableCell>
               <TableCell>Wattage / Capacity</TableCell>
               <TableCell>Price Type</TableCell>
               <TableCell>Base Price</TableCell>
+              <TableCell>Visible</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {products.map((product) => (
-              <TableRow key={product.id}>
+              <TableRow key={product.id} sx={{ opacity: product.is_active ? 1 : 0.6 }}>
                 <TableCell>{formatProductType(product.product_type)}</TableCell>
                 <TableCell>{product.brand || '-'}</TableCell>
                 <TableCell>{product.model || '-'}</TableCell>
+                <TableCell>{product.category || '-'}</TableCell>
                 <TableCell>
                   {product.wattage ? `${product.wattage}W` : 
                    product.capacity_kw ? `${product.capacity_kw}kW` : 
@@ -169,6 +211,7 @@ const Products: React.FC = () => {
                 </TableCell>
                 <TableCell>{formatPriceType(product.price_type)}</TableCell>
                 <TableCell>{product.base_price.toFixed(2)}</TableCell>
+                <TableCell>{product.is_active ? 'Yes' : 'No'}</TableCell>
                 <TableCell>
                   <IconButton size="small" onClick={() => handleOpen(product)}>
                     <EditIcon />
@@ -202,6 +245,52 @@ const Products: React.FC = () => {
               </MenuItem>
             ))}
           </TextField>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mt: 2 }}>
+            <Typography variant="subtitle2" color="text.secondary">
+              Featured Image
+            </Typography>
+            <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-start', flexWrap: 'wrap' }}>
+              <TextField
+                fullWidth
+                label="Image URL"
+                placeholder="Paste URL, upload, or choose from library"
+                value={formData.image_url}
+                onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
+                size="small"
+                sx={{ flex: 1, minWidth: 200 }}
+              />
+              <Button
+                variant="outlined"
+                startIcon={<LibraryIcon />}
+                onClick={() => setMediaPickerOpen(true)}
+              >
+                Library
+              </Button>
+              <Button
+                variant="outlined"
+                component="label"
+                startIcon={<UploadIcon />}
+                disabled={uploading}
+              >
+                {uploading ? 'Uploading...' : 'Upload'}
+                <input type="file" hidden accept="image/*" onChange={handleImageUpload} />
+              </Button>
+            </Box>
+            <MediaPicker
+              open={mediaPickerOpen}
+              onClose={() => setMediaPickerOpen(false)}
+              onSelect={(url) => setFormData((prev) => ({ ...prev, image_url: url }))}
+            />
+            {formData.image_url && (
+              <Box
+                component="img"
+                src={formData.image_url.startsWith('http') ? formData.image_url : `${API_BASE}${formData.image_url}`}
+                alt="Preview"
+                sx={{ maxWidth: 120, maxHeight: 120, objectFit: 'contain', border: '1px solid #ddd', borderRadius: 1 }}
+                onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+              />
+            )}
+          </Box>
           <TextField
             fullWidth
             label="Brand"
@@ -277,6 +366,32 @@ const Products: React.FC = () => {
               setFormData({ ...formData, base_price: isNaN(val) ? 0 : val });
             }}
             margin="normal"
+          />
+          <TextField
+            fullWidth
+            select
+            label="Shop Category"
+            value={formData.category || ''}
+            onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+            margin="normal"
+            helperText="Used for filtering on the shop page"
+          >
+            <MenuItem value="">None</MenuItem>
+            <MenuItem value="panel">Solar Panels</MenuItem>
+            <MenuItem value="inverter">Inverters</MenuItem>
+            <MenuItem value="battery">Batteries</MenuItem>
+            <MenuItem value="Accessories">Accessories</MenuItem>
+          </TextField>
+          <FormControlLabel
+            control={
+              <Switch
+                checked={formData.is_active}
+                onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
+                color="primary"
+              />
+            }
+            label="Visible in Shop"
+            sx={{ mt: 2 }}
           />
         </DialogContent>
         <DialogActions>

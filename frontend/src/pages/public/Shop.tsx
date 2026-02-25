@@ -34,6 +34,15 @@ import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import { useCart } from '../../contexts/CartContext';
 
+const API_URL = (window as any).REACT_APP_API_URL || process.env.REACT_APP_API_URL || 'http://localhost:8000';
+
+const getImageUrl = (url: string | undefined): string => {
+  if (!url) return '';
+  if (url.startsWith('http://') || url.startsWith('https://')) return url;
+  if (url.startsWith('/')) return `${API_URL.replace(/\/$/, '')}${url}`;
+  return url;
+};
+
 const Shop: React.FC = () => {
   const navigate = useNavigate();
   const { addToCart } = useCart();
@@ -275,7 +284,7 @@ const Shop: React.FC = () => {
                     >
                       <Box
                       component="img"
-                        src={product.image_url || '/api/placeholder/300/300'}
+                        src={getImageUrl(product.image_url) || 'https://placehold.co/300x300/e8e8e8/999?text=No+Image'}
                       alt={product.name || `${product.brand} ${product.model}`}
                         sx={{
                           maxWidth: '100%',

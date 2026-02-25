@@ -1,18 +1,19 @@
 """
 E-commerce API Routes
-Public-facing e-commerce endpoints
+Public-facing e-commerce endpoints and admin order management
 """
 from typing import List, Optional
-from fastapi import APIRouter, Depends, HTTPException, status, Request
+from fastapi import APIRouter, Depends, HTTPException, status, Request, Query
 from sqlalchemy.orm import Session
-from sqlalchemy import or_
+from sqlalchemy import or_, desc
 from app.database import get_db
-from app.models import Product, ProductType, Customer
+from app.models import Product, ProductType, Customer, User
 from app.models_ecommerce import Order, OrderItem, CartItem, Coupon
 from app.schemas_ecommerce import (
-    ProductPublic, OrderCreate, OrderResponse, CartItemCreate, CartItemResponse,
-    CouponValidate
+    ProductPublic, OrderCreate, OrderResponse, OrderDetailResponse, OrderStatusUpdate,
+    CartItemCreate, CartItemResponse, CouponValidate
 )
+from app.auth import get_current_active_user
 from datetime import datetime
 import uuid
 
@@ -296,12 +297,64 @@ async def create_order(
     return order
 
 
-@router.get("/orders/{order_number}", response_model=OrderResponse)
+@router.get("/orders", response_model=List[OrderResponse])
+async def list_orders_admin(
+    status: Optional[str] = Query(None),
+    payment_status: Optional[str] = Query(None),
+    search: Optional[str] = Query(None),
+    skip: int = 0,
+    limit: int = 50,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
+    """Admin: List all e-commerce orders (auth required)"""
+    query = db.query(Order)
+    if status:
+        query = query.filter(Order.status == status)
+    if payment_status:
+        query = query.filter(Order.payment_status == payment_status)
+    if search:
+        term = f"%{search}%"
+        query = query.filter(
+            or_(
+                Order.order_number.ilike(term),
+                Order.customer_name.ilike(term),
+                Order.customer_email.ilike(term),
+                Order.customer_phone.ilike(term)
+            )
+        )
+    orders = query.order_by(desc(Order.created_at)).offset(skip).limit(limit).all()
+    return orders
+
+
+@router.patch("/orders/{order_number}", response_model=OrderDetailResponse)
+async def update_order_status(
+    order_number: str,
+    update: OrderStatusUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
+    """Admin: Update order status (auth required)"""
+    order = db.query(Order).filter(Order.order_number == order_number).first()
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+    if update.status is not None:
+        order.status = update.status
+    if update.payment_status is not None:
+        order.payment_status = update.payment_status
+    if update.tracking_number is not None:
+        order.tracking_number = update.tracking_number
+    db.commit()
+    db.refresh(order)
+    return order
+
+
+@router.get("/orders/{order_number}", response_model=OrderDetailResponse)
 async def get_order(
     order_number: str,
     db: Session = Depends(get_db)
 ):
-    """Get order by order number"""
+    """Get order by order number (includes items)"""
     order = db.query(Order).filter(Order.order_number == order_number).first()
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")

@@ -21,6 +21,7 @@ import {
   Email as EmailIcon,
 } from '@mui/icons-material';
 import websiteContent from '../../data/extracted_content.json';
+import { colors } from '../../theme/colors';
 
 const About: React.FC = () => {
   const content = websiteContent;
@@ -30,7 +31,7 @@ const About: React.FC = () => {
       {/* Hero Section */}
       <Box
         sx={{
-          bgcolor: '#1a4d7a',
+          bgcolor: colors.blueBlack,
           color: 'white',
           py: { xs: 8, md: 12 },
           position: 'relative',
@@ -43,7 +44,7 @@ const About: React.FC = () => {
               <Chip
                 label="ABOUT ENERGY PRECISIONS"
                 sx={{
-                  bgcolor: '#00E676',
+                  bgcolor: colors.green,
                   color: 'white',
                   fontWeight: 'bold',
                   mb: 3,
@@ -74,7 +75,7 @@ const About: React.FC = () => {
               </Typography>
               <Stack direction="row" spacing={4} flexWrap="wrap">
                 <Box>
-                  <Typography variant="h3" sx={{ fontWeight: 'bold', color: '#00E676' }}>
+                  <Typography variant="h3" sx={{ fontWeight: 'bold', color: colors.green }}>
                     500+
                   </Typography>
                   <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>
@@ -82,7 +83,7 @@ const About: React.FC = () => {
                   </Typography>
                 </Box>
                 <Box>
-                  <Typography variant="h3" sx={{ fontWeight: 'bold', color: '#00E676' }}>
+                  <Typography variant="h3" sx={{ fontWeight: 'bold', color: colors.green }}>
                     10+
                   </Typography>
                   <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>
@@ -90,7 +91,7 @@ const About: React.FC = () => {
                   </Typography>
                 </Box>
                 <Box>
-                  <Typography variant="h3" sx={{ fontWeight: 'bold', color: '#00E676' }}>
+                  <Typography variant="h3" sx={{ fontWeight: 'bold', color: colors.green }}>
                     98%
                   </Typography>
                   <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>
@@ -133,7 +134,7 @@ const About: React.FC = () => {
                   height: '100%',
                   p: 5,
                   borderRadius: 3,
-                  border: '2px solid #00E676',
+                  border: '2px solid colors.green',
                   bgcolor: '#f8f9fa',
                 }}
               >
@@ -142,7 +143,7 @@ const About: React.FC = () => {
                   sx={{
                     mb: 3,
                     fontWeight: 800,
-                    color: '#1a4d7a',
+                    color: 'colors.blueNavy',
                   }}
                 >
                   Our Mission
@@ -160,7 +161,7 @@ const About: React.FC = () => {
                   height: '100%',
                   p: 5,
                   borderRadius: 3,
-                  border: '2px solid #1a4d7a',
+                  border: '2px solid colors.blueNavy',
                   bgcolor: 'white',
                 }}
               >
@@ -169,7 +170,7 @@ const About: React.FC = () => {
                   sx={{
                     mb: 3,
                     fontWeight: 800,
-                    color: '#1a4d7a',
+                    color: 'colors.blueNavy',
                   }}
                 >
                   Our Vision
@@ -192,7 +193,7 @@ const About: React.FC = () => {
             <Chip
               label="WHY CHOOSE US"
               sx={{
-                bgcolor: '#00E676',
+                bgcolor: colors.green,
                 color: 'white',
                 fontWeight: 'bold',
                 mb: 2,
@@ -205,7 +206,7 @@ const About: React.FC = () => {
                 mt: 2,
                 mb: 3,
                 fontWeight: 800,
-                color: '#1a4d7a',
+                color: 'colors.blueNavy',
                 fontSize: { xs: '2.5rem', md: '3.5rem' },
               }}
             >
@@ -219,37 +220,37 @@ const About: React.FC = () => {
                 icon: <LocationIcon sx={{ fontSize: '3rem' }} />,
                 title: 'Based in Ghana, For Ghana',
                 description: 'We understand Ghana\'s unique energy challenges and climate. Our solutions are specifically designed for Ghanaian homes and businesses.',
-                color: '#00E676',
+                color: colors.green,
               },
               {
                 icon: <BusinessIcon sx={{ fontSize: '3rem' }} />,
                 title: 'Complete Solutions Provider',
                 description: 'From equipment sales to installation, maintenance, and support - we provide end-to-end solar solutions under one roof.',
-                color: '#1a4d7a',
+                color: 'colors.blueNavy',
               },
               {
                 icon: <PeopleIcon sx={{ fontSize: '3rem' }} />,
                 title: 'Expert Team',
                 description: 'Our certified technicians have years of experience installing solar systems across Ghana. Continuous training ensures we stay ahead.',
-                color: '#00E676',
+                color: colors.green,
               },
               {
                 icon: <SecurityIcon sx={{ fontSize: '3rem' }} />,
                 title: 'Trusted & Reliable',
                 description: '10+ years in business, 500+ successful installations, and 98% customer satisfaction. Your trust is our greatest asset.',
-                color: '#1a4d7a',
+                color: 'colors.blueNavy',
               },
               {
                 icon: <TrendingUpIcon sx={{ fontSize: '3rem' }} />,
                 title: 'Proven Track Record',
                 description: 'Trusted by residential, commercial, and industrial clients across Accra, Kumasi, Tamale, and beyond.',
-                color: '#00E676',
+                color: colors.green,
               },
               {
                 icon: <EcoIcon sx={{ fontSize: '3rem' }} />,
                 title: 'Sustainable Future',
                 description: 'Join thousands of Ghanaians reducing electricity costs and carbon footprint. Together, we build a greener Ghana.',
-                color: '#1a4d7a',
+                color: 'colors.blueNavy',
               },
             ].map((feature, index) => (
               <Grid item xs={12} sm={6} md={4} key={index}>
@@ -273,7 +274,7 @@ const About: React.FC = () => {
                     sx={{
                       mb: 2,
                       fontWeight: 700,
-                      color: '#1a4d7a',
+                      color: 'colors.blueNavy',
                     }}
                   >
                     {feature.title}
@@ -295,7 +296,7 @@ const About: React.FC = () => {
             <Chip
               label="OUR VALUES"
               sx={{
-                bgcolor: '#00E676',
+                bgcolor: colors.green,
                 color: 'white',
                 fontWeight: 'bold',
                 mb: 2,
@@ -308,7 +309,7 @@ const About: React.FC = () => {
                 mt: 2,
                 mb: 3,
                 fontWeight: 800,
-                color: '#1a4d7a',
+                color: 'colors.blueNavy',
                 fontSize: { xs: '2.5rem', md: '3.5rem' },
               }}
             >
@@ -328,7 +329,7 @@ const About: React.FC = () => {
                     border: '2px solid #e0e0e0',
                     transition: 'all 0.3s ease',
                     '&:hover': {
-                      borderColor: '#00E676',
+                      borderColor: colors.green,
                       transform: 'translateY(-8px)',
                       boxShadow: '0 12px 40px rgba(0,0,0,0.1)',
                     },
@@ -338,7 +339,7 @@ const About: React.FC = () => {
                     <Chip
                       label={specialty}
                       sx={{
-                        bgcolor: '#00E676',
+                        bgcolor: colors.green,
                         color: 'white',
                         fontWeight: 'bold',
                         px: 2,
@@ -355,7 +356,7 @@ const About: React.FC = () => {
       </Box>
 
       {/* Stats Section */}
-      <Box sx={{ py: { xs: 8, md: 12 }, bgcolor: '#1a4d7a', color: 'white' }}>
+      <Box sx={{ py: { xs: 8, md: 12 }, bgcolor: 'colors.blueNavy', color: 'white' }}>
         <Container maxWidth="xl">
           <Box textAlign="center" mb={8}>
             <Typography
@@ -379,7 +380,7 @@ const About: React.FC = () => {
                     sx={{
                       fontSize: { xs: '3rem', md: '5rem' },
                       fontWeight: 800,
-                      color: '#00E676',
+                      color: colors.green,
                       mb: 2,
                     }}
                   >
@@ -418,7 +419,7 @@ const About: React.FC = () => {
             <Chip
               label="VISIT US"
               sx={{
-                bgcolor: '#00E676',
+                bgcolor: colors.green,
                 color: 'white',
                 fontWeight: 'bold',
                 mb: 2,
@@ -431,7 +432,7 @@ const About: React.FC = () => {
                 mt: 2,
                 mb: 3,
                 fontWeight: 800,
-                color: '#1a4d7a',
+                color: 'colors.blueNavy',
                 fontSize: { xs: '2.5rem', md: '3.5rem' },
               }}
             >
@@ -447,9 +448,9 @@ const About: React.FC = () => {
               <Card sx={{ p: 4, borderRadius: 3, height: '100%' }}>
                 <Stack spacing={3}>
                   <Box display="flex" alignItems="center" gap={2}>
-                    <LocationIcon sx={{ fontSize: '2.5rem', color: '#00E676' }} />
+                    <LocationIcon sx={{ fontSize: '2.5rem', color: colors.green }} />
                     <Box>
-                      <Typography variant="h6" sx={{ fontWeight: 700, color: '#1a4d7a', mb: 0.5 }}>
+                      <Typography variant="h6" sx={{ fontWeight: 700, color: 'colors.blueNavy', mb: 0.5 }}>
                         Our Location
                       </Typography>
                       <Typography variant="body1" sx={{ color: '#666' }}>
@@ -469,7 +470,7 @@ const About: React.FC = () => {
               </Card>
             </Grid>
             <Grid item xs={12} md={6}>
-              <Card sx={{ p: 4, borderRadius: 3, height: '100%', bgcolor: '#1a4d7a', color: 'white' }}>
+              <Card sx={{ p: 4, borderRadius: 3, height: '100%', bgcolor: 'colors.blueNavy', color: 'white' }}>
                 <Typography variant="h5" sx={{ mb: 3, fontWeight: 700 }}>
                   Ready to Go Solar?
                 </Typography>
@@ -479,11 +480,11 @@ const About: React.FC = () => {
                 </Typography>
                 <Stack spacing={2}>
                   <Box display="flex" alignItems="center" gap={2}>
-                    <PhoneIcon sx={{ color: '#00E676' }} />
+                    <PhoneIcon sx={{ color: colors.green }} />
                     <Typography variant="body1">(+233) 533 611 611</Typography>
                   </Box>
                   <Box display="flex" alignItems="center" gap={2}>
-                    <EmailIcon sx={{ color: '#00E676' }} />
+                    <EmailIcon sx={{ color: colors.green }} />
                     <Typography variant="body1">energyprecisions@gmail.com</Typography>
                   </Box>
                 </Stack>

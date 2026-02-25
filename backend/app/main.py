@@ -8,7 +8,7 @@ from app.database import engine, Base
 # Import e-commerce models to register them
 from app import models_ecommerce
 from app.routers import auth, customers, projects, appliances, sizing, products, quotes, settings, reports, dashboard
-from app.routers import ecommerce, payments
+from app.routers import ecommerce, payments, media
 
 # Create database tables
 Base.metadata.create_all(bind=engine)
@@ -63,6 +63,7 @@ app.include_router(reports.router, prefix="/api")
 app.include_router(dashboard.router, prefix="/api")
 app.include_router(ecommerce.router)  # E-commerce routes (already has /api/ecommerce prefix)
 app.include_router(payments.router)  # Payment routes (already has /api/payments prefix)
+app.include_router(media.router, prefix="/api")
 
 # Create static directory if it doesn't exist
 static_dir = Path("static")

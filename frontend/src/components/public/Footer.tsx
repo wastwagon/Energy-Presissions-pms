@@ -9,6 +9,8 @@ import {
   Button,
   IconButton,
 } from '@mui/material';
+import { Link as RouterLink } from 'react-router-dom';
+import { colors } from '../../theme/colors';
 import {
   Phone as PhoneIcon,
   Email as EmailIcon,
@@ -27,7 +29,7 @@ const Footer: React.FC = () => {
     <Box
       component="footer"
       sx={{
-        bgcolor: '#1a4d7a',
+        bgcolor: colors.blueBlack,
         color: 'white',
         pt: 6,
         pb: 3,
@@ -37,7 +39,7 @@ const Footer: React.FC = () => {
         <Grid container spacing={4}>
           {/* Company Info */}
           <Grid item xs={12} md={3}>
-            <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold', color: '#00E676' }}>
+            <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold', color: colors.green }}>
               ENERGY PRECISIONS
             </Typography>
             <Typography variant="body2" sx={{ mb: 2, color: 'rgba(255,255,255,0.8)' }}>
@@ -67,22 +69,22 @@ const Footer: React.FC = () => {
             </Typography>
             <Box component="ul" sx={{ listStyle: 'none', p: 0, m: 0 }}>
               <Box component="li" sx={{ mb: 1 }}>
-                <Link href="/about" color="inherit" sx={{ textDecoration: 'none', '&:hover': { color: '#00E676' } }}>
+                <Link component={RouterLink} to="/about" underline="none" color="inherit" sx={{ '&:hover': { color: colors.green } }}>
                   About EnergyPrecisions
                 </Link>
               </Box>
               <Box component="li" sx={{ mb: 1 }}>
-                <Link href="/about" color="inherit" sx={{ textDecoration: 'none', '&:hover': { color: '#00E676' } }}>
+                <Link component={RouterLink} to="/about" underline="none" color="inherit" sx={{ '&:hover': { color: colors.green } }}>
                   Our History
                 </Link>
               </Box>
               <Box component="li" sx={{ mb: 1 }}>
-                <Link href="/contact?action=quote" color="inherit" sx={{ textDecoration: 'none', '&:hover': { color: '#00E676' } }}>
+                <Link component={RouterLink} to="/contact?action=quote" underline="none" color="inherit" sx={{ '&:hover': { color: colors.green } }}>
                   Get a Quote
                 </Link>
               </Box>
               <Box component="li" sx={{ mb: 1 }}>
-                <Link href="/shop" color="inherit" sx={{ textDecoration: 'none', '&:hover': { color: '#00E676' } }}>
+                <Link component={RouterLink} to="/shop" underline="none" color="inherit" sx={{ '&:hover': { color: colors.green } }}>
                   Our Pricing
                 </Link>
               </Box>
@@ -96,17 +98,17 @@ const Footer: React.FC = () => {
             </Typography>
             <Box component="ul" sx={{ listStyle: 'none', p: 0, m: 0 }}>
               <Box component="li" sx={{ mb: 1 }}>
-                <Link href="/contact" color="inherit" sx={{ textDecoration: 'none', '&:hover': { color: '#00E676' } }}>
+                <Link component={RouterLink} to="/contact" underline="none" color="inherit" sx={{ '&:hover': { color: colors.green } }}>
                   Contact Us
                 </Link>
               </Box>
               <Box component="li" sx={{ mb: 1 }}>
-                <Link href="/projects" color="inherit" sx={{ textDecoration: 'none', '&:hover': { color: '#00E676' } }}>
-                  Our Projects
+                <Link component={RouterLink} to="/portfolio" underline="none" color="inherit" sx={{ '&:hover': { color: colors.green } }}>
+                  Our Portfolio
                 </Link>
               </Box>
               <Box component="li" sx={{ mb: 1 }}>
-                <Link href="/testimonials" color="inherit" sx={{ textDecoration: 'none', '&:hover': { color: '#00E676' } }}>
+                <Link component={RouterLink} to="/#testimonials" underline="none" color="inherit" sx={{ '&:hover': { color: colors.green } }}>
                   Client Reviews
                 </Link>
               </Box>
@@ -154,9 +156,9 @@ const Footer: React.FC = () => {
               <Button
                 variant="contained"
                 sx={{
-                  bgcolor: '#00E676',
-                  color: 'white',
-                  '&:hover': { bgcolor: '#00C85F' },
+                bgcolor: colors.green,
+                color: 'white',
+                '&:hover': { bgcolor: colors.greenDark },
                   textTransform: 'none',
                 }}
               >

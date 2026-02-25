@@ -30,6 +30,11 @@ target_metadata = Base.metadata
 
 def get_url():
     from app.config import settings
+    if settings.DATABASE_URL:
+        url = settings.DATABASE_URL
+        if url.startswith("postgres://"):
+            url = url.replace("postgres://", "postgresql://", 1)
+        return url
     return f"postgresql://{settings.POSTGRES_USER}:{settings.POSTGRES_PASSWORD}@{settings.POSTGRES_HOST}:{settings.POSTGRES_PORT}/{settings.POSTGRES_DB}"
 
 

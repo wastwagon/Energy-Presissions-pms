@@ -442,3 +442,16 @@ class PeakSunHours(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
+
+class MediaItem(Base):
+    __tablename__ = "media_items"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    filename = Column(String, nullable=False)
+    url = Column(String, nullable=False)  # Path like /static/media/xxx.jpg
+    title = Column(String)
+    alt_text = Column(String)
+    mime_type = Column(String)
+    file_size = Column(Integer)  # Size in bytes
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+

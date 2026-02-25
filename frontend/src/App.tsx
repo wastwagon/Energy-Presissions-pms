@@ -18,6 +18,7 @@ import Checkout from './pages/public/Checkout';
 import CheckoutSuccess from './pages/public/CheckoutSuccess';
 import Contact from './pages/public/Contact';
 import FAQs from './pages/public/FAQs';
+import Portfolio from './pages/public/Portfolio';
 
 // Admin pages
 import PMSLogin from './pages/PMSLogin';
@@ -30,6 +31,9 @@ import ProjectDetail from './pages/ProjectDetail';
 import Quotes from './pages/Quotes';
 import QuoteDetail from './pages/QuoteDetail';
 import Products from './pages/Products';
+import AppliancesCatalog from './pages/AppliancesCatalog';
+import Orders from './pages/Orders';
+import MediaLibrary from './pages/MediaLibrary';
 import Settings from './pages/Settings';
 import Reports from './pages/Reports';
 import Layout from './components/Layout';
@@ -37,7 +41,7 @@ import Layout from './components/Layout';
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#1a4d7a',
+      main: '#0a0e17',
     },
     secondary: {
       main: '#00E676',
@@ -96,6 +100,7 @@ function App() {
               <Route path="checkout/success" element={<CheckoutSuccess />} />
               <Route path="contact" element={<Contact />} />
               <Route path="faqs" element={<FAQs />} />
+              <Route path="portfolio" element={<Portfolio />} />
             </Route>
 
             {/* Website Admin Login */}
@@ -121,6 +126,9 @@ function App() {
               <Route path="quotes" element={<Quotes />} />
               <Route path="quotes/:id" element={<QuoteDetail />} />
               <Route path="products" element={<Products />} />
+              <Route path="appliances" element={<AppliancesCatalog />} />
+              <Route path="orders" element={<Orders />} />
+              <Route path="media" element={<MediaLibrary />} />
               <Route path="settings" element={<Settings />} />
               <Route path="reports" element={<Reports />} />
             </Route>

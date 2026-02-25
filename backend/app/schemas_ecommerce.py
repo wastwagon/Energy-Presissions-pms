@@ -71,10 +71,24 @@ class OrderCreate(BaseModel):
     discount_amount: Optional[float] = 0.0
 
 
+class OrderItemResponse(BaseModel):
+    product_name: str
+    product_sku: Optional[str] = None
+    quantity: int
+    unit_price: float
+    total_price: float
+    
+    class Config:
+        from_attributes = True
+
+
 class OrderResponse(BaseModel):
     id: int
     order_number: str
     customer_id: Optional[int] = None
+    customer_name: Optional[str] = None
+    customer_email: Optional[str] = None
+    customer_phone: Optional[str] = None
     status: str
     payment_status: str
     subtotal: float
@@ -82,10 +96,24 @@ class OrderResponse(BaseModel):
     discount_amount: float
     total_amount: float
     shipping_address: Optional[dict] = None
+    billing_address: Optional[dict] = None
     created_at: datetime
     
     class Config:
         from_attributes = True
+
+
+class OrderDetailResponse(OrderResponse):
+    items: Optional[List[OrderItemResponse]] = None
+    
+    class Config:
+        from_attributes = True
+
+
+class OrderStatusUpdate(BaseModel):
+    status: Optional[str] = None
+    payment_status: Optional[str] = None
+    tracking_number: Optional[str] = None
 
 
 class CouponValidate(BaseModel):

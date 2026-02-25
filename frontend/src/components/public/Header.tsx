@@ -23,8 +23,10 @@ import {
   Email as EmailIcon,
   ShoppingCart as ShoppingCartIcon,
   AccountCircle as AccountCircleIcon,
+  KeyboardArrowDown as ArrowDownIcon,
 } from '@mui/icons-material';
 import { Link, useNavigate } from 'react-router-dom';
+import { colors } from '../../theme/colors';
 import { useAuth } from '../../contexts/AuthContext';
 import { useCart } from '../../contexts/CartContext';
 
@@ -33,6 +35,7 @@ const Header: React.FC = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [mobileOpen, setMobileOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [servicesMenuEl, setServicesMenuEl] = useState<null | HTMLElement>(null);
   const navigate = useNavigate();
   const { isAuthenticated, user, logout } = useAuth();
   const { cartCount } = useCart();
@@ -50,6 +53,7 @@ const Header: React.FC = () => {
         { label: 'FAQs', path: '/faqs' },
       ],
     },
+    { label: 'Portfolio', path: '/portfolio' },
     { label: 'Shop', path: '/shop' },
     { label: 'Our Products', path: '/products' },
     { label: 'Contact', path: '/contact' },
@@ -67,6 +71,13 @@ const Header: React.FC = () => {
     setAnchorEl(null);
   };
 
+  const handleServicesOpen = (e: React.MouseEvent<HTMLElement>) => {
+    setServicesMenuEl(e.currentTarget);
+  };
+  const handleServicesClose = () => {
+    setServicesMenuEl(null);
+  };
+
   const handleAdminLogin = () => {
     navigate('/pms/admin');
   };
@@ -79,9 +90,24 @@ const Header: React.FC = () => {
       <List>
         {menuItems.map((item) => (
           <ListItem key={item.label} disablePadding>
-            <ListItemButton component={Link} to={item.path} sx={{ textAlign: 'center' }}>
-              <ListItemText primary={item.label} />
-            </ListItemButton>
+            {item.submenu ? (
+              <>
+                <ListItemButton component={Link} to={item.path} sx={{ textAlign: 'center' }}>
+                  <ListItemText primary={item.label} />
+                </ListItemButton>
+                {item.submenu.map((sub) => (
+                  <ListItem key={sub.label} disablePadding sx={{ pl: 2 }}>
+                    <ListItemButton component={Link} to={sub.path} sx={{ textAlign: 'center' }}>
+                      <ListItemText primary={sub.label} secondary="" />
+                    </ListItemButton>
+                  </ListItem>
+                ))}
+              </>
+            ) : (
+              <ListItemButton component={Link} to={item.path} sx={{ textAlign: 'center' }}>
+                <ListItemText primary={item.label} />
+              </ListItemButton>
+            )}
           </ListItem>
         ))}
         <ListItem disablePadding>
@@ -98,7 +124,7 @@ const Header: React.FC = () => {
       {/* Top Bar */}
       <Box
         sx={{
-          bgcolor: '#1a4d7a',
+          bgcolor: colors.blueBlack,
           color: 'white',
           py: 1,
           display: { xs: 'none', md: 'block' },
@@ -119,9 +145,9 @@ const Header: React.FC = () => {
             <Button
               variant="contained"
               sx={{
-                bgcolor: '#00E676',
+                bgcolor: colors.green,
                 color: 'white',
-                '&:hover': { bgcolor: '#00C85F' },
+                '&:hover': { bgcolor: colors.greenDark },
                 textTransform: 'none',
                 px: 3,
               }}
@@ -190,30 +216,77 @@ const Header: React.FC = () => {
             </Box>
 
             {!isMobile && (
-              <Box sx={{ flexGrow: 1, display: 'flex', gap: 0.5, ml: 4 }}>
-                {menuItems.map((item) => (
-                  <Button
-                    key={item.label}
-                    component={Link}
-                    to={item.path}
-                    sx={{
-                      color: '#1a4d7a',
-                      textTransform: 'none',
-                      fontWeight: 600,
-                      fontSize: '0.95rem',
-                      px: 2,
-                      py: 1,
-                      borderRadius: 2,
-                      '&:hover': { 
-                        color: '#00E676',
-                        bgcolor: 'rgba(0, 230, 118, 0.05)',
-                      },
-                      transition: 'all 0.3s ease',
-                    }}
-                  >
-                    {item.label}
-                  </Button>
-                ))}
+              <Box sx={{ flexGrow: 1, display: 'flex', gap: 0.5, ml: 4, alignItems: 'center' }}>
+                {menuItems.map((item) =>
+                  item.submenu ? (
+                    <Box key={item.label}>
+                      <Button
+                        onClick={handleServicesOpen}
+                        endIcon={<ArrowDownIcon />}
+                        sx={{
+                          color: colors.blueBlack,
+                          textTransform: 'none',
+                          fontWeight: 600,
+                          fontSize: '0.95rem',
+                          px: 2,
+                          py: 1,
+                          borderRadius: 2,
+                          '&:hover': {
+                            color: colors.green,
+                            bgcolor: 'rgba(0, 230, 118, 0.05)',
+                          },
+                          transition: 'all 0.3s ease',
+                        }}
+                      >
+                        {item.label}
+                      </Button>
+                      <Menu
+                        anchorEl={servicesMenuEl}
+                        open={Boolean(servicesMenuEl)}
+                        onClose={handleServicesClose}
+                        anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+                        transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+                        sx={{ mt: 1.5 }}
+                      >
+                        <MenuItem component={Link} to={item.path} onClick={handleServicesClose}>
+                          All Services
+                        </MenuItem>
+                        {item.submenu.map((sub) => (
+                          <MenuItem
+                            key={sub.label}
+                            component={Link}
+                            to={sub.path}
+                            onClick={handleServicesClose}
+                          >
+                            {sub.label}
+                          </MenuItem>
+                        ))}
+                      </Menu>
+                    </Box>
+                  ) : (
+                    <Button
+                      key={item.label}
+                      component={Link}
+                      to={item.path}
+                      sx={{
+                        color: colors.blueBlack,
+                        textTransform: 'none',
+                        fontWeight: 600,
+                        fontSize: '0.95rem',
+                        px: 2,
+                        py: 1,
+                        borderRadius: 2,
+                        '&:hover': {
+                          color: colors.green,
+                          bgcolor: 'rgba(0, 230, 118, 0.05)',
+                        },
+                        transition: 'all 0.3s ease',
+                      }}
+                    >
+                      {item.label}
+                    </Button>
+                  )
+                )}
               </Box>
             )}
 
@@ -226,7 +299,7 @@ const Header: React.FC = () => {
                       position: 'absolute',
                       top: 4,
                       right: 4,
-                      bgcolor: '#00E676',
+                      bgcolor: colors.green,
                       color: 'white',
                       borderRadius: '50%',
                       width: 20,
@@ -252,11 +325,8 @@ const Header: React.FC = () => {
                     open={Boolean(anchorEl)}
                     onClose={handleMenuClose}
                   >
-                    <MenuItem onClick={() => { navigate('/account'); handleMenuClose(); }}>
-                      My Account
-                    </MenuItem>
                     <MenuItem onClick={() => { navigate('/pms/dashboard'); handleMenuClose(); }}>
-                      Admin Dashboard
+                      Dashboard
                     </MenuItem>
                     <MenuItem onClick={() => { logout(); handleMenuClose(); }}>
                       Logout
@@ -269,15 +339,15 @@ const Header: React.FC = () => {
                 onClick={handleAdminLogin}
                 sx={{
                   textTransform: 'none',
-                  borderColor: '#1a4d7a',
-                  borderWidth: 2,
-                  color: '#1a4d7a',
+                borderColor: colors.blueBlack,
+                borderWidth: 2,
+                color: colors.blueBlack,
                   fontWeight: 600,
                   px: 3,
                   '&:hover': {
-                    borderColor: '#1a4d7a',
+                    borderColor: colors.blueBlack,
                     borderWidth: 2,
-                    bgcolor: 'rgba(26, 77, 122, 0.08)',
+                    bgcolor: 'rgba(10, 14, 23, 0.08)',
                   },
                   transition: 'all 0.3s ease',
                 }}

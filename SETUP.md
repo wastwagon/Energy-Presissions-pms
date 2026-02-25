@@ -1,5 +1,7 @@
 # Setup Guide - Energy Precision PMS
 
+> **See also:** [LOCAL_DEVELOPMENT.md](LOCAL_DEVELOPMENT.md) for a full local dev & testing guide.
+
 ## Quick Start
 
 1. **Clone or navigate to the project directory**
@@ -25,15 +27,18 @@
    docker-compose exec backend python -m app.scripts.init_db
    ```
 
-5. **Create admin user**
+5. **Create admin user and seed data**
    ```bash
-   docker-compose exec backend python -m app.scripts.create_admin
+   docker-compose exec backend python -m app.scripts.create_default_admin
+   docker-compose exec backend python -m app.scripts.setup_bank_details
+   docker-compose exec backend python -m app.scripts.seed_ecommerce_products
    ```
 
 6. **Access the application**
-   - Frontend: http://localhost:3000
+   - Frontend: http://localhost:5000
    - Backend API: http://localhost:8000
    - API Documentation: http://localhost:8000/docs
+   - PMS Admin: http://localhost:5000/pms/admin
 
 ## Environment Variables
 

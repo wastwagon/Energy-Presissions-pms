@@ -212,10 +212,12 @@ class ProductBase(BaseModel):
     capacity_kwh: Optional[float] = None
     price_type: str
     base_price: float
+    image_url: Optional[str] = None
+    category: Optional[str] = None
 
 
 class ProductCreate(ProductBase):
-    pass
+    is_active: Optional[bool] = True
 
 
 class ProductUpdate(BaseModel):
@@ -227,6 +229,8 @@ class ProductUpdate(BaseModel):
     capacity_kwh: Optional[float] = None
     price_type: Optional[str] = None
     base_price: Optional[float] = None
+    image_url: Optional[str] = None
+    category: Optional[str] = None
     is_active: Optional[bool] = None
 
 

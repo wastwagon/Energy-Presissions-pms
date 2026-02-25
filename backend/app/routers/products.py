@@ -1,5 +1,6 @@
 from typing import List
-from fastapi import APIRouter, Depends, HTTPException, status
+from pathlib import Path
+from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.auth import get_current_active_user, require_role
@@ -17,12 +18,36 @@ async def list_products(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_user)
 ):
-    """List all products"""
-    query = db.query(Product).filter(Product.is_active == True)
+    """List all products (admin sees all including inactive; shop filters by is_active)"""
+    query = db.query(Product)
     if product_type:
         query = query.filter(Product.product_type == product_type)
     products = query.offset(skip).limit(limit).all()
     return products
+
+
+@router.post("/upload-image")
+async def upload_product_image(
+    file: UploadFile = File(...),
+    current_user: User = Depends(require_role(["admin"]))
+):
+    """Upload a product featured image (admin only). Returns the URL to use in image_url."""
+    if not file.content_type or not file.content_type.startswith("image/"):
+        raise HTTPException(status_code=400, detail="File must be an image (jpg, png, gif, webp)")
+    contents = await file.read()
+    if len(contents) > 5 * 1024 * 1024:  # 5MB max
+        raise HTTPException(status_code=400, detail="File size must be less than 5MB")
+    ext = Path(file.filename).suffix.lower() if file.filename else ".jpg"
+    if ext not in [".jpg", ".jpeg", ".png", ".gif", ".webp"]:
+        ext = ".jpg"
+    import uuid
+    filename = f"product_{uuid.uuid4().hex[:12]}{ext}"
+    static_dir = Path("static") / "products"
+    static_dir.mkdir(parents=True, exist_ok=True)
+    file_path = static_dir / filename
+    with open(file_path, "wb") as f:
+        f.write(contents)
+    return {"url": f"/static/products/{filename}"}
 
 
 @router.get("/{product_id}", response_model=ProductSchema)
