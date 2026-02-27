@@ -18,15 +18,11 @@
     "react-scripts": "5.0.1",
     "typescript": "^4.9.5"
   },
-  "overrides": {
-    "ajv": "^8.12.0"
-  },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "DISABLE_ESLINT_PLUGIN=true react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "postinstall": "cd node_modules/ajv 2>/dev/null && mkdir -p dist/compile && echo \"module.exports = require('../../lib/compile/codegen');\" > dist/compile/codegen.js || true"
+    "eject": "react-scripts eject"
   },
   "eslintConfig": {
     "extends": [

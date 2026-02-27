@@ -174,7 +174,7 @@ const AppliancesCatalog: React.FC = () => {
             </Paper>
           ) : (
             categories.map((categoryKey) => {
-              const templates = catalog[categoryKey] || [];
+              const templates = (catalog as Record<string, ApplianceTemplate[]>)[categoryKey] || [];
               const label = CATEGORY_LABELS[categoryKey] || categoryKey.replace(/_/g, ' ');
               return (
                 <Accordion key={categoryKey} defaultExpanded>

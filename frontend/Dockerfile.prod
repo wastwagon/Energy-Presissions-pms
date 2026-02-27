@@ -6,20 +6,8 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
+# Install dependencies (ajv@^8 in package.json fixes react-scripts codegen issue)
 RUN npm install --legacy-peer-deps
-
-# Fix ajv/ajv-keywords compatibility (required for react-scripts 5.0.1 build)
-RUN npm install ajv@^8.12.0 --legacy-peer-deps
-RUN cd node_modules/ajv && \
-    mkdir -p dist/compile && \
-    if [ -f "lib/compile/codegen/index.js" ]; then \
-      echo "module.exports = require('../../lib/compile/codegen');" > dist/compile/codegen.js; \
-    elif [ -f "lib/compile/codegen.js" ]; then \
-      echo "module.exports = require('../../lib/compile/codegen');" > dist/compile/codegen.js; \
-    else \
-      echo "module.exports = {};" > dist/compile/codegen.js; \
-    fi || true
 
 # Copy application code
 COPY . .

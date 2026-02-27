@@ -119,7 +119,7 @@ const Cart: React.FC = () => {
                               {getImageUrl(item.product?.image_url) ? (
                                 <img
                                   src={getImageUrl(item.product?.image_url)}
-                                  alt={item.product.name}
+                                  alt={item.product?.name || 'Product'}
                                   style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                                 />
                               ) : (
