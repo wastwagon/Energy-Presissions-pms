@@ -1,13 +1,14 @@
 """
 Stock management service.
-Deducts stock when project status → ACCEPTED, restores when → REJECTED.
+Deducts stock when project status → ACCEPTED and when e-commerce order payment completes.
+Restores stock when project status ACCEPTED → REJECTED.
 """
 import math
 from typing import List, Tuple, Optional
 from sqlalchemy.orm import Session
 from app.models import (
-    Project, Quote, QuoteItem, Product,
-    ProjectStatus, QuoteStatus,
+    Quote, QuoteItem, Product,
+    QuoteStatus,
     StockMovement, StockMovementType
 )
 
@@ -163,3 +164,49 @@ def restore_stock_on_project_reject(
         db.add(restore_mov)
 
     return True
+
+
+def deduct_stock_on_order_paid(db: Session, order_id: int) -> bool:
+    """
+    Deduct stock when an e-commerce order payment is completed.
+    Idempotent: skips if already deducted for this order.
+    Returns True if any stock was deducted.
+    """
+    from app.models_ecommerce import Order
+
+    existing = db.query(StockMovement).filter(
+        StockMovement.order_id == order_id,
+        StockMovement.movement_type == StockMovementType.DEDUCTION_ECOM_ORDER
+    ).first()
+    if existing:
+        return False  # Already deducted for this order
+
+    order = db.query(Order).filter(Order.id == order_id).first()
+    if not order or not order.items:
+        return False
+
+    deducted = False
+    for item in order.items:
+        if not item.product_id:
+            continue
+        product = db.query(Product).filter(Product.id == item.product_id).first()
+        if not product or not product.manage_stock:
+            continue
+
+        qty = max(1, int(math.ceil(item.quantity)))
+        product.stock_quantity = product.stock_quantity - qty
+        product.in_stock = product.stock_quantity > 0
+
+        movement = StockMovement(
+            product_id=product.id,
+            quantity=-qty,
+            movement_type=StockMovementType.DEDUCTION_ECOM_ORDER,
+            project_id=None,
+            quote_id=None,
+            order_id=order_id,
+            created_by=None
+        )
+        db.add(movement)
+        deducted = True
+
+    return deducted

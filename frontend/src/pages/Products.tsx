@@ -229,7 +229,7 @@ const Products: React.FC = () => {
                       variant="outlined"
                     />
                   ) : (
-                    <Typography variant="body2" color="text.secondary">—</Typography>
+                    <Typography variant="body2">{product.stock_quantity ?? 0}</Typography>
                   )}
                 </TableCell>
                 <TableCell>{formatPriceType(product.price_type)}</TableCell>
@@ -405,6 +405,19 @@ const Products: React.FC = () => {
             <MenuItem value="battery">Batteries</MenuItem>
             <MenuItem value="Accessories">Accessories</MenuItem>
           </TextField>
+          <TextField
+            fullWidth
+            label="Stock Quantity"
+            type="number"
+            inputProps={{ min: 0 }}
+            value={formData.stock_quantity ?? 0}
+            onChange={(e) => {
+              const val = parseInt(e.target.value, 10);
+              setFormData({ ...formData, stock_quantity: isNaN(val) ? 0 : Math.max(0, val) });
+            }}
+            margin="normal"
+            helperText="Current quantity on hand. Shown for all products."
+          />
           <FormControlLabel
             control={
               <Switch
@@ -413,24 +426,9 @@ const Products: React.FC = () => {
                 color="primary"
               />
             }
-            label="Track stock (deduct when project accepted)"
+            label="Track stock (deduct when project accepted or online order paid)"
             sx={{ mt: 2 }}
           />
-          {formData.manage_stock && (
-            <TextField
-              fullWidth
-              label="Stock Quantity"
-              type="number"
-              inputProps={{ min: 0 }}
-              value={formData.stock_quantity ?? 0}
-              onChange={(e) => {
-                const val = parseInt(e.target.value, 10);
-                setFormData({ ...formData, stock_quantity: isNaN(val) ? 0 : Math.max(0, val) });
-              }}
-              margin="normal"
-              helperText="Stock is deducted when a project with this product in its quote is accepted"
-            />
-          )}
           <FormControlLabel
             control={
               <Switch

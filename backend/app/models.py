@@ -438,19 +438,21 @@ class QuoteItem(Base):
 class StockMovementType(str, enum.Enum):
     DEDUCTION_ON_ACCEPT = "deduction_on_accept"
     RESTORE_ON_REJECT = "restore_on_reject"
+    DEDUCTION_ECOM_ORDER = "deduction_ecom_order"
 
 
 class StockMovement(Base):
-    """Audit trail for stock changes tied to project acceptance/rejection"""
+    """Audit trail for stock changes (project acceptance/rejection and e-commerce orders)"""
     __tablename__ = "stock_movements"
 
     id = Column(Integer, primary_key=True, index=True)
     product_id = Column(Integer, ForeignKey("products.id"), nullable=False)
     quantity = Column(Integer, nullable=False)  # Negative = deduction, positive = restore
     movement_type = Column(SQLEnum(StockMovementType), nullable=False)
-    project_id = Column(Integer, ForeignKey("projects.id"), nullable=False)
-    quote_id = Column(Integer, ForeignKey("quotes.id"), nullable=False)
+    project_id = Column(Integer, ForeignKey("projects.id"), nullable=True)
+    quote_id = Column(Integer, ForeignKey("quotes.id"), nullable=True)
     quote_item_id = Column(Integer, ForeignKey("quote_items.id"), nullable=True)
+    order_id = Column(Integer, ForeignKey("orders.id"), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     created_by = Column(Integer, ForeignKey("users.id"), nullable=True)
 

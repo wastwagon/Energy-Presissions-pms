@@ -94,6 +94,11 @@ async def paystack_webhook(
             order.status = "processing"
             order.payment_reference = reference
             order.paid_at = datetime.now()
+
+            # Deduct stock for products with manage_stock
+            from app.services.stock import deduct_stock_on_order_paid
+            deduct_stock_on_order_paid(db, order.id)
+
             db.commit()
             
             # Send confirmation email
