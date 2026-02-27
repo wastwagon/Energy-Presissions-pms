@@ -114,13 +114,42 @@ class ProjectUpdate(BaseModel):
     status: Optional[ProjectStatus] = None
 
 
+class ProjectStatusUpdateCreate(BaseModel):
+    status: ProjectStatus
+    message: str
+
+
+class ProjectStatusUpdate(BaseModel):
+    id: int
+    project_id: int
+    status: ProjectStatus
+    message: str
+    updated_by: int
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class ProjectCreator(BaseModel):
+    """Minimal user info for project creator display"""
+    id: int
+    full_name: str
+    email: str
+
+    class Config:
+        from_attributes = True
+
+
 class Project(ProjectBase):
     id: int
     created_by: int
     created_at: datetime
     updated_at: Optional[datetime] = None
     customer: Optional[Customer] = None
-    
+    created_by_user: Optional[ProjectCreator] = None
+    status_updates: Optional[List["ProjectStatusUpdate"]] = None
+
     class Config:
         from_attributes = True
 

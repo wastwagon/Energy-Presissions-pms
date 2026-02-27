@@ -1,12 +1,14 @@
-from typing import List
+from typing import List, Dict
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import StreamingResponse
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from app.database import get_db
 from app.auth import get_current_active_user
-from app.models import User, Project, Customer
-from app.schemas import Project as ProjectSchema, ProjectCreate, ProjectUpdate
+from app.models import User, Project, Customer, ProjectStatusUpdate
+from app.schemas import Project as ProjectSchema, ProjectCreate, ProjectUpdate, ProjectStatusUpdateCreate
 from app.services.sizing_pdf_generator import generate_sizing_report_pdf
+from app.project_status_messages import PROJECT_STATUS_MESSAGES
+from app.models import ProjectStatus
 import uuid
 
 router = APIRouter(prefix="/projects", tags=["projects"])
@@ -21,11 +23,22 @@ async def list_projects(
     current_user: User = Depends(get_current_active_user)
 ):
     """List all projects"""
-    query = db.query(Project)
+    query = db.query(Project).options(
+        joinedload(Project.customer),
+        joinedload(Project.created_by_user)
+    )
     if customer_id:
         query = query.filter(Project.customer_id == customer_id)
     projects = query.offset(skip).limit(limit).all()
     return projects
+
+
+@router.get("/status-messages", response_model=Dict[str, List[str]])
+async def get_status_messages(
+    current_user: User = Depends(get_current_active_user)
+):
+    """Get predefined status update messages for each project status"""
+    return {s.value: [m for m in msgs] for s, msgs in PROJECT_STATUS_MESSAGES.items()}
 
 
 @router.get("/{project_id}", response_model=ProjectSchema)
@@ -35,7 +48,11 @@ async def get_project(
     current_user: User = Depends(get_current_active_user)
 ):
     """Get a specific project"""
-    project = db.query(Project).filter(Project.id == project_id).first()
+    project = db.query(Project).options(
+        joinedload(Project.customer),
+        joinedload(Project.created_by_user),
+        joinedload(Project.status_updates)
+    ).filter(Project.id == project_id).first()
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
     return project
@@ -68,7 +85,12 @@ async def create_project(
     db.add(db_project)
     db.commit()
     db.refresh(db_project)
-    return db_project
+    # Reload with relationships for response
+    project = db.query(Project).options(
+        joinedload(Project.customer),
+        joinedload(Project.created_by_user)
+    ).filter(Project.id == db_project.id).first()
+    return project
 
 
 @router.put("/{project_id}", response_model=ProjectSchema)
@@ -79,7 +101,11 @@ async def update_project(
     current_user: User = Depends(get_current_active_user)
 ):
     """Update a project"""
-    project = db.query(Project).filter(Project.id == project_id).first()
+    project = db.query(Project).options(
+        joinedload(Project.customer),
+        joinedload(Project.created_by_user),
+        joinedload(Project.status_updates)
+    ).filter(Project.id == project_id).first()
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
     
@@ -87,6 +113,35 @@ async def update_project(
     for field, value in update_data.items():
         setattr(project, field, value)
     
+    db.commit()
+    db.refresh(project)
+    return project
+
+
+@router.patch("/{project_id}/status", response_model=ProjectSchema)
+async def update_project_status(
+    project_id: int,
+    data: ProjectStatusUpdateCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
+    """Update project status with a message (tracks milestone achievement)"""
+    project = db.query(Project).options(
+        joinedload(Project.customer),
+        joinedload(Project.created_by_user),
+        joinedload(Project.status_updates)
+    ).filter(Project.id == project_id).first()
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    project.status = data.status
+    status_update = ProjectStatusUpdate(
+        project_id=project_id,
+        status=data.status,
+        message=data.message,
+        updated_by=current_user.id
+    )
+    db.add(status_update)
     db.commit()
     db.refresh(project)
     return project

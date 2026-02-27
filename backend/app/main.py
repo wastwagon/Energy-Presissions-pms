@@ -5,19 +5,76 @@ from fastapi.staticfiles import StaticFiles
 from fastapi import UploadFile, File
 from pathlib import Path
 import os
+import logging
+from contextlib import asynccontextmanager
 from app.database import engine, Base
 # Import e-commerce models to register them
 from app import models_ecommerce
-from app.routers import auth, customers, projects, appliances, sizing, products, quotes, settings, reports, dashboard
+from app.routers import auth, customers, projects, appliances, sizing, products, quotes, settings, reports, dashboard, users
 from app.routers import ecommerce, payments, media, newsletter
 
-# Create database tables
+logger = logging.getLogger(__name__)
+
+
+def _run_migrations():
+    """Run Alembic migrations on startup"""
+    try:
+        from alembic import command
+        from alembic.config import Config
+        alembic_cfg = Config(str(Path(__file__).parent.parent / "alembic.ini"))
+        command.upgrade(alembic_cfg, "head")
+        logger.info("Database migrations applied successfully")
+    except Exception as e:
+        if "already exists" in str(e) or "DuplicateColumn" in str(e):
+            try:
+                from alembic import command
+                from alembic.config import Config
+                alembic_cfg = Config(str(Path(__file__).parent.parent / "alembic.ini"))
+                command.stamp(alembic_cfg, "head")
+                logger.info("Database stamped to head (migrations already applied)")
+            except Exception:
+                pass
+        else:
+            logger.warning("Migration skipped or failed: %s", e)
+
+
+def _run_init_and_seed():
+    """Run init_db and seed scripts (idempotent)"""
+    try:
+        from app.scripts.init_db import init_settings, init_peak_sun_hours
+        init_settings()
+        init_peak_sun_hours()
+        logger.info("Init DB (settings, peak sun hours) complete")
+    except Exception as e:
+        logger.warning("Init DB skipped: %s", e)
+    if os.environ.get("AUTO_SEED", "true").lower() in ("true", "1", "yes"):
+        try:
+            import subprocess
+            import sys
+            backend_dir = Path(__file__).parent.parent
+            subprocess.run([sys.executable, "scripts/seed_production.py"], cwd=str(backend_dir), check=False, capture_output=True)
+            subprocess.run([sys.executable, "-m", "app.scripts.seed_ecommerce_products"], cwd=str(backend_dir), check=False, capture_output=True)
+            logger.info("Seed scripts completed")
+        except Exception as e:
+            logger.warning("Seed skipped: %s", e)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Run migrations and seed on startup"""
+    _run_migrations()
+    _run_init_and_seed()
+    yield
+
+
+# Create database tables (fallback if migrations don't create them)
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="Energy Precision PMS API",
     description="Solar Sizing, Load Analysis, and Quotation System",
-    version="1.0.0"
+    version="1.0.0",
+    lifespan=lifespan
 )
 
 # CORS configuration - env CORS_ORIGINS overrides; else use defaults (localhost + production)
@@ -69,6 +126,7 @@ app.add_middleware(SecurityHeadersMiddleware)
 app.include_router(auth.router, prefix="/api")
 app.include_router(customers.router, prefix="/api")
 app.include_router(projects.router, prefix="/api")
+app.include_router(users.router, prefix="/api")
 app.include_router(appliances.router, prefix="/api")
 app.include_router(sizing.router, prefix="/api")
 app.include_router(products.router, prefix="/api")

@@ -200,6 +200,21 @@ export interface Customer {
   updated_at?: string;
 }
 
+export interface ProjectCreator {
+  id: number;
+  full_name: string;
+  email: string;
+}
+
+export interface ProjectStatusUpdate {
+  id: number;
+  project_id: number;
+  status: ProjectStatus;
+  message: string;
+  updated_by: number;
+  created_at: string;
+}
+
 export interface Project {
   id: number;
   customer_id: number;
@@ -211,6 +226,8 @@ export interface Project {
   created_at: string;
   updated_at?: string;
   customer?: Customer;
+  created_by_user?: ProjectCreator;
+  status_updates?: ProjectStatusUpdate[];
 }
 
 export interface Appliance {

@@ -15,10 +15,16 @@ import {
   Tab,
   Avatar,
   IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  MenuItem,
+  Chip,
 } from '@mui/material';
-import { Save as SaveIcon, CloudUpload as UploadIcon } from '@mui/icons-material';
+import { Save as SaveIcon, CloudUpload as UploadIcon, PersonAdd as PersonAddIcon } from '@mui/icons-material';
 import api from '../services/api';
-import { Setting } from '../types';
+import { Setting, User, UserRole } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 
 const Settings: React.FC = () => {
@@ -29,10 +35,14 @@ const Settings: React.FC = () => {
   const [editedSettings, setEditedSettings] = useState<Record<string, string>>({});
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [users, setUsers] = useState<User[]>([]);
+  const [userDialogOpen, setUserDialogOpen] = useState(false);
+  const [userForm, setUserForm] = useState({ email: '', full_name: '', password: '', role: UserRole.SALES });
 
   useEffect(() => {
     if (isAdmin) {
       fetchSettings();
+      fetchUsers();
       // Load logo preview
       const logoUrl = '/logo.jpg';
       const img = new Image();
@@ -41,6 +51,15 @@ const Settings: React.FC = () => {
       img.src = logoUrl;
     }
   }, [isAdmin]);
+
+  const fetchUsers = async () => {
+    try {
+      const response = await api.get('/users/');
+      setUsers(response.data);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+    }
+  };
 
   const fetchSettings = async () => {
     try {
@@ -96,6 +115,26 @@ const Settings: React.FC = () => {
     }
   };
 
+  const handleCreateUser = async () => {
+    if (!userForm.email || !userForm.full_name || !userForm.password) {
+      alert('Please fill in all required fields');
+      return;
+    }
+    if (userForm.password.length < 6) {
+      alert('Password must be at least 6 characters');
+      return;
+    }
+    try {
+      await api.post('/auth/register', userForm);
+      fetchUsers();
+      setUserDialogOpen(false);
+      setUserForm({ email: '', full_name: '', password: '', role: UserRole.SALES });
+    } catch (error: any) {
+      console.error('Error creating user:', error);
+      alert(error.response?.data?.detail || 'Failed to create user');
+    }
+  };
+
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -132,6 +171,7 @@ const Settings: React.FC = () => {
         <Tab label="Sizing Factors" />
         <Tab label="Pricing" />
         <Tab label="Other" />
+        <Tab label="Users" />
       </Tabs>
 
       {tab === 0 && (
@@ -352,6 +392,103 @@ const Settings: React.FC = () => {
               Save All Settings
             </Button>
           </Box>
+        </>
+      )}
+
+      {tab === 3 && (
+        <>
+          <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+            <Typography variant="h6">Team Members</Typography>
+            <Button
+              variant="contained"
+              startIcon={<PersonAddIcon />}
+              onClick={() => {
+                setUserForm({ email: '', full_name: '', password: '', role: UserRole.SALES });
+                setUserDialogOpen(true);
+              }}
+            >
+              Add User
+            </Button>
+          </Box>
+          <TableContainer component={Paper}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Name</TableCell>
+                  <TableCell>Email</TableCell>
+                  <TableCell>Role</TableCell>
+                  <TableCell>Status</TableCell>
+                  <TableCell>Created</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {users.map((u) => (
+                  <TableRow key={u.id}>
+                    <TableCell>{u.full_name}</TableCell>
+                    <TableCell>{u.email}</TableCell>
+                    <TableCell>
+                      <Chip label={u.role} size="small" color={u.role === 'admin' ? 'primary' : 'default'} />
+                    </TableCell>
+                    <TableCell>
+                      <Chip label={u.is_active ? 'Active' : 'Inactive'} size="small" color={u.is_active ? 'success' : 'default'} />
+                    </TableCell>
+                    <TableCell>{new Date(u.created_at).toLocaleDateString()}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+
+          <Dialog open={userDialogOpen} onClose={() => setUserDialogOpen(false)} maxWidth="sm" fullWidth>
+            <DialogTitle>Create New User</DialogTitle>
+            <DialogContent>
+              <TextField
+                fullWidth
+                label="Full Name"
+                value={userForm.full_name}
+                onChange={(e) => setUserForm({ ...userForm, full_name: e.target.value })}
+                margin="normal"
+                required
+              />
+              <TextField
+                fullWidth
+                label="Email"
+                type="email"
+                value={userForm.email}
+                onChange={(e) => setUserForm({ ...userForm, email: e.target.value })}
+                margin="normal"
+                required
+              />
+              <TextField
+                fullWidth
+                label="Password"
+                type="password"
+                value={userForm.password}
+                onChange={(e) => setUserForm({ ...userForm, password: e.target.value })}
+                margin="normal"
+                required
+                helperText="Minimum 6 characters"
+              />
+              <TextField
+                fullWidth
+                select
+                label="Role"
+                value={userForm.role}
+                onChange={(e) => setUserForm({ ...userForm, role: e.target.value as UserRole })}
+                margin="normal"
+              >
+                <MenuItem value={UserRole.ADMIN}>Admin</MenuItem>
+                <MenuItem value={UserRole.SALES}>Sales</MenuItem>
+                <MenuItem value={UserRole.VIEWER}>Viewer</MenuItem>
+              </TextField>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => setUserDialogOpen(false)}>Cancel</Button>
+              <Button variant="contained" onClick={handleCreateUser} disabled={!userForm.email || !userForm.full_name || !userForm.password}>
+                Create User
+              </Button>
+            </DialogActions>
+          </Dialog>
         </>
       )}
     </Box>

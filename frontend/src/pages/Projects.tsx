@@ -112,6 +112,7 @@ const Projects: React.FC = () => {
               <TableCell>Customer</TableCell>
               <TableCell>System Type</TableCell>
               <TableCell>Status</TableCell>
+              <TableCell>Created By</TableCell>
               <TableCell>Created</TableCell>
             </TableRow>
           </TableHead>
@@ -134,6 +135,7 @@ const Projects: React.FC = () => {
                     size="small"
                   />
                 </TableCell>
+                <TableCell>{project.created_by_user?.full_name || '-'}</TableCell>
                 <TableCell>{new Date(project.created_at).toLocaleDateString()}</TableCell>
               </TableRow>
             ))}

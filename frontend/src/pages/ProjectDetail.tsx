@@ -34,6 +34,8 @@ import {
   Chip,
   Autocomplete,
   CircularProgress,
+  Select,
+  InputLabel,
 } from '@mui/material';
 import {
   Delete as DeleteIcon,
@@ -53,6 +55,7 @@ import {
   CheckCircle as CheckCircleIcon,
   Print as PrintIcon,
   Download as DownloadIcon,
+  Update as UpdateIcon,
 } from '@mui/icons-material';
 import api from '../services/api';
 import {
@@ -64,6 +67,7 @@ import {
   PowerUnit,
   SizingResult,
   SystemType,
+  ProjectStatus,
 } from '../types';
 
 const ProjectDetail: React.FC = () => {
@@ -113,6 +117,9 @@ const ProjectDetail: React.FC = () => {
     backup_hours: 0,
     essential_load_percent: 50,
   });
+  const [statusDialogOpen, setStatusDialogOpen] = useState(false);
+  const [statusMessages, setStatusMessages] = useState<Record<string, string[]>>({});
+  const [statusUpdateForm, setStatusUpdateForm] = useState<{ status: ProjectStatus; message: string }>({ status: ProjectStatus.NEW, message: '' });
 
   useEffect(() => {
     if (id) {
@@ -124,7 +131,40 @@ const ProjectDetail: React.FC = () => {
     fetchApplianceCatalog();
     fetchApplianceCategories();
     fetchPeakSunHours();
+    fetchStatusMessages();
   }, [id]);
+
+  const fetchStatusMessages = async () => {
+    try {
+      const response = await api.get('/projects/status-messages');
+      setStatusMessages(response.data);
+    } catch (error) {
+      console.error('Error fetching status messages:', error);
+    }
+  };
+
+  const handleOpenStatusDialog = () => {
+    setStatusUpdateForm({
+      status: project?.status || ProjectStatus.NEW,
+      message: (statusMessages[project?.status || 'new'] || [])[0] || '',
+    });
+    setStatusDialogOpen(true);
+  };
+
+  const handleUpdateProjectStatus = async () => {
+    if (!id || !statusUpdateForm.message.trim()) {
+      alert('Please select or enter a status message');
+      return;
+    }
+    try {
+      await api.patch(`/projects/${id}/status`, statusUpdateForm);
+      fetchProject();
+      setStatusDialogOpen(false);
+    } catch (error: any) {
+      console.error('Error updating status:', error);
+      alert(error.response?.data?.detail || 'Failed to update status');
+    }
+  };
 
   const fetchDiversityFactor = async () => {
     try {
@@ -649,18 +689,107 @@ const ProjectDetail: React.FC = () => {
           </Typography>
           <Typography variant="body2" color="text.secondary" gutterBottom>
             Reference: {project.reference_code} | Customer: {project.customer?.name}
+            {project.created_by_user && ` | Created by: ${project.created_by_user.full_name}`}
           </Typography>
         </Box>
-        {sizingResult && (
-          <Button
-            variant="contained"
-            startIcon={<DescriptionIcon />}
-            onClick={handleCreateQuote}
-          >
-            Create Quote
-          </Button>
-        )}
+        <Box display="flex" alignItems="center" gap={2}>
+          <Box display="flex" alignItems="center" gap={1}>
+            <Chip
+              label={project.status?.toUpperCase() || 'NEW'}
+              color={
+                project.status === 'installed' || project.status === 'accepted' ? 'success' :
+                project.status === 'rejected' ? 'error' :
+                project.status === 'quoted' ? 'primary' : 'default'
+              }
+              size="medium"
+            />
+            <Button
+              variant="outlined"
+              size="small"
+              startIcon={<UpdateIcon />}
+              onClick={handleOpenStatusDialog}
+            >
+              Update Status
+            </Button>
+          </Box>
+          {sizingResult && (
+            <Button
+              variant="contained"
+              startIcon={<DescriptionIcon />}
+              onClick={handleCreateQuote}
+            >
+              Create Quote
+            </Button>
+          )}
+        </Box>
       </Box>
+
+      {project.status_updates && project.status_updates.length > 0 && (
+        <Paper sx={{ p: 2, mb: 2, bgcolor: 'grey.50' }}>
+          <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+            Recent Status Updates
+          </Typography>
+          {project.status_updates.slice(0, 5).map((su) => (
+            <Typography key={su.id} variant="body2" sx={{ mb: 0.5 }}>
+              • {su.message} <Typography component="span" variant="caption" color="text.secondary">
+                ({new Date(su.created_at).toLocaleString()})
+              </Typography>
+            </Typography>
+          ))}
+        </Paper>
+      )}
+
+      <Dialog open={statusDialogOpen} onClose={() => setStatusDialogOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>Update Project Status</DialogTitle>
+        <DialogContent>
+          <FormControl fullWidth sx={{ mt: 2, mb: 2 }}>
+            <InputLabel>Status</InputLabel>
+            <Select
+              value={statusUpdateForm.status}
+              label="Status"
+              onChange={(e) => {
+                const s = e.target.value as ProjectStatus;
+                const msgs = statusMessages[s] || [];
+                setStatusUpdateForm({ status: s, message: msgs[0] || '' });
+              }}
+            >
+              <MenuItem value={ProjectStatus.NEW}>NEW</MenuItem>
+              <MenuItem value={ProjectStatus.QUOTED}>QUOTED</MenuItem>
+              <MenuItem value={ProjectStatus.ACCEPTED}>ACCEPTED</MenuItem>
+              <MenuItem value={ProjectStatus.REJECTED}>REJECTED</MenuItem>
+              <MenuItem value={ProjectStatus.INSTALLED}>INSTALLED</MenuItem>
+            </Select>
+          </FormControl>
+          <Typography variant="subtitle2" sx={{ mb: 1 }}>Predefined messages (select to use)</Typography>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2 }}>
+            {(statusMessages[statusUpdateForm.status] || []).map((msg) => (
+              <Chip
+                key={msg}
+                label={msg}
+                onClick={() => setStatusUpdateForm({ ...statusUpdateForm, message: msg })}
+                color={statusUpdateForm.message === msg ? 'primary' : 'default'}
+                variant={statusUpdateForm.message === msg ? 'filled' : 'outlined'}
+                sx={{ maxWidth: '100%' }}
+              />
+            ))}
+          </Box>
+          <TextField
+            fullWidth
+            label="Status message (required)"
+            value={statusUpdateForm.message}
+            onChange={(e) => setStatusUpdateForm({ ...statusUpdateForm, message: e.target.value })}
+            placeholder="Select a predefined message above or type your own..."
+            multiline
+            rows={2}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setStatusDialogOpen(false)}>Cancel</Button>
+          <Button variant="contained" onClick={handleUpdateProjectStatus} disabled={!statusUpdateForm.message?.trim()}>
+            Update Status
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       <Tabs value={tab} onChange={(_, newValue) => setTab(newValue)} sx={{ mt: 3 }}>
         <Tab label="Load Analysis" />

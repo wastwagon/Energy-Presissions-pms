@@ -269,6 +269,23 @@ class Project(Base):
     appliances = relationship("Appliance", back_populates="project", cascade="all, delete-orphan")
     sizing_result = relationship("SizingResult", back_populates="project", uselist=False, cascade="all, delete-orphan")
     quotes = relationship("Quote", back_populates="project", cascade="all, delete-orphan")
+    status_updates = relationship("ProjectStatusUpdate", back_populates="project", cascade="all, delete-orphan")
+
+
+class ProjectStatusUpdate(Base):
+    """Tracks project status changes with messages for milestone achievement"""
+    __tablename__ = "project_status_updates"
+
+    id = Column(Integer, primary_key=True, index=True)
+    project_id = Column(Integer, ForeignKey("projects.id"), nullable=False)
+    status = Column(SQLEnum(ProjectStatus), nullable=False)
+    message = Column(Text, nullable=False)
+    updated_by = Column(Integer, ForeignKey("users.id"), nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    # Relationships
+    project = relationship("Project", back_populates="status_updates")
+    updated_by_user = relationship("User", foreign_keys=[updated_by])
 
 
 class Appliance(Base):
