@@ -55,6 +55,13 @@ class CustomerBase(BaseModel):
     customer_type: CustomerType = CustomerType.RESIDENTIAL
     notes: Optional[str] = None
 
+    @field_validator("email", mode="before")
+    @classmethod
+    def empty_to_none(cls, v):
+        if v == "" or v is None:
+            return None
+        return v
+
 
 class CustomerCreate(CustomerBase):
     pass
@@ -64,6 +71,13 @@ class CustomerUpdate(BaseModel):
     name: Optional[str] = None
     phone: Optional[str] = None
     email: Optional[EmailStr] = None
+
+    @field_validator("email", mode="before")
+    @classmethod
+    def empty_to_none(cls, v):
+        if v == "" or v is None:
+            return None
+        return v
     address: Optional[str] = None
     city: Optional[str] = None
     country: Optional[str] = None
