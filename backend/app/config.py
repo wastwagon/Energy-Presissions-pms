@@ -28,6 +28,7 @@ class Settings(BaseSettings):
     COMPANY_ADDRESS: Optional[str] = None
     COMPANY_PHONE: Optional[str] = None
     COMPANY_EMAIL: Optional[str] = None
+    FRONTEND_URL: str = "https://energyprecisions.com"  # For Paystack callback; use http://localhost:5000 locally
     
     class Config:
         env_file = ".env"

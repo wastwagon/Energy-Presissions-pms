@@ -210,6 +210,7 @@ const Dashboard: React.FC = () => {
         {statCards.map((stat) => (
           <Grid item xs={12} sm={6} md={3} key={stat.title}>
             <Paper
+              elevation={0}
               sx={{
                 p: 3,
                 display: 'flex',
@@ -217,18 +218,21 @@ const Dashboard: React.FC = () => {
                 alignItems: 'center',
                 backgroundColor: stat.color,
                 color: 'white',
-                transition: 'transform 0.2s',
+                borderRadius: 2,
+                border: '1px solid rgba(255,255,255,0.1)',
+                boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+                transition: 'all 0.3s ease',
                 '&:hover': {
-                  transform: 'translateY(-4px)',
-                  boxShadow: 4,
+                  transform: 'translateY(-6px)',
+                  boxShadow: '0 12px 40px rgba(0,0,0,0.15)',
                 },
               }}
             >
-              <Box sx={{ mb: 2, fontSize: 48 }}>{stat.icon}</Box>
-              <Typography variant="h5" component="div" sx={{ fontWeight: 'bold', textAlign: 'center' }}>
+              <Box sx={{ mb: 2, fontSize: 48, opacity: 0.95 }}>{stat.icon}</Box>
+              <Typography variant="h5" component="div" sx={{ fontWeight: 700, textAlign: 'center', letterSpacing: '-0.02em' }}>
                 {stat.value}
               </Typography>
-              <Typography variant="body2" sx={{ mt: 1, textAlign: 'center' }}>
+              <Typography variant="body2" sx={{ mt: 1, textAlign: 'center', opacity: 0.95 }}>
                 {stat.title}
               </Typography>
             </Paper>
@@ -238,8 +242,8 @@ const Dashboard: React.FC = () => {
 
       {/* Recent Quotes Section */}
       {stats.recent_quotes && stats.recent_quotes.length > 0 && (
-        <Card sx={{ mt: 4 }}>
-          <CardContent>
+        <Card sx={{ mt: 4, borderRadius: 2, boxShadow: '0 4px 20px rgba(0,0,0,0.06)' }}>
+          <CardContent sx={{ p: 3 }}>
             <Typography variant="h6" gutterBottom>
               Recent Quotes
             </Typography>

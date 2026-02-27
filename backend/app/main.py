@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi import UploadFile, File
 from pathlib import Path
@@ -8,7 +9,7 @@ from app.database import engine, Base
 # Import e-commerce models to register them
 from app import models_ecommerce
 from app.routers import auth, customers, projects, appliances, sizing, products, quotes, settings, reports, dashboard
-from app.routers import ecommerce, payments, media
+from app.routers import ecommerce, payments, media, newsletter
 
 # Create database tables
 Base.metadata.create_all(bind=engine)
@@ -50,6 +51,20 @@ if cors_origin_regex:
 
 app.add_middleware(CORSMiddleware, allow_origins=cors_origins, **cors_kwargs)
 
+
+class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+    """Add security headers to all responses"""
+    async def dispatch(self, request, call_next):
+        response = await call_next(request)
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-Frame-Options"] = "DENY"
+        response.headers["X-XSS-Protection"] = "1; mode=block"
+        response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+        return response
+
+
+app.add_middleware(SecurityHeadersMiddleware)
+
 # Include routers
 app.include_router(auth.router, prefix="/api")
 app.include_router(customers.router, prefix="/api")
@@ -64,6 +79,7 @@ app.include_router(dashboard.router, prefix="/api")
 app.include_router(ecommerce.router)  # E-commerce routes (already has /api/ecommerce prefix)
 app.include_router(payments.router)  # Payment routes (already has /api/payments prefix)
 app.include_router(media.router, prefix="/api")
+app.include_router(newsletter.router)
 
 # Create static directory if it doesn't exist
 static_dir = Path("static")

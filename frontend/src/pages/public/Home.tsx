@@ -207,6 +207,7 @@ const Home: React.FC = () => {
                   component="img"
                   src="/website_images/remove-bg3.png"
                   alt="Energy Precisions Solar Installation"
+                  loading="lazy"
                   sx={{
                     width: '100%',
                     height: 'auto',
@@ -380,6 +381,7 @@ const Home: React.FC = () => {
                       component="img"
                       image={service.image}
                       alt={service.title}
+                      loading="lazy"
                       sx={{
                         height: '100%',
                         objectFit: 'cover',

@@ -55,7 +55,6 @@ const Header: React.FC = () => {
     },
     { label: 'Portfolio', path: '/portfolio' },
     { label: 'Shop', path: '/shop' },
-    { label: 'Our Products', path: '/products' },
     { label: 'Contact', path: '/contact' },
   ];
 
@@ -121,25 +120,30 @@ const Header: React.FC = () => {
 
   return (
     <>
-      {/* Top Bar */}
+      {/* Top Bar - visible on all screens for mobile-first CTA */}
       <Box
         sx={{
           bgcolor: colors.blueBlack,
           color: 'white',
           py: 1,
-          display: { xs: 'none', md: 'block' },
         }}
       >
         <Container maxWidth="xl">
-          <Box display="flex" justifyContent="space-between" alignItems="center">
-            <Box display="flex" gap={3}>
-              <Box display="flex" alignItems="center" gap={1}>
+          <Box
+            display="flex"
+            flexDirection={{ xs: 'column', md: 'row' }}
+            justifyContent="space-between"
+            alignItems={{ xs: 'center', md: 'center' }}
+            gap={{ xs: 1, md: 0 }}
+          >
+            <Box display="flex" flexWrap="wrap" gap={{ xs: 1.5, md: 3 }} justifyContent="center">
+              <Box component="a" href="tel:+233533611611" display="flex" alignItems="center" gap={1} sx={{ color: 'inherit', textDecoration: 'none' }}>
                 <PhoneIcon fontSize="small" />
                 <Typography variant="body2">+233 533 611 611</Typography>
               </Box>
-              <Box display="flex" alignItems="center" gap={1}>
+              <Box component="a" href="mailto:info@energyprecisions.com" display="flex" alignItems="center" gap={1} sx={{ color: 'inherit', textDecoration: 'none' }}>
                 <EmailIcon fontSize="small" />
-                <Typography variant="body2">info@energyprecisions.com</Typography>
+                <Typography variant="body2" sx={{ display: { xs: 'none', sm: 'block' } }}>info@energyprecisions.com</Typography>
               </Box>
             </Box>
             <Button
@@ -150,11 +154,12 @@ const Header: React.FC = () => {
                 '&:hover': { bgcolor: colors.greenDark },
                 textTransform: 'none',
                 px: 3,
+                fontWeight: 600,
               }}
               component={Link}
               to="/contact?action=quote"
             >
-              REQUEST A QUOTE
+              Request a Quote
             </Button>
           </Box>
         </Container>
