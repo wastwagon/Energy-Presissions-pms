@@ -9,7 +9,8 @@ COPY package*.json ./
 # Install dependencies
 RUN npm install --legacy-peer-deps
 
-# Fix ajv-keywords compatibility issue
+# Fix ajv/ajv-keywords compatibility (required for react-scripts 5.0.1 build)
+RUN npm install ajv@^8.12.0 --legacy-peer-deps
 RUN cd node_modules/ajv && \
     mkdir -p dist/compile && \
     if [ -f "lib/compile/codegen/index.js" ]; then \
