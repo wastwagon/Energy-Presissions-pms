@@ -24,9 +24,9 @@ import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon, CloudUpload as 
 import api from '../services/api';
 import { Product, ProductType } from '../types';
 import MediaPicker from '../components/MediaPicker';
+import { useAuth } from '../contexts/AuthContext';
 
 const API_BASE = (window as any).REACT_APP_API_URL || process.env.REACT_APP_API_URL || 'http://localhost:8000';
-import { useAuth } from '../contexts/AuthContext';
 
 const Products: React.FC = () => {
   const { user } = useAuth();
