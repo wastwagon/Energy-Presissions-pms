@@ -70,7 +70,10 @@ async def create_product(
     current_user: User = Depends(require_role(["admin"]))
 ):
     """Create a new product (admin only)"""
-    db_product = Product(**product_data.dict())
+    data = product_data.dict()
+    if data.get("manage_stock"):
+        data["in_stock"] = (data.get("stock_quantity") or 0) > 0
+    db_product = Product(**data)
     db.add(db_product)
     db.commit()
     db.refresh(db_product)
@@ -92,7 +95,8 @@ async def update_product(
     update_data = product_data.dict(exclude_unset=True)
     for field, value in update_data.items():
         setattr(product, field, value)
-    
+    if "stock_quantity" in update_data and product.manage_stock:
+        product.in_stock = product.stock_quantity > 0
     db.commit()
     db.refresh(product)
     return product

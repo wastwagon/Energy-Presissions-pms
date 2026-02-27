@@ -4,11 +4,15 @@ from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session, joinedload
 from app.database import get_db
 from app.auth import get_current_active_user
-from app.models import User, Project, Customer, ProjectStatusUpdate
+from app.models import User, Project, Customer, ProjectStatusUpdate, ProjectStatus
 from app.schemas import Project as ProjectSchema, ProjectCreate, ProjectUpdate, ProjectStatusUpdateCreate
 from app.services.sizing_pdf_generator import generate_sizing_report_pdf
+from app.services.stock import (
+    check_stock_availability,
+    deduct_stock_on_project_accept,
+    restore_stock_on_project_reject,
+)
 from app.project_status_messages import PROJECT_STATUS_MESSAGES
-from app.models import ProjectStatus
 import uuid
 
 router = APIRouter(prefix="/projects", tags=["projects"])
@@ -125,7 +129,8 @@ async def update_project_status(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_user)
 ):
-    """Update project status with a message (tracks milestone achievement)"""
+    """Update project status with a message (tracks milestone achievement).
+    Stock is deducted when status → ACCEPTED, restored when ACCEPTED → REJECTED."""
     project = db.query(Project).options(
         joinedload(Project.customer),
         joinedload(Project.created_by_user),
@@ -134,10 +139,28 @@ async def update_project_status(
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
 
-    project.status = data.status
+    old_status = project.status
+    new_status = data.status
+
+    # Transition TO ACCEPTED: check stock and deduct
+    if new_status == ProjectStatus.ACCEPTED and old_status != ProjectStatus.ACCEPTED:
+        ok, errors = check_stock_availability(db, project_id)
+        if not ok:
+            msg = "Cannot accept project: insufficient stock. " + "; ".join(errors)
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=msg)
+        success, deduct_errors = deduct_stock_on_project_accept(db, project_id, current_user.id)
+        if not success:
+            msg = "Stock deduction failed. " + "; ".join(deduct_errors)
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=msg)
+
+    # Transition FROM ACCEPTED to REJECTED: restore stock
+    if new_status == ProjectStatus.REJECTED and old_status == ProjectStatus.ACCEPTED:
+        restore_stock_on_project_reject(db, project_id, current_user.id)
+
+    project.status = new_status
     status_update = ProjectStatusUpdate(
         project_id=project_id,
-        status=data.status,
+        status=new_status,
         message=data.message,
         updated_by=current_user.id
     )

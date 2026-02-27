@@ -435,6 +435,31 @@ class QuoteItem(Base):
     product = relationship("Product")
 
 
+class StockMovementType(str, enum.Enum):
+    DEDUCTION_ON_ACCEPT = "deduction_on_accept"
+    RESTORE_ON_REJECT = "restore_on_reject"
+
+
+class StockMovement(Base):
+    """Audit trail for stock changes tied to project acceptance/rejection"""
+    __tablename__ = "stock_movements"
+
+    id = Column(Integer, primary_key=True, index=True)
+    product_id = Column(Integer, ForeignKey("products.id"), nullable=False)
+    quantity = Column(Integer, nullable=False)  # Negative = deduction, positive = restore
+    movement_type = Column(SQLEnum(StockMovementType), nullable=False)
+    project_id = Column(Integer, ForeignKey("projects.id"), nullable=False)
+    quote_id = Column(Integer, ForeignKey("quotes.id"), nullable=False)
+    quote_item_id = Column(Integer, ForeignKey("quote_items.id"), nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    created_by = Column(Integer, ForeignKey("users.id"), nullable=True)
+
+    # Relationships
+    product = relationship("Product")
+    project = relationship("Project")
+    quote = relationship("Quote")
+
+
 class Setting(Base):
     __tablename__ = "settings"
     

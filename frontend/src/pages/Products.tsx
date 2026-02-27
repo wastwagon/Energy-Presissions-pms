@@ -19,6 +19,7 @@ import {
   MenuItem,
   FormControlLabel,
   Switch,
+  Chip,
 } from '@mui/material';
 import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon, CloudUpload as UploadIcon, PhotoLibrary as LibraryIcon } from '@mui/icons-material';
 import api from '../services/api';
@@ -58,6 +59,8 @@ const Products: React.FC = () => {
     image_url: '',
     category: '',
     is_active: true,
+    stock_quantity: 0,
+    manage_stock: false,
   });
 
   useEffect(() => {
@@ -88,6 +91,8 @@ const Products: React.FC = () => {
         image_url: product.image_url || '',
         category: product.category || '',
         is_active: product.is_active ?? true,
+        stock_quantity: product.stock_quantity ?? 0,
+        manage_stock: product.manage_stock ?? false,
       });
     } else {
       setEditing(null);
@@ -103,6 +108,8 @@ const Products: React.FC = () => {
         image_url: '',
         category: '',
         is_active: true,
+        stock_quantity: 0,
+        manage_stock: false,
       });
     }
     setOpen(true);
@@ -190,6 +197,7 @@ const Products: React.FC = () => {
               <TableCell>Model</TableCell>
               <TableCell>Category</TableCell>
               <TableCell>Wattage / Capacity</TableCell>
+              <TableCell>Stock</TableCell>
               <TableCell>Price Type</TableCell>
               <TableCell>Base Price</TableCell>
               <TableCell>Visible</TableCell>
@@ -208,6 +216,21 @@ const Products: React.FC = () => {
                    product.capacity_kw ? `${product.capacity_kw}kW` : 
                    product.capacity_kwh ? `${product.capacity_kwh}kWh` : 
                    '-'}
+                </TableCell>
+                <TableCell>
+                  {product.manage_stock ? (
+                    <Chip
+                      label={product.stock_quantity ?? 0}
+                      size="small"
+                      color={
+                        (product.stock_quantity ?? 0) === 0 ? 'error' :
+                        (product.stock_quantity ?? 0) <= 5 ? 'warning' : 'default'
+                      }
+                      variant="outlined"
+                    />
+                  ) : (
+                    <Typography variant="body2" color="text.secondary">—</Typography>
+                  )}
                 </TableCell>
                 <TableCell>{formatPriceType(product.price_type)}</TableCell>
                 <TableCell>{product.base_price.toFixed(2)}</TableCell>
@@ -382,6 +405,32 @@ const Products: React.FC = () => {
             <MenuItem value="battery">Batteries</MenuItem>
             <MenuItem value="Accessories">Accessories</MenuItem>
           </TextField>
+          <FormControlLabel
+            control={
+              <Switch
+                checked={formData.manage_stock}
+                onChange={(e) => setFormData({ ...formData, manage_stock: e.target.checked })}
+                color="primary"
+              />
+            }
+            label="Track stock (deduct when project accepted)"
+            sx={{ mt: 2 }}
+          />
+          {formData.manage_stock && (
+            <TextField
+              fullWidth
+              label="Stock Quantity"
+              type="number"
+              inputProps={{ min: 0 }}
+              value={formData.stock_quantity ?? 0}
+              onChange={(e) => {
+                const val = parseInt(e.target.value, 10);
+                setFormData({ ...formData, stock_quantity: isNaN(val) ? 0 : Math.max(0, val) });
+              }}
+              margin="normal"
+              helperText="Stock is deducted when a project with this product in its quote is accepted"
+            />
+          )}
           <FormControlLabel
             control={
               <Switch

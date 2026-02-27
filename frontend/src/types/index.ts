@@ -296,6 +296,9 @@ export interface Product {
   image_url?: string;
   category?: string;
   is_active: boolean;
+  stock_quantity?: number;
+  manage_stock?: boolean;
+  in_stock?: boolean;
   created_at: string;
 }
 
