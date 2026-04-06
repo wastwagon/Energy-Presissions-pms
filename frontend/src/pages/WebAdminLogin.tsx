@@ -11,13 +11,15 @@ import {
 } from '@mui/material';
 import { Helmet } from 'react-helmet-async';
 import { useAuth } from '../contexts/AuthContext';
+import { authService } from '../services/auth';
+import { UserRole } from '../types';
 
 const WebAdminLogin: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
+  const { login, logout } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -36,8 +38,15 @@ const WebAdminLogin: React.FC = () => {
       }
       
       await login(trimmedEmail, trimmedPassword);
-      // Navigate to website admin or back to website
-      navigate('/', { replace: true });
+      const me = await authService.getCurrentUser();
+      if (me.role === UserRole.WEBSITE_ADMIN || me.role === UserRole.ADMIN) {
+        navigate('/web/app', { replace: true });
+      } else {
+        logout();
+        setError('Use PMS staff sign-in at /pms/admin for this account.');
+        setLoading(false);
+        return;
+      }
     } catch (err: any) {
       console.error('Login error:', err);
       const errorMessage = err.response?.data?.detail || err.message || 'Login failed. Please check your credentials.';

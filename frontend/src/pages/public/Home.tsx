@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   Container,
@@ -35,8 +35,25 @@ import { Link } from 'react-router-dom';
 import { Seo } from '../../components/Seo';
 import { colors } from '../../theme/colors';
 import { homePageImages, homePortfolioPreview } from '../../data/homePageMedia';
+import api from '../../services/api';
 
 const Home: React.FC = () => {
+  const [heroSrc, setHeroSrc] = useState<string>(homePageImages.hero);
+
+  useEffect(() => {
+    let cancelled = false;
+    api
+      .get<Record<string, string>>('/content/settings/public')
+      .then((res) => {
+        const u = res.data?.home_hero_image?.trim();
+        if (u && !cancelled) setHeroSrc(u);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   return (
     <Box>
       <Seo
@@ -230,7 +247,7 @@ const Home: React.FC = () => {
               >
                 <Box
                   component="img"
-                  src={homePageImages.hero}
+                  src={heroSrc}
                   alt="Energy Precisions Solar Installation"
                   loading="lazy"
                   sx={{

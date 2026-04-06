@@ -8,6 +8,7 @@ import { CartProvider } from './contexts/CartContext';
 import PrivateRoute from './components/PrivateRoute';
 import PublicLayout from './components/public/PublicLayout';
 import Layout from './components/Layout';
+import WebAdminLayout from './components/WebAdminLayout';
 import AnalyticsRouteListener from './components/AnalyticsRouteListener';
 
 // Eager-load critical above-the-fold pages
@@ -15,6 +16,7 @@ import Home from './pages/public/Home';
 import PMSLogin from './pages/PMSLogin';
 import WebAdminLogin from './pages/WebAdminLogin';
 import Dashboard from './pages/Dashboard';
+import WebAdminDashboard from './pages/WebAdminDashboard';
 
 // Lazy-load remaining pages for better initial load
 const About = lazy(() => import('./pages/public/About'));
@@ -43,6 +45,8 @@ const Settings = lazy(() => import('./pages/Settings'));
 const Reports = lazy(() => import('./pages/Reports'));
 const ContactInquiries = lazy(() => import('./pages/ContactInquiries'));
 const PromoCodes = lazy(() => import('./pages/PromoCodes'));
+const NewsletterSubscribers = lazy(() => import('./pages/NewsletterSubscribers'));
+const WebContentAdmin = lazy(() => import('./pages/WebContentAdmin'));
 
 const PageLoader = () => (
   <Box display="flex" justifyContent="center" alignItems="center" minHeight="28vh" py={2}>
@@ -138,6 +142,25 @@ function App() {
               <Route path="reports" element={<Suspense fallback={<PageLoader />}><Reports /></Suspense>} />
               <Route path="contact-leads" element={<Suspense fallback={<PageLoader />}><ContactInquiries /></Suspense>} />
               <Route path="promo-codes" element={<Suspense fallback={<PageLoader />}><PromoCodes /></Suspense>} />
+            </Route>
+
+            {/* Website admin (shop + marketing CMS) — admin or website_admin only */}
+            <Route
+              path="/web/app"
+              element={
+                <PrivateRoute variant="web">
+                  <WebAdminLayout />
+                </PrivateRoute>
+              }
+            >
+              <Route index element={<WebAdminDashboard />} />
+              <Route path="products" element={<Suspense fallback={<PageLoader />}><Products /></Suspense>} />
+              <Route path="orders" element={<Suspense fallback={<PageLoader />}><Orders /></Suspense>} />
+              <Route path="media" element={<Suspense fallback={<PageLoader />}><MediaLibrary /></Suspense>} />
+              <Route path="promo-codes" element={<Suspense fallback={<PageLoader />}><PromoCodes /></Suspense>} />
+              <Route path="contact-leads" element={<Suspense fallback={<PageLoader />}><ContactInquiries /></Suspense>} />
+              <Route path="newsletter" element={<Suspense fallback={<PageLoader />}><NewsletterSubscribers /></Suspense>} />
+              <Route path="content" element={<Suspense fallback={<PageLoader />}><WebContentAdmin /></Suspense>} />
             </Route>
 
             {/* Legacy redirects for backward compatibility */}

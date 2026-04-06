@@ -23,8 +23,10 @@ echo "[2/5] Waiting for database to be ready..."
 sleep 10
 
 echo ""
-echo "[3/5] Initializing database (settings, peak sun hours)..."
+echo "[3/5] Database schema + settings (create_all), then Alembic to head..."
 docker compose exec -T backend python -m app.scripts.init_db
+# Migrations assume tables may already exist from SQLAlchemy; on a fresh volume upgrade can hit DuplicateColumn — stamp then matches head.
+docker compose exec -T backend sh -c "alembic upgrade head 2>/dev/null || alembic stamp head"
 
 echo ""
 echo "[4/5] Creating admin user..."

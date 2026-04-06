@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   Container,
@@ -24,9 +24,25 @@ import websiteContent from '../../data/extracted_content.json';
 import { Seo } from '../../components/Seo';
 import { colors } from '../../theme/colors';
 import { homePageImages } from '../../data/homePageMedia';
+import api from '../../services/api';
 
 const About: React.FC = () => {
   const content = websiteContent;
+  const [aboutHero, setAboutHero] = useState<string>(homePageImages.hero);
+
+  useEffect(() => {
+    let cancelled = false;
+    api
+      .get<Record<string, string>>('/content/settings/public')
+      .then((res) => {
+        const u = res.data?.about_hero_image?.trim();
+        if (u && !cancelled) setAboutHero(u);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   return (
     <Box>
@@ -121,7 +137,7 @@ const About: React.FC = () => {
               >
                 <Box
                   component="img"
-                  src={homePageImages.hero}
+                  src={aboutHero}
                   alt="Energy Precisions solar installation"
                   sx={{
                     width: '100%',

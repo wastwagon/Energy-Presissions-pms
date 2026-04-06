@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import {
   Box,
@@ -14,10 +14,43 @@ import {
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { Seo } from '../../components/Seo';
 import { colors } from '../../theme/colors';
-import { blogPosts } from '../../data/blogPosts';
+import { blogPosts, type BlogPost } from '../../data/blogPosts';
+import api from '../../services/api';
+
+type ListPost = Pick<BlogPost, 'slug' | 'title' | 'excerpt'> & { date: string; readTime: string };
+
+function mapApiToListPost(row: { slug: string; title: string; excerpt: string; display_date: string; read_time: string }): ListPost {
+  return {
+    slug: row.slug,
+    title: row.title,
+    excerpt: row.excerpt,
+    date: row.display_date,
+    readTime: row.read_time,
+  };
+}
 
 const Blog: React.FC = () => {
-  const sorted = [...blogPosts].sort((a, b) => (a.date < b.date ? 1 : -1));
+  const [posts, setPosts] = useState<ListPost[]>(() =>
+    [...blogPosts]
+      .map((p) => ({ slug: p.slug, title: p.title, excerpt: p.excerpt, date: p.date, readTime: p.readTime }))
+      .sort((a, b) => (a.date < b.date ? 1 : -1))
+  );
+
+  useEffect(() => {
+    let cancelled = false;
+    api
+      .get('/content/blog')
+      .then((res) => {
+        const rows = res.data as Array<{ slug: string; title: string; excerpt: string; display_date: string; read_time: string }>;
+        if (!cancelled && Array.isArray(rows) && rows.length > 0) {
+          setPosts(rows.map(mapApiToListPost).sort((a, b) => (a.date < b.date ? 1 : -1)));
+        }
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   return (
     <Box>
@@ -59,7 +92,7 @@ const Blog: React.FC = () => {
 
       <Container maxWidth="lg" sx={{ py: { xs: 4, md: 6 } }}>
         <Grid container spacing={{ xs: 2, md: 2.5 }}>
-          {sorted.map((post) => (
+          {posts.map((post) => (
             <Grid item xs={12} md={6} key={post.slug}>
               <Card variant="outlined" sx={{ height: '100%', borderRadius: 2 }}>
                 <CardActionArea component={RouterLink} to={`/blog/${post.slug}`} sx={{ height: '100%', alignItems: 'stretch' }}>

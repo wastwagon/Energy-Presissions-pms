@@ -1,17 +1,65 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link as RouterLink, useParams, Navigate } from 'react-router-dom';
-import { Box, Container, Typography, Button, Chip, Stack } from '@mui/material';
+import { Box, Container, Typography, Button, Chip, Stack, CircularProgress } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { Seo } from '../../components/Seo';
 import { colors } from '../../theme/colors';
-import { getBlogPost } from '../../data/blogPosts';
+import { getBlogPost, type BlogPost } from '../../data/blogPosts';
+import api from '../../services/api';
 
-const BlogPost: React.FC = () => {
+const BlogPostPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
-  const post = slug ? getBlogPost(slug) : undefined;
+  const [post, setPost] = useState<BlogPost | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [missing, setMissing] = useState(false);
 
-  if (!slug || !post) {
+  useEffect(() => {
+    if (!slug) {
+      setMissing(true);
+      setLoading(false);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await api.get<{ slug: string; title: string; excerpt: string; body: string; display_date: string; read_time: string }>(
+          `/content/blog/${encodeURIComponent(slug)}`
+        );
+        if (cancelled) return;
+        const body = res.data.body || '';
+        const paragraphs = body.split(/\n\n+/).map((p) => p.trim()).filter(Boolean);
+        setPost({
+          slug: res.data.slug,
+          title: res.data.title,
+          excerpt: res.data.excerpt,
+          date: res.data.display_date,
+          readTime: res.data.read_time,
+          paragraphs: paragraphs.length ? paragraphs : [body.trim() || res.data.excerpt],
+        });
+      } catch {
+        if (cancelled) return;
+        const local = getBlogPost(slug);
+        if (local) setPost(local);
+        else setMissing(true);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [slug]);
+
+  if (!slug || missing || (!loading && !post)) {
     return <Navigate to="/blog" replace />;
+  }
+
+  if (loading || !post) {
+    return (
+      <Box sx={{ py: 8, display: 'flex', justifyContent: 'center' }}>
+        <CircularProgress size={36} />
+      </Box>
+    );
   }
 
   return (
@@ -63,4 +111,4 @@ const BlogPost: React.FC = () => {
   );
 };
 
-export default BlogPost;
+export default BlogPostPage;

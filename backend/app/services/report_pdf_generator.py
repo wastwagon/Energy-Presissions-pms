@@ -211,6 +211,33 @@ REPORT_TEMPLATE = """
         </div>
     </div>
 
+    <!-- E-commerce (same period) -->
+    <div class="section">
+        <div class="section-title">E-commerce (Shop)</div>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Shop orders</div>
+                <div class="stat-value">{{ ecommerce_order_count }}</div>
+                <div class="stat-subvalue">All orders in period</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Paid orders</div>
+                <div class="stat-value">{{ ecommerce_paid_orders }}</div>
+                <div class="stat-subvalue">Payment completed</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Paid revenue</div>
+                <div class="stat-value">GH₵ {{ ecommerce_paid_revenue_ghs|format_currency }}</div>
+                <div class="stat-subvalue">From paid orders</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Pending payment</div>
+                <div class="stat-value">{{ ecommerce_pending_payment_orders }}</div>
+                <div class="stat-subvalue">Awaiting payment</div>
+            </div>
+        </div>
+    </div>
+
     <!-- Calculation Insights -->
     <div class="section">
         <div class="section-title">Calculation Insights</div>
@@ -262,6 +289,15 @@ REPORT_TEMPLATE = """
             <div class="insight-item">
                 • <strong>Rejected Quotes:</strong> {{ rejected_quotes }} quotes were rejected
                 <span class="negative">({{ (rejected_quotes / total_quotes * 100)|round(1) }}% of total)</span>
+            </div>
+            {% endif %}
+            {% if ecommerce_order_count > 0 %}
+            <div class="insight-item">
+                • <strong>Shop orders:</strong> {{ ecommerce_order_count }} in period;
+                {{ ecommerce_paid_orders }} paid (GH₵ {{ ecommerce_paid_revenue_ghs|format_currency }} revenue)
+                {% if ecommerce_pending_payment_orders > 0 %}
+                <span class="highlight">— {{ ecommerce_pending_payment_orders }} awaiting payment</span>
+                {% endif %}
             </div>
             {% endif %}
         </div>

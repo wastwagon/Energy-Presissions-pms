@@ -1,11 +1,29 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Box, Container, Typography, Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
 import { ExpandMore as ExpandMoreIcon } from '@mui/icons-material';
 import websiteContent from '../../data/extracted_content.json';
 import { Seo } from '../../components/Seo';
+import api from '../../services/api';
+
+type Faq = { question: string; answer: string };
 
 const FAQs: React.FC = () => {
-  const content = websiteContent;
+  const [faqs, setFaqs] = useState<Faq[]>(websiteContent.faqs as Faq[]);
+
+  useEffect(() => {
+    let cancelled = false;
+    api
+      .get<Faq[]>('/content/faqs')
+      .then((res) => {
+        if (!cancelled && Array.isArray(res.data) && res.data.length > 0) {
+          setFaqs(res.data);
+        }
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   return (
     <Box sx={{ py: { xs: 3, md: 6 } }}>
@@ -25,8 +43,8 @@ const FAQs: React.FC = () => {
         </Box>
 
         <Box>
-          {content.faqs.map((faq, index) => (
-            <Accordion key={index} sx={{ mb: 1.5, boxShadow: 1 }}>
+          {faqs.map((faq, index) => (
+            <Accordion key={`${faq.question}-${index}`} sx={{ mb: 1.5, boxShadow: 1 }}>
               <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                 <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
                   {faq.question}
@@ -46,4 +64,3 @@ const FAQs: React.FC = () => {
 };
 
 export default FAQs;
-

@@ -119,7 +119,7 @@ async def list_contact_inquiries(
     skip: int = Query(0, ge=0),
     limit: int = Query(50, ge=1, le=200),
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_role(["admin"])),
+    current_user: User = Depends(require_role(["admin", "website_admin"])),
 ):
     """List recent contact submissions (admin)."""
     rows = (

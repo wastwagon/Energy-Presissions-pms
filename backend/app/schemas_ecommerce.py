@@ -60,11 +60,16 @@ class CartItemCreate(BaseModel):
     session_id: Optional[str] = None
 
 
+class CartMergeRequest(BaseModel):
+    session_id: str = Field(..., min_length=8, max_length=200)
+
+
 class CartItemResponse(BaseModel):
     id: int
     product_id: int
     quantity: int
     customer_id: Optional[int] = None
+    user_id: Optional[int] = None
     session_id: Optional[str] = None
     created_at: datetime
     product: Optional[ProductPublic] = None

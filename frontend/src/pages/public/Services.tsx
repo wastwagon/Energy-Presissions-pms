@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   Container,
@@ -26,9 +26,25 @@ import { Link, useLocation } from 'react-router-dom';
 import { Seo } from '../../components/Seo';
 import { colors } from '../../theme/colors';
 import { servicesPageImages } from '../../data/homePageMedia';
+import api from '../../services/api';
 
 const Services: React.FC = () => {
   const { pathname } = useLocation();
+  const [servicesHeroBg, setServicesHeroBg] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    api
+      .get<Record<string, string>>('/content/settings/public')
+      .then((res) => {
+        const u = res.data?.services_hero_image?.trim();
+        if (u && !cancelled) setServicesHeroBg(u);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const premiumServices = [
     {
@@ -138,9 +154,22 @@ const Services: React.FC = () => {
           py: { xs: 5, md: 6 },
           position: 'relative',
           overflow: 'hidden',
+          ...(servicesHeroBg
+            ? {
+                '&::before': {
+                  content: '""',
+                  position: 'absolute',
+                  inset: 0,
+                  backgroundImage: `linear-gradient(rgba(10, 14, 23, 0.85), rgba(10, 14, 23, 0.92)), url(${JSON.stringify(servicesHeroBg)})`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  zIndex: 0,
+                },
+              }
+            : {}),
         }}
       >
-        <Container maxWidth="xl">
+        <Container maxWidth="xl" sx={{ position: 'relative', zIndex: 1 }}>
           <Box textAlign="center" maxWidth={720} mx="auto">
             <Chip
               label="OUR SERVICES"

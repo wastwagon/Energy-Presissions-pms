@@ -11,6 +11,8 @@ import {
 } from '@mui/material';
 import { Helmet } from 'react-helmet-async';
 import { useAuth } from '../contexts/AuthContext';
+import { authService } from '../services/auth';
+import { UserRole } from '../types';
 
 const PMSLogin: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -36,8 +38,12 @@ const PMSLogin: React.FC = () => {
       }
       
       await login(trimmedEmail, trimmedPassword);
-      // Navigate to PMS dashboard after successful login
-      navigate('/pms/dashboard', { replace: true });
+      const me = await authService.getCurrentUser();
+      if (me.role === UserRole.WEBSITE_ADMIN) {
+        navigate('/web/app', { replace: true });
+      } else {
+        navigate('/pms/dashboard', { replace: true });
+      }
     } catch (err: any) {
       console.error('Login error:', err);
       const errorMessage = err.response?.data?.detail || err.message || 'Login failed. Please check your credentials.';
