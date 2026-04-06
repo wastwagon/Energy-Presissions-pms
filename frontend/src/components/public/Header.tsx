@@ -47,7 +47,7 @@ const Header: React.FC = () => {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [servicesMenuEl, setServicesMenuEl] = useState<null | HTMLElement>(null);
+  const [navSubmenu, setNavSubmenu] = useState<{ key: string; anchor: HTMLElement } | null>(null);
   const navigate = useNavigate();
   const { isAuthenticated, user, logout } = useAuth();
   const { cartCount } = useCart();
@@ -68,7 +68,16 @@ const Header: React.FC = () => {
     { label: 'Portfolio', path: '/portfolio' },
     { label: 'Shop', path: '/shop' },
     { label: 'Financing', path: '/financing' },
-    { label: 'Resources', path: '/blog' },
+    {
+      label: 'Resources',
+      path: '/blog',
+      submenu: [
+        { label: 'Blog', path: '/blog' },
+        { label: 'Solar estimate', path: '/solar-estimate' },
+        { label: 'Load calculator', path: '/load-calculator' },
+        { label: 'Referral program', path: '/referral' },
+      ],
+    },
     { label: 'Contact', path: '/contact' },
   ];
 
@@ -84,11 +93,22 @@ const Header: React.FC = () => {
     setAnchorEl(null);
   };
 
-  const handleServicesOpen = (e: React.MouseEvent<HTMLElement>) => {
-    setServicesMenuEl(e.currentTarget);
+  const openNavSubmenu = (key: string, e: React.MouseEvent<HTMLElement>) => {
+    setNavSubmenu({ key, anchor: e.currentTarget });
   };
-  const handleServicesClose = () => {
-    setServicesMenuEl(null);
+  const closeNavSubmenu = () => setNavSubmenu(null);
+
+  const isSubmenuParentActive = (label: string) => {
+    if (label === 'Services') return isPathActive('/services') || location.pathname.startsWith('/faqs');
+    if (label === 'Resources') {
+      return (
+        location.pathname.startsWith('/blog') ||
+        location.pathname === '/solar-estimate' ||
+        location.pathname === '/load-calculator' ||
+        location.pathname === '/referral'
+      );
+    }
+    return false;
   };
 
   const socialIconSx = {
@@ -458,11 +478,11 @@ const Header: React.FC = () => {
                   item.submenu ? (
                     <Box key={item.label}>
                       <Button
-                        onClick={handleServicesOpen}
+                        onClick={(e) => openNavSubmenu(item.label, e)}
                         endIcon={<ArrowDownIcon sx={{ fontSize: 18 }} />}
                         sx={{
                           ...navButtonSx,
-                          ...(isPathActive('/services') || location.pathname.startsWith('/faqs')
+                          ...(isSubmenuParentActive(item.label)
                             ? { color: colors.green, bgcolor: 'rgba(0, 230, 118, 0.06)' }
                             : {}),
                         }}
@@ -470,9 +490,9 @@ const Header: React.FC = () => {
                         {item.label}
                       </Button>
                       <Menu
-                        anchorEl={servicesMenuEl}
-                        open={Boolean(servicesMenuEl)}
-                        onClose={handleServicesClose}
+                        anchorEl={navSubmenu?.key === item.label ? navSubmenu.anchor : null}
+                        open={navSubmenu?.key === item.label}
+                        onClose={closeNavSubmenu}
                         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
                         transformOrigin={{ vertical: 'top', horizontal: 'center' }}
                         slotProps={{
@@ -486,11 +506,11 @@ const Header: React.FC = () => {
                           },
                         }}
                       >
-                        <MenuItem component={Link} to={item.path} onClick={handleServicesClose}>
-                          All Services
+                        <MenuItem component={Link} to={item.path} onClick={closeNavSubmenu}>
+                          {item.label === 'Services' ? 'All services' : 'Blog home'}
                         </MenuItem>
                         {item.submenu.map((sub) => (
-                          <MenuItem key={sub.label} component={Link} to={sub.path} onClick={handleServicesClose}>
+                          <MenuItem key={sub.label} component={Link} to={sub.path} onClick={closeNavSubmenu}>
                             {sub.label}
                           </MenuItem>
                         ))}

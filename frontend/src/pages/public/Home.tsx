@@ -36,6 +36,7 @@ import { Seo } from '../../components/Seo';
 import { colors } from '../../theme/colors';
 import { homePageImages, homePortfolioPreview } from '../../data/homePageMedia';
 import api from '../../services/api';
+import TrustStrip from '../../components/public/TrustStrip';
 
 const Home: React.FC = () => {
   const [heroSrc, setHeroSrc] = useState<string>(homePageImages.hero);
@@ -233,6 +234,45 @@ const Home: React.FC = () => {
                   Browse Products
                 </Button>
               </Stack>
+              <Stack
+                direction="row"
+                component="nav"
+                aria-label="Planning tools"
+                spacing={2}
+                flexWrap="wrap"
+                useFlexGap
+                sx={{ mt: 2, rowGap: 0.75 }}
+              >
+                <Typography
+                  component={Link}
+                  to="/solar-estimate"
+                  variant="body2"
+                  sx={{
+                    color: colors.green,
+                    fontWeight: 700,
+                    textDecoration: 'none',
+                    '&:hover': { textDecoration: 'underline' },
+                  }}
+                >
+                  Solar size estimator
+                </Typography>
+                <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.45)' }}>
+                  ·
+                </Typography>
+                <Typography
+                  component={Link}
+                  to="/load-calculator"
+                  variant="body2"
+                  sx={{
+                    color: colors.green,
+                    fontWeight: 700,
+                    textDecoration: 'none',
+                    '&:hover': { textDecoration: 'underline' },
+                  }}
+                >
+                  Appliance load calculator
+                </Typography>
+              </Stack>
             </Grid>
             <Grid item xs={12} md={5}>
               <Box
@@ -272,6 +312,8 @@ const Home: React.FC = () => {
           </Grid>
         </Container>
       </Box>
+
+      <TrustStrip variant="light" />
 
       {/* Trust Bar — compact strip (Webflow-style social proof) */}
       <Box sx={{ bgcolor: colors.gray100, py: { xs: 2.5, md: 3 }, borderBottom: `1px solid ${colors.gray200}` }}>

@@ -220,13 +220,20 @@ class EmailService:
 
     def send_contact_inquiry(self, admin_email: str, payload: Dict) -> bool:
         """Notify admin of a website contact form submission."""
+        topic = (payload.get("topic") or "").strip()
         subject = f"Website contact: {payload.get('name', 'Visitor')}"
+        if topic:
+            subject = f"Website contact ({topic}): {payload.get('name', 'Visitor')}"
         safe = lambda s: str(s or "").replace("<", "&lt;").replace(">", "&gt;")
+        topic_html = (
+            f'<p><strong>Topic:</strong> {safe(topic)}</p>' if topic else ""
+        )
         html_content = f"""
         <!DOCTYPE html>
         <html><head><meta charset="UTF-8"></head>
         <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
             <h2 style="color: #1a4d7a;">New contact form message</h2>
+            {topic_html}
             <p><strong>Name:</strong> {safe(payload.get('name'))}</p>
             <p><strong>Email:</strong> {safe(payload.get('email'))}</p>
             <p><strong>Phone:</strong> {safe(payload.get('phone'))}</p>

@@ -10,6 +10,7 @@ import {
   Button,
   Chip,
   Divider,
+  Stack,
 } from '@mui/material';
 import {
   CheckCircle as CheckCircleIcon,
@@ -596,6 +597,43 @@ const Services: React.FC = () => {
             >
               Get Free Consultation
             </Button>
+            <Stack
+              direction={{ xs: 'column', sm: 'row' }}
+              spacing={1}
+              justifyContent="center"
+              alignItems="center"
+              sx={{ mt: 2.5 }}
+            >
+              <Button
+                component={Link}
+                to="/solar-estimate"
+                variant="text"
+                sx={{
+                  color: 'rgba(255,255,255,0.92)',
+                  textTransform: 'none',
+                  fontWeight: 600,
+                  '&:hover': { color: colors.green, bgcolor: 'rgba(255,255,255,0.06)' },
+                }}
+              >
+                Solar size estimator
+              </Button>
+              <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.4)', display: { xs: 'none', sm: 'block' } }}>
+                ·
+              </Typography>
+              <Button
+                component={Link}
+                to="/load-calculator"
+                variant="text"
+                sx={{
+                  color: 'rgba(255,255,255,0.92)',
+                  textTransform: 'none',
+                  fontWeight: 600,
+                  '&:hover': { color: colors.green, bgcolor: 'rgba(255,255,255,0.06)' },
+                }}
+              >
+                Appliance load calculator
+              </Button>
+            </Stack>
           </Box>
         </Container>
       </Box>

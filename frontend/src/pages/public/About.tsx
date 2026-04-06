@@ -25,6 +25,7 @@ import { Seo } from '../../components/Seo';
 import { colors } from '../../theme/colors';
 import { homePageImages } from '../../data/homePageMedia';
 import api from '../../services/api';
+import TrustStrip from '../../components/public/TrustStrip';
 
 const About: React.FC = () => {
   const content = websiteContent;
@@ -159,6 +160,8 @@ const About: React.FC = () => {
           </Grid>
         </Container>
       </Box>
+
+      <TrustStrip variant="muted" />
 
       {/* Mission & Vision */}
       <Box sx={{ py: { xs: 6, md: 8 }, bgcolor: 'white' }}>

@@ -53,11 +53,15 @@ export function trackEvent(name: string, params?: Record<string, unknown>): void
 }
 
 /** Contact / quote form successfully submitted */
-export function trackGenerateLead(source: 'contact_form' | 'quote_request'): void {
+export function trackGenerateLead(
+  source: 'contact_form' | 'quote_request',
+  options?: { topic?: 'referral' | 'estimate' | 'load' }
+): void {
   trackEvent('generate_lead', {
     currency: 'GHS',
     value: 0,
     lead_source: source,
+    ...(options?.topic ? { contact_topic: options.topic } : {}),
   });
 }
 

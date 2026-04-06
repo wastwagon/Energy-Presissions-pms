@@ -113,8 +113,23 @@ const Footer: React.FC = () => {
                 </Link>
               </Box>
               <Box component="li" sx={{ mb: 0.5 }}>
+                <Link component={RouterLink} to="/solar-estimate" underline="none" color="inherit" sx={{ '&:hover': { color: colors.green } }}>
+                  Solar estimate
+                </Link>
+              </Box>
+              <Box component="li" sx={{ mb: 0.5 }}>
+                <Link component={RouterLink} to="/load-calculator" underline="none" color="inherit" sx={{ '&:hover': { color: colors.green } }}>
+                  Load calculator
+                </Link>
+              </Box>
+              <Box component="li" sx={{ mb: 0.5 }}>
+                <Link component={RouterLink} to="/referral" underline="none" color="inherit" sx={{ '&:hover': { color: colors.green } }}>
+                  Referral program
+                </Link>
+              </Box>
+              <Box component="li" sx={{ mb: 0.5 }}>
                 <Link component={RouterLink} to="/blog" underline="none" color="inherit" sx={{ '&:hover': { color: colors.green } }}>
-                  Resources
+                  Blog
                 </Link>
               </Box>
               <Box component="li" sx={{ mb: 0.5 }}>

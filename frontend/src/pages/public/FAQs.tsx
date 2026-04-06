@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Box, Container, Typography, Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
 import { ExpandMore as ExpandMoreIcon } from '@mui/icons-material';
 import websiteContent from '../../data/extracted_content.json';
@@ -39,6 +40,16 @@ const FAQs: React.FC = () => {
           </Typography>
           <Typography variant="body2" sx={{ color: '#666' }}>
             Have Any Questions about Solar Energy?
+          </Typography>
+          <Typography variant="body2" sx={{ color: '#666', mt: 2, lineHeight: 1.65 }}>
+            Planning tools:{' '}
+            <Link to="/solar-estimate" style={{ color: '#00c853', fontWeight: 700, textDecoration: 'none' }}>
+              Solar size estimator
+            </Link>
+            {' · '}
+            <Link to="/load-calculator" style={{ color: '#00c853', fontWeight: 700, textDecoration: 'none' }}>
+              Appliance load calculator
+            </Link>
           </Typography>
         </Box>
 

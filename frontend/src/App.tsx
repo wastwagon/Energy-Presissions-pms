@@ -29,6 +29,9 @@ const CheckoutSuccess = lazy(() => import('./pages/public/CheckoutSuccess'));
 const Contact = lazy(() => import('./pages/public/Contact'));
 const FAQs = lazy(() => import('./pages/public/FAQs'));
 const Financing = lazy(() => import('./pages/public/Financing'));
+const SolarEstimate = lazy(() => import('./pages/public/SolarEstimate'));
+const LoadCalculator = lazy(() => import('./pages/public/LoadCalculator'));
+const ReferralProgram = lazy(() => import('./pages/public/ReferralProgram'));
 const Blog = lazy(() => import('./pages/public/Blog'));
 const BlogPost = lazy(() => import('./pages/public/BlogPost'));
 const Portfolio = lazy(() => import('./pages/public/Portfolio'));
@@ -107,6 +110,9 @@ function App() {
               <Route path="contact" element={<Suspense fallback={<PageLoader />}><Contact /></Suspense>} />
               <Route path="faqs" element={<Suspense fallback={<PageLoader />}><FAQs /></Suspense>} />
               <Route path="financing" element={<Suspense fallback={<PageLoader />}><Financing /></Suspense>} />
+              <Route path="solar-estimate" element={<Suspense fallback={<PageLoader />}><SolarEstimate /></Suspense>} />
+              <Route path="load-calculator" element={<Suspense fallback={<PageLoader />}><LoadCalculator /></Suspense>} />
+              <Route path="referral" element={<Suspense fallback={<PageLoader />}><ReferralProgram /></Suspense>} />
               <Route path="blog" element={<Suspense fallback={<PageLoader />}><Blog /></Suspense>} />
               <Route path="blog/:slug" element={<Suspense fallback={<PageLoader />}><BlogPost /></Suspense>} />
               <Route path="portfolio" element={<Suspense fallback={<PageLoader />}><Portfolio /></Suspense>} />

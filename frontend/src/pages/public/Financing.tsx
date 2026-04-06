@@ -204,6 +204,23 @@ const Financing: React.FC = () => {
             </Card>
           </Grid>
         </Grid>
+
+        <Card variant="outlined" sx={{ mt: 4, borderColor: colors.green, bgcolor: 'rgba(0, 230, 118, 0.04)' }}>
+          <CardContent>
+            <Typography variant="h6" fontWeight={800} sx={{ mb: 1.5 }}>
+              PAYG-style &amp; staged payment options
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.7, mb: 1.5 }}>
+              For customers comparing plans like pay-as-you-go solar or bank-backed asset finance, we map your
+              site load, equipment, and installation phases first—then align with partner programmes where they
+              are live and documented. We do not publish rates here because products and eligibility change.
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.7 }}>
+              Mention <strong>financing</strong> or <strong>PAYG</strong> in your quote request so we route you to
+              the right conversation.
+            </Typography>
+          </CardContent>
+        </Card>
       </Container>
     </Box>
   );

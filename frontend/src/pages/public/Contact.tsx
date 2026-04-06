@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import api from '../../services/api';
 import {
   Box,
@@ -13,16 +13,27 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
+  Alert,
 } from '@mui/material';
 import { Phone as PhoneIcon, Email as EmailIcon, LocationOn as LocationIcon } from '@mui/icons-material';
-import { useSearchParams } from 'react-router-dom';
+import { useLocation, useSearchParams } from 'react-router-dom';
 import websiteContent from '../../data/extracted_content.json';
 import { Seo } from '../../components/Seo';
 import { trackGenerateLead } from '../../utils/analytics';
+import {
+  CONTACT_TOPIC_BANNERS,
+  CONTACT_TOPIC_MESSAGE_HINTS,
+  normalizeContactTopic,
+} from '../../utils/contactUrlParams';
 
 const Contact: React.FC = () => {
   const [searchParams] = useSearchParams();
+  const { search } = useLocation();
   const isQuoteRequest = searchParams.get('action') === 'quote';
+  const contactTopic = useMemo(() => {
+    const params = new URLSearchParams(search);
+    return normalizeContactTopic(params.get('topic'));
+  }, [search]);
   const content = websiteContent;
 
   const [formData, setFormData] = useState({
@@ -37,6 +48,30 @@ const Contact: React.FC = () => {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitOk, setSubmitOk] = useState(false);
 
+  useEffect(() => {
+    const params = new URLSearchParams(search);
+    const topic = normalizeContactTopic(params.get('topic'));
+    const prefill = sessionStorage.getItem('ep_load_prefill');
+    if (prefill) {
+      sessionStorage.removeItem('ep_load_prefill');
+    }
+
+    setFormData((prev) => {
+      if (prefill) {
+        const hint = topic ? CONTACT_TOPIC_MESSAGE_HINTS[topic] : '';
+        const block = [hint, prefill].filter(Boolean).join('\n\n');
+        const nextMsg = prev.message.trim()
+          ? `${prev.message.trim()}\n\n---\n\n${block}`
+          : block;
+        return { ...prev, message: nextMsg };
+      }
+      if (topic && prev.message.trim() === '') {
+        return { ...prev, message: CONTACT_TOPIC_MESSAGE_HINTS[topic] };
+      }
+      return prev;
+    });
+  }, [search]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitError(null);
@@ -49,15 +84,18 @@ const Contact: React.FC = () => {
         service: formData.service || undefined,
         message: formData.message.trim(),
         company_website: formData.company_website || undefined,
+        ...(contactTopic ? { topic: contactTopic } : {}),
       });
-      trackGenerateLead(isQuoteRequest ? 'quote_request' : 'contact_form');
+      trackGenerateLead(isQuoteRequest ? 'quote_request' : 'contact_form', {
+        topic: contactTopic,
+      });
       setSubmitOk(true);
       setFormData({
         name: '',
         email: '',
         phone: '',
         service: '',
-        message: '',
+        message: contactTopic ? CONTACT_TOPIC_MESSAGE_HINTS[contactTopic] : '',
         company_website: '',
       });
     } catch (err: any) {
@@ -100,6 +138,14 @@ const Contact: React.FC = () => {
                 )}
                 {submitError && (
                   <Typography sx={{ mb: 3, color: 'error.main' }}>{submitError}</Typography>
+                )}
+                {contactTopic && (
+                  <Alert severity="info" sx={{ mb: 2 }}>
+                    <Typography variant="subtitle2" fontWeight={700}>
+                      {CONTACT_TOPIC_BANNERS[contactTopic].title}
+                    </Typography>
+                    <Typography variant="body2">{CONTACT_TOPIC_BANNERS[contactTopic].body}</Typography>
+                  </Alert>
                 )}
                 <form onSubmit={handleSubmit} autoComplete="on">
                   <input
