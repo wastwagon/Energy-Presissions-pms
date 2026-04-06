@@ -36,7 +36,7 @@ import {
 import { Helmet } from 'react-helmet-async';
 import { useAuth } from '../contexts/AuthContext';
 
-const drawerWidth = 240;
+const drawerWidth = 220;
 
 type MenuItem = {
   text: string;
@@ -94,25 +94,25 @@ const Layout: React.FC = () => {
 
   const drawer = (
     <div>
-      <Toolbar>
+      <Toolbar variant="dense" sx={{ minHeight: 52, px: 1.5 }}>
         <Box
           component="img"
           src={logoUrl}
           alt="Energy Precisions Logo"
           sx={{
-            height: 80,
-            maxWidth: 220,
+            height: 40,
+            maxWidth: 168,
             objectFit: 'contain',
             mx: 'auto',
           }}
           onError={() => setLogoUrl('/logo.jpg')}
         />
       </Toolbar>
-      <List sx={{ px: 2 }}>
+      <List dense sx={{ px: 1, py: 0.5 }}>
         {menuItems
           .filter((item) => !item.adminOnly || user?.role === 'admin')
           .map((item) => (
-          <ListItem key={item.text} disablePadding sx={{ mb: 0.5 }}>
+          <ListItem key={item.text} disablePadding sx={{ mb: 0.25 }}>
             <ListItemButton
               selected={location.pathname === item.path}
               onClick={() => {
@@ -120,9 +120,9 @@ const Layout: React.FC = () => {
                 setMobileOpen(false);
               }}
               sx={{
-                borderRadius: 2,
-                py: 1.5,
-                px: 2,
+                borderRadius: 1.5,
+                py: 0.75,
+                px: 1.25,
                 '&.Mui-selected': {
                   backgroundColor: 'primary.main',
                   color: 'white',
@@ -138,11 +138,13 @@ const Layout: React.FC = () => {
                 },
               }}
             >
-              <ListItemIcon sx={{ minWidth: 40, color: 'inherit' }}>{item.icon}</ListItemIcon>
-              <ListItemText 
-                primary={item.text} 
+              <ListItemIcon sx={{ minWidth: 36, color: 'inherit', '& .MuiSvgIcon-root': { fontSize: '1.15rem' } }}>
+                {item.icon}
+              </ListItemIcon>
+              <ListItemText
+                primary={item.text}
                 primaryTypographyProps={{
-                  fontSize: '0.95rem',
+                  fontSize: '0.8125rem',
                   fontWeight: location.pathname === item.path ? 600 : 400,
                 }}
               />
@@ -167,21 +169,22 @@ const Layout: React.FC = () => {
           ml: { sm: `${drawerWidth}px` },
         }}
       >
-        <Toolbar>
+        <Toolbar variant="dense" sx={{ minHeight: 48, px: { xs: 1, sm: 2 } }}>
           <IconButton
             color="inherit"
             aria-label="open drawer"
             edge="start"
             onClick={handleDrawerToggle}
-            sx={{ mr: 2, display: { sm: 'none' } }}
+            sx={{ mr: 1, display: { sm: 'none' } }}
+            size="small"
           >
-            <MenuIcon />
+            <MenuIcon fontSize="small" />
           </IconButton>
-          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
+          <Typography variant="subtitle1" noWrap component="div" sx={{ flexGrow: 1, fontWeight: 600, fontSize: '0.95rem' }}>
             {menuItems.find((item) => item.path === location.pathname)?.text || 'Energy Precision PMS'}
           </Typography>
-          <IconButton onClick={handleMenuClick} sx={{ p: 0 }}>
-            <Avatar sx={{ bgcolor: 'secondary.main' }}>
+          <IconButton onClick={handleMenuClick} sx={{ p: 0 }} size="small">
+            <Avatar sx={{ bgcolor: 'secondary.main', width: 32, height: 32, fontSize: '0.8rem' }}>
               {user?.full_name.charAt(0).toUpperCase()}
             </Avatar>
           </IconButton>
@@ -240,11 +243,11 @@ const Layout: React.FC = () => {
         component="main"
         sx={{
           flexGrow: 1,
-          p: 3,
+          p: { xs: 1.5, sm: 2 },
           width: { sm: `calc(100% - ${drawerWidth}px)` },
         }}
       >
-        <Toolbar />
+        <Toolbar variant="dense" sx={{ minHeight: 48 }} />
         <Outlet />
       </Box>
     </Box>

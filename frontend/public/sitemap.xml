@@ -8,4 +8,7 @@
   <url><loc>https://energyprecisions.com/portfolio</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://energyprecisions.com/contact</loc><changefreq>monthly</changefreq><priority>0.85</priority></url>
   <url><loc>https://energyprecisions.com/faqs</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://energyprecisions.com/blog</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://energyprecisions.com/blog/site-assessment-before-solar-sizing</loc><changefreq>monthly</changefreq><priority>0.75</priority></url>
+  <url><loc>https://energyprecisions.com/blog/grid-tied-vs-hybrid-ghana</loc><changefreq>monthly</changefreq><priority>0.75</priority></url>
 </urlset>

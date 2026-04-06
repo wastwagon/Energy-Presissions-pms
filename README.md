@@ -111,6 +111,9 @@ All factors are configurable through the Settings table in the database.
 - Material UI components
 - Production Docker image uses `frontend/nginx.conf`: `/robots.txt` and `/sitemap.xml` are served as static files from the build output (correct `Content-Type`), not the SPA `index.html`. After changing SEO files or adding routes, rebuild and redeploy the frontend.
 - The marketing site is the default at `/`. Staff PMS sign-in is at `/pms/admin` (bookmark or type the URL; it is not linked from the public header). Per-route titles and meta tags use `react-helmet-async` (`Seo` in `frontend/src/components/Seo.tsx`).
+- **Resources / blog**: public routes `/blog` and `/blog/:slug`; articles live in `frontend/src/data/blogPosts.ts` (easy to extend or replace with a CMS later).
+- **Public page media (CMS-ready)**: homepage hero, service cards, and portfolio teaser URLs live in `frontend/src/data/homePageMedia.ts`; **Services** card images in `frontend/src/data/homePageMedia.ts` (`servicesPageImages`); **Portfolio** grid copy and images in `frontend/src/data/portfolioPageItems.ts` (defaults use Unsplash; replace with `/website_images/...` or your CDN when admin media is wired). Homepage section order follows typical solar marketing sites (trust strip → value props → services → portfolio → process → testimonials → CTA).
+- **GA4** (optional): set `REACT_APP_GA4_MEASUREMENT_ID` to your `G-XXXXXXXXXX` at **build** time. The app loads gtag, sends SPA `page_view` on navigation, ecommerce-style events `view_item` (product page), `add_to_cart` (shop + detail), `begin_checkout` (checkout with cart), `generate_lead` (contact/quote), and `purchase` (paid order on `/checkout/success`).
 
 ### Configuration (e-commerce & contact)
 
@@ -122,6 +125,7 @@ All factors are configurable through the Settings table in the database.
 | `ECOMMERCE_FREE_SHIPPING_THRESHOLD_GHS` | Subtotal (GHS) for free shipping (default `5000`; set `0` to disable the rule). |
 | `PAYSTACK_SECRET_KEY` / `PAYSTACK_PUBLIC_KEY` | Payment integration. |
 | `AUTH_DEBUG_LOG` | Set to `true` only when debugging login issues (extra logs). |
+| `REACT_APP_GA4_MEASUREMENT_ID` | Optional Google Analytics 4 measurement ID; must be present at **frontend build** time. |
 
 Checkout discounts are applied only via **`coupon_code`** on the order API; the client `discount_amount` field is ignored. Use **Coupons** in the database (see e-commerce migrations) and the checkout **Apply** control.
 
@@ -132,6 +136,8 @@ docker-compose exec backend alembic upgrade head
 ```
 
 In the PMS, admins can open **Contact leads** (`/pms/contact-leads`) to view website form submissions and **Promo codes** (`/pms/promo-codes`) to manage shop checkout coupons.
+
+**E-commerce security & stock**: `GET /api/ecommerce/orders/{order_number}` (full detail, addresses, customer PII) requires a **staff JWT**. The public success page uses **`GET /api/payments/paystack/verify/{reference}`**, which returns a non-sensitive `order_confirmation` after a successful Paystack verification. Inventory: stock is deducted **idempotently** when Paystack marks an order paid (verify/webhook) and when staff sets **payment status to paid** in the PMS (e.g. COD).
 
 ## Features
 

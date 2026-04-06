@@ -136,6 +136,36 @@ class OrderDetailResponse(OrderResponse):
         from_attributes = True
 
 
+class OrderConfirmationItemPublic(BaseModel):
+    """Line items safe to show on the post-payment confirmation page (no addresses or PII)."""
+
+    product_name: str
+    quantity: int
+    unit_price: float
+    total_price: float
+
+
+class OrderConfirmationPublic(BaseModel):
+    """Subset of order data returned after Paystack verify — not a substitute for authenticated order admin APIs."""
+
+    order_number: str
+    status: str
+    payment_status: str
+    subtotal: float
+    shipping_cost: float
+    discount_amount: float
+    total_amount: float
+    items: List[OrderConfirmationItemPublic] = Field(default_factory=list)
+
+
+class PaystackVerifyResponse(BaseModel):
+    verified: bool
+    order: Optional[str] = None
+    status: Optional[str] = None
+    detail: Optional[str] = None
+    order_confirmation: Optional[OrderConfirmationPublic] = None
+
+
 class OrderStatusUpdate(BaseModel):
     status: Optional[str] = None
     payment_status: Optional[str] = None

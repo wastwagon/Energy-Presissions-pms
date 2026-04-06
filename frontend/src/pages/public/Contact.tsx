@@ -18,6 +18,7 @@ import { Phone as PhoneIcon, Email as EmailIcon, LocationOn as LocationIcon } fr
 import { useSearchParams } from 'react-router-dom';
 import websiteContent from '../../data/extracted_content.json';
 import { Seo } from '../../components/Seo';
+import { trackGenerateLead } from '../../utils/analytics';
 
 const Contact: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -49,6 +50,7 @@ const Contact: React.FC = () => {
         message: formData.message.trim(),
         company_website: formData.company_website || undefined,
       });
+      trackGenerateLead(isQuoteRequest ? 'quote_request' : 'contact_form');
       setSubmitOk(true);
       setFormData({
         name: '',
@@ -71,26 +73,26 @@ const Contact: React.FC = () => {
   };
 
   return (
-    <Box sx={{ py: { xs: 4, md: 8 } }}>
+    <Box sx={{ py: { xs: 3, md: 6 } }}>
       <Seo
         title={isQuoteRequest ? 'Request a Solar Quote | Energy Precisions' : 'Contact Energy Precisions | Solar Ghana'}
         description="Contact Energy Precisions for solar quotes, site assessments and support. Haatso, Accra — serving homes and businesses across Ghana."
         path="/contact"
       />
       <Container maxWidth="lg">
-        <Box textAlign="center" mb={6}>
-          <Typography variant="h2" sx={{ mb: 2, fontWeight: 'bold', color: '#1a4d7a' }}>
+        <Box textAlign="center" mb={{ xs: 3, md: 4 }}>
+          <Typography variant="h2" sx={{ mb: 1, fontWeight: 800, color: '#1a4d7a', fontSize: { xs: '1.5rem', md: '1.85rem' } }}>
             {isQuoteRequest ? 'Request a Quote' : "Let's discuss a project"}
           </Typography>
-          <Typography variant="body1" sx={{ color: '#666' }}>
+          <Typography variant="body2" sx={{ color: '#666' }}>
             Get in touch with us for expert solar solutions
           </Typography>
         </Box>
 
-        <Grid container spacing={4}>
+        <Grid container spacing={{ xs: 2, md: 3 }}>
           <Grid item xs={12} md={8}>
             <Card>
-              <CardContent sx={{ p: 4, position: 'relative' }}>
+              <CardContent sx={{ p: { xs: 2.5, md: 3 }, position: 'relative' }}>
                 {submitOk && (
                   <Typography sx={{ mb: 3, color: '#00E676', fontWeight: 600 }}>
                     Thank you for your message. We will contact you soon.

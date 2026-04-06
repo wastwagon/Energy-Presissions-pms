@@ -36,58 +36,63 @@ const Financing: React.FC = () => {
         sx={{
           bgcolor: colors.blueBlack,
           color: 'white',
-          py: { xs: 8, md: 12 },
+          py: { xs: 5, md: 6 },
           position: 'relative',
           overflow: 'hidden',
         }}
       >
         <Container maxWidth="xl">
-          <Grid container spacing={6} alignItems="center">
+          <Grid container spacing={{ xs: 3, md: 4 }} alignItems="center">
             <Grid item xs={12} md={7}>
               <Chip
                 label="SOLAR FOR EVERYONE"
                 sx={{
                   bgcolor: colors.green,
                   color: 'white',
-                  fontWeight: 'bold',
-                  mb: 3,
-                  px: 2,
+                  fontWeight: 700,
+                  mb: 1.5,
+                  px: 1.75,
+                  height: 'auto',
+                  fontSize: '0.7rem',
                 }}
               />
               <Typography
                 variant="h1"
                 sx={{
-                  fontSize: { xs: '2.25rem', md: '3.25rem' },
+                  fontSize: { xs: '1.75rem', sm: '2rem', md: '2.35rem' },
                   fontWeight: 800,
-                  mb: 3,
+                  mb: 2,
                   lineHeight: 1.15,
                 }}
               >
                 Financing &amp; payment paths that fit your project
               </Typography>
               <Typography
-                variant="h6"
+                variant="body1"
                 sx={{
-                  color: 'rgba(255,255,255,0.9)',
-                  lineHeight: 1.75,
+                  color: 'rgba(255,255,255,0.88)',
+                  lineHeight: 1.65,
                   fontWeight: 400,
-                  mb: 4,
+                  mb: 2.5,
+                  fontSize: { xs: '0.95rem', md: '1rem' },
                 }}
               >
                 We are rolling out structured financing and staged-payment options alongside our turnkey
                 design, installation, and maintenance. Tell us about your site and load profile—we will map
                 the clearest path forward and only recommend what we can actually deliver.
               </Typography>
-              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5}>
                 <Button
                   component={RouterLink}
                   to="/contact?action=quote"
                   variant="contained"
-                  size="large"
+                  size="medium"
                   sx={{
                     bgcolor: colors.green,
                     color: 'white',
                     fontWeight: 700,
+                    textTransform: 'none',
+                    px: 2.5,
                     '&:hover': { bgcolor: colors.greenDark },
                   }}
                 >
@@ -97,7 +102,7 @@ const Financing: React.FC = () => {
                   component={RouterLink}
                   to="/contact"
                   variant="outlined"
-                  size="large"
+                  size="medium"
                   sx={{
                     borderColor: 'rgba(255,255,255,0.6)',
                     color: 'white',
@@ -144,11 +149,11 @@ const Financing: React.FC = () => {
         </Container>
       </Box>
 
-      <Container maxWidth="lg" sx={{ py: { xs: 6, md: 10 } }}>
-        <Typography variant="h4" fontWeight={800} sx={{ mb: 2 }}>
+      <Container maxWidth="lg" sx={{ py: { xs: 5, md: 7 } }}>
+        <Typography variant="h2" fontWeight={800} sx={{ mb: 1.5, fontSize: { xs: '1.5rem', md: '1.75rem' } }}>
           Today: practical ways to move your project forward
         </Typography>
-        <Typography variant="body1" color="text.secondary" sx={{ mb: 4, maxWidth: '48rem', lineHeight: 1.8 }}>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 3, maxWidth: '48rem', lineHeight: 1.65 }}>
           Many customers combine equipment purchases from our shop with a custom engineered install. We can
           discuss milestones, retainers, and documentation you need for your own financing—without promising
           third-party approval we do not control.
@@ -192,7 +197,7 @@ const Financing: React.FC = () => {
                   For residential, commercial, agricultural, or hybrid sites, we start with your goals and
                   constraints—then align equipment and installation scope before any financing discussion.
                 </Typography>
-                <Button component={RouterLink} to="/contact?action=quote" variant="contained" color="primary" size="large">
+                <Button component={RouterLink} to="/contact?action=quote" variant="contained" color="primary" size="medium" sx={{ textTransform: 'none' }}>
                   Start with a quote request
                 </Button>
               </CardContent>

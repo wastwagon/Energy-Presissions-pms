@@ -56,6 +56,7 @@ const Header: React.FC = () => {
     { label: 'Portfolio', path: '/portfolio' },
     { label: 'Shop', path: '/shop' },
     { label: 'Financing', path: '/financing' },
+    { label: 'Resources', path: '/blog' },
     { label: 'Contact', path: '/contact' },
   ];
 
@@ -79,8 +80,8 @@ const Header: React.FC = () => {
   };
 
   const drawer = (
-    <Box onClick={handleDrawerToggle} sx={{ textAlign: 'center', pt: 2 }}>
-      <Typography variant="h6" sx={{ mb: 2, color: theme.palette.primary.main, fontWeight: 'bold' }}>
+    <Box onClick={handleDrawerToggle} sx={{ textAlign: 'center', pt: 1.5 }}>
+      <Typography variant="subtitle1" sx={{ mb: 1.5, color: theme.palette.primary.main, fontWeight: 700 }}>
         ENERGY PRECISIONS
       </Typography>
       <List>
@@ -117,7 +118,7 @@ const Header: React.FC = () => {
         sx={{
           bgcolor: colors.blueBlack,
           color: 'white',
-          py: 1,
+          py: 0.75,
         }}
       >
         <Container maxWidth="xl">
@@ -140,12 +141,14 @@ const Header: React.FC = () => {
             </Box>
             <Button
               variant="contained"
+              size="small"
               sx={{
                 bgcolor: colors.green,
                 color: 'white',
                 '&:hover': { bgcolor: colors.greenDark },
                 textTransform: 'none',
-                px: 3,
+                px: 2,
+                py: 0.5,
                 fontWeight: 600,
               }}
               component={Link}
@@ -169,7 +172,7 @@ const Header: React.FC = () => {
         }}
       >
         <Container maxWidth="xl">
-          <Toolbar disableGutters sx={{ py: 2 }}>
+          <Toolbar disableGutters sx={{ py: 1, minHeight: { xs: 56, md: 60 } }}>
             {isMobile && (
               <IconButton
                 color="inherit"
@@ -190,15 +193,15 @@ const Header: React.FC = () => {
                 alignItems: 'center',
                 textDecoration: 'none',
                 flexGrow: { xs: 1, md: 0 },
-                mr: { md: 4 },
+                mr: { md: 3 },
               }}
             >
               <img
                 src="/website_images/Logo1-1-scaled-e1752479241874.png"
                 alt="Energy Precisions"
                 style={{
-                  height: '50px',
-                  maxWidth: '200px',
+                  height: '42px',
+                  maxWidth: '180px',
                   objectFit: 'contain',
                 }}
                 onError={(e) => {
@@ -213,7 +216,7 @@ const Header: React.FC = () => {
             </Box>
 
             {!isMobile && (
-              <Box sx={{ flexGrow: 1, display: 'flex', gap: 0.5, ml: 4, alignItems: 'center' }}>
+              <Box sx={{ flexGrow: 1, display: 'flex', gap: 0.25, ml: { md: 2 }, alignItems: 'center' }}>
                 {menuItems.map((item) =>
                   item.submenu ? (
                     <Box key={item.label}>
@@ -224,9 +227,9 @@ const Header: React.FC = () => {
                           color: colors.blueBlack,
                           textTransform: 'none',
                           fontWeight: 600,
-                          fontSize: '0.95rem',
-                          px: 2,
-                          py: 1,
+                          fontSize: '0.875rem',
+                          px: 1.25,
+                          py: 0.5,
                           borderRadius: 2,
                           '&:hover': {
                             color: colors.green,
@@ -269,9 +272,9 @@ const Header: React.FC = () => {
                         color: colors.blueBlack,
                         textTransform: 'none',
                         fontWeight: 600,
-                        fontSize: '0.95rem',
-                        px: 2,
-                        py: 1,
+                        fontSize: '0.875rem',
+                        px: 1.25,
+                        py: 0.5,
                         borderRadius: 2,
                         '&:hover': {
                           color: colors.green,

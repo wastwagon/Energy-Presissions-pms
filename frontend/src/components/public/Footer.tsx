@@ -60,22 +60,22 @@ const Footer: React.FC = () => {
       sx={{
         bgcolor: colors.blueBlack,
         color: 'white',
-        pt: 6,
-        pb: 3,
+        pt: { xs: 4, md: 5 },
+        pb: 2.5,
       }}
     >
       <Container maxWidth="xl">
-        <Grid container spacing={4}>
+        <Grid container spacing={{ xs: 3, md: 3 }}>
           {/* Company Info */}
           <Grid item xs={12} md={3}>
-            <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold', color: colors.green }}>
+            <Typography variant="subtitle1" sx={{ mb: 1.25, fontWeight: 700, color: colors.green }}>
               ENERGY PRECISIONS
             </Typography>
-            <Typography variant="body2" sx={{ mb: 2, color: 'rgba(255,255,255,0.8)' }}>
+            <Typography variant="body2" sx={{ mb: 1.5, color: 'rgba(255,255,255,0.8)', lineHeight: 1.6 }}>
               We provide turnkey solar solutions, from design, installation, and commissioning to
               monitoring and maintenance.
             </Typography>
-            <Box display="flex" gap={1} mt={2}>
+            <Box display="flex" gap={0.75} mt={1.5}>
               <IconButton component="a" href={SOCIAL_LINKS.facebook} target="_blank" rel="noopener noreferrer" sx={{ color: 'white' }} size="small" aria-label="Facebook">
                 <FacebookIcon />
               </IconButton>
@@ -93,31 +93,36 @@ const Footer: React.FC = () => {
 
           {/* Quick Links */}
           <Grid item xs={12} sm={6} md={3}>
-            <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>
+            <Typography variant="subtitle1" sx={{ mb: 1.25, fontWeight: 700 }}>
               Quick Links
             </Typography>
             <Box component="ul" sx={{ listStyle: 'none', p: 0, m: 0 }}>
-              <Box component="li" sx={{ mb: 1 }}>
+              <Box component="li" sx={{ mb: 0.5 }}>
                 <Link component={RouterLink} to="/about" underline="none" color="inherit" sx={{ '&:hover': { color: colors.green } }}>
                   About Us
                 </Link>
               </Box>
-              <Box component="li" sx={{ mb: 1 }}>
+              <Box component="li" sx={{ mb: 0.5 }}>
                 <Link component={RouterLink} to="/contact?action=quote" underline="none" color="inherit" sx={{ '&:hover': { color: colors.green } }}>
                   Get a Quote
                 </Link>
               </Box>
-              <Box component="li" sx={{ mb: 1 }}>
+              <Box component="li" sx={{ mb: 0.5 }}>
                 <Link component={RouterLink} to="/shop" underline="none" color="inherit" sx={{ '&:hover': { color: colors.green } }}>
                   Shop
                 </Link>
               </Box>
-              <Box component="li" sx={{ mb: 1 }}>
+              <Box component="li" sx={{ mb: 0.5 }}>
                 <Link component={RouterLink} to="/financing" underline="none" color="inherit" sx={{ '&:hover': { color: colors.green } }}>
                   Financing
                 </Link>
               </Box>
-              <Box component="li" sx={{ mb: 1 }}>
+              <Box component="li" sx={{ mb: 0.5 }}>
+                <Link component={RouterLink} to="/blog" underline="none" color="inherit" sx={{ '&:hover': { color: colors.green } }}>
+                  Resources
+                </Link>
+              </Box>
+              <Box component="li" sx={{ mb: 0.5 }}>
                 <Link component={RouterLink} to="/services" underline="none" color="inherit" sx={{ '&:hover': { color: colors.green } }}>
                   Our Services
                 </Link>
@@ -127,21 +132,21 @@ const Footer: React.FC = () => {
 
           {/* Other Links */}
           <Grid item xs={12} sm={6} md={3}>
-            <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>
+            <Typography variant="subtitle1" sx={{ mb: 1.25, fontWeight: 700 }}>
               Other Links
             </Typography>
             <Box component="ul" sx={{ listStyle: 'none', p: 0, m: 0 }}>
-              <Box component="li" sx={{ mb: 1 }}>
+              <Box component="li" sx={{ mb: 0.5 }}>
                 <Link component={RouterLink} to="/contact" underline="none" color="inherit" sx={{ '&:hover': { color: colors.green } }}>
                   Contact Us
                 </Link>
               </Box>
-              <Box component="li" sx={{ mb: 1 }}>
+              <Box component="li" sx={{ mb: 0.5 }}>
                 <Link component={RouterLink} to="/portfolio" underline="none" color="inherit" sx={{ '&:hover': { color: colors.green } }}>
                   Our Portfolio
                 </Link>
               </Box>
-              <Box component="li" sx={{ mb: 1 }}>
+              <Box component="li" sx={{ mb: 0.5 }}>
                 <Link component={RouterLink} to="/#testimonials" underline="none" color="inherit" sx={{ '&:hover': { color: colors.green } }}>
                   Client Reviews
                 </Link>
@@ -151,10 +156,10 @@ const Footer: React.FC = () => {
 
           {/* Services & Newsletter */}
           <Grid item xs={12} md={3}>
-            <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>
+            <Typography variant="subtitle1" sx={{ mb: 1.25, fontWeight: 700 }}>
               Service List
             </Typography>
-            <Box component="ul" sx={{ listStyle: 'none', p: 0, m: 0, mb: 3 }}>
+            <Box component="ul" sx={{ listStyle: 'none', p: 0, m: 0, mb: 2 }}>
               <Box component="li" sx={{ mb: 0.5, fontSize: '0.875rem' }}>
                 Residential Solar Installation
               </Box>
@@ -169,10 +174,10 @@ const Footer: React.FC = () => {
               </Box>
             </Box>
 
-            <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>
+            <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700, letterSpacing: 0.02 }}>
               SUBSCRIBE TO NEWSLETTER
             </Typography>
-            <Typography variant="body2" sx={{ mb: 2, color: 'rgba(255,255,255,0.8)' }}>
+            <Typography variant="body2" sx={{ mb: 1.5, color: 'rgba(255,255,255,0.8)', lineHeight: 1.55 }}>
               Get exclusive news & offers through our Energy Precision newsletter
             </Typography>
             <Box display="flex" flexDirection="column" gap={1}>
@@ -195,6 +200,7 @@ const Footer: React.FC = () => {
                 />
                 <Button
                   variant="contained"
+                  size="small"
                   onClick={handleSubscribe}
                   disabled={loading}
                   sx={{
@@ -202,7 +208,7 @@ const Footer: React.FC = () => {
                     color: 'white',
                     '&:hover': { bgcolor: colors.greenDark },
                     textTransform: 'none',
-                    minWidth: 100,
+                    minWidth: 88,
                   }}
                 >
                   {loading ? <CircularProgress size={24} color="inherit" /> : 'Subscribe'}
@@ -221,11 +227,11 @@ const Footer: React.FC = () => {
         <Box
           sx={{
             borderTop: '1px solid rgba(255,255,255,0.2)',
-            mt: 4,
-            pt: 3,
+            mt: 3,
+            pt: 2.5,
             display: 'flex',
             flexWrap: 'wrap',
-            gap: 3,
+            gap: 2,
             justifyContent: 'center',
           }}
         >
@@ -244,9 +250,9 @@ const Footer: React.FC = () => {
         </Box>
 
         {/* Copyright */}
-        <Box sx={{ textAlign: 'center', mt: 3, pt: 3, borderTop: '1px solid rgba(255,255,255,0.2)' }}>
+        <Box sx={{ textAlign: 'center', mt: 2, pt: 2, borderTop: '1px solid rgba(255,255,255,0.2)' }}>
             <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>
-            © Copyright 2025 Energy Precisions. All rights reserved.
+            © Copyright {new Date().getFullYear()} Energy Precisions. All rights reserved.
           </Typography>
         </Box>
       </Container>

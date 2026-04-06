@@ -1,10 +1,11 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Box, Container, Typography, Button, Card, CardContent, Alert, CircularProgress } from '@mui/material';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { CheckCircle as CheckCircleIcon } from '@mui/icons-material';
 import api from '../../services/api';
 import { useCart } from '../../contexts/CartContext';
 import { Seo } from '../../components/Seo';
+import { trackPurchase } from '../../utils/analytics';
 
 const CheckoutSuccess: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -14,6 +15,7 @@ const CheckoutSuccess: React.FC = () => {
   const [order, setOrder] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const purchaseSent = useRef(false);
 
   const verifyOrder = useCallback(async () => {
     try {
@@ -21,8 +23,12 @@ const CheckoutSuccess: React.FC = () => {
       const response = await api.get(`/payments/paystack/verify/${orderNumber}`);
       
       if (response.data.verified) {
-        const orderResponse = await api.get(`/ecommerce/orders/${orderNumber}`);
-        setOrder(orderResponse.data);
+        const oc = response.data.order_confirmation;
+        if (oc) {
+          setOrder(oc);
+        } else {
+          setError('Payment verified but order summary is unavailable. Check your email or contact support.');
+        }
       } else {
         setError('Payment verification failed. Please contact support if payment was deducted.');
       }
@@ -50,9 +56,23 @@ const CheckoutSuccess: React.FC = () => {
     }
   }, [order, clearCart]);
 
+  useEffect(() => {
+    if (!order || purchaseSent.current) return;
+    if (order.payment_status !== 'paid') return;
+    const tid = String(order.order_number ?? order.id ?? '');
+    const value = Number(order.total_amount);
+    if (!tid) return;
+    purchaseSent.current = true;
+    trackPurchase({
+      transaction_id: tid,
+      value: Number.isFinite(value) ? value : 0,
+      currency: 'GHS',
+    });
+  }, [order]);
+
   if (loading) {
     return (
-      <Box sx={{ py: 8, textAlign: 'center' }}>
+      <Box sx={{ py: { xs: 5, md: 6 }, textAlign: 'center' }}>
         <Seo
           title="Order confirmation"
           description="Verifying your payment."
@@ -61,7 +81,7 @@ const CheckoutSuccess: React.FC = () => {
         />
         <Container maxWidth="md">
           <CircularProgress />
-          <Typography variant="h6" sx={{ mt: 2 }}>
+          <Typography variant="body1" sx={{ mt: 1.5 }}>
             Verifying your payment...
           </Typography>
         </Container>
@@ -71,7 +91,7 @@ const CheckoutSuccess: React.FC = () => {
 
   if (error) {
     return (
-      <Box sx={{ py: 8 }}>
+      <Box sx={{ py: { xs: 5, md: 6 } }}>
         <Seo
           title="Order verification"
           description="Payment verification issue."
@@ -84,6 +104,7 @@ const CheckoutSuccess: React.FC = () => {
           </Alert>
           <Button
             variant="contained"
+            size="medium"
             onClick={() => navigate('/contact')}
             sx={{
               bgcolor: '#00E676',
@@ -99,7 +120,7 @@ const CheckoutSuccess: React.FC = () => {
   }
 
   return (
-    <Box sx={{ py: { xs: 4, md: 8 } }}>
+    <Box sx={{ py: { xs: 3, md: 6 } }}>
       <Seo
         title="Thank you for your order"
         description="Your Energy Precisions order confirmation."
@@ -108,23 +129,23 @@ const CheckoutSuccess: React.FC = () => {
       />
       <Container maxWidth="md">
         <Card>
-          <CardContent sx={{ p: 6, textAlign: 'center' }}>
-            <CheckCircleIcon sx={{ fontSize: 80, color: '#00E676', mb: 2 }} />
-            <Typography variant="h3" sx={{ mb: 2, fontWeight: 'bold', color: '#1a4d7a' }}>
+          <CardContent sx={{ p: { xs: 3, md: 4 }, textAlign: 'center' }}>
+            <CheckCircleIcon sx={{ fontSize: 64, color: '#00E676', mb: 1.5 }} />
+            <Typography variant="h2" sx={{ mb: 1.5, fontWeight: 800, color: '#1a4d7a', fontSize: { xs: '1.5rem', md: '1.85rem' } }}>
               Payment Successful!
             </Typography>
-            <Typography variant="h5" sx={{ mb: 4, color: '#00E676' }}>
+            <Typography variant="subtitle1" sx={{ mb: 2, color: '#00E676', fontWeight: 700 }}>
               Order Number: {order?.order_number}
             </Typography>
-            <Typography variant="body1" sx={{ mb: 4, color: '#666', lineHeight: 1.8 }}>
+            <Typography variant="body2" sx={{ mb: 3, color: '#666', lineHeight: 1.65 }}>
               Thank you for your order! We've sent a confirmation email to your inbox.
               <br />
               Your order is being processed and you will receive updates about your order status.
             </Typography>
 
             {order && (
-              <Box sx={{ bgcolor: '#f8f9fa', p: 3, borderRadius: 2, mb: 4, textAlign: 'left' }}>
-                <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>
+              <Box sx={{ bgcolor: '#f8f9fa', p: 2, borderRadius: 2, mb: 3, textAlign: 'left' }}>
+                <Typography variant="subtitle1" sx={{ mb: 1.5, fontWeight: 700 }}>
                   Order Summary
                 </Typography>
                 <Box display="flex" justifyContent="space-between" mb={1}>
@@ -142,28 +163,28 @@ const CheckoutSuccess: React.FC = () => {
               </Box>
             )}
 
-            <Box display="flex" gap={2} justifyContent="center" flexWrap="wrap">
+            <Box display="flex" gap={1.5} justifyContent="center" flexWrap="wrap">
               <Button
                 variant="contained"
+                size="medium"
                 onClick={() => navigate('/shop')}
                 sx={{
                   bgcolor: '#00E676',
                   '&:hover': { bgcolor: '#00C85F' },
                   textTransform: 'none',
-                  px: 4,
                 }}
               >
                 Continue Shopping
               </Button>
               <Button
                 variant="outlined"
+                size="medium"
                 onClick={() => navigate('/contact')}
                 sx={{
                   borderColor: '#1a4d7a',
                   color: '#1a4d7a',
                   '&:hover': { borderColor: '#1a4d7a', bgcolor: 'rgba(26, 77, 122, 0.04)' },
                   textTransform: 'none',
-                  px: 4,
                 }}
               >
                 Contact Us

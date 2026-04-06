@@ -8,6 +8,7 @@ import { CartProvider } from './contexts/CartContext';
 import PrivateRoute from './components/PrivateRoute';
 import PublicLayout from './components/public/PublicLayout';
 import Layout from './components/Layout';
+import AnalyticsRouteListener from './components/AnalyticsRouteListener';
 
 // Eager-load critical above-the-fold pages
 import Home from './pages/public/Home';
@@ -26,6 +27,8 @@ const CheckoutSuccess = lazy(() => import('./pages/public/CheckoutSuccess'));
 const Contact = lazy(() => import('./pages/public/Contact'));
 const FAQs = lazy(() => import('./pages/public/FAQs'));
 const Financing = lazy(() => import('./pages/public/Financing'));
+const Blog = lazy(() => import('./pages/public/Blog'));
+const BlogPost = lazy(() => import('./pages/public/BlogPost'));
 const Portfolio = lazy(() => import('./pages/public/Portfolio'));
 const Customers = lazy(() => import('./pages/Customers'));
 const Projects = lazy(() => import('./pages/Projects'));
@@ -42,8 +45,8 @@ const ContactInquiries = lazy(() => import('./pages/ContactInquiries'));
 const PromoCodes = lazy(() => import('./pages/PromoCodes'));
 
 const PageLoader = () => (
-  <Box display="flex" justifyContent="center" alignItems="center" minHeight="40vh">
-    <CircularProgress />
+  <Box display="flex" justifyContent="center" alignItems="center" minHeight="28vh" py={2}>
+    <CircularProgress size={36} />
   </Box>
 );
 
@@ -80,6 +83,7 @@ function App() {
               v7_relativeSplatPath: true,
             }}
           >
+          <AnalyticsRouteListener />
           <Routes>
             {/* Legacy interface chooser → corporate home */}
             <Route path="/select" element={<Navigate to="/" replace />} />
@@ -99,6 +103,8 @@ function App() {
               <Route path="contact" element={<Suspense fallback={<PageLoader />}><Contact /></Suspense>} />
               <Route path="faqs" element={<Suspense fallback={<PageLoader />}><FAQs /></Suspense>} />
               <Route path="financing" element={<Suspense fallback={<PageLoader />}><Financing /></Suspense>} />
+              <Route path="blog" element={<Suspense fallback={<PageLoader />}><Blog /></Suspense>} />
+              <Route path="blog/:slug" element={<Suspense fallback={<PageLoader />}><BlogPost /></Suspense>} />
               <Route path="portfolio" element={<Suspense fallback={<PageLoader />}><Portfolio /></Suspense>} />
             </Route>
 

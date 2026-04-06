@@ -25,13 +25,14 @@ import {
 import { Link, useLocation } from 'react-router-dom';
 import { Seo } from '../../components/Seo';
 import { colors } from '../../theme/colors';
+import { servicesPageImages } from '../../data/homePageMedia';
 
 const Services: React.FC = () => {
   const { pathname } = useLocation();
 
   const premiumServices = [
     {
-      icon: <HomeIcon sx={{ fontSize: '3rem' }} />,
+      icon: <HomeIcon sx={{ fontSize: '2.25rem' }} />,
       title: 'Residential Solar Installation',
       description: 'Complete home solar systems designed for Ghanaian families. Reduce electricity bills by up to 90% with reliable, grid-tied or off-grid solutions.',
       features: [
@@ -42,11 +43,11 @@ const Services: React.FC = () => {
         '10-Year Warranty',
         'Maintenance Support',
       ],
-      image: 'https://images.unsplash.com/photo-1509391366360-2e959784a276?w=800',
+      image: servicesPageImages.residential,
       color: colors.green,
     },
     {
-      icon: <BusinessIcon sx={{ fontSize: '3rem' }} />,
+      icon: <BusinessIcon sx={{ fontSize: '2.25rem' }} />,
       title: 'Commercial Solar Installation',
       description: 'Large-scale solar solutions for businesses, offices, and commercial buildings. Maximize ROI with custom-designed systems.',
       features: [
@@ -57,11 +58,11 @@ const Services: React.FC = () => {
         'Scalable Solutions',
         '24/7 Monitoring',
       ],
-      image: 'https://images.unsplash.com/photo-1559302504-64aae0ca2a3d?w=800',
+      image: servicesPageImages.commercial,
       color: colors.blueBlack,
     },
     {
-      icon: <FactoryIcon sx={{ fontSize: '3rem' }} />,
+      icon: <FactoryIcon sx={{ fontSize: '2.25rem' }} />,
       title: 'Industrial Solar Solutions',
       description: 'Heavy-duty solar systems for factories and industrial facilities. Power your operations with reliable, cost-effective solar energy.',
       features: [
@@ -72,11 +73,11 @@ const Services: React.FC = () => {
         'Dedicated Support Team',
         'Energy Management',
       ],
-      image: 'https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=800',
+      image: servicesPageImages.industrial,
       color: colors.green,
     },
     {
-      icon: <BatteryIcon sx={{ fontSize: '3rem' }} />,
+      icon: <BatteryIcon sx={{ fontSize: '2.25rem' }} />,
       title: 'Battery Storage Solutions',
       description: 'Advanced battery storage systems for energy independence. Store solar energy for use during power outages and peak hours.',
       features: [
@@ -87,11 +88,11 @@ const Services: React.FC = () => {
         'Backup Power Solutions',
         'Grid Independence',
       ],
-      image: 'https://images.unsplash.com/photo-1559302504-64aae0ca2a3d?w=800',
+      image: servicesPageImages.battery,
       color: colors.blueBlack,
     },
     {
-      icon: <SolarPowerIcon sx={{ fontSize: '3rem' }} />,
+      icon: <SolarPowerIcon sx={{ fontSize: '2.25rem' }} />,
       title: 'Solar Energy Consultation',
       description: 'Expert consultation to help you choose the right solar solution. Free site assessments and energy audits for your property.',
       features: [
@@ -102,11 +103,11 @@ const Services: React.FC = () => {
         'Financing Options',
         'Government Incentive Guidance',
       ],
-      image: 'https://images.unsplash.com/photo-1509391366360-2e959784a276?w=800',
+      image: servicesPageImages.consultation,
       color: colors.green,
     },
     {
-      icon: <EngineeringIcon sx={{ fontSize: '3rem' }} />,
+      icon: <EngineeringIcon sx={{ fontSize: '2.25rem' }} />,
       title: 'System Maintenance & Monitoring',
       description: 'Ongoing maintenance and monitoring services to ensure your solar system operates at peak efficiency for years to come.',
       features: [
@@ -117,7 +118,7 @@ const Services: React.FC = () => {
         'Cleaning Services',
         'Annual System Inspections',
       ],
-      image: 'https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=800',
+      image: servicesPageImages.maintenance,
       color: colors.blueBlack,
     },
   ];
@@ -134,41 +135,43 @@ const Services: React.FC = () => {
         sx={{
           bgcolor: colors.blueBlack,
           color: 'white',
-          py: { xs: 8, md: 12 },
+          py: { xs: 5, md: 6 },
           position: 'relative',
           overflow: 'hidden',
         }}
       >
         <Container maxWidth="xl">
-          <Box textAlign="center" maxWidth="900px" mx="auto">
+          <Box textAlign="center" maxWidth={720} mx="auto">
             <Chip
               label="OUR SERVICES"
               sx={{
                 bgcolor: colors.green,
                 color: 'white',
-                fontWeight: 'bold',
-                mb: 3,
-                px: 2,
-                py: 0.5,
+                fontWeight: 700,
+                mb: 1.5,
+                px: 1.75,
+                height: 'auto',
+                fontSize: '0.7rem',
               }}
             />
             <Typography
               variant="h1"
               sx={{
-                fontSize: { xs: '2.5rem', md: '4rem' },
+                fontSize: { xs: '1.75rem', sm: '2rem', md: '2.35rem' },
                 fontWeight: 800,
-                mb: 3,
-                lineHeight: 1.1,
+                mb: 2,
+                lineHeight: 1.15,
               }}
             >
               Complete Solar Solutions for Ghana
             </Typography>
             <Typography
-              variant="h6"
+              variant="body1"
               sx={{
-                color: 'rgba(255,255,255,0.9)',
-                lineHeight: 1.8,
+                color: 'rgba(255,255,255,0.88)',
+                lineHeight: 1.65,
                 fontWeight: 400,
+                fontSize: { xs: '0.95rem', md: '1rem' },
               }}
             >
               From premium equipment sales to expert installation and ongoing maintenance, 
@@ -179,9 +182,9 @@ const Services: React.FC = () => {
       </Box>
 
       {/* Services Grid */}
-      <Box sx={{ py: { xs: 8, md: 12 }, bgcolor: 'white' }}>
+      <Box sx={{ py: { xs: 6, md: 8 }, bgcolor: 'white' }}>
         <Container maxWidth="xl">
-          <Grid container spacing={4}>
+          <Grid container spacing={{ xs: 2, md: 3 }}>
             {premiumServices.map((service, index) => (
               <Grid item xs={12} md={6} key={index}>
                 <Card
@@ -189,20 +192,20 @@ const Services: React.FC = () => {
                     height: '100%',
                     display: 'flex',
                     flexDirection: 'column',
-                    borderRadius: 3,
+                    borderRadius: 2,
                     overflow: 'hidden',
-                    border: `2px solid ${colors.gray200}`,
-                    transition: 'all 0.3s ease',
+                    border: `1px solid ${colors.gray200}`,
+                    transition: 'transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease',
                     '&:hover': {
-                      transform: 'translateY(-8px)',
-                      boxShadow: '0 16px 48px rgba(0,0,0,0.15)',
+                      transform: 'translateY(-3px)',
+                      boxShadow: '0 12px 32px rgba(0,0,0,0.1)',
                       borderColor: colors.green,
                     },
                   }}
                 >
                   <Box
                     sx={{
-                      height: 220,
+                      height: { xs: 170, sm: 190 },
                       overflow: 'hidden',
                       position: 'relative',
                       bgcolor: colors.gray200,
@@ -215,8 +218,8 @@ const Services: React.FC = () => {
                       sx={{
                         height: '100%',
                         objectFit: 'cover',
-                        transition: 'transform 0.5s ease',
-                        '&:hover': { transform: 'scale(1.05)' },
+                        transition: 'transform 0.35s ease',
+                        '&:hover': { transform: 'scale(1.03)' },
                       }}
                     />
                     <Box
@@ -233,31 +236,32 @@ const Services: React.FC = () => {
                       {service.icon}
                     </Box>
                   </Box>
-                  <CardContent sx={{ flexGrow: 1, p: 4 }}>
+                  <CardContent sx={{ flexGrow: 1, p: { xs: 2.5, md: 3 } }}>
                     <Typography
-                      variant="h4"
+                      variant="h6"
                       sx={{
-                        mb: 2,
+                        mb: 1.25,
                         fontWeight: 700,
                         color: colors.blueBlack,
+                        fontSize: '1.1rem',
                       }}
                     >
                       {service.title}
                     </Typography>
                     <Typography
-                      variant="body1"
+                      variant="body2"
                       sx={{
-                        mb: 3,
-                        color: '#666',
-                        lineHeight: 1.8,
-                        fontSize: '1.1rem',
+                        mb: 2,
+                        color: colors.gray600,
+                        lineHeight: 1.65,
+                        fontSize: '0.9rem',
                       }}
                     >
                       {service.description}
                     </Typography>
-                    <Divider sx={{ my: 3 }} />
-                    <Box sx={{ mb: 3 }}>
-                      <Typography variant="h6" sx={{ mb: 2, fontWeight: 700, color: '#1a4d7a' }}>
+                    <Divider sx={{ my: 2 }} />
+                    <Box sx={{ mb: 2 }}>
+                      <Typography variant="subtitle2" sx={{ mb: 1.25, fontWeight: 700, color: colors.blueNavy }}>
                         What's Included:
                       </Typography>
                       <Grid container spacing={1}>
@@ -278,20 +282,19 @@ const Services: React.FC = () => {
                       component={Link}
                       to="/contact?action=quote"
                       fullWidth
-                      endIcon={<ArrowForwardIcon />}
+                      size="small"
+                      endIcon={<ArrowForwardIcon sx={{ fontSize: 18 }} />}
                       sx={{
                         bgcolor: service.color as string,
                         color: 'white',
-                        py: 1.5,
+                        py: 1,
                         fontWeight: 600,
                         textTransform: 'none',
-                        fontSize: '1rem',
+                        fontSize: '0.9rem',
                         '&:hover': {
                           bgcolor: service.color === colors.green ? colors.greenDark : colors.blueBlackLight,
-                          transform: 'translateY(-2px)',
-                          boxShadow: `0 8px 24px ${service.color}40`,
                         },
-                        transition: 'all 0.3s ease',
+                        transition: 'background-color 0.2s ease',
                       }}
                     >
                       Request Quote
@@ -305,37 +308,40 @@ const Services: React.FC = () => {
       </Box>
 
       {/* Installation Process */}
-      <Box sx={{ py: { xs: 8, md: 12 }, bgcolor: '#f8f9fa' }}>
+      <Box sx={{ py: { xs: 6, md: 8 }, bgcolor: colors.offWhite }}>
         <Container maxWidth="xl">
-          <Box textAlign="center" mb={8}>
+          <Box textAlign="center" mb={{ xs: 4, md: 5 }}>
             <Chip
               label="OUR PROCESS"
               sx={{
                 bgcolor: colors.green,
                 color: 'white',
-                fontWeight: 'bold',
-                mb: 2,
-                px: 2,
+                fontWeight: 700,
+                mb: 1.5,
+                px: 1.75,
+                height: 'auto',
+                fontSize: '0.7rem',
               }}
             />
             <Typography
               variant="h2"
               sx={{
-                mt: 2,
-                mb: 3,
+                mt: 1.5,
+                mb: 1.5,
                 fontWeight: 800,
-                color: '#1a4d7a',
-                fontSize: { xs: '2.5rem', md: '3.5rem' },
+                color: colors.blueNavy,
+                fontSize: { xs: '1.65rem', md: '2.1rem' },
+                lineHeight: 1.2,
               }}
             >
               Simple 5-Step Installation Process
             </Typography>
-            <Typography variant="h6" sx={{ color: '#666', fontWeight: 400, maxWidth: '700px', mx: 'auto' }}>
+            <Typography variant="body1" sx={{ color: colors.gray600, fontWeight: 400, maxWidth: 560, mx: 'auto', fontSize: '0.95rem' }}>
               From consultation to activation, we make going solar simple and stress-free
             </Typography>
           </Box>
 
-          <Grid container spacing={4}>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: { xs: 2, md: 2 }, justifyContent: 'center' }}>
             {[
               {
                 step: '01',
@@ -368,26 +374,32 @@ const Services: React.FC = () => {
                 icon: <BatteryIcon />,
               },
             ].map((item, index) => (
-              <Grid item xs={12} sm={6} md={2.4} key={index}>
+              <Box
+                key={index}
+                sx={{
+                  flex: '1 1 200px',
+                  maxWidth: { xs: '100%', sm: 'calc(50% - 8px)', md: 'calc(20% - 13px)' },
+                  minWidth: { xs: '100%', sm: '220px', md: '160px' },
+                }}
+              >
                 <Card
                   sx={{
                     height: '100%',
                     textAlign: 'center',
-                    p: 3,
-                    borderRadius: 3,
-                    border: '1px solid #e0e0e0',
-                    transition: 'all 0.3s ease',
+                    p: { xs: 2, md: 2.5 },
+                    borderRadius: 2,
+                    border: `1px solid ${colors.gray200}`,
+                    transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
                     '&:hover': {
-                      borderColor: '#00E676',
-                      transform: 'translateY(-8px)',
-                      boxShadow: '0 12px 40px rgba(0,0,0,0.1)',
+                      borderColor: colors.green,
+                      boxShadow: '0 8px 24px rgba(0,0,0,0.06)',
                     },
                   }}
                 >
                   <Box
                     sx={{
-                      width: 100,
-                      height: 100,
+                      width: 56,
+                      height: 56,
                       borderRadius: '50%',
                       bgcolor: colors.green,
                       color: 'white',
@@ -395,63 +407,59 @@ const Services: React.FC = () => {
                       alignItems: 'center',
                       justifyContent: 'center',
                       mx: 'auto',
-                      mb: 2,
-                      fontSize: '1.8rem',
-                      fontWeight: 'bold',
+                      mb: 1.5,
+                      fontSize: '1.1rem',
+                      fontWeight: 800,
                     }}
                   >
                     {item.step}
                   </Box>
-                  <Box sx={{ color: '#1a4d7a', mb: 2, fontSize: '2.5rem' }}>{item.icon}</Box>
-                  <Typography
-                    variant="h6"
-                    sx={{
-                      mb: 1.5,
-                      fontWeight: 700,
-                      color: '#1a4d7a',
-                    }}
-                  >
+                  <Box sx={{ color: colors.blueNavy, mb: 1.25, fontSize: '1.85rem', display: 'flex', justifyContent: 'center' }}>{item.icon}</Box>
+                  <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 700, color: colors.blueNavy, fontSize: '0.95rem' }}>
                     {item.title}
                   </Typography>
-                  <Typography variant="body2" sx={{ color: '#666', lineHeight: 1.6 }}>
+                  <Typography variant="body2" sx={{ color: colors.gray600, lineHeight: 1.55, fontSize: '0.8rem' }}>
                     {item.desc}
                   </Typography>
                 </Card>
-              </Grid>
+              </Box>
             ))}
-          </Grid>
+          </Box>
         </Container>
       </Box>
 
       {/* Guarantees Section */}
-      <Box sx={{ py: { xs: 8, md: 12 }, bgcolor: 'white' }}>
+      <Box sx={{ py: { xs: 6, md: 8 }, bgcolor: 'white' }}>
         <Container maxWidth="xl">
-          <Box textAlign="center" mb={8}>
+          <Box textAlign="center" mb={{ xs: 4, md: 5 }}>
             <Chip
               label="OUR GUARANTEES"
               sx={{
                 bgcolor: colors.green,
                 color: 'white',
-                fontWeight: 'bold',
-                mb: 2,
-                px: 2,
+                fontWeight: 700,
+                mb: 1.5,
+                px: 1.75,
+                height: 'auto',
+                fontSize: '0.7rem',
               }}
             />
             <Typography
               variant="h2"
               sx={{
-                mt: 2,
-                mb: 3,
+                mt: 1.5,
+                mb: 0,
                 fontWeight: 800,
-                color: '#1a4d7a',
-                fontSize: { xs: '2.5rem', md: '3.5rem' },
+                color: colors.blueNavy,
+                fontSize: { xs: '1.65rem', md: '2.1rem' },
+                lineHeight: 1.2,
               }}
             >
               Your Investment is Protected
             </Typography>
           </Box>
 
-          <Grid container spacing={4}>
+          <Grid container spacing={{ xs: 2, md: 2.5 }}>
             {[
               {
                 title: '10-Year Installation Warranty',
@@ -478,30 +486,22 @@ const Services: React.FC = () => {
                 <Card
                   sx={{
                     height: '100%',
-                    p: 4,
-                    borderRadius: 3,
+                    p: { xs: 2.5, md: 3 },
+                    borderRadius: 2,
                     textAlign: 'center',
-                    border: `2px solid ${colors.green}`,
-                    bgcolor: '#f8f9fa',
-                    transition: 'all 0.3s ease',
+                    border: `1px solid ${colors.green}`,
+                    bgcolor: colors.offWhite,
+                    transition: 'box-shadow 0.2s ease',
                     '&:hover': {
-                      transform: 'translateY(-8px)',
-                      boxShadow: '0 12px 40px rgba(0,0,0,0.1)',
+                      boxShadow: '0 8px 24px rgba(0,0,0,0.07)',
                     },
                   }}
                 >
-                  <Box sx={{ color: '#00E676', fontSize: '3rem', mb: 2 }}>{guarantee.icon}</Box>
-                  <Typography
-                    variant="h6"
-                    sx={{
-                      mb: 2,
-                      fontWeight: 700,
-                      color: '#1a4d7a',
-                    }}
-                  >
+                  <Box sx={{ color: colors.green, fontSize: '2.25rem', mb: 1.5 }}>{guarantee.icon}</Box>
+                  <Typography variant="subtitle1" sx={{ mb: 1.25, fontWeight: 700, color: colors.blueNavy, fontSize: '0.95rem' }}>
                     {guarantee.title}
                   </Typography>
-                  <Typography variant="body2" sx={{ color: '#666', lineHeight: 1.8 }}>
+                  <Typography variant="body2" sx={{ color: colors.gray600, lineHeight: 1.6, fontSize: '0.85rem' }}>
                     {guarantee.desc}
                   </Typography>
                 </Card>
@@ -514,31 +514,34 @@ const Services: React.FC = () => {
       {/* CTA Section */}
       <Box
         sx={{
-          py: { xs: 8, md: 12 },
+          py: { xs: 6, md: 8 },
           background: `linear-gradient(135deg, ${colors.blueBlack} 0%, ${colors.blueBlackLight} 100%)`,
           color: 'white',
         }}
       >
-        <Container maxWidth="lg">
+        <Container maxWidth="md">
           <Box textAlign="center">
             <Typography
               variant="h2"
               sx={{
-                mb: 3,
+                mb: 2,
                 fontWeight: 800,
-                fontSize: { xs: '2.5rem', md: '3.5rem' },
+                fontSize: { xs: '1.65rem', md: '2.1rem' },
+                lineHeight: 1.2,
               }}
             >
               Ready to Start Your Solar Journey?
             </Typography>
             <Typography
-              variant="h6"
+              variant="body1"
               sx={{
-                mb: 5,
+                mb: 3,
                 color: 'rgba(255,255,255,0.9)',
-                maxWidth: '700px',
+                maxWidth: 520,
                 mx: 'auto',
                 fontWeight: 400,
+                lineHeight: 1.65,
+                fontSize: '0.95rem',
               }}
             >
               Get a free consultation and quote today. Our team will assess your needs 
@@ -546,16 +549,16 @@ const Services: React.FC = () => {
             </Typography>
             <Button
               variant="contained"
-              size="large"
+              size="medium"
               component={Link}
               to="/contact?action=quote"
-              endIcon={<ArrowForwardIcon />}
+              endIcon={<ArrowForwardIcon sx={{ fontSize: 18 }} />}
               sx={{
                 bgcolor: colors.green,
                 color: 'white',
-                px: 5,
-                py: 1.8,
-                fontSize: '1.1rem',
+                px: 3.5,
+                py: 1.25,
+                fontSize: '0.95rem',
                 fontWeight: 600,
                 textTransform: 'none',
                 borderRadius: 2,

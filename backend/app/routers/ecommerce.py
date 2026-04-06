@@ -4,7 +4,7 @@ Public-facing e-commerce endpoints and admin order management
 """
 from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, status, Request, Query
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import or_, desc
 from app.database import get_db
 from app.models import Product, ProductType, Customer, User
@@ -18,6 +18,7 @@ from app.auth import get_current_active_user, require_role
 from app.services.ecommerce_pricing import catalog_unit_price
 from app.services.ecommerce_shipping import compute_shipping_cost
 from app.services.coupon_order import compute_order_coupon_discount
+from app.services.stock import deduct_stock_on_order_paid
 from datetime import datetime, timezone
 import uuid
 
@@ -400,15 +401,23 @@ async def update_order_status(
     current_user: User = Depends(get_current_active_user)
 ):
     """Admin: Update order status (auth required)"""
-    order = db.query(Order).filter(Order.order_number == order_number).first()
+    order = (
+        db.query(Order)
+        .options(joinedload(Order.items))
+        .filter(Order.order_number == order_number)
+        .first()
+    )
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
+    was_paid = order.payment_status == "paid"
     if update.status is not None:
         order.status = update.status
     if update.payment_status is not None:
         order.payment_status = update.payment_status
     if update.tracking_number is not None:
         order.tracking_number = update.tracking_number
+    if update.payment_status == "paid" and not was_paid:
+        deduct_stock_on_order_paid(db, order.id)
     db.commit()
     db.refresh(order)
     return order
@@ -417,10 +426,16 @@ async def update_order_status(
 @router.get("/orders/{order_number}", response_model=OrderDetailResponse)
 async def get_order(
     order_number: str,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
 ):
-    """Get order by order number (includes items)"""
-    order = db.query(Order).filter(Order.order_number == order_number).first()
+    """Get order by order number (includes items). Staff auth required — avoids public PII leak."""
+    order = (
+        db.query(Order)
+        .options(joinedload(Order.items))
+        .filter(Order.order_number == order_number)
+        .first()
+    )
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
     return order
