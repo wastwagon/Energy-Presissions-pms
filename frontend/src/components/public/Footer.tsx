@@ -23,13 +23,7 @@ import {
   Instagram as InstagramIcon,
 } from '@mui/icons-material';
 import api from '../../services/api';
-
-const SOCIAL_LINKS = {
-  facebook: 'https://www.facebook.com/energyprecisions',
-  twitter: 'https://twitter.com/energyprecisions',
-  linkedin: 'https://www.linkedin.com/company/energyprecisions',
-  instagram: 'https://www.instagram.com/energyprecisions',
-};
+import { SOCIAL_LINKS } from '../../data/socialLinks';
 
 const Footer: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -61,7 +55,8 @@ const Footer: React.FC = () => {
         bgcolor: colors.blueBlack,
         color: 'white',
         pt: { xs: 4, md: 5 },
-        pb: 2.5,
+        /* Extra space on small screens so content clears the fixed mobile bottom nav */
+        pb: { xs: 'calc(5rem + env(safe-area-inset-bottom, 0px))', md: 2.5 },
       }}
     >
       <Container maxWidth="xl">
