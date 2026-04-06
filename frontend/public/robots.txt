@@ -1,0 +1,7 @@
+# Energy Precisions — allow indexing of public marketing & shop routes
+User-agent: *
+Allow: /
+Disallow: /pms/
+Disallow: /web/
+
+Sitemap: https://energyprecisions.com/sitemap.xml

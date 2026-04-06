@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import api from '../../services/api';
 import {
   Box,
   Container,
@@ -16,6 +17,7 @@ import {
 import { Phone as PhoneIcon, Email as EmailIcon, LocationOn as LocationIcon } from '@mui/icons-material';
 import { useSearchParams } from 'react-router-dom';
 import websiteContent from '../../data/extracted_content.json';
+import { Seo } from '../../components/Seo';
 
 const Contact: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -28,17 +30,53 @@ const Contact: React.FC = () => {
     phone: '',
     service: '',
     message: '',
+    company_website: '',
   });
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [submitOk, setSubmitOk] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement form submission
-    console.log('Form submitted:', formData);
-    alert('Thank you for your message! We will contact you soon.');
+    setSubmitError(null);
+    setSubmitting(true);
+    try {
+      await api.post('/contact/submit', {
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        phone: formData.phone.trim(),
+        service: formData.service || undefined,
+        message: formData.message.trim(),
+        company_website: formData.company_website || undefined,
+      });
+      setSubmitOk(true);
+      setFormData({
+        name: '',
+        email: '',
+        phone: '',
+        service: '',
+        message: '',
+        company_website: '',
+      });
+    } catch (err: any) {
+      const d = err.response?.data?.detail;
+      if (err.response?.status === 429) {
+        setSubmitError('Too many requests. Please wait a few minutes and try again.');
+      } else {
+        setSubmitError(typeof d === 'string' ? d : 'Something went wrong. Please try again or call us.');
+      }
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
     <Box sx={{ py: { xs: 4, md: 8 } }}>
+      <Seo
+        title={isQuoteRequest ? 'Request a Solar Quote | Energy Precisions' : 'Contact Energy Precisions | Solar Ghana'}
+        description="Contact Energy Precisions for solar quotes, site assessments and support. Haatso, Accra — serving homes and businesses across Ghana."
+        path="/contact"
+      />
       <Container maxWidth="lg">
         <Box textAlign="center" mb={6}>
           <Typography variant="h2" sx={{ mb: 2, fontWeight: 'bold', color: '#1a4d7a' }}>
@@ -52,8 +90,26 @@ const Contact: React.FC = () => {
         <Grid container spacing={4}>
           <Grid item xs={12} md={8}>
             <Card>
-              <CardContent sx={{ p: 4 }}>
-                <form onSubmit={handleSubmit}>
+              <CardContent sx={{ p: 4, position: 'relative' }}>
+                {submitOk && (
+                  <Typography sx={{ mb: 3, color: '#00E676', fontWeight: 600 }}>
+                    Thank you for your message. We will contact you soon.
+                  </Typography>
+                )}
+                {submitError && (
+                  <Typography sx={{ mb: 3, color: 'error.main' }}>{submitError}</Typography>
+                )}
+                <form onSubmit={handleSubmit} autoComplete="on">
+                  <input
+                    type="text"
+                    name="company_website"
+                    value={formData.company_website}
+                    onChange={(e) => setFormData({ ...formData, company_website: e.target.value })}
+                    style={{ position: 'absolute', left: '-9999px', width: 1, height: 1 }}
+                    tabIndex={-1}
+                    autoComplete="off"
+                    aria-hidden
+                  />
                   <Grid container spacing={3}>
                     <Grid item xs={12} sm={6}>
                       <TextField
@@ -116,6 +172,7 @@ const Contact: React.FC = () => {
                         type="submit"
                         variant="contained"
                         size="large"
+                        disabled={submitting}
                         sx={{
                           bgcolor: '#00E676',
                           '&:hover': { bgcolor: '#00C85F' },
@@ -123,7 +180,7 @@ const Contact: React.FC = () => {
                           px: 4,
                         }}
                       >
-                        Send Us Mail
+                        {submitting ? 'Sending…' : 'Send Us Mail'}
                       </Button>
                     </Grid>
                   </Grid>

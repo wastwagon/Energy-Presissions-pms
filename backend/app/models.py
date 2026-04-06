@@ -508,3 +508,16 @@ class NewsletterSubscriber(Base):
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
+
+class ContactInquiry(Base):
+    __tablename__ = "contact_inquiries"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, nullable=False)
+    email = Column(String, nullable=False, index=True)
+    phone = Column(String)
+    service = Column(String)
+    message = Column(Text, nullable=False)
+    source = Column(String, default="website")
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+

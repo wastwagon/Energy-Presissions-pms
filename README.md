@@ -81,12 +81,14 @@ All factors are configurable through the Settings table in the database.
    docker-compose exec backend python -m app.scripts.init_db
    ```
 
-5. Create admin user:
+5. Create admin user (interactive prompts):
    ```bash
    docker-compose exec backend python -m app.scripts.create_admin
    ```
-   
-   Follow the prompts to enter email, password, and full name.
+   Or a one-shot default admin (development only — change the password immediately):
+   ```bash
+   docker-compose exec backend python -m app.scripts.create_default_admin
+   ```
 
 6. (Optional) Add sample products to catalog:
    - Log in as admin
@@ -107,6 +109,29 @@ All factors are configurable through the Settings table in the database.
 - Located in `frontend/`
 - React with TypeScript
 - Material UI components
+- Production Docker image uses `frontend/nginx.conf`: `/robots.txt` and `/sitemap.xml` are served as static files from the build output (correct `Content-Type`), not the SPA `index.html`. After changing SEO files or adding routes, rebuild and redeploy the frontend.
+- The marketing site is the default at `/`. Staff PMS sign-in is at `/pms/admin` (bookmark or type the URL; it is not linked from the public header). Per-route titles and meta tags use `react-helmet-async` (`Seo` in `frontend/src/components/Seo.tsx`).
+
+### Configuration (e-commerce & contact)
+
+| Variable | Purpose |
+|----------|---------|
+| `FRONTEND_URL` | Paystack return URL base (e.g. `http://localhost:5000` locally). |
+| `ADMIN_EMAIL` | Receives contact form submissions and new-order alerts. |
+| `ECOMMERCE_SHIPPING_FLAT_GHS` | Shipping charge when below free-shipping threshold (default `0`). |
+| `ECOMMERCE_FREE_SHIPPING_THRESHOLD_GHS` | Subtotal (GHS) for free shipping (default `5000`; set `0` to disable the rule). |
+| `PAYSTACK_SECRET_KEY` / `PAYSTACK_PUBLIC_KEY` | Payment integration. |
+| `AUTH_DEBUG_LOG` | Set to `true` only when debugging login issues (extra logs). |
+
+Checkout discounts are applied only via **`coupon_code`** on the order API; the client `discount_amount` field is ignored. Use **Coupons** in the database (see e-commerce migrations) and the checkout **Apply** control.
+
+After pulling changes, run migrations (includes `contact_inquiries` and a merge revision if you had split Alembic heads):
+
+```bash
+docker-compose exec backend alembic upgrade head
+```
+
+In the PMS, admins can open **Contact leads** (`/pms/contact-leads`) to view website form submissions and **Promo codes** (`/pms/promo-codes`) to manage shop checkout coupons.
 
 ## Features
 

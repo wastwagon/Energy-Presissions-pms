@@ -22,10 +22,12 @@ import {
   Engineering as EngineeringIcon,
   SupportAgent as SupportIcon,
 } from '@mui/icons-material';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
+import { Seo } from '../../components/Seo';
 import { colors } from '../../theme/colors';
 
 const Services: React.FC = () => {
+  const { pathname } = useLocation();
 
   const premiumServices = [
     {
@@ -122,6 +124,11 @@ const Services: React.FC = () => {
 
   return (
     <Box>
+      <Seo
+        title="Solar Services Ghana | Residential, Commercial & Industrial"
+        description="Residential, commercial, industrial and agricultural solar in Ghana — design, installation, battery storage, monitoring and maintenance from Energy Precisions."
+        path={pathname}
+      />
       {/* Hero Section */}
       <Box
         sx={{

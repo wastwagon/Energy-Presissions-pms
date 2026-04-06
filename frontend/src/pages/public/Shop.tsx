@@ -23,6 +23,7 @@ import {
 import {
   Search as SearchIcon,
   ShoppingCart as ShoppingCartIcon,
+  Visibility as VisibilityIcon,
   CheckCircle as CheckCircleIcon,
   LocalShipping as ShippingIcon,
   Security as SecurityIcon,
@@ -30,9 +31,11 @@ import {
   GridView as GridViewIcon,
   ViewList as ViewListIcon,
 } from '@mui/icons-material';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import api from '../../services/api';
+import { Seo } from '../../components/Seo';
 import { useCart } from '../../contexts/CartContext';
+import { catalogLineUnitPrice } from '../../utils/catalogPrice';
 
 const API_URL = (window as any).REACT_APP_API_URL || process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
@@ -45,6 +48,7 @@ const getImageUrl = (url: string | undefined): string => {
 
 const Shop: React.FC = () => {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const { addToCart } = useCart();
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -58,8 +62,14 @@ const Shop: React.FC = () => {
     const fetchProducts = async () => {
       try {
         setLoading(true);
-        const params: any = {};
-        if (categoryFilter !== 'all') params.category = categoryFilter;
+        const params: Record<string, string> = {};
+        if (categoryFilter !== 'all') {
+          if (['panel', 'inverter', 'battery'].includes(categoryFilter)) {
+            params.product_type = categoryFilter;
+          } else {
+            params.category = categoryFilter;
+          }
+        }
         if (searchTerm) params.search = searchTerm;
         
         const response = await api.get('/ecommerce/products', { params });
@@ -120,6 +130,11 @@ const Shop: React.FC = () => {
 
   return (
     <Box sx={{ py: { xs: 4, md: 6 }, minHeight: '80vh', bgcolor: '#f8f9fa' }}>
+      <Seo
+        title="Shop Solar Equipment Ghana | Panels, Inverters & Batteries"
+        description="Browse solar panels, inverters, batteries and accessories from Energy Precisions. Website pricing in GHS with delivery and support across Ghana."
+        path={pathname}
+      />
       {/* Hero Header */}
       <Box
         sx={{
@@ -397,7 +412,7 @@ const Shop: React.FC = () => {
                             mb: 0.5,
                           }}
                       >
-                        GHS {((product.base_price || product.price || 0)).toLocaleString()}
+                        GHS {catalogLineUnitPrice(product).toLocaleString()}
                       </Typography>
                         <Typography variant="body2" sx={{ color: '#999' }}>
                           Including VAT
@@ -405,7 +420,23 @@ const Shop: React.FC = () => {
                       </Box>
                     </CardContent>
 
-                    <CardActions sx={{ p: 3, pt: 0 }}>
+                    <CardActions sx={{ p: 3, pt: 0, flexDirection: 'column', gap: 1, alignItems: 'stretch' }}>
+                      <Button
+                        fullWidth
+                        variant="outlined"
+                        startIcon={<VisibilityIcon />}
+                        onClick={() => navigate(`/products/${product.id}`)}
+                        sx={{
+                          borderColor: '#1a4d7a',
+                          color: '#1a4d7a',
+                          py: 1.25,
+                          fontWeight: 600,
+                          textTransform: 'none',
+                          borderRadius: 2,
+                        }}
+                      >
+                        View details
+                      </Button>
                       <Button
                         fullWidth
                         variant="contained"

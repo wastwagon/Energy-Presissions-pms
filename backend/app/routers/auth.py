@@ -17,26 +17,16 @@ async def login(
     db: Session = Depends(get_db)
 ):
     """Login endpoint"""
-    # Debug logging
     import logging
+    import os
+
     logger = logging.getLogger(__name__)
-    password_length = len(form_data.password) if form_data.password else 0
-    logger.info(f"Login attempt - username: '{form_data.username}', password length: {password_length}, password present: {bool(form_data.password)}")
-    
-    # Check if user exists
-    from app.auth import get_user_by_email
-    db_user = get_user_by_email(db, form_data.username)
-    if db_user:
-        logger.info(f"User found: {db_user.email}, is_active: {db_user.is_active}")
-        from app.auth import verify_password
-        password_match = verify_password(form_data.password, db_user.hashed_password)
-        logger.info(f"Password verification result: {password_match}")
-    else:
-        logger.warning(f"User not found for email: {form_data.username}")
-    
+    if os.getenv("AUTH_DEBUG_LOG", "").lower() in ("1", "true", "yes"):
+        logger.info("Login attempt for email=%s", form_data.username)
+
     user = authenticate_user(db, form_data.username, form_data.password)
     if not user:
-        logger.warning(f"Authentication failed for username: '{form_data.username}'")
+        logger.warning("Failed login attempt for email=%s", form_data.username)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password",

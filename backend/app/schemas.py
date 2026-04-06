@@ -1,10 +1,11 @@
-from pydantic import BaseModel, EmailStr, field_validator
+from pydantic import BaseModel, EmailStr, field_validator, model_validator
 from typing import Optional, List
 from datetime import datetime
 from app.models import (
     UserRole, CustomerType, SystemType, ProjectStatus, ApplianceType,
     ApplianceCategory, PowerUnit, ProductType, QuoteStatus
 )
+from app.services.ecommerce_pricing import catalog_unit_price_from_fields
 
 
 # User Schemas
@@ -287,7 +288,23 @@ class Product(ProductBase):
     id: int
     is_active: bool
     created_at: datetime
-    
+    catalog_unit_price: float = 0.0
+
+    @model_validator(mode='after')
+    def _set_catalog_unit_price(self):
+        object.__setattr__(
+            self,
+            'catalog_unit_price',
+            catalog_unit_price_from_fields(
+                self.base_price,
+                self.price_type,
+                self.wattage,
+                self.capacity_kw,
+                self.capacity_kwh,
+            ),
+        )
+        return self
+
     class Config:
         from_attributes = True
 

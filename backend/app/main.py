@@ -11,7 +11,7 @@ from app.database import engine, Base
 # Import e-commerce models to register them
 from app import models_ecommerce
 from app.routers import auth, customers, projects, appliances, sizing, products, quotes, settings, reports, dashboard, users
-from app.routers import ecommerce, payments, media, newsletter
+from app.routers import ecommerce, payments, media, newsletter, contact
 
 logger = logging.getLogger(__name__)
 
@@ -138,6 +138,7 @@ app.include_router(ecommerce.router)  # E-commerce routes (already has /api/ecom
 app.include_router(payments.router)  # Payment routes (already has /api/payments prefix)
 app.include_router(media.router, prefix="/api")
 app.include_router(newsletter.router)
+app.include_router(contact.router)
 
 # Create static directory if it doesn't exist
 static_dir = Path("static")

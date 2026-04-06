@@ -218,6 +218,25 @@ class EmailService:
 
         return self.send_email(admin_email, subject, html_content)
 
+    def send_contact_inquiry(self, admin_email: str, payload: Dict) -> bool:
+        """Notify admin of a website contact form submission."""
+        subject = f"Website contact: {payload.get('name', 'Visitor')}"
+        safe = lambda s: str(s or "").replace("<", "&lt;").replace(">", "&gt;")
+        html_content = f"""
+        <!DOCTYPE html>
+        <html><head><meta charset="UTF-8"></head>
+        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+            <h2 style="color: #1a4d7a;">New contact form message</h2>
+            <p><strong>Name:</strong> {safe(payload.get('name'))}</p>
+            <p><strong>Email:</strong> {safe(payload.get('email'))}</p>
+            <p><strong>Phone:</strong> {safe(payload.get('phone'))}</p>
+            <p><strong>Service:</strong> {safe(payload.get('service'))}</p>
+            <p><strong>Message:</strong></p>
+            <p style="white-space: pre-wrap;">{safe(payload.get('message'))}</p>
+        </body></html>
+        """
+        return self.send_email(admin_email, subject, html_content)
+
 
 # Singleton instance
 email_service = EmailService()

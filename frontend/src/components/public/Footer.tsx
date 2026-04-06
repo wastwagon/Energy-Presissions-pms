@@ -113,6 +113,11 @@ const Footer: React.FC = () => {
                 </Link>
               </Box>
               <Box component="li" sx={{ mb: 1 }}>
+                <Link component={RouterLink} to="/financing" underline="none" color="inherit" sx={{ '&:hover': { color: colors.green } }}>
+                  Financing
+                </Link>
+              </Box>
+              <Box component="li" sx={{ mb: 1 }}>
                 <Link component={RouterLink} to="/services" underline="none" color="inherit" sx={{ '&:hover': { color: colors.green } }}>
                   Our Services
                 </Link>

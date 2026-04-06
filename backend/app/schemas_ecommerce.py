@@ -3,9 +3,10 @@ E-commerce Schemas
 Pydantic schemas for e-commerce functionality
 """
 from typing import Optional, List
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field, model_validator
 from datetime import datetime
 from app.schemas import ProductType
+from app.services.ecommerce_pricing import catalog_unit_price_from_fields
 
 
 class ProductPublic(BaseModel):
@@ -20,12 +21,34 @@ class ProductPublic(BaseModel):
     category: Optional[str] = None
     sku: Optional[str] = None
     base_price: Optional[float] = None
+    price_type: Optional[str] = None
+    wattage: Optional[int] = None
+    capacity_kw: Optional[float] = None
+    capacity_kwh: Optional[float] = None
     image_url: Optional[str] = None
     gallery_images: Optional[dict] = None
     stock_quantity: int = 0
     manage_stock: bool = False
     in_stock: bool = True
-    
+    # Same formula as PMS quotes for one catalog unit (panel / inverter / battery)
+    catalog_unit_price: float = 0.0
+
+    @model_validator(mode="after")
+    def set_catalog_unit_price(self):
+        bp = float(self.base_price or 0)
+        object.__setattr__(
+            self,
+            "catalog_unit_price",
+            catalog_unit_price_from_fields(
+                bp,
+                self.price_type,
+                self.wattage,
+                self.capacity_kw,
+                self.capacity_kwh,
+            ),
+        )
+        return self
+
     class Config:
         from_attributes = True
 
@@ -68,7 +91,10 @@ class OrderCreate(BaseModel):
     billing_address: Optional[dict] = None
     shipping_method: Optional[str] = None
     shipping_cost: Optional[float] = 0.0
-    discount_amount: Optional[float] = 0.0
+    discount_amount: Optional[float] = 0.0  # ignored — discount comes from coupon_code only
+    coupon_code: Optional[str] = None
+    # paystack: customer email is sent after payment; cod: send confirmation on order create
+    payment_method: Optional[str] = "paystack"
 
 
 class OrderItemResponse(BaseModel):
@@ -119,4 +145,40 @@ class OrderStatusUpdate(BaseModel):
 class CouponValidate(BaseModel):
     code: str
     amount: float
+
+
+class CouponAdmin(BaseModel):
+    id: int
+    code: str
+    discount_type: str
+    discount_value: float
+    minimum_amount: float
+    usage_limit: Optional[int] = None
+    used_count: int = 0
+    expires_at: Optional[datetime] = None
+    is_active: bool = True
+    created_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+
+class CouponCreate(BaseModel):
+    code: str = Field(..., min_length=1, max_length=64)
+    discount_type: str  # percentage | fixed
+    discount_value: float = Field(..., gt=0)
+    minimum_amount: float = Field(0, ge=0)
+    usage_limit: Optional[int] = Field(None, ge=1)
+    expires_at: Optional[datetime] = None
+    is_active: bool = True
+
+
+class CouponUpdate(BaseModel):
+    code: Optional[str] = Field(None, min_length=1, max_length=64)
+    discount_type: Optional[str] = None
+    discount_value: Optional[float] = Field(None, gt=0)
+    minimum_amount: Optional[float] = Field(None, ge=0)
+    usage_limit: Optional[int] = Field(None, ge=1)
+    expires_at: Optional[datetime] = None
+    is_active: Optional[bool] = None
 

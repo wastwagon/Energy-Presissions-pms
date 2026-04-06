@@ -49,6 +49,18 @@ services:
         sync: false
       - key: SMTP_FROM_EMAIL
         sync: false
+      - key: FRONTEND_URL
+        sync: false  # e.g. https://your-frontend.onrender.com (Paystack return URL)
+      - key: ADMIN_EMAIL
+        sync: false  # Contact form + order alerts
+      - key: ECOMMERCE_SHIPPING_FLAT_GHS
+        value: "0"
+      - key: ECOMMERCE_FREE_SHIPPING_THRESHOLD_GHS
+        value: "5000"
+      - key: PAYSTACK_SECRET_KEY
+        sync: false
+      - key: PAYSTACK_PUBLIC_KEY
+        sync: false
 
   - type: web
     name: energy-pms-frontend

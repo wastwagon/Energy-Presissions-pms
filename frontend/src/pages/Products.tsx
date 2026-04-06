@@ -200,6 +200,7 @@ const Products: React.FC = () => {
               <TableCell>Stock</TableCell>
               <TableCell>Price Type</TableCell>
               <TableCell>Base Price</TableCell>
+              <TableCell>Website unit</TableCell>
               <TableCell>Visible</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
@@ -234,6 +235,9 @@ const Products: React.FC = () => {
                 </TableCell>
                 <TableCell>{formatPriceType(product.price_type)}</TableCell>
                 <TableCell>{product.base_price.toFixed(2)}</TableCell>
+                <TableCell>
+                  {(product.catalog_unit_price ?? product.base_price).toFixed(2)}
+                </TableCell>
                 <TableCell>{product.is_active ? 'Yes' : 'No'}</TableCell>
                 <TableCell>
                   <IconButton size="small" onClick={() => handleOpen(product)}>

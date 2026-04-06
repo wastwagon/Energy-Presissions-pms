@@ -30,12 +30,22 @@ import {
   Settings as SettingsIcon,
   Assessment as AssessmentIcon,
   Logout as LogoutIcon,
+  MailOutline as MailOutlineIcon,
+  LocalOffer as LocalOfferIcon,
 } from '@mui/icons-material';
+import { Helmet } from 'react-helmet-async';
 import { useAuth } from '../contexts/AuthContext';
 
 const drawerWidth = 240;
 
-const menuItems = [
+type MenuItem = {
+  text: string;
+  icon: React.ReactNode;
+  path: string;
+  adminOnly?: boolean;
+};
+
+const menuItems: MenuItem[] = [
   { text: 'Dashboard', icon: <DashboardIcon />, path: '/pms/dashboard' },
   { text: 'Customers', icon: <PeopleIcon />, path: '/pms/customers' },
   { text: 'Projects', icon: <FolderIcon />, path: '/pms/projects' },
@@ -43,6 +53,8 @@ const menuItems = [
   { text: 'Products', icon: <InventoryIcon />, path: '/pms/products' },
   { text: 'Appliances', icon: <AppliancesIcon />, path: '/pms/appliances' },
   { text: 'Orders', icon: <OrdersIcon />, path: '/pms/orders' },
+  { text: 'Promo codes', icon: <LocalOfferIcon />, path: '/pms/promo-codes', adminOnly: true },
+  { text: 'Contact leads', icon: <MailOutlineIcon />, path: '/pms/contact-leads', adminOnly: true },
   { text: 'Media Library', icon: <MediaIcon />, path: '/pms/media' },
   { text: 'Reports', icon: <AssessmentIcon />, path: '/pms/reports' },
   { text: 'Settings', icon: <SettingsIcon />, path: '/pms/settings' },
@@ -97,7 +109,9 @@ const Layout: React.FC = () => {
         />
       </Toolbar>
       <List sx={{ px: 2 }}>
-        {menuItems.map((item) => (
+        {menuItems
+          .filter((item) => !item.adminOnly || user?.role === 'admin')
+          .map((item) => (
           <ListItem key={item.text} disablePadding sx={{ mb: 0.5 }}>
             <ListItemButton
               selected={location.pathname === item.path}
@@ -141,6 +155,10 @@ const Layout: React.FC = () => {
 
   return (
     <Box sx={{ display: 'flex' }}>
+      <Helmet>
+        <title>PMS | Energy Precisions</title>
+        <meta name="robots" content="noindex,nofollow" />
+      </Helmet>
       <CssBaseline />
       <AppBar
         position="fixed"

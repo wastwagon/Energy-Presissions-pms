@@ -9,6 +9,7 @@ import {
   Box,
   Alert,
 } from '@mui/material';
+import { Helmet } from 'react-helmet-async';
 import { useAuth } from '../contexts/AuthContext';
 
 const PMSLogin: React.FC = () => {
@@ -46,7 +47,12 @@ const PMSLogin: React.FC = () => {
   };
 
   return (
-    <Container component="main" maxWidth="xs">
+    <>
+      <Helmet>
+        <title>Staff sign in | Energy Precisions PMS</title>
+        <meta name="robots" content="noindex,nofollow" />
+      </Helmet>
+      <Container component="main" maxWidth="xs">
       <Box
         sx={{
           marginTop: 8,
@@ -118,6 +124,7 @@ const PMSLogin: React.FC = () => {
         </Paper>
       </Box>
     </Container>
+    </>
   );
 };
 

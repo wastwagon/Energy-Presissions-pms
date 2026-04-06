@@ -2,12 +2,18 @@ import React from 'react';
 import { Box, Container, Typography, Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
 import { ExpandMore as ExpandMoreIcon } from '@mui/icons-material';
 import websiteContent from '../../data/extracted_content.json';
+import { Seo } from '../../components/Seo';
 
 const FAQs: React.FC = () => {
   const content = websiteContent;
 
   return (
     <Box sx={{ py: { xs: 4, md: 8 } }}>
+      <Seo
+        title="Solar FAQs Ghana | Energy Precisions"
+        description="Answers to common questions about solar panels, installation, batteries, costs and maintenance in Ghana — from Energy Precisions."
+        path="/faqs"
+      />
       <Container maxWidth="lg">
         <Box textAlign="center" mb={6}>
           <Typography variant="h2" sx={{ mb: 2, fontWeight: 'bold', color: '#1a4d7a' }}>

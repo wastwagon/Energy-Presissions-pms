@@ -11,7 +11,6 @@ import Layout from './components/Layout';
 
 // Eager-load critical above-the-fold pages
 import Home from './pages/public/Home';
-import InterfaceSelector from './pages/InterfaceSelector';
 import PMSLogin from './pages/PMSLogin';
 import WebAdminLogin from './pages/WebAdminLogin';
 import Dashboard from './pages/Dashboard';
@@ -26,6 +25,7 @@ const Checkout = lazy(() => import('./pages/public/Checkout'));
 const CheckoutSuccess = lazy(() => import('./pages/public/CheckoutSuccess'));
 const Contact = lazy(() => import('./pages/public/Contact'));
 const FAQs = lazy(() => import('./pages/public/FAQs'));
+const Financing = lazy(() => import('./pages/public/Financing'));
 const Portfolio = lazy(() => import('./pages/public/Portfolio'));
 const Customers = lazy(() => import('./pages/Customers'));
 const Projects = lazy(() => import('./pages/Projects'));
@@ -38,6 +38,8 @@ const Orders = lazy(() => import('./pages/Orders'));
 const MediaLibrary = lazy(() => import('./pages/MediaLibrary'));
 const Settings = lazy(() => import('./pages/Settings'));
 const Reports = lazy(() => import('./pages/Reports'));
+const ContactInquiries = lazy(() => import('./pages/ContactInquiries'));
+const PromoCodes = lazy(() => import('./pages/PromoCodes'));
 
 const PageLoader = () => (
   <Box display="flex" justifyContent="center" alignItems="center" minHeight="40vh">
@@ -79,8 +81,8 @@ function App() {
             }}
           >
           <Routes>
-            {/* Interface Selector - Landing Page */}
-            <Route path="/select" element={<InterfaceSelector />} />
+            {/* Legacy interface chooser → corporate home */}
+            <Route path="/select" element={<Navigate to="/" replace />} />
 
             {/* Public Website Routes */}
             <Route path="/" element={<PublicLayout />}>
@@ -96,6 +98,7 @@ function App() {
               <Route path="checkout/success" element={<Suspense fallback={<PageLoader />}><CheckoutSuccess /></Suspense>} />
               <Route path="contact" element={<Suspense fallback={<PageLoader />}><Contact /></Suspense>} />
               <Route path="faqs" element={<Suspense fallback={<PageLoader />}><FAQs /></Suspense>} />
+              <Route path="financing" element={<Suspense fallback={<PageLoader />}><Financing /></Suspense>} />
               <Route path="portfolio" element={<Suspense fallback={<PageLoader />}><Portfolio /></Suspense>} />
             </Route>
 
@@ -127,6 +130,8 @@ function App() {
               <Route path="media" element={<Suspense fallback={<PageLoader />}><MediaLibrary /></Suspense>} />
               <Route path="settings" element={<Suspense fallback={<PageLoader />}><Settings /></Suspense>} />
               <Route path="reports" element={<Suspense fallback={<PageLoader />}><Reports /></Suspense>} />
+              <Route path="contact-leads" element={<Suspense fallback={<PageLoader />}><ContactInquiries /></Suspense>} />
+              <Route path="promo-codes" element={<Suspense fallback={<PageLoader />}><PromoCodes /></Suspense>} />
             </Route>
 
             {/* Legacy redirects for backward compatibility */}

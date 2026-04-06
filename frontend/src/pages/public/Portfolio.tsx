@@ -14,6 +14,7 @@ import {
 } from '@mui/material';
 import { ArrowForward as ArrowForwardIcon } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
+import { Seo } from '../../components/Seo';
 import { colors } from '../../theme/colors';
 
 const portfolioItems = [
@@ -73,6 +74,11 @@ const Portfolio: React.FC = () => {
 
   return (
     <Box>
+      <Seo
+        title="Solar Project Portfolio Ghana | Energy Precisions"
+        description="Residential, commercial, industrial and community solar projects across Ghana — design, installation and support from Energy Precisions."
+        path="/portfolio"
+      />
       {/* Hero */}
       <Box
         sx={{

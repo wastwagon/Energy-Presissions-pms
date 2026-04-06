@@ -11,13 +11,32 @@ from app.models import Product, ProductType, Customer, User
 from app.models_ecommerce import Order, OrderItem, CartItem, Coupon
 from app.schemas_ecommerce import (
     ProductPublic, OrderCreate, OrderResponse, OrderDetailResponse, OrderStatusUpdate,
-    CartItemCreate, CartItemResponse, CouponValidate
+    CartItemCreate, CartItemResponse, CouponValidate,
+    CouponAdmin, CouponCreate, CouponUpdate,
 )
-from app.auth import get_current_active_user
-from datetime import datetime
+from app.auth import get_current_active_user, require_role
+from app.services.ecommerce_pricing import catalog_unit_price
+from app.services.ecommerce_shipping import compute_shipping_cost
+from app.services.coupon_order import compute_order_coupon_discount
+from datetime import datetime, timezone
 import uuid
 
+# Category dropdown on shop may send product_type values (panel, inverter, …)
+_ECOM_CATEGORY_AS_PRODUCT_TYPE = {pt.value for pt in ProductType}
+
 router = APIRouter(prefix="/api/ecommerce", tags=["ecommerce"])
+
+
+@router.get("/shipping-estimate")
+async def shipping_estimate(subtotal: float = Query(..., ge=0)):
+    """Server-side shipping for checkout (matches order creation)."""
+    from app.config import settings
+
+    return {
+        "shipping_cost": compute_shipping_cost(subtotal),
+        "free_shipping_threshold_ghs": settings.ECOMMERCE_FREE_SHIPPING_THRESHOLD_GHS,
+        "flat_rate_ghs": settings.ECOMMERCE_SHIPPING_FLAT_GHS,
+    }
 
 
 @router.get("/products", response_model=List[ProductPublic])
@@ -32,12 +51,19 @@ async def get_public_products(
     """Get products for public website/e-commerce (no auth required)"""
     query = db.query(Product).filter(
         Product.is_active == True,
-        Product.base_price.isnot(None)  # Only return products with prices
+        Product.base_price.isnot(None),  # Only return products with prices
+        or_(
+            Product.price_type.is_(None),
+            Product.price_type != "percentage",
+        ),
     )
     
     if category:
-        query = query.filter(Product.category == category)
-    
+        if category in _ECOM_CATEGORY_AS_PRODUCT_TYPE:
+            query = query.filter(Product.product_type == category)
+        else:
+            query = query.filter(Product.category == category)
+
     if product_type:
         query = query.filter(Product.product_type == product_type)
     
@@ -64,7 +90,12 @@ async def get_public_product(
     """Get single product details (no auth required)"""
     product = db.query(Product).filter(
         Product.id == product_id,
-        Product.is_active == True
+        Product.is_active == True,
+        Product.base_price.isnot(None),
+        or_(
+            Product.price_type.is_(None),
+            Product.price_type != "percentage",
+        ),
     ).first()
     
     if not product:
@@ -222,11 +253,40 @@ async def create_order(
     """Create a new order"""
     # Generate order number
     order_number = f"EP-{datetime.now().strftime('%Y%m%d')}-{uuid.uuid4().hex[:8].upper()}"
-    
-    # Calculate totals from items
-    subtotal = sum(item.unit_price * item.quantity for item in order_data.items)
-    total_amount = subtotal + (order_data.shipping_cost or 0) - (order_data.discount_amount or 0)
-    
+
+    # Resolve unit prices from catalog (same rules as PMS quotes); ignore client-supplied amounts
+    line_totals: list[tuple] = []
+    for item_data in order_data.items:
+        if item_data.product_id is not None:
+            product = db.query(Product).filter(
+                Product.id == item_data.product_id,
+                Product.is_active == True,
+            ).first()
+            if not product:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"Product id {item_data.product_id} is not available",
+                )
+            unit_price = catalog_unit_price(product)
+        else:
+            unit_price = item_data.unit_price
+        line_totals.append((item_data, unit_price))
+
+    subtotal = sum(up * item.quantity for item, up in line_totals)
+    shipping_cost = compute_shipping_cost(subtotal)
+    discount_amount, coupon_applied = compute_order_coupon_discount(
+        db, order_data.coupon_code, subtotal
+    )
+    total_amount = subtotal + shipping_cost - discount_amount
+    if total_amount < 0:
+        total_amount = 0.0
+
+    pm = (order_data.payment_method or "paystack").lower()
+    if pm not in ("paystack", "cod", "cash_on_delivery"):
+        pm = "paystack"
+    if pm == "cash_on_delivery":
+        pm = "cod"
+
     # Create order
     order = Order(
         order_number=order_number,
@@ -236,9 +296,10 @@ async def create_order(
         customer_phone=order_data.customer_phone,
         status="pending",
         payment_status="pending",
+        payment_method=pm,
         subtotal=subtotal,
-        shipping_cost=order_data.shipping_cost or 0,
-        discount_amount=order_data.discount_amount or 0,
+        shipping_cost=shipping_cost,
+        discount_amount=discount_amount,
         total_amount=total_amount,
         shipping_address=order_data.shipping_address,
         billing_address=order_data.billing_address or order_data.shipping_address,
@@ -248,18 +309,21 @@ async def create_order(
     db.flush()
     
     # Create order items
-    for item_data in order_data.items:
+    for item_data, unit_price in line_totals:
         order_item = OrderItem(
             order_id=order.id,
             product_id=item_data.product_id,
             product_name=item_data.product_name,
             product_sku=item_data.product_sku,
             quantity=item_data.quantity,
-            unit_price=item_data.unit_price,
-            total_price=item_data.unit_price * item_data.quantity
+            unit_price=unit_price,
+            total_price=unit_price * item_data.quantity,
         )
         db.add(order_item)
-    
+
+    if coupon_applied:
+        coupon_applied.used_count = (coupon_applied.used_count or 0) + 1
+
     db.commit()
     db.refresh(order)
     
@@ -286,14 +350,15 @@ async def create_order(
         ]
     }
     
-    if order.customer_email:
+    # Customer email: COD only here; Paystack sends after successful payment (webhook/verify)
+    if order.customer_email and pm != "paystack":
         email_service.send_order_confirmation(order_dict, order.customer_email)
-    
-    # Notify admin
+
+    # Notify admin for all new orders
     admin_email = os.getenv("ADMIN_EMAIL", settings.COMPANY_EMAIL)
     if admin_email:
         email_service.send_admin_notification(order_dict, admin_email)
-    
+
     return order
 
 
@@ -375,9 +440,14 @@ async def validate_coupon(
     if not coupon:
         raise HTTPException(status_code=404, detail="Invalid coupon code")
     
-    # Check expiration
-    if coupon.expires_at and coupon.expires_at < datetime.now():
-        raise HTTPException(status_code=400, detail="Coupon has expired")
+    # Check expiration (timezone-aware)
+    if coupon.expires_at:
+        now = datetime.now(timezone.utc)
+        exp = coupon.expires_at
+        if exp.tzinfo is None:
+            exp = exp.replace(tzinfo=timezone.utc)
+        if exp < now:
+            raise HTTPException(status_code=400, detail="Coupon has expired")
     
     # Check usage limit
     if coupon.usage_limit and coupon.used_count >= coupon.usage_limit:
@@ -402,4 +472,125 @@ async def validate_coupon(
         "discount_type": coupon.discount_type,
         "discount_value": coupon.discount_value
     }
+
+
+def _normalize_coupon_discount_type(discount_type: str) -> str:
+    dt = (discount_type or "").lower().strip()
+    if dt not in ("percentage", "fixed"):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="discount_type must be percentage or fixed",
+        )
+    return dt
+
+
+def _validate_coupon_values(discount_type: str, discount_value: float) -> None:
+    if discount_type == "percentage" and discount_value > 100:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Percentage discount cannot exceed 100",
+        )
+
+
+@router.get("/coupons", response_model=List[CouponAdmin])
+async def list_coupons_admin(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role(["admin"])),
+):
+    """List all promo codes (admin)."""
+    return db.query(Coupon).order_by(desc(Coupon.created_at)).all()
+
+
+@router.post("/coupons", response_model=CouponAdmin, status_code=status.HTTP_201_CREATED)
+async def create_coupon_admin(
+    body: CouponCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role(["admin"])),
+):
+    """Create a promo code (admin)."""
+    code = body.code.strip().upper()
+    if db.query(Coupon).filter(Coupon.code == code).first():
+        raise HTTPException(status_code=400, detail="A coupon with this code already exists")
+    dt = _normalize_coupon_discount_type(body.discount_type)
+    _validate_coupon_values(dt, body.discount_value)
+
+    row = Coupon(
+        code=code,
+        discount_type=dt,
+        discount_value=float(body.discount_value),
+        minimum_amount=float(body.minimum_amount or 0),
+        usage_limit=body.usage_limit,
+        used_count=0,
+        expires_at=body.expires_at,
+        is_active=body.is_active,
+    )
+    db.add(row)
+    db.commit()
+    db.refresh(row)
+    return row
+
+
+@router.get("/coupons/{coupon_id}", response_model=CouponAdmin)
+async def get_coupon_admin(
+    coupon_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role(["admin"])),
+):
+    row = db.query(Coupon).filter(Coupon.id == coupon_id).first()
+    if not row:
+        raise HTTPException(status_code=404, detail="Coupon not found")
+    return row
+
+
+@router.patch("/coupons/{coupon_id}", response_model=CouponAdmin)
+async def update_coupon_admin(
+    coupon_id: int,
+    body: CouponUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role(["admin"])),
+):
+    row = db.query(Coupon).filter(Coupon.id == coupon_id).first()
+    if not row:
+        raise HTTPException(status_code=404, detail="Coupon not found")
+
+    data = body.model_dump(exclude_unset=True)
+    if "code" in data and data["code"] is not None:
+        new_code = str(data["code"]).strip().upper()
+        clash = db.query(Coupon).filter(Coupon.code == new_code, Coupon.id != coupon_id).first()
+        if clash:
+            raise HTTPException(status_code=400, detail="A coupon with this code already exists")
+        row.code = new_code
+    if "discount_type" in data and data["discount_type"] is not None:
+        row.discount_type = _normalize_coupon_discount_type(data["discount_type"])
+    if "discount_value" in data and data["discount_value"] is not None:
+        row.discount_value = float(data["discount_value"])
+    if "minimum_amount" in data and data["minimum_amount"] is not None:
+        row.minimum_amount = float(data["minimum_amount"])
+    if "usage_limit" in data:
+        row.usage_limit = data["usage_limit"]
+    if "expires_at" in data:
+        row.expires_at = data["expires_at"]
+    if "is_active" in data and data["is_active"] is not None:
+        row.is_active = data["is_active"]
+
+    _validate_coupon_values(row.discount_type, row.discount_value)
+
+    db.commit()
+    db.refresh(row)
+    return row
+
+
+@router.delete("/coupons/{coupon_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def deactivate_coupon_admin(
+    coupon_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role(["admin"])),
+):
+    """Soft-deactivate a coupon (does not delete history)."""
+    row = db.query(Coupon).filter(Coupon.id == coupon_id).first()
+    if not row:
+        raise HTTPException(status_code=404, detail="Coupon not found")
+    row.is_active = False
+    db.commit()
+    return None
 

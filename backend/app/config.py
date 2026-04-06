@@ -29,7 +29,11 @@ class Settings(BaseSettings):
     COMPANY_PHONE: Optional[str] = None
     COMPANY_EMAIL: Optional[str] = None
     FRONTEND_URL: str = "https://energyprecisions.com"  # For Paystack callback; use http://localhost:5000 locally
-    
+
+    # E-commerce shipping (GHS). Subtotal >= threshold => free shipping.
+    ECOMMERCE_SHIPPING_FLAT_GHS: float = 0.0
+    ECOMMERCE_FREE_SHIPPING_THRESHOLD_GHS: Optional[float] = 5000.0
+
     class Config:
         env_file = ".env"
         case_sensitive = True

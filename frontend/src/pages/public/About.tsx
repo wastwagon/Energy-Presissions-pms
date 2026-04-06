@@ -21,6 +21,7 @@ import {
   Email as EmailIcon,
 } from '@mui/icons-material';
 import websiteContent from '../../data/extracted_content.json';
+import { Seo } from '../../components/Seo';
 import { colors } from '../../theme/colors';
 
 const About: React.FC = () => {
@@ -28,6 +29,11 @@ const About: React.FC = () => {
 
   return (
     <Box>
+      <Seo
+        title="About Energy Precisions | Ghana Solar Company"
+        description="Ghana's premier solar energy company — turnkey solutions from design and installation to equipment and maintenance. Learn our story and values."
+        path="/about"
+      />
       {/* Hero Section */}
       <Box
         sx={{

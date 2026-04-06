@@ -27,7 +27,7 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       localStorage.removeItem('token');
       const path = window.location.pathname;
-      window.location.href = path.startsWith('/pms') ? '/pms/admin' : '/select';
+      window.location.href = path.startsWith('/pms') ? '/pms/admin' : '/';
     }
     return Promise.reject(error);
   }

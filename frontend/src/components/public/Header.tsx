@@ -55,6 +55,7 @@ const Header: React.FC = () => {
     },
     { label: 'Portfolio', path: '/portfolio' },
     { label: 'Shop', path: '/shop' },
+    { label: 'Financing', path: '/financing' },
     { label: 'Contact', path: '/contact' },
   ];
 
@@ -75,10 +76,6 @@ const Header: React.FC = () => {
   };
   const handleServicesClose = () => {
     setServicesMenuEl(null);
-  };
-
-  const handleAdminLogin = () => {
-    navigate('/pms/admin');
   };
 
   const drawer = (
@@ -109,11 +106,6 @@ const Header: React.FC = () => {
             )}
           </ListItem>
         ))}
-        <ListItem disablePadding>
-          <ListItemButton onClick={handleAdminLogin} sx={{ textAlign: 'center' }}>
-            <ListItemText primary="Admin Login" />
-          </ListItemButton>
-        </ListItem>
       </List>
     </Box>
   );
@@ -322,7 +314,7 @@ const Header: React.FC = () => {
               </IconButton>
               {isAuthenticated ? (
                 <>
-                  <IconButton onClick={handleMenuClick} color="inherit">
+                  <IconButton onClick={handleMenuClick} color="inherit" aria-label="Account menu">
                     <AccountCircleIcon />
                   </IconButton>
                   <Menu
@@ -338,28 +330,7 @@ const Header: React.FC = () => {
                     </MenuItem>
                   </Menu>
                 </>
-              ) : (
-              <Button
-                variant="outlined"
-                onClick={handleAdminLogin}
-                sx={{
-                  textTransform: 'none',
-                borderColor: colors.blueBlack,
-                borderWidth: 2,
-                color: colors.blueBlack,
-                  fontWeight: 600,
-                  px: 3,
-                  '&:hover': {
-                    borderColor: colors.blueBlack,
-                    borderWidth: 2,
-                    bgcolor: 'rgba(10, 14, 23, 0.08)',
-                  },
-                  transition: 'all 0.3s ease',
-                }}
-              >
-                Admin Login
-              </Button>
-              )}
+              ) : null}
             </Box>
           </Toolbar>
         </Container>

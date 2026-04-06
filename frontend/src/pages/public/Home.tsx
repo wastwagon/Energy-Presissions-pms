@@ -28,13 +28,20 @@ import {
   Business as BusinessIcon,
   Home as HomeIcon,
   Factory as FactoryIcon,
+  Agriculture as AgricultureIcon,
 } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
+import { Seo } from '../../components/Seo';
 import { colors } from '../../theme/colors';
 
 const Home: React.FC = () => {
   return (
     <Box>
+      <Seo
+        title="Energy Precisions | Solar Panels Ghana · Solar Installation Accra"
+        description="Turnkey solar in Ghana: design, installation, premium equipment and maintenance. Residential, commercial, industrial and agricultural solar. Request a quote."
+        path="/"
+      />
       {/* Hero - Premium */}
       <Box
         sx={{
@@ -72,7 +79,7 @@ const Home: React.FC = () => {
           <Grid container spacing={6} alignItems="center">
             <Grid item xs={12} md={7}>
               <Chip
-                label="Ghana's Leading Solar Energy Solutions"
+                label="Ghana's Premier Solar Energy Brand"
                 sx={{
                   bgcolor: colors.green,
                   color: 'white',
@@ -109,8 +116,10 @@ const Home: React.FC = () => {
                   maxWidth: '90%',
                 }}
               >
-                Complete solar solutions from premium equipment sales to expert installation. 
-                Trusted by thousands of homes and businesses across Ghana.
+                Turnkey solar from engineering and premium equipment to installation and ongoing
+                maintenance — for homes, businesses, industry, and agricultural & productive-use
+                projects across Ghana. Built for a market growing 20%+ year on year, with the
+                service depth local installers rarely match.
               </Typography>
               
               <Stack direction="row" spacing={5} sx={{ mb: 4, flexWrap: 'wrap', gap: 3 }}>
@@ -232,7 +241,7 @@ const Home: React.FC = () => {
               { icon: <VerifiedIcon />, text: 'Certified Installers' },
               { icon: <SecurityIcon />, text: '10-Year Warranty' },
               { icon: <ShippingIcon />, text: 'Free Delivery in Ghana' },
-              { icon: <SupportIcon />, text: '24/7 Support' },
+              { icon: <SupportIcon />, text: 'Maintenance & After-Sales' },
             ].map((item, index) => (
               <Grid item xs={6} sm={3} key={index}>
                 <Stack direction="row" spacing={2} alignItems="center" justifyContent="center">
@@ -276,9 +285,10 @@ const Home: React.FC = () => {
             >
               Ghana's Most Trusted Solar Partner
             </Typography>
-            <Typography variant="h6" sx={{ color: colors.gray600, maxWidth: 680, mx: 'auto', fontWeight: 400, lineHeight: 1.6 }}>
-              From premium equipment to expert installation, we deliver complete solar solutions 
-              that power homes and businesses across Ghana.
+            <Typography variant="h6" sx={{ color: colors.gray600, maxWidth: 720, mx: 'auto', fontWeight: 400, lineHeight: 1.6 }}>
+              Deep Accra roots, Ghana-wide ambition: we combine local market knowledge with
+              turnkey delivery — so you get one accountable partner from design through
+              maintenance, not a one-off installation.
             </Typography>
           </Box>
 
@@ -287,7 +297,7 @@ const Home: React.FC = () => {
               { icon: <PremiumIcon sx={{ fontSize: '2.8rem' }} />, title: 'Premium Quality Equipment', description: 'We source only the finest solar panels, inverters, and batteries from leading global manufacturers. Every product is tested and certified for Ghana\'s climate.', color: colors.green },
               { icon: <SpeedIcon sx={{ fontSize: '2.8rem' }} />, title: 'Expert Installation Team', description: 'Our certified technicians have installed over 500 solar systems across Ghana. Professional installation ensures maximum efficiency and longevity.', color: colors.blueBlack },
               { icon: <SecurityIcon sx={{ fontSize: '2.8rem' }} />, title: 'Comprehensive Warranty', description: '10-year warranty on installations, 25-year panel warranty, and lifetime support. Your investment is protected with our comprehensive coverage.', color: colors.green },
-              { icon: <SupportIcon sx={{ fontSize: '2.8rem' }} />, title: 'Local Support in Ghana', description: 'Based in Accra, we provide fast response times and local expertise. Our team understands Ghana\'s energy needs and regulations.', color: colors.blueBlack },
+              { icon: <SupportIcon sx={{ fontSize: '2.8rem' }} />, title: 'Local Partner, Full Lifecycle', description: 'Accra-based team with national reach: responsive support, maintenance, and after-sales service — closing the gap many installers leave open after commissioning.', color: colors.blueBlack },
               { icon: <TrendingUpIcon sx={{ fontSize: '2.8rem' }} />, title: 'Proven Track Record', description: 'Trusted by residential, commercial, and industrial clients across Ghana. See our case studies and customer testimonials.', color: colors.green },
               { icon: <EcoIcon sx={{ fontSize: '2.8rem' }} />, title: 'Sustainable Future', description: 'Join thousands of Ghanaians reducing electricity costs and carbon footprint. Make a positive impact on Ghana\'s energy future.', color: colors.blueBlack },
             ].map((feature, index) => (
@@ -347,9 +357,9 @@ const Home: React.FC = () => {
             >
               Complete Solar Solutions for Ghana
             </Typography>
-            <Typography variant="h6" sx={{ color: colors.gray600, maxWidth: 680, mx: 'auto', fontWeight: 400 }}>
-              From equipment sales to full installation, we provide end-to-end solar energy solutions 
-              tailored for Ghana's unique energy needs.
+            <Typography variant="h6" sx={{ color: colors.gray600, maxWidth: 720, mx: 'auto', fontWeight: 400 }}>
+              Residential, commercial, industrial — plus agricultural and productive-use solar.
+              One partner for equipment, engineering, installation, and long-term performance.
             </Typography>
           </Box>
 
@@ -358,8 +368,9 @@ const Home: React.FC = () => {
               { icon: <HomeIcon />, title: 'Residential Solar', description: 'Complete home solar systems with battery backup. Reduce your electricity bills by up to 90% with our premium residential solutions.', features: ['Grid-tied & Off-grid Systems', 'Battery Storage Options', 'Smart Monitoring', 'Maintenance Support'], image: 'https://images.unsplash.com/photo-1509391366360-2e959784a276?w=600', link: '/services/residential' },
               { icon: <BusinessIcon />, title: 'Commercial Solar', description: 'Large-scale solar installations for businesses, offices, and commercial buildings. Maximize ROI with our commercial solar solutions.', features: ['Custom System Design', 'ROI Analysis', 'Minimal Business Disruption', 'Long-term Savings'], image: 'https://images.unsplash.com/photo-1559302504-64aae0ca2a3d?w=600', link: '/services/commercial' },
               { icon: <FactoryIcon />, title: 'Industrial Solar', description: 'Heavy-duty solar systems for factories and industrial facilities. Power your operations with reliable, cost-effective solar energy.', features: ['High-Capacity Systems', 'Industrial-Grade Equipment', 'Custom Engineering', '24/7 Monitoring'], image: 'https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=600', link: '/services/industrial' },
+              { icon: <AgricultureIcon />, title: 'Agricultural & Productive Use', description: 'Solar for irrigation, cold chain, and processing — cutting diesel costs and unlocking reliable power where the grid is weak or absent.', features: ['Irrigation & Pumping', 'Processing & Storage', 'Off-grid & Hybrid Designs', 'Scalable for Cooperatives'], image: 'https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=600', link: '/contact?action=quote' },
             ].map((service, index) => (
-              <Grid item xs={12} md={4} key={index}>
+              <Grid item xs={12} sm={6} lg={3} key={index}>
                 <Card
                   sx={{
                     height: '100%',

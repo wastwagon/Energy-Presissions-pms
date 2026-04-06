@@ -2,15 +2,18 @@
 Payment API Routes
 Paystack payment integration endpoints
 """
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+import json
+import logging
+
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
+
 from app.database import get_db
 from app.models_ecommerce import Order
 from app.services.paystack_service import paystack_service
-from app.schemas_ecommerce import OrderResponse
-from typing import Dict
-import json
-import os
+from app.services.order_payment import finalize_order_paid_from_paystack
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/payments", tags=["payments"])
 
@@ -28,8 +31,8 @@ async def initialize_paystack_payment(
     if order.payment_status == "paid":
         raise HTTPException(status_code=400, detail="Order already paid")
     
-    # Convert amount to kobo (GHS * 100)
-    amount_kobo = int(order.total_amount * 100)
+    # Convert amount to kobo (GHS * 100); match webhook verification rounding
+    amount_kobo = int(round(float(order.total_amount) * 100))
     
     # Generate callback URL
     from app.config import settings
@@ -85,55 +88,17 @@ async def paystack_webhook(
     
     if event == "charge.success":
         reference = data.get("reference")
+        amount_kobo = data.get("amount")
         order = db.query(Order).filter(Order.order_number == reference).first()
-        
+
         if order:
-            # Update order status
-            from datetime import datetime
-            order.payment_status = "paid"
-            order.status = "processing"
-            order.payment_reference = reference
-            order.paid_at = datetime.now()
-
-            # Deduct stock for products with manage_stock
-            from app.services.stock import deduct_stock_on_order_paid
-            deduct_stock_on_order_paid(db, order.id)
-
-            db.commit()
-            
-            # Send confirmation email
-            from app.services.email_service import email_service
-            from app.config import settings
-            
-            order_dict = {
-                "order_number": order.order_number,
-                "customer_name": order.customer_name or "Customer",
-                "customer_email": order.customer_email,
-                "subtotal": float(order.subtotal),
-                "shipping_cost": float(order.shipping_cost),
-                "total_amount": float(order.total_amount),
-                "items": [
-                    {
-                        "product_name": item.product_name,
-                        "quantity": item.quantity,
-                        "unit_price": float(item.unit_price),
-                        "total_price": float(item.total_price),
-                    }
-                    for item in order.items
-                ]
-            }
-            
-            if order.customer_email:
-                email_service.send_order_confirmation(order_dict, order.customer_email)
-            
-            # Notify admin
-            admin_email = os.getenv("ADMIN_EMAIL", settings.COMPANY_EMAIL)
-            if admin_email:
-                email_service.send_admin_notification(order_dict, admin_email)
-            
-            # TODO: Update inventory
-            
-            return {"status": "success", "message": "Payment confirmed"}
+            ok, err = finalize_order_paid_from_paystack(db, order, reference, amount_kobo)
+            if ok:
+                db.commit()
+                return {"status": "success", "message": "Payment confirmed"}
+            db.rollback()
+            logger.error("Paystack webhook: could not finalize order %s: %s", reference, err)
+            return {"status": "rejected", "message": err}
     
     return {"status": "received"}
 
@@ -143,20 +108,41 @@ async def verify_payment(
     reference: str,
     db: Session = Depends(get_db)
 ):
-    """Verify a Paystack payment"""
+    """
+    Verify Paystack transaction and, if successful, finalize the order (same as webhook).
+    Used when the customer returns from Paystack before the webhook runs.
+    """
+    order = db.query(Order).filter(Order.order_number == reference).first()
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+
+    if order.payment_status == "paid":
+        return {
+            "verified": True,
+            "order": order.order_number,
+            "status": order.payment_status,
+        }
+
     try:
         response = paystack_service.verify_transaction(reference)
-        
-        if response.get("status") and response["data"]["status"] == "success":
-            order = db.query(Order).filter(Order.order_number == reference).first()
-            if order:
-                return {
-                    "verified": True,
-                    "order": order.order_number,
-                    "status": order.payment_status
-                }
-        
-        return {"verified": False}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+    if not response.get("status") or response.get("data", {}).get("status") != "success":
+        return {"verified": False}
+
+    data = response["data"]
+    amount_kobo = data.get("amount")
+    ok, err = finalize_order_paid_from_paystack(db, order, reference, amount_kobo)
+    if not ok:
+        logger.warning("Paystack verify finalize failed for %s: %s", reference, err)
+        return {"verified": False, "detail": err}
+
+    db.commit()
+    db.refresh(order)
+    return {
+        "verified": True,
+        "order": order.order_number,
+        "status": order.payment_status,
+    }
 

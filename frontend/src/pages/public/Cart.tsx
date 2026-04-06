@@ -25,6 +25,8 @@ import {
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../../contexts/CartContext';
+import { catalogLineUnitPrice } from '../../utils/catalogPrice';
+import { Seo } from '../../components/Seo';
 
 const API_URL = (window as any).REACT_APP_API_URL || process.env.REACT_APP_API_URL || 'http://localhost:8000';
 const getImageUrl = (url: string | undefined): string => {
@@ -49,6 +51,12 @@ const Cart: React.FC = () => {
   if (cartItems.length === 0) {
     return (
       <Box sx={{ py: { xs: 4, md: 8 } }}>
+        <Seo
+          title="Shopping Cart"
+          description="Your Energy Precisions cart — solar equipment checkout."
+          path="/cart"
+          noIndex
+        />
         <Container maxWidth="lg">
           <Typography variant="h3" sx={{ mb: 4, fontWeight: 'bold', color: '#1a4d7a' }}>
             Shopping Cart
@@ -79,6 +87,12 @@ const Cart: React.FC = () => {
 
   return (
     <Box sx={{ py: { xs: 4, md: 8 } }}>
+      <Seo
+        title="Shopping Cart"
+        description="Review your solar equipment order before checkout."
+        path="/cart"
+        noIndex
+      />
       <Container maxWidth="lg">
         <Typography variant="h3" sx={{ mb: 4, fontWeight: 'bold', color: '#1a4d7a' }}>
           Shopping Cart
@@ -99,7 +113,7 @@ const Cart: React.FC = () => {
                 </TableHead>
                 <TableBody>
                   {cartItems.map((item) => {
-                    const price = item.product?.base_price || 0;
+                    const price = catalogLineUnitPrice(item.product);
                     const total = price * item.quantity;
                     return (
                       <TableRow key={item.id}>

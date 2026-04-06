@@ -4,6 +4,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { CheckCircle as CheckCircleIcon } from '@mui/icons-material';
 import api from '../../services/api';
 import { useCart } from '../../contexts/CartContext';
+import { Seo } from '../../components/Seo';
 
 const CheckoutSuccess: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -52,6 +53,12 @@ const CheckoutSuccess: React.FC = () => {
   if (loading) {
     return (
       <Box sx={{ py: 8, textAlign: 'center' }}>
+        <Seo
+          title="Order confirmation"
+          description="Verifying your payment."
+          path="/checkout/success"
+          noIndex
+        />
         <Container maxWidth="md">
           <CircularProgress />
           <Typography variant="h6" sx={{ mt: 2 }}>
@@ -65,6 +72,12 @@ const CheckoutSuccess: React.FC = () => {
   if (error) {
     return (
       <Box sx={{ py: 8 }}>
+        <Seo
+          title="Order verification"
+          description="Payment verification issue."
+          path="/checkout/success"
+          noIndex
+        />
         <Container maxWidth="md">
           <Alert severity="error" sx={{ mb: 2 }}>
             {error}
@@ -87,6 +100,12 @@ const CheckoutSuccess: React.FC = () => {
 
   return (
     <Box sx={{ py: { xs: 4, md: 8 } }}>
+      <Seo
+        title="Thank you for your order"
+        description="Your Energy Precisions order confirmation."
+        path="/checkout/success"
+        noIndex
+      />
       <Container maxWidth="md">
         <Card>
           <CardContent sx={{ p: 6, textAlign: 'center' }}>

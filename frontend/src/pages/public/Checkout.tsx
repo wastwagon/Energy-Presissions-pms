@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Container,
@@ -22,6 +22,8 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../../contexts/CartContext';
 import api from '../../services/api';
+import { catalogLineUnitPrice } from '../../utils/catalogPrice';
+import { Seo } from '../../components/Seo';
 
 const steps = ['Shipping Information', 'Payment', 'Confirmation'];
 
@@ -32,6 +34,36 @@ const Checkout: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [orderNumber, setOrderNumber] = useState<string | null>(null);
+  const [shippingCost, setShippingCost] = useState(0);
+  const [shippingNote, setShippingNote] = useState<string | null>(null);
+
+  useEffect(() => {
+    const load = async () => {
+      if (cartTotal <= 0) {
+        setShippingCost(0);
+        setShippingNote(null);
+        return;
+      }
+      try {
+        const res = await api.get('/ecommerce/shipping-estimate', {
+          params: { subtotal: cartTotal },
+        });
+        setShippingCost(Number(res.data.shipping_cost) || 0);
+        const th = res.data.free_shipping_threshold_ghs;
+        if (th != null && cartTotal >= th) {
+          setShippingNote(`Free shipping on orders over GHS ${Number(th).toLocaleString()}`);
+        } else if (th != null && Number(res.data.flat_rate_ghs) > 0) {
+          setShippingNote(`Free shipping from GHS ${Number(th).toLocaleString()}`);
+        } else {
+          setShippingNote(null);
+        }
+      } catch {
+        setShippingCost(0);
+        setShippingNote(null);
+      }
+    };
+    load();
+  }, [cartTotal]);
 
   // Form state
   const [shippingInfo, setShippingInfo] = useState({
@@ -59,9 +91,80 @@ const Checkout: React.FC = () => {
   const [paymentMethod, setPaymentMethod] = useState('paystack');
   const [termsAccepted, setTermsAccepted] = useState(false);
 
+  const [couponInput, setCouponInput] = useState('');
+  const [appliedCouponCode, setAppliedCouponCode] = useState('');
+  const [appliedDiscount, setAppliedDiscount] = useState(0);
+  const [couponError, setCouponError] = useState<string | null>(null);
+  const [couponApplying, setCouponApplying] = useState(false);
+
+  useEffect(() => {
+    if (!appliedCouponCode.trim() || cartTotal <= 0) {
+      if (!appliedCouponCode.trim()) {
+        setAppliedDiscount(0);
+      }
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await api.post('/ecommerce/coupons/validate', {
+          code: appliedCouponCode,
+          amount: cartTotal,
+        });
+        if (!cancelled) {
+          setAppliedDiscount(Number(res.data.discount_amount) || 0);
+          setCouponError(null);
+        }
+      } catch (e: any) {
+        if (!cancelled) {
+          setAppliedCouponCode('');
+          setAppliedDiscount(0);
+          const msg = e.response?.data?.detail;
+          setCouponError(typeof msg === 'string' ? msg : 'Coupon no longer valid for this cart.');
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [cartTotal, appliedCouponCode]);
+
+  const handleApplyCoupon = async () => {
+    const code = couponInput.trim();
+    if (!code) return;
+    setCouponApplying(true);
+    setCouponError(null);
+    try {
+      const res = await api.post('/ecommerce/coupons/validate', { code, amount: cartTotal });
+      setAppliedCouponCode(code);
+      setAppliedDiscount(Number(res.data.discount_amount) || 0);
+      setCouponInput('');
+    } catch (e: any) {
+      setAppliedCouponCode('');
+      setAppliedDiscount(0);
+      const msg = e.response?.data?.detail;
+      setCouponError(typeof msg === 'string' ? msg : 'Invalid coupon code');
+    } finally {
+      setCouponApplying(false);
+    }
+  };
+
+  const clearCoupon = () => {
+    setAppliedCouponCode('');
+    setAppliedDiscount(0);
+    setCouponInput('');
+    setCouponError(null);
+  };
+
   if (cartItems.length === 0) {
     return (
       <Box sx={{ py: 8, textAlign: 'center' }}>
+        <Seo
+          title="Checkout"
+          description="Complete your Energy Precisions order."
+          path="/checkout"
+          noIndex
+        />
         <Container maxWidth="md">
           <Alert severity="warning" sx={{ mb: 2 }}>
             Your cart is empty
@@ -119,7 +222,7 @@ const Checkout: React.FC = () => {
           product_name: item.product?.name || 'Product',
           product_sku: '', // SKU not available in current product type
           quantity: item.quantity,
-          unit_price: item.product?.base_price || 0,
+          unit_price: catalogLineUnitPrice(item.product),
         })),
         shipping_address: {
           firstName: shippingInfo.firstName,
@@ -141,8 +244,10 @@ const Checkout: React.FC = () => {
           postalCode: billingInfo.postalCode,
         },
         shipping_method: 'standard',
-        shipping_cost: 0, // Calculate based on shipping method
+        shipping_cost: 0,
         discount_amount: 0,
+        coupon_code: appliedCouponCode.trim() || undefined,
+        payment_method: paymentMethod === 'paystack' ? 'paystack' : 'cod',
       };
 
       const orderResponse = await api.post('/ecommerce/orders', orderData);
@@ -177,11 +282,17 @@ const Checkout: React.FC = () => {
     setError(null);
   };
 
-  const shippingCost: number = 0; // TODO: Calculate based on shipping method
-  const total = cartTotal + shippingCost;
+  const subtotalAfterDiscount = Math.max(0, cartTotal - appliedDiscount);
+  const total = subtotalAfterDiscount + shippingCost;
 
   return (
     <Box sx={{ py: { xs: 4, md: 8 } }}>
+      <Seo
+        title="Checkout"
+        description="Shipping, payment and order confirmation for Energy Precisions."
+        path="/checkout"
+        noIndex
+      />
       <Container maxWidth="lg">
         <Typography variant="h3" sx={{ mb: 4, fontWeight: 'bold', color: '#1a4d7a' }}>
           Checkout
@@ -406,7 +517,7 @@ const Checkout: React.FC = () => {
                         {item.product?.name || 'Product'} × {item.quantity}
                       </Typography>
                       <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
-                        GHS {((item.product?.base_price || 0) * item.quantity).toLocaleString()}
+                        GHS {(catalogLineUnitPrice(item.product) * item.quantity).toLocaleString()}
                       </Typography>
                     </Box>
                   </Box>
@@ -414,15 +525,74 @@ const Checkout: React.FC = () => {
 
                 <Divider sx={{ my: 2 }} />
 
+                <Box sx={{ mb: 2 }}>
+                  <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 0.5 }}>
+                    Coupon code
+                  </Typography>
+                  <Box display="flex" gap={1} alignItems="flex-start">
+                    <TextField
+                      size="small"
+                      fullWidth
+                      placeholder="Enter code"
+                      value={couponInput}
+                      onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
+                      disabled={!!appliedCouponCode || couponApplying}
+                      sx={{ '& input': { textTransform: 'uppercase' } }}
+                    />
+                    {appliedCouponCode ? (
+                      <Button variant="outlined" size="small" onClick={clearCoupon} sx={{ textTransform: 'none', flexShrink: 0 }}>
+                        Remove
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="outlined"
+                        size="small"
+                        onClick={handleApplyCoupon}
+                        disabled={couponApplying || !couponInput.trim()}
+                        sx={{ textTransform: 'none', flexShrink: 0 }}
+                      >
+                        {couponApplying ? '…' : 'Apply'}
+                      </Button>
+                    )}
+                  </Box>
+                  {couponError && (
+                    <Typography variant="caption" color="error" display="block" sx={{ mt: 0.5 }}>
+                      {couponError}
+                    </Typography>
+                  )}
+                  {appliedCouponCode && !couponError && (
+                    <Typography variant="caption" color="success.main" display="block" sx={{ mt: 0.5 }}>
+                      Applied: {appliedCouponCode}
+                    </Typography>
+                  )}
+                </Box>
+
                 <Box display="flex" justifyContent="space-between" mb={1}>
                   <Typography variant="body1">Subtotal</Typography>
                   <Typography variant="body1">GHS {cartTotal.toLocaleString()}</Typography>
                 </Box>
-                <Box display="flex" justifyContent="space-between" mb={1}>
+                {appliedDiscount > 0 && (
+                  <Box display="flex" justifyContent="space-between" mb={1}>
+                    <Typography variant="body1" color="secondary.main">
+                      Discount
+                    </Typography>
+                    <Typography variant="body1" color="secondary.main">
+                      −GHS {appliedDiscount.toLocaleString()}
+                    </Typography>
+                  </Box>
+                )}
+                <Box display="flex" justifyContent="space-between" mb={1} alignItems="flex-start">
                   <Typography variant="body1">Shipping</Typography>
-                  <Typography variant="body1">
-                    {shippingCost === 0 ? 'Free' : `GHS ${shippingCost.toLocaleString()}`}
-                  </Typography>
+                  <Box textAlign="right">
+                    <Typography variant="body1">
+                      {shippingCost === 0 ? 'Free' : `GHS ${shippingCost.toLocaleString()}`}
+                    </Typography>
+                    {shippingNote && (
+                      <Typography variant="caption" display="block" sx={{ color: '#666', mt: 0.5 }}>
+                        {shippingNote}
+                      </Typography>
+                    )}
+                  </Box>
                 </Box>
                 <Divider sx={{ my: 2 }} />
                 <Box display="flex" justifyContent="space-between" mb={3}>

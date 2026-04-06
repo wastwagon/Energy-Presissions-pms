@@ -293,6 +293,8 @@ export interface Product {
   capacity_kwh?: number;
   price_type: string;
   base_price: number;
+  /** Same formula as website checkout (one catalog unit). */
+  catalog_unit_price?: number;
   image_url?: string;
   category?: string;
   is_active: boolean;

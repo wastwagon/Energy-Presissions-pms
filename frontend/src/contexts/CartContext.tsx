@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import api from '../services/api';
+import { catalogLineUnitPrice } from '../utils/catalogPrice';
 
 interface CartItem {
   id: number;
@@ -9,6 +10,7 @@ interface CartItem {
     id: number;
     name: string;
     base_price: number;
+    catalog_unit_price?: number;
     image_url?: string;
   };
 }
@@ -127,8 +129,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
   const cartTotal = cartItems.reduce((sum, item) => {
-    const price = item.product?.base_price || 0;
-    return sum + price * item.quantity;
+    return sum + catalogLineUnitPrice(item.product) * item.quantity;
   }, 0);
 
   return (
