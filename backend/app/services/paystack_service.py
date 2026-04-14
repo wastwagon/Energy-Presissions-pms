@@ -4,23 +4,36 @@ Handles Paystack payment integration for Ghana
 """
 import requests
 from typing import Dict, Optional
-from app.config import settings
-import os
 
-PAYSTACK_SECRET_KEY = os.getenv("PAYSTACK_SECRET_KEY", "")
-PAYSTACK_PUBLIC_KEY = os.getenv("PAYSTACK_PUBLIC_KEY", "")
+from app.config import settings
+
 PAYSTACK_BASE_URL = "https://api.paystack.co"
 
 
 class PaystackService:
     def __init__(self):
-        self.secret_key = PAYSTACK_SECRET_KEY
-        self.public_key = PAYSTACK_PUBLIC_KEY
         self.base_url = PAYSTACK_BASE_URL
-        self.headers = {
+
+    @property
+    def secret_key(self) -> str:
+        return (settings.PAYSTACK_SECRET_KEY or "").strip()
+
+    @property
+    def public_key(self) -> str:
+        return (settings.PAYSTACK_PUBLIC_KEY or "").strip()
+
+    @property
+    def headers(self) -> dict:
+        return {
             "Authorization": f"Bearer {self.secret_key}",
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
         }
+
+    def _require_secret(self) -> None:
+        if not self.secret_key:
+            raise RuntimeError(
+                "PAYSTACK_SECRET_KEY is not set. Add it to environment (e.g. Render backend env vars)."
+            )
 
     def initialize_transaction(
         self,
@@ -43,6 +56,7 @@ class PaystackService:
         Returns:
             Dict with authorization_url and access_code
         """
+        self._require_secret()
         url = f"{self.base_url}/transaction/initialize"
         
         payload = {
@@ -70,6 +84,7 @@ class PaystackService:
         Returns:
             Transaction details
         """
+        self._require_secret()
         url = f"{self.base_url}/transaction/verify/{reference}"
         
         try:
@@ -92,6 +107,9 @@ class PaystackService:
         """
         import hmac
         import hashlib
+
+        if not self.secret_key or not signature:
+            return False
         
         secret = self.secret_key.encode('utf-8')
         computed_signature = hmac.new(
@@ -110,6 +128,7 @@ class PaystackService:
         phone: Optional[str] = None
     ) -> Dict:
         """Create a Paystack customer"""
+        self._require_secret()
         url = f"{self.base_url}/customer"
         
         payload = {

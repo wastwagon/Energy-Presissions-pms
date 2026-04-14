@@ -30,6 +30,10 @@ class Settings(BaseSettings):
     COMPANY_EMAIL: Optional[str] = None
     FRONTEND_URL: str = "https://energyprecisions.com"  # For Paystack callback; use http://localhost:5000 locally
 
+    # Paystack (live keys only via env — never commit secrets)
+    PAYSTACK_SECRET_KEY: Optional[str] = None
+    PAYSTACK_PUBLIC_KEY: Optional[str] = None
+
     # E-commerce shipping (GHS). Subtotal >= threshold => free shipping.
     ECOMMERCE_SHIPPING_FLAT_GHS: float = 0.0
     ECOMMERCE_FREE_SHIPPING_THRESHOLD_GHS: Optional[float] = 5000.0
