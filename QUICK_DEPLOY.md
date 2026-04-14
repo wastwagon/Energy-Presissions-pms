@@ -76,7 +76,7 @@ docker push $DOCKERHUB_USERNAME/energy-pms-frontend:latest
 4. Name: `energy-pms-frontend`
 5. **Environment Variables:**
    ```
-   REACT_APP_API_URL=https://energy-pms-backend.onrender.com
+   REACT_APP_API_URL=https://energy-pms-backend-1b7h.onrender.com
    ```
    (Use your actual backend URL)
 6. **Create Web Service**

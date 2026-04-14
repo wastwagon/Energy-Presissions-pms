@@ -30,6 +30,11 @@ docker compose exec -T backend sh -c "alembic upgrade head 2>/dev/null || alembi
 
 echo ""
 echo "[4/5] Creating admin user..."
+if [[ -z "${DEFAULT_ADMIN_PASSWORD:-}" ]]; then
+  echo "ERROR: DEFAULT_ADMIN_PASSWORD is not set."
+  echo "Set it first, e.g.: export DEFAULT_ADMIN_PASSWORD='change-me-now'"
+  exit 2
+fi
 docker compose exec -T backend python -m app.scripts.create_default_admin
 
 echo ""
@@ -46,6 +51,6 @@ echo "  App:    http://localhost:5000"
 echo "  API:    http://localhost:8000/docs"
 echo ""
 echo "  Login:  admin@energyprecisions.com"
-echo "  Pass:   admin123"
+echo "  Pass:   (the value you set in DEFAULT_ADMIN_PASSWORD)"
 echo ""
 echo "=========================================="

@@ -124,7 +124,9 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const removeFromCart = async (itemId: number) => {
     try {
       setLoading(true);
-      await api.delete(`/ecommerce/cart/${itemId}`);
+      await api.delete(`/ecommerce/cart/${itemId}`, {
+        params: !user && sessionId ? { session_id: sessionId } : undefined,
+      });
       await refreshCart();
     } catch (error) {
       console.error('Error removing from cart:', error);
@@ -137,7 +139,10 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       setLoading(true);
       await api.put(`/ecommerce/cart/${itemId}`, null, {
-        params: { quantity },
+        params: {
+          quantity,
+          ...(!user && sessionId ? { session_id: sessionId } : {}),
+        },
       });
       await refreshCart();
     } catch (error) {

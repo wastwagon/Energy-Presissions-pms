@@ -48,13 +48,38 @@ def _run_init_and_seed():
         logger.info("Init DB (settings, peak sun hours) complete")
     except Exception as e:
         logger.warning("Init DB skipped: %s", e)
-    if os.environ.get("AUTO_SEED", "true").lower() in ("true", "1", "yes"):
+    if os.environ.get("AUTO_SEED", "false").lower() in ("true", "1", "yes"):
         try:
             import subprocess
             import sys
             backend_dir = Path(__file__).parent.parent
-            subprocess.run([sys.executable, "scripts/seed_production.py"], cwd=str(backend_dir), check=False, capture_output=True)
-            subprocess.run([sys.executable, "-m", "app.scripts.seed_ecommerce_products"], cwd=str(backend_dir), check=False, capture_output=True)
+            seed_prod = subprocess.run(
+                [sys.executable, "scripts/seed_production.py"],
+                cwd=str(backend_dir),
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+            if seed_prod.returncode != 0:
+                logger.warning("seed_production.py exited with code %s", seed_prod.returncode)
+            if seed_prod.stdout:
+                logger.info("seed_production.py output:\n%s", seed_prod.stdout.strip())
+            if seed_prod.stderr:
+                logger.warning("seed_production.py warnings/errors:\n%s", seed_prod.stderr.strip())
+
+            seed_ecom = subprocess.run(
+                [sys.executable, "-m", "app.scripts.seed_ecommerce_products"],
+                cwd=str(backend_dir),
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+            if seed_ecom.returncode != 0:
+                logger.warning("seed_ecommerce_products exited with code %s", seed_ecom.returncode)
+            if seed_ecom.stdout:
+                logger.info("seed_ecommerce_products output:\n%s", seed_ecom.stdout.strip())
+            if seed_ecom.stderr:
+                logger.warning("seed_ecommerce_products warnings/errors:\n%s", seed_ecom.stderr.strip())
             logger.info("Seed scripts completed")
         except Exception as e:
             logger.warning("Seed skipped: %s", e)
@@ -78,26 +103,25 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# CORS configuration - env CORS_ORIGINS overrides; else use defaults (localhost + production)
-# allow_origin_regex matches Render subdomains (e.g. energy-pms-frontend-0m3k.onrender.com)
+# CORS configuration.
+# Always keep built-in safe defaults, then append optional env-provided origins.
+# This prevents accidental production lockout when CORS_ORIGINS is incomplete.
+default_cors_origins = [
+    "http://localhost:3000",
+    "http://localhost:5000",
+    "http://localhost:5173",
+    "http://localhost:8080",
+    "http://localhost:8081",
+    "https://energyprecisions.com",
+    "https://www.energyprecisions.com",
+    "http://energyprecisions.com",
+    "http://www.energyprecisions.com",
+]
 cors_origins_env = os.getenv("CORS_ORIGINS", "").strip()
-if cors_origins_env:
-    cors_origins = [origin.strip() for origin in cors_origins_env.split(",") if origin.strip()]
-    cors_origin_regex = None  # Explicit list takes precedence
-else:
-    cors_origins = [
-        "http://localhost:3000",
-        "http://localhost:5000",
-        "http://localhost:5173",
-        "http://localhost:8080",
-        "http://localhost:8081",
-        "https://energyprecisions.com",
-        "https://www.energyprecisions.com",
-        "http://energyprecisions.com",
-        "http://www.energyprecisions.com",
-    ]
-    # Allow any Render frontend subdomain when CORS_ORIGINS not set
-    cors_origin_regex = r"https://energy-pms-frontend-[a-z0-9]+\.onrender\.com"
+env_cors_origins = [origin.strip() for origin in cors_origins_env.split(",") if origin.strip()] if cors_origins_env else []
+cors_origins = list(dict.fromkeys(default_cors_origins + env_cors_origins))
+# Allow any Render frontend subdomain (preview/ephemeral deploys)
+cors_origin_regex = r"https://energy-pms-frontend-[a-z0-9]+\.onrender\.com"
 
 cors_kwargs = dict(
     allow_credentials=True,
@@ -108,6 +132,7 @@ if cors_origin_regex:
     cors_kwargs["allow_origin_regex"] = cors_origin_regex
 
 app.add_middleware(CORSMiddleware, allow_origins=cors_origins, **cors_kwargs)
+logger.info("CORS configured with %d explicit origins", len(cors_origins))
 
 
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):

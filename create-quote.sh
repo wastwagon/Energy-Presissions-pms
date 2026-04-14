@@ -4,7 +4,7 @@
 # Default values
 API_URL="${API_BASE_URL:-http://localhost:8000/api}"
 EMAIL="${ADMIN_EMAIL:-admin@energyprecisions.com}"
-PASSWORD="${ADMIN_PASSWORD:-admin123}"
+PASSWORD="${ADMIN_PASSWORD:-}"
 
 # Parse command line arguments
 while [[ $# -gt 0 ]]; do
@@ -27,7 +27,7 @@ while [[ $# -gt 0 ]]; do
             echo "Options:"
             echo "  --api-url URL     API base URL (default: http://localhost:8000/api)"
             echo "  --email EMAIL     Admin email (default: admin@energyprecisions.com)"
-            echo "  --password PASS   Admin password (default: admin123)"
+            echo "  --password PASS   Admin password (required)"
             echo ""
             echo "Environment variables:"
             echo "  API_BASE_URL      API base URL"
@@ -54,6 +54,13 @@ if ! python3 -c "import requests" 2>/dev/null; then
     echo "Error: requests library not found"
     echo "Install it with: pip install requests"
     exit 1
+fi
+
+# Require explicit password to avoid insecure defaults
+if [[ -z "$PASSWORD" ]]; then
+    echo "Error: admin password is required."
+    echo "Set ADMIN_PASSWORD or pass --password."
+    exit 2
 fi
 
 # Run the script

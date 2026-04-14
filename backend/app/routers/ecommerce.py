@@ -254,13 +254,28 @@ async def get_cart(
 @router.delete("/cart/{item_id}")
 async def remove_from_cart(
     item_id: int,
-    db: Session = Depends(get_db)
+    request: Request,
+    session_id: Optional[str] = Query(None),
+    db: Session = Depends(get_db),
+    current_user: Optional[User] = Depends(get_current_user_optional),
 ):
-    """Remove item from cart"""
+    """Remove item from cart with ownership checks."""
     cart_item = db.query(CartItem).filter(CartItem.id == item_id).first()
     if not cart_item:
         raise HTTPException(status_code=404, detail="Cart item not found")
-    
+
+    if cart_item.user_id is not None:
+        if current_user is None or current_user.id != cart_item.user_id:
+            raise HTTPException(status_code=403, detail="Not authorized to modify this cart item")
+    elif cart_item.session_id:
+        effective_session_id = (session_id or "").strip() or request.cookies.get("session_id")
+        if not effective_session_id or effective_session_id != cart_item.session_id:
+            raise HTTPException(status_code=403, detail="Not authorized to modify this cart item")
+    elif cart_item.customer_id is not None:
+        # Legacy customer-bound cart rows: only signed-in staff can modify these.
+        if current_user is None:
+            raise HTTPException(status_code=403, detail="Authentication required")
+
     db.delete(cart_item)
     db.commit()
     return {"message": "Item removed from cart"}
@@ -270,13 +285,28 @@ async def remove_from_cart(
 async def update_cart_item(
     item_id: int,
     quantity: int,
-    db: Session = Depends(get_db)
+    request: Request,
+    session_id: Optional[str] = Query(None),
+    db: Session = Depends(get_db),
+    current_user: Optional[User] = Depends(get_current_user_optional),
 ):
-    """Update cart item quantity"""
+    """Update cart item quantity with ownership checks."""
     cart_item = db.query(CartItem).filter(CartItem.id == item_id).first()
     if not cart_item:
         raise HTTPException(status_code=404, detail="Cart item not found")
-    
+
+    if cart_item.user_id is not None:
+        if current_user is None or current_user.id != cart_item.user_id:
+            raise HTTPException(status_code=403, detail="Not authorized to modify this cart item")
+    elif cart_item.session_id:
+        effective_session_id = (session_id or "").strip() or request.cookies.get("session_id")
+        if not effective_session_id or effective_session_id != cart_item.session_id:
+            raise HTTPException(status_code=403, detail="Not authorized to modify this cart item")
+    elif cart_item.customer_id is not None:
+        # Legacy customer-bound cart rows: only signed-in staff can modify these.
+        if current_user is None:
+            raise HTTPException(status_code=403, detail="Authentication required")
+
     if quantity <= 0:
         db.delete(cart_item)
     else:

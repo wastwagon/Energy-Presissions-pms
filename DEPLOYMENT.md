@@ -142,7 +142,7 @@ This guide will help you deploy the application to Docker Hub and Render.
    - **Environment:** `Docker`
 5. **Environment Variables:**
    ```
-   REACT_APP_API_URL=https://energy-pms-backend.onrender.com
+   REACT_APP_API_URL=https://energy-pms-backend-1b7h.onrender.com
    ```
    (Replace with your actual backend URL from Render)
 6. Click **"Create Web Service"**

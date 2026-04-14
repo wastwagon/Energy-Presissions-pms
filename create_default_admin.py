@@ -3,6 +3,7 @@
 Quick script to create a default admin user
 """
 import sys
+import os
 from pathlib import Path
 
 # Add backend to path
@@ -15,15 +16,24 @@ from app.auth import get_password_hash
 def create_default_admin():
     db = SessionLocal()
     try:
-        email = 'admin@energyprecisions.com'
-        password = 'admin123'
+        email = os.getenv("DEFAULT_ADMIN_EMAIL", "admin@energyprecisions.com").strip()
+        password = os.getenv("DEFAULT_ADMIN_PASSWORD", "").strip()
+        force_reset = os.getenv("FORCE_RESET_ADMIN_PASSWORD", "false").lower() in ("1", "true", "yes")
+
+        if not password:
+            print("Error: DEFAULT_ADMIN_PASSWORD is required. Refusing insecure default password.")
+            return
         
         # Check if user exists
         existing = db.query(User).filter(User.email == email).first()
         if existing:
             print(f"User with email {email} already exists!")
-            print(f"Email: {email}")
-            print(f"Password: (use existing password or reset)")
+            if force_reset:
+                existing.hashed_password = get_password_hash(password)
+                db.commit()
+                print(f"Password reset for {email} (FORCE_RESET_ADMIN_PASSWORD=true)")
+            else:
+                print("Password unchanged. Set FORCE_RESET_ADMIN_PASSWORD=true to reset.")
             return
         
         # Create admin user
@@ -37,9 +47,6 @@ def create_default_admin():
         db.commit()
         print("=" * 50)
         print("Admin user created successfully!")
-        print("=" * 50)
-        print(f"Email: {email}")
-        print(f"Password: {password}")
         print("=" * 50)
         print("⚠️  IMPORTANT: Change this password after first login!")
         print("=" * 50)
