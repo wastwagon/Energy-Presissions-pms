@@ -5,13 +5,21 @@ const API_URL = resolveApiUrl();
 
 const api = axios.create({
   baseURL: `${API_URL}/api`,
-  headers: {
-    'Content-Type': 'application/json',
-  },
 });
 
 // Add token to requests
 api.interceptors.request.use((config) => {
+  if (config.data instanceof FormData) {
+    // Let the browser set multipart boundaries for file uploads.
+    const headers = config.headers as any;
+    if (headers && typeof headers.set === 'function') {
+      headers.set('Content-Type', undefined);
+    }
+    if (headers) {
+      delete headers['Content-Type'];
+      delete headers['content-type'];
+    }
+  }
   const token = localStorage.getItem('token');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
