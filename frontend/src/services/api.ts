@@ -11,7 +11,14 @@ const api = axios.create({
 api.interceptors.request.use((config) => {
   if (config.data instanceof FormData) {
     // Let the browser set multipart boundaries for file uploads.
-    delete config.headers?.['Content-Type'];
+    const headers = config.headers as any;
+    if (headers && typeof headers.set === 'function') {
+      headers.set('Content-Type', undefined);
+    }
+    if (headers) {
+      delete headers['Content-Type'];
+      delete headers['content-type'];
+    }
   }
   const token = localStorage.getItem('token');
   if (token) {

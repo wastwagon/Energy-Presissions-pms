@@ -46,11 +46,24 @@ const getFullUrl = (url: string) =>
   url.startsWith('http') ? url : `${API_BASE.replace(/\/$/, '')}${url}`;
 
 const getErrorMessage = (err: any, fallback: string) => {
-  const detail = err?.response?.data?.detail;
+  const responseData = err?.response?.data;
+  const detail = responseData?.detail ?? responseData;
+  if (typeof detail === 'string') {
+    return detail;
+  }
   if (Array.isArray(detail)) {
     return detail.map((item) => item?.msg).filter(Boolean).join(', ') || fallback;
   }
-  return detail || fallback;
+  if (detail && typeof detail === 'object') {
+    if (typeof detail.message === 'string') return detail.message;
+    if (typeof detail.msg === 'string') return detail.msg;
+    try {
+      return JSON.stringify(detail);
+    } catch {
+      return fallback;
+    }
+  }
+  return err?.message || fallback;
 };
 
 const MediaLibrary: React.FC = () => {
