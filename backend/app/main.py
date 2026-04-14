@@ -10,9 +10,8 @@ from contextlib import asynccontextmanager
 from app.database import engine, Base
 # Import e-commerce models to register them
 from app import models_ecommerce
-from app import models_content
 from app.routers import auth, customers, projects, appliances, sizing, products, quotes, settings, reports, dashboard, users
-from app.routers import ecommerce, payments, media, newsletter, contact, content, public_load
+from app.routers import ecommerce, payments, media, newsletter, contact
 
 logger = logging.getLogger(__name__)
 
@@ -48,38 +47,13 @@ def _run_init_and_seed():
         logger.info("Init DB (settings, peak sun hours) complete")
     except Exception as e:
         logger.warning("Init DB skipped: %s", e)
-    if os.environ.get("AUTO_SEED", "false").lower() in ("true", "1", "yes"):
+    if os.environ.get("AUTO_SEED", "true").lower() in ("true", "1", "yes"):
         try:
             import subprocess
             import sys
             backend_dir = Path(__file__).parent.parent
-            seed_prod = subprocess.run(
-                [sys.executable, "scripts/seed_production.py"],
-                cwd=str(backend_dir),
-                check=False,
-                capture_output=True,
-                text=True,
-            )
-            if seed_prod.returncode != 0:
-                logger.warning("seed_production.py exited with code %s", seed_prod.returncode)
-            if seed_prod.stdout:
-                logger.info("seed_production.py output:\n%s", seed_prod.stdout.strip())
-            if seed_prod.stderr:
-                logger.warning("seed_production.py warnings/errors:\n%s", seed_prod.stderr.strip())
-
-            seed_ecom = subprocess.run(
-                [sys.executable, "-m", "app.scripts.seed_ecommerce_products"],
-                cwd=str(backend_dir),
-                check=False,
-                capture_output=True,
-                text=True,
-            )
-            if seed_ecom.returncode != 0:
-                logger.warning("seed_ecommerce_products exited with code %s", seed_ecom.returncode)
-            if seed_ecom.stdout:
-                logger.info("seed_ecommerce_products output:\n%s", seed_ecom.stdout.strip())
-            if seed_ecom.stderr:
-                logger.warning("seed_ecommerce_products warnings/errors:\n%s", seed_ecom.stderr.strip())
+            subprocess.run([sys.executable, "scripts/seed_production.py"], cwd=str(backend_dir), check=False, capture_output=True)
+            subprocess.run([sys.executable, "-m", "app.scripts.seed_ecommerce_products"], cwd=str(backend_dir), check=False, capture_output=True)
             logger.info("Seed scripts completed")
         except Exception as e:
             logger.warning("Seed skipped: %s", e)
@@ -103,9 +77,9 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# CORS configuration.
-# Always keep built-in safe defaults, then append optional env-provided origins.
-# This prevents accidental production lockout when CORS_ORIGINS is incomplete.
+# CORS: keep safe defaults (localhost + production), merge CORS_ORIGINS from env
+# so production is never locked out by an incomplete env list, and allow
+# Render-hosted frontend URLs via allow_origin_regex.
 default_cors_origins = [
     "http://localhost:3000",
     "http://localhost:5000",
@@ -117,10 +91,12 @@ default_cors_origins = [
     "http://energyprecisions.com",
     "http://www.energyprecisions.com",
 ]
+
 cors_origins_env = os.getenv("CORS_ORIGINS", "").strip()
 env_cors_origins = [origin.strip() for origin in cors_origins_env.split(",") if origin.strip()] if cors_origins_env else []
+
+# Use dict.fromkeys to preserve order while deduplicating entries.
 cors_origins = list(dict.fromkeys(default_cors_origins + env_cors_origins))
-# Allow Render-hosted frontends (preview/ephemeral deploys)
 cors_origin_regex = r"https://([a-z0-9-]+\.)?onrender\.com"
 
 cors_kwargs = dict(
@@ -165,8 +141,6 @@ app.include_router(payments.router)  # Payment routes (already has /api/payments
 app.include_router(media.router, prefix="/api")
 app.include_router(newsletter.router)
 app.include_router(contact.router)
-app.include_router(content.router)
-app.include_router(public_load.router)
 
 # Create static directory if it doesn't exist
 static_dir = Path("static")
