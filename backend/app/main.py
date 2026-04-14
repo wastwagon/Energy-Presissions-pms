@@ -95,8 +95,8 @@ else:
         "http://energyprecisions.com",
         "http://www.energyprecisions.com",
     ]
-    # Allow any Render frontend subdomain when CORS_ORIGINS not set
-    cors_origin_regex = r"https://energy-pms-frontend-[a-z0-9]+\.onrender\.com"
+    # Allow Render-hosted frontends when CORS_ORIGINS is not set
+    cors_origin_regex = r"https://([a-z0-9-]+\.)?onrender\.com"
 
 cors_kwargs = dict(
     allow_credentials=True,
