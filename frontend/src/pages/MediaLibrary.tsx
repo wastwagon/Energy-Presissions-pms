@@ -66,6 +66,25 @@ const getErrorMessage = (err: any, fallback: string) => {
   return err?.message || fallback;
 };
 
+const parseUploadError = async (response: Response, fallback: string) => {
+  try {
+    const data = await response.json();
+    const detail = data?.detail ?? data;
+    if (typeof detail === 'string') return detail;
+    if (Array.isArray(detail)) {
+      return detail.map((item) => item?.msg).filter(Boolean).join(', ') || fallback;
+    }
+    if (detail && typeof detail === 'object') {
+      if (typeof detail.message === 'string') return detail.message;
+      if (typeof detail.msg === 'string') return detail.msg;
+      return JSON.stringify(detail);
+    }
+  } catch {
+    // Ignore JSON parse errors and fall back to status message.
+  }
+  return `${fallback} (HTTP ${response.status})`;
+};
+
 const MediaLibrary: React.FC = () => {
   const [items, setItems] = useState<MediaItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -108,7 +127,16 @@ const MediaLibrary: React.FC = () => {
       setUploading(true);
       const fd = new FormData();
       fd.append('file', file);
-      await api.post('/media/', fd);
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_BASE.replace(/\/$/, '')}/api/media/`, {
+        method: 'POST',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        body: fd,
+      });
+      if (!response.ok) {
+        const message = await parseUploadError(response, 'Upload failed');
+        throw new Error(message);
+      }
       fetchItems();
     } catch (err: any) {
       alert(getErrorMessage(err, 'Upload failed'));
