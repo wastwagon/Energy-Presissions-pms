@@ -77,26 +77,28 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# CORS configuration - env CORS_ORIGINS overrides; else use defaults (localhost + production)
-# allow_origin_regex matches Render subdomains (e.g. energy-pms-frontend-0m3k.onrender.com)
+# CORS configuration:
+# - Keep safe defaults for localhost + production domains.
+# - Merge CORS_ORIGINS from env instead of replacing defaults.
+# - Always allow Render-hosted frontend subdomains via regex.
+default_cors_origins = [
+    "http://localhost:3000",
+    "http://localhost:5000",
+    "http://localhost:5173",
+    "http://localhost:8080",
+    "http://localhost:8081",
+    "https://energyprecisions.com",
+    "https://www.energyprecisions.com",
+    "http://energyprecisions.com",
+    "http://www.energyprecisions.com",
+]
+
 cors_origins_env = os.getenv("CORS_ORIGINS", "").strip()
-if cors_origins_env:
-    cors_origins = [origin.strip() for origin in cors_origins_env.split(",") if origin.strip()]
-    cors_origin_regex = None  # Explicit list takes precedence
-else:
-    cors_origins = [
-        "http://localhost:3000",
-        "http://localhost:5000",
-        "http://localhost:5173",
-        "http://localhost:8080",
-        "http://localhost:8081",
-        "https://energyprecisions.com",
-        "https://www.energyprecisions.com",
-        "http://energyprecisions.com",
-        "http://www.energyprecisions.com",
-    ]
-    # Allow Render-hosted frontends when CORS_ORIGINS is not set
-    cors_origin_regex = r"https://([a-z0-9-]+\.)?onrender\.com"
+env_cors_origins = [origin.strip() for origin in cors_origins_env.split(",") if origin.strip()] if cors_origins_env else []
+
+# Use dict.fromkeys to preserve order while deduplicating entries.
+cors_origins = list(dict.fromkeys(default_cors_origins + env_cors_origins))
+cors_origin_regex = r"https://([a-z0-9-]+\.)?onrender\.com"
 
 cors_kwargs = dict(
     allow_credentials=True,
