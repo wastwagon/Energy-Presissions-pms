@@ -28,8 +28,10 @@ import {
   Image as ImageIcon,
 } from '@mui/icons-material';
 import api from '../services/api';
+import { resolveApiUrl } from '../utils/apiUrl';
 
-const API_BASE = (window as any).REACT_APP_API_URL || process.env.REACT_APP_API_URL || 'http://localhost:8000';
+/** Same base URL as `api` client — avoids uploads hitting localhost while list uses production. */
+const API_BASE = resolveApiUrl();
 
 interface MediaItem {
   id: number;
@@ -45,42 +47,70 @@ interface MediaItem {
 const getFullUrl = (url: string) =>
   url.startsWith('http') ? url : `${API_BASE.replace(/\/$/, '')}${url}`;
 
-const getErrorMessage = (err: any, fallback: string) => {
-  const responseData = err?.response?.data;
-  const detail = responseData?.detail ?? responseData;
-  if (typeof detail === 'string') {
-    return detail;
+/** Never return a non-string (avoids alert showing "[object Object]"). */
+const stringifyDetail = (value: unknown): string => {
+  if (value == null) return '';
+  if (typeof value === 'string') return value;
+  if (typeof value === 'number' || typeof value === 'boolean') return String(value);
+  try {
+    return JSON.stringify(value);
+  } catch {
+    return '';
   }
-  if (Array.isArray(detail)) {
-    return detail.map((item) => item?.msg).filter(Boolean).join(', ') || fallback;
-  }
-  if (detail && typeof detail === 'object') {
-    if (typeof detail.message === 'string') return detail.message;
-    if (typeof detail.msg === 'string') return detail.msg;
-    try {
-      return JSON.stringify(detail);
-    } catch {
-      return fallback;
-    }
-  }
-  return err?.message || fallback;
 };
 
-const parseUploadError = async (response: Response, fallback: string) => {
+const validationEntryText = (item: unknown): string => {
+  if (item == null || typeof item !== 'object') return '';
+  const rec = item as Record<string, unknown>;
+  const msg = rec.msg ?? rec.message;
+  if (typeof msg === 'string') return msg;
+  if (msg != null && typeof msg === 'object') return stringifyDetail(msg);
+  return stringifyDetail(item);
+};
+
+const getErrorMessage = (err: unknown, fallback: string): string => {
+  const e = err as { response?: { data?: unknown }; message?: string };
+  const responseData = e?.response?.data;
+  if (responseData == null || typeof responseData !== 'object') {
+    const m = e?.message;
+    return typeof m === 'string' && m.trim() ? m : fallback;
+  }
+  const data = responseData as Record<string, unknown>;
+  const detail = data.detail ?? responseData;
+  if (typeof detail === 'string' && detail.trim()) return detail;
+  if (Array.isArray(detail)) {
+    const parts = detail.map(validationEntryText).filter(Boolean);
+    return parts.length ? parts.join(', ') : fallback;
+  }
+  if (detail != null && typeof detail === 'object') {
+    const rec = detail as Record<string, unknown>;
+    if (typeof rec.message === 'string' && rec.message.trim()) return rec.message;
+    if (typeof rec.msg === 'string' && rec.msg.trim()) return rec.msg;
+    const s = stringifyDetail(detail);
+    return s || fallback;
+  }
+  const m = e?.message;
+  return typeof m === 'string' && m.trim() ? m : fallback;
+};
+
+const parseUploadError = async (response: Response, fallback: string): Promise<string> => {
   try {
-    const data = await response.json();
-    const detail = data?.detail ?? data;
-    if (typeof detail === 'string') return detail;
+    const data = (await response.json()) as Record<string, unknown> | null;
+    const detail = data && typeof data === 'object' ? (data.detail ?? data) : null;
+    if (typeof detail === 'string' && detail.trim()) return detail;
     if (Array.isArray(detail)) {
-      return detail.map((item) => item?.msg).filter(Boolean).join(', ') || fallback;
+      const parts = detail.map(validationEntryText).filter(Boolean);
+      return parts.length ? parts.join(', ') : `${fallback} (HTTP ${response.status})`;
     }
-    if (detail && typeof detail === 'object') {
-      if (typeof detail.message === 'string') return detail.message;
-      if (typeof detail.msg === 'string') return detail.msg;
-      return JSON.stringify(detail);
+    if (detail != null && typeof detail === 'object') {
+      const rec = detail as Record<string, unknown>;
+      if (typeof rec.message === 'string' && rec.message.trim()) return rec.message;
+      if (typeof rec.msg === 'string' && rec.msg.trim()) return rec.msg;
+      const s = stringifyDetail(detail);
+      return s || `${fallback} (HTTP ${response.status})`;
     }
   } catch {
-    // Ignore JSON parse errors and fall back to status message.
+    // Non-JSON body
   }
   return `${fallback} (HTTP ${response.status})`;
 };
@@ -138,7 +168,7 @@ const MediaLibrary: React.FC = () => {
         throw new Error(message);
       }
       fetchItems();
-    } catch (err: any) {
+    } catch (err: unknown) {
       alert(getErrorMessage(err, 'Upload failed'));
     } finally {
       setUploading(false);
@@ -152,8 +182,8 @@ const MediaLibrary: React.FC = () => {
       await api.delete(`/media/${item.id}`);
       fetchItems();
       setSelectedItem(null);
-    } catch (err: any) {
-      alert(err.response?.data?.detail || 'Delete failed');
+    } catch (err: unknown) {
+      alert(getErrorMessage(err, 'Delete failed'));
     }
   };
 
