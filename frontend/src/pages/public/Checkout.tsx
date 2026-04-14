@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Box,
   Container,
@@ -24,6 +24,7 @@ import { useCart } from '../../contexts/CartContext';
 import api from '../../services/api';
 import { catalogLineUnitPrice } from '../../utils/catalogPrice';
 import { Seo } from '../../components/Seo';
+import { trackBeginCheckout } from '../../utils/analytics';
 
 const steps = ['Shipping Information', 'Payment', 'Confirmation'];
 
@@ -96,6 +97,7 @@ const Checkout: React.FC = () => {
   const [appliedDiscount, setAppliedDiscount] = useState(0);
   const [couponError, setCouponError] = useState<string | null>(null);
   const [couponApplying, setCouponApplying] = useState(false);
+  const beginCheckoutTracked = useRef(false);
 
   useEffect(() => {
     if (!appliedCouponCode.trim() || cartTotal <= 0) {
@@ -156,9 +158,27 @@ const Checkout: React.FC = () => {
     setCouponError(null);
   };
 
+  useEffect(() => {
+    if (cartItems.length === 0 || beginCheckoutTracked.current) return;
+    beginCheckoutTracked.current = true;
+    const items = cartItems.map((item) => {
+      const p = item.product;
+      const price = p ? catalogLineUnitPrice(p) : 0;
+      return {
+        item_id: String(item.product_id),
+        item_name: p?.name || 'Product',
+        price,
+        quantity: item.quantity,
+      };
+    });
+    const subtotal = items.reduce((s, i) => s + i.price * i.quantity, 0);
+    const value = Math.max(0, subtotal - appliedDiscount) + shippingCost;
+    trackBeginCheckout(items, value);
+  }, [cartItems, appliedDiscount, shippingCost]);
+
   if (cartItems.length === 0) {
     return (
-      <Box sx={{ py: 8, textAlign: 'center' }}>
+      <Box sx={{ py: { xs: 5, md: 6 }, textAlign: 'center' }}>
         <Seo
           title="Checkout"
           description="Complete your Energy Precisions order."
@@ -286,7 +306,7 @@ const Checkout: React.FC = () => {
   const total = subtotalAfterDiscount + shippingCost;
 
   return (
-    <Box sx={{ py: { xs: 4, md: 8 } }}>
+    <Box sx={{ py: { xs: 3, md: 6 } }}>
       <Seo
         title="Checkout"
         description="Shipping, payment and order confirmation for Energy Precisions."
@@ -294,11 +314,11 @@ const Checkout: React.FC = () => {
         noIndex
       />
       <Container maxWidth="lg">
-        <Typography variant="h3" sx={{ mb: 4, fontWeight: 'bold', color: '#1a4d7a' }}>
+        <Typography variant="h2" sx={{ mb: 3, fontWeight: 800, color: '#1a4d7a', fontSize: { xs: '1.5rem', md: '1.85rem' } }}>
           Checkout
         </Typography>
 
-        <Stepper activeStep={activeStep} sx={{ mb: 4 }}>
+        <Stepper activeStep={activeStep} sx={{ mb: 3 }}>
           {steps.map((label) => (
             <Step key={label}>
               <StepLabel>{label}</StepLabel>
@@ -307,21 +327,21 @@ const Checkout: React.FC = () => {
         </Stepper>
 
         {error && (
-          <Alert severity="error" sx={{ mb: 3 }} onClose={() => setError(null)}>
+          <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>
             {error}
           </Alert>
         )}
 
-        <Grid container spacing={4}>
+        <Grid container spacing={{ xs: 2, md: 3 }}>
           {/* Main Content */}
           <Grid item xs={12} md={8}>
             {activeStep === 0 && (
               <Card>
-                <CardContent sx={{ p: 4 }}>
-                  <Typography variant="h5" sx={{ mb: 3, fontWeight: 'bold' }}>
+                <CardContent sx={{ p: { xs: 2.5, md: 3 } }}>
+                  <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 700 }}>
                     Shipping Information
                   </Typography>
-                  <Grid container spacing={3}>
+                  <Grid container spacing={2}>
                     <Grid item xs={12} sm={6}>
                       <TextField
                         fullWidth
@@ -413,8 +433,8 @@ const Checkout: React.FC = () => {
 
             {activeStep === 1 && (
               <Card>
-                <CardContent sx={{ p: 4 }}>
-                  <Typography variant="h5" sx={{ mb: 3, fontWeight: 'bold' }}>
+                <CardContent sx={{ p: { xs: 2.5, md: 3 } }}>
+                  <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 700 }}>
                     Payment Method
                   </Typography>
                   <FormControl component="fieldset">
@@ -453,7 +473,7 @@ const Checkout: React.FC = () => {
                     </RadioGroup>
                   </FormControl>
 
-                  <Box sx={{ mt: 4 }}>
+                  <Box sx={{ mt: 2.5 }}>
                     <FormControlLabel
                       control={
                         <Checkbox
@@ -474,25 +494,25 @@ const Checkout: React.FC = () => {
 
             {activeStep === 2 && (
               <Card>
-                <CardContent sx={{ p: 4, textAlign: 'center' }}>
-                  <Typography variant="h4" sx={{ mb: 2, color: '#00E676', fontWeight: 'bold' }}>
+                <CardContent sx={{ p: { xs: 2.5, md: 3 }, textAlign: 'center' }}>
+                  <Typography variant="h5" sx={{ mb: 1.5, color: '#00E676', fontWeight: 800 }}>
                     Order Confirmed!
                   </Typography>
-                  <Typography variant="h6" sx={{ mb: 4, color: '#666' }}>
+                  <Typography variant="subtitle1" sx={{ mb: 2, color: '#666' }}>
                     Order Number: {orderNumber}
                   </Typography>
-                  <Typography variant="body1" sx={{ mb: 4, color: '#666' }}>
+                  <Typography variant="body2" sx={{ mb: 3, color: '#666', lineHeight: 1.65 }}>
                     Thank you for your order! We've sent a confirmation email to your inbox.
                     You will receive updates about your order status.
                   </Typography>
                   <Button
                     variant="contained"
+                    size="medium"
                     onClick={() => navigate('/shop')}
                     sx={{
                       bgcolor: '#00E676',
                       '&:hover': { bgcolor: '#00C85F' },
                       textTransform: 'none',
-                      px: 4,
                     }}
                   >
                     Continue Shopping
@@ -505,13 +525,13 @@ const Checkout: React.FC = () => {
           {/* Order Summary */}
           <Grid item xs={12} md={4}>
             <Card sx={{ position: 'sticky', top: 20 }}>
-              <CardContent>
-                <Typography variant="h6" sx={{ mb: 3, fontWeight: 'bold' }}>
+              <CardContent sx={{ p: { xs: 2.5, md: 3 } }}>
+                <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 700 }}>
                   Order Summary
                 </Typography>
 
                 {cartItems.map((item) => (
-                  <Box key={item.id} sx={{ mb: 2 }}>
+                  <Box key={item.id} sx={{ mb: 1.5 }}>
                     <Box display="flex" justifyContent="space-between">
                       <Typography variant="body2">
                         {item.product?.name || 'Product'} × {item.quantity}
@@ -523,9 +543,9 @@ const Checkout: React.FC = () => {
                   </Box>
                 ))}
 
-                <Divider sx={{ my: 2 }} />
+                <Divider sx={{ my: 1.5 }} />
 
-                <Box sx={{ mb: 2 }}>
+                <Box sx={{ mb: 1.5 }}>
                   <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 0.5 }}>
                     Coupon code
                   </Typography>
@@ -567,24 +587,24 @@ const Checkout: React.FC = () => {
                   )}
                 </Box>
 
-                <Box display="flex" justifyContent="space-between" mb={1}>
-                  <Typography variant="body1">Subtotal</Typography>
-                  <Typography variant="body1">GHS {cartTotal.toLocaleString()}</Typography>
+                <Box display="flex" justifyContent="space-between" mb={0.75}>
+                  <Typography variant="body2">Subtotal</Typography>
+                  <Typography variant="body2">GHS {cartTotal.toLocaleString()}</Typography>
                 </Box>
                 {appliedDiscount > 0 && (
-                  <Box display="flex" justifyContent="space-between" mb={1}>
-                    <Typography variant="body1" color="secondary.main">
+                  <Box display="flex" justifyContent="space-between" mb={0.75}>
+                    <Typography variant="body2" color="secondary.main">
                       Discount
                     </Typography>
-                    <Typography variant="body1" color="secondary.main">
+                    <Typography variant="body2" color="secondary.main">
                       −GHS {appliedDiscount.toLocaleString()}
                     </Typography>
                   </Box>
                 )}
-                <Box display="flex" justifyContent="space-between" mb={1} alignItems="flex-start">
-                  <Typography variant="body1">Shipping</Typography>
+                <Box display="flex" justifyContent="space-between" mb={0.75} alignItems="flex-start">
+                  <Typography variant="body2">Shipping</Typography>
                   <Box textAlign="right">
-                    <Typography variant="body1">
+                    <Typography variant="body2">
                       {shippingCost === 0 ? 'Free' : `GHS ${shippingCost.toLocaleString()}`}
                     </Typography>
                     {shippingNote && (
@@ -594,12 +614,12 @@ const Checkout: React.FC = () => {
                     )}
                   </Box>
                 </Box>
-                <Divider sx={{ my: 2 }} />
-                <Box display="flex" justifyContent="space-between" mb={3}>
-                  <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                <Divider sx={{ my: 1.5 }} />
+                <Box display="flex" justifyContent="space-between" mb={2}>
+                  <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
                     Total
                   </Typography>
-                  <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#00E676' }}>
+                  <Typography variant="subtitle1" sx={{ fontWeight: 700, color: '#00E676' }}>
                     GHS {total.toLocaleString()}
                   </Typography>
                 </Box>
@@ -609,13 +629,13 @@ const Checkout: React.FC = () => {
                     <Button
                       fullWidth
                       variant="contained"
+                      size="medium"
                       onClick={handleNext}
                       disabled={loading || (activeStep === 1 && !termsAccepted)}
                       sx={{
                         bgcolor: '#00E676',
                         '&:hover': { bgcolor: '#00C85F' },
                         textTransform: 'none',
-                        py: 1.5,
                         mb: 1,
                       }}
                     >
@@ -629,6 +649,7 @@ const Checkout: React.FC = () => {
                       <Button
                         fullWidth
                         variant="outlined"
+                        size="medium"
                         onClick={handleBack}
                         disabled={loading}
                         sx={{

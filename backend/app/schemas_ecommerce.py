@@ -60,11 +60,16 @@ class CartItemCreate(BaseModel):
     session_id: Optional[str] = None
 
 
+class CartMergeRequest(BaseModel):
+    session_id: str = Field(..., min_length=8, max_length=200)
+
+
 class CartItemResponse(BaseModel):
     id: int
     product_id: int
     quantity: int
     customer_id: Optional[int] = None
+    user_id: Optional[int] = None
     session_id: Optional[str] = None
     created_at: datetime
     product: Optional[ProductPublic] = None
@@ -134,6 +139,36 @@ class OrderDetailResponse(OrderResponse):
     
     class Config:
         from_attributes = True
+
+
+class OrderConfirmationItemPublic(BaseModel):
+    """Line items safe to show on the post-payment confirmation page (no addresses or PII)."""
+
+    product_name: str
+    quantity: int
+    unit_price: float
+    total_price: float
+
+
+class OrderConfirmationPublic(BaseModel):
+    """Subset of order data returned after Paystack verify — not a substitute for authenticated order admin APIs."""
+
+    order_number: str
+    status: str
+    payment_status: str
+    subtotal: float
+    shipping_cost: float
+    discount_amount: float
+    total_amount: float
+    items: List[OrderConfirmationItemPublic] = Field(default_factory=list)
+
+
+class PaystackVerifyResponse(BaseModel):
+    verified: bool
+    order: Optional[str] = None
+    status: Optional[str] = None
+    detail: Optional[str] = None
+    order_confirmation: Optional[OrderConfirmationPublic] = None
 
 
 class OrderStatusUpdate(BaseModel):

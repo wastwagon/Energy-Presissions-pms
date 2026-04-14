@@ -71,4 +71,6 @@ services:
     region: oregon
     envVars:
       - key: REACT_APP_API_URL
-        sync: false  # Set to your backend URL after deploy (e.g. https://energy-pms-backend.onrender.com)
+        sync: false  # Set to your backend URL after deploy (e.g. https://energy-pms-backend-1b7h.onrender.com)
+      - key: REACT_APP_GA4_MEASUREMENT_ID
+        sync: false  # Optional GA4 ID (G-XXXXXXXXXX); set at build time on Render

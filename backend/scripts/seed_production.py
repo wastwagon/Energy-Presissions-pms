@@ -40,8 +40,11 @@ def get_engine():
 
 def create_admin(engine):
     from sqlalchemy import text
-    email = "admin@energyprecisions.com"
-    password = "admin123"
+    email = os.environ.get("DEFAULT_ADMIN_EMAIL", "admin@energyprecisions.com")
+    password = os.environ.get("DEFAULT_ADMIN_PASSWORD", "").strip()
+    force_reset = os.environ.get("FORCE_RESET_ADMIN_PASSWORD", "false").lower() in ("1", "true", "yes")
+    if not password:
+        raise SystemExit("DEFAULT_ADMIN_PASSWORD is required. Refusing to use insecure default password.")
     hashed = hash_password(password)
     full_name = "System Administrator"
 
@@ -50,12 +53,15 @@ def create_admin(engine):
         r = conn.execute(text("SELECT id FROM users WHERE email = :e"), {"e": email})
         row = r.fetchone()
         if row:
-            conn.execute(
-                text("UPDATE users SET hashed_password = :p WHERE email = :e"),
-                {"p": hashed, "e": email}
-            )
-            conn.commit()
-            print(f"Password updated for {email}")
+            if force_reset:
+                conn.execute(
+                    text("UPDATE users SET hashed_password = :p WHERE email = :e"),
+                    {"p": hashed, "e": email}
+                )
+                conn.commit()
+                print(f"Password reset for existing admin {email} (FORCE_RESET_ADMIN_PASSWORD=true)")
+            else:
+                print(f"Admin user {email} already exists; leaving password unchanged")
         else:
             conn.execute(
                 text("INSERT INTO users (email, hashed_password, full_name, role) VALUES (:e, :p, :n, 'admin')"),
@@ -63,8 +69,7 @@ def create_admin(engine):
             )
             conn.commit()
             print(f"Admin user {email} created successfully!")
-        print(f"Email: {email}")
-        print(f"Password: {password}")
+            print("IMPORTANT: Change this admin password immediately after first login.")
 
 
 def setup_bank_details(engine):

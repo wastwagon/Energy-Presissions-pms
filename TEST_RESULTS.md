@@ -14,7 +14,7 @@
 - **Status**: ✅ **SUCCESS**
 - **Test Credentials**:
   - Email: `admin@energyprecisions.com`
-  - Password: `admin123`
+  - Password: `<redacted>`
 - **Result**: Token received successfully
 
 ### ✅ User Info
@@ -69,7 +69,7 @@ React Router is a **client-side routing** library. The flow works like this:
 
 ```
 Email:    admin@energyprecisions.com
-Password: admin123
+Password: <redacted>
 ```
 
 ---
@@ -152,7 +152,7 @@ open http://localhost:5000/pms/dashboard
 ```bash
 curl -X POST http://localhost:8000/api/auth/login \
   -H "Content-Type: application/x-www-form-urlencoded" \
-  -d "username=admin@energyprecisions.com&password=admin123"
+  -d "username=admin@energyprecisions.com&password=<your-password>"
 ```
 
 ### Test Protected Endpoint
@@ -160,7 +160,7 @@ curl -X POST http://localhost:8000/api/auth/login \
 # First get token
 TOKEN=$(curl -s -X POST http://localhost:8000/api/auth/login \
   -H "Content-Type: application/x-www-form-urlencoded" \
-  -d "username=admin@energyprecisions.com&password=admin123" \
+  -d "username=admin@energyprecisions.com&password=<your-password>" \
   | python3 -c "import sys, json; print(json.load(sys.stdin)['access_token'])")
 
 # Then use token

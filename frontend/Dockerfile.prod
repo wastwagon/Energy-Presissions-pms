@@ -17,6 +17,8 @@ COPY . .
 # Default to placeholder, will be replaced at runtime via nginx
 ARG REACT_APP_API_URL=http://localhost:8000
 ENV REACT_APP_API_URL=$REACT_APP_API_URL
+ARG REACT_APP_GA4_MEASUREMENT_ID=
+ENV REACT_APP_GA4_MEASUREMENT_ID=$REACT_APP_GA4_MEASUREMENT_ID
 
 RUN npm run build
 

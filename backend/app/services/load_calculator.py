@@ -85,6 +85,48 @@ def calculate_appliance_daily_kwh(
     return round(daily_kwh, 3)
 
 
+def preview_load_from_lines(
+    db: Session,
+    lines: List[dict],
+    apply_diversity_factor: bool = True,
+) -> dict:
+    """
+    Stateless daily kWh preview for anonymous/public tools — same math as project appliances,
+    no DB rows and no commit.
+    Each line: power_value, power_unit (str), quantity, hours_per_day, appliance_type (str);
+    optional label / description for display.
+    """
+    enriched: List[dict] = []
+    total_raw = 0.0
+    for i, line in enumerate(lines):
+        pv = float(line["power_value"])
+        pu = str(line["power_unit"])
+        qty = int(line["quantity"])
+        h = float(line["hours_per_day"])
+        at = str(line["appliance_type"])
+        dk = calculate_appliance_daily_kwh(pv, pu, qty, h, at, db)
+        total_raw += dk
+        label = line.get("label") or line.get("description") or at
+        enriched.append(
+            {
+                "index": i,
+                "label": str(label)[:200],
+                "daily_kwh": dk,
+            }
+        )
+    diversity = get_setting_value(db, "load_diversity_factor", 0.65)
+    total_div = total_raw * diversity if apply_diversity_factor else total_raw
+    out = {
+        "lines": enriched,
+        "total_daily_kwh_raw": round(total_raw, 3),
+        "total_daily_kwh": round(total_div, 3),
+        "diversity_factor_applied": apply_diversity_factor,
+    }
+    if apply_diversity_factor:
+        out["diversity_factor"] = diversity
+    return out
+
+
 def calculate_total_daily_kwh(db: Session, project_id: int, apply_diversity_factor: bool = True) -> float:
     """
     Calculate total daily kWh for all appliances in a project

@@ -46,22 +46,22 @@ echo -e "${GREEN}Energy Precision PMS - Production Deploy${NC}"
 echo -e "${GREEN}============================================${NC}"
 echo ""
 
-# Step 1: Migrations
-echo -e "${YELLOW}1. Running database migrations...${NC}"
+# Step 1: Schema from models + settings (fresh Render DB has no tables; Alembic alone can fail on first revision)
+echo -e "${YELLOW}1. Creating tables and default settings...${NC}"
 cd "$BACKEND_DIR"
-if python3 -m alembic upgrade heads; then
-    echo -e "${GREEN}   ✓ Migrations applied${NC}"
-else
-    echo -e "${YELLOW}   ⚠ Migration had issues (table may already exist). Checking current state...${NC}"
-    python3 -m alembic current
-    echo "   If migrations are stuck, run: python3 -m alembic stamp <revision>"
-fi
-echo ""
-
-# Step 2: Init DB (settings, peak sun hours)
-echo -e "${YELLOW}2. Initializing settings and peak sun hours...${NC}"
 python3 -m app.scripts.init_db
 echo -e "${GREEN}   ✓ Init complete${NC}"
+echo ""
+
+# Step 2: Alembic to head (or stamp if DDL already matches, e.g. duplicate column)
+echo -e "${YELLOW}2. Alembic upgrade to head (or stamp on duplicate / drift)...${NC}"
+if python3 -m alembic upgrade head; then
+    echo -e "${GREEN}   ✓ Migrations applied${NC}"
+else
+    echo -e "${YELLOW}   ⚠ upgrade head failed; stamping head (schema likely from SQLAlchemy create_all)...${NC}"
+    python3 -m alembic stamp head || true
+    python3 -m alembic current
+fi
 echo ""
 
 # Step 3: Seed production (admin, bank details)

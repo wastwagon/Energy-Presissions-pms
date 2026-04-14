@@ -6,12 +6,13 @@ import json
 import logging
 
 from fastapi import APIRouter, Depends, HTTPException, Request
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 from app.database import get_db
 from app.models_ecommerce import Order
+from app.schemas_ecommerce import PaystackVerifyResponse
 from app.services.paystack_service import paystack_service
-from app.services.order_payment import finalize_order_paid_from_paystack
+from app.services.order_payment import finalize_order_paid_from_paystack, order_confirmation_public
 
 logger = logging.getLogger(__name__)
 
@@ -103,7 +104,7 @@ async def paystack_webhook(
     return {"status": "received"}
 
 
-@router.get("/paystack/verify/{reference}")
+@router.get("/paystack/verify/{reference}", response_model=PaystackVerifyResponse)
 async def verify_payment(
     reference: str,
     db: Session = Depends(get_db)
@@ -111,17 +112,24 @@ async def verify_payment(
     """
     Verify Paystack transaction and, if successful, finalize the order (same as webhook).
     Used when the customer returns from Paystack before the webhook runs.
+    Returns a non-sensitive order_confirmation for the success page — full order detail requires staff auth.
     """
-    order = db.query(Order).filter(Order.order_number == reference).first()
+    order = (
+        db.query(Order)
+        .options(joinedload(Order.items))
+        .filter(Order.order_number == reference)
+        .first()
+    )
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
 
     if order.payment_status == "paid":
-        return {
-            "verified": True,
-            "order": order.order_number,
-            "status": order.payment_status,
-        }
+        return PaystackVerifyResponse(
+            verified=True,
+            order=order.order_number,
+            status=order.payment_status,
+            order_confirmation=order_confirmation_public(order),
+        )
 
     try:
         response = paystack_service.verify_transaction(reference)
@@ -129,20 +137,29 @@ async def verify_payment(
         raise HTTPException(status_code=500, detail=str(e))
 
     if not response.get("status") or response.get("data", {}).get("status") != "success":
-        return {"verified": False}
+        return PaystackVerifyResponse(verified=False)
 
     data = response["data"]
     amount_kobo = data.get("amount")
     ok, err = finalize_order_paid_from_paystack(db, order, reference, amount_kobo)
     if not ok:
         logger.warning("Paystack verify finalize failed for %s: %s", reference, err)
-        return {"verified": False, "detail": err}
+        return PaystackVerifyResponse(verified=False, detail=err)
 
     db.commit()
-    db.refresh(order)
-    return {
-        "verified": True,
-        "order": order.order_number,
-        "status": order.payment_status,
-    }
+    order = (
+        db.query(Order)
+        .options(joinedload(Order.items))
+        .filter(Order.order_number == reference)
+        .first()
+    )
+    if not order:
+        logger.error("Order missing after Paystack verify commit: %s", reference)
+        return PaystackVerifyResponse(verified=False, detail="Order not found after payment")
+    return PaystackVerifyResponse(
+        verified=True,
+        order=order.order_number,
+        status=order.payment_status,
+        order_confirmation=order_confirmation_public(order),
+    )
 

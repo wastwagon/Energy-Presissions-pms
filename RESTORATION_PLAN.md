@@ -28,6 +28,8 @@ You deleted local Docker containers and the local database. Your **Render** depl
 3. Wait for the DB to be healthy, then seed the database and create admin:
    ```bash
    docker compose exec backend python -m app.scripts.init_db
+   export DEFAULT_ADMIN_PASSWORD='change-me-now'
+   docker compose exec backend python -m app.scripts.create_default_admin
    docker compose exec backend python -m app.scripts.setup_bank_details
    docker compose exec backend python -m app.scripts.set_default_bank_details
    ```
@@ -37,9 +39,9 @@ You deleted local Docker containers and the local database. Your **Render** depl
    - **App:** http://localhost:5000  
    - **API docs:** http://localhost:8000/docs  
 
-5. Log in (default):  
+5. Log in:  
    Email: `admin@energyprecisions.com`  
-   Password: `admin123`  
+   Password: value you set in `DEFAULT_ADMIN_PASSWORD`  
 
 **Result:** Local app running with a **new empty** DB (no customers/projects from Render).
 

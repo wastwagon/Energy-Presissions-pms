@@ -11,13 +11,15 @@ import {
 } from '@mui/material';
 import { Helmet } from 'react-helmet-async';
 import { useAuth } from '../contexts/AuthContext';
+import { authService } from '../services/auth';
+import { UserRole } from '../types';
 
 const WebAdminLogin: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
+  const { login, logout } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -36,8 +38,15 @@ const WebAdminLogin: React.FC = () => {
       }
       
       await login(trimmedEmail, trimmedPassword);
-      // Navigate to website admin or back to website
-      navigate('/', { replace: true });
+      const me = await authService.getCurrentUser();
+      if (me.role === UserRole.WEBSITE_ADMIN || me.role === UserRole.ADMIN) {
+        navigate('/web/app', { replace: true });
+      } else {
+        logout();
+        setError('Use PMS staff sign-in at /pms/admin for this account.');
+        setLoading(false);
+        return;
+      }
     } catch (err: any) {
       console.error('Login error:', err);
       const errorMessage = err.response?.data?.detail || err.message || 'Login failed. Please check your credentials.';
@@ -55,30 +64,31 @@ const WebAdminLogin: React.FC = () => {
       <Container component="main" maxWidth="xs">
       <Box
         sx={{
-          marginTop: 8,
+          marginTop: { xs: 4, sm: 5 },
+          marginBottom: 3,
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
         }}
       >
-        <Paper elevation={3} sx={{ p: 4, width: '100%' }}>
-          <Typography component="h1" variant="h4" align="center" gutterBottom>
+        <Paper elevation={3} sx={{ p: { xs: 2.5, sm: 3 }, width: '100%' }}>
+          <Typography component="h1" variant="h5" align="center" sx={{ fontWeight: 800 }} gutterBottom>
             Energy Precisions
           </Typography>
-          <Typography component="h2" variant="h6" align="center" color="text.secondary" gutterBottom>
+          <Typography component="h2" variant="subtitle1" align="center" color="text.secondary" gutterBottom>
             Website Admin
           </Typography>
-          <Typography component="p" variant="body2" align="center" color="text.secondary" sx={{ mb: 3 }}>
+          <Typography component="p" variant="body2" align="center" color="text.secondary" sx={{ mb: 2 }}>
             Sign in to manage website content and e-commerce
           </Typography>
           {error && (
-            <Alert severity="error" sx={{ mt: 2, mb: 2 }}>
+            <Alert severity="error" sx={{ mt: 1, mb: 1.5 }}>
               {error}
             </Alert>
           )}
-          <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
+          <Box component="form" onSubmit={handleSubmit} sx={{ mt: 0.5 }}>
             <TextField
-              margin="normal"
+              margin="dense"
               required
               fullWidth
               id="email"
@@ -90,7 +100,7 @@ const WebAdminLogin: React.FC = () => {
               onChange={(e) => setEmail(e.target.value)}
             />
             <TextField
-              margin="normal"
+              margin="dense"
               required
               fullWidth
               name="password"
@@ -105,12 +115,13 @@ const WebAdminLogin: React.FC = () => {
               type="submit"
               fullWidth
               variant="contained"
-              sx={{ mt: 3, mb: 2, bgcolor: '#00E676', '&:hover': { bgcolor: '#00C85F' } }}
+              size="medium"
+              sx={{ mt: 2, mb: 1.5, textTransform: 'none', bgcolor: '#00E676', '&:hover': { bgcolor: '#00C85F' } }}
               disabled={loading}
             >
               {loading ? 'Signing in...' : 'Sign In to Website'}
             </Button>
-            <Box sx={{ textAlign: 'center', mt: 2 }}>
+            <Box sx={{ textAlign: 'center', mt: 1 }}>
               <Button
                 variant="text"
                 size="small"

@@ -14,11 +14,17 @@ YELLOW='\033[1;33m'
 RED='\033[0;31m'
 NC='\033[0m' # No Color
 
-# Test credentials
-ADMIN_EMAIL="admin@energyprecisions.com"
-ADMIN_PASSWORD="admin123"
-API_URL="http://localhost:8000"
-FRONTEND_URL="http://localhost:5000"
+# Test credentials (password must be supplied explicitly)
+ADMIN_EMAIL="${ADMIN_EMAIL:-admin@energyprecisions.com}"
+ADMIN_PASSWORD="${ADMIN_PASSWORD:-}"
+API_URL="${API_URL:-http://localhost:8000}"
+FRONTEND_URL="${FRONTEND_URL:-http://localhost:5000}"
+
+if [ -z "$ADMIN_PASSWORD" ]; then
+  echo -e "${RED}Error: ADMIN_PASSWORD is required.${NC}"
+  echo "Set ADMIN_PASSWORD in your shell before running this script."
+  exit 2
+fi
 
 echo -e "${YELLOW}Step 1: Checking Services Status${NC}"
 echo "----------------------------------------"

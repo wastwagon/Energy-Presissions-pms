@@ -10,7 +10,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from sqlalchemy.orm import Session
 from app.database import SessionLocal
-from app.models import User
+from app.models import User, UserRole
 from app.auth import get_password_hash
 
 def create_admin():
@@ -19,6 +19,12 @@ def create_admin():
         email = input("Enter admin email: ")
         password = input("Enter admin password: ")
         full_name = input("Enter admin full name: ")
+        role_raw = input("Role — admin (full PMS) or website_admin (shop & website only) [admin]: ").strip().lower() or "admin"
+        role = UserRole.ADMIN
+        if role_raw == "website_admin":
+            role = UserRole.WEBSITE_ADMIN
+        elif role_raw != "admin":
+            print("Unknown role; using admin.")
         
         # Check if user exists
         existing = db.query(User).filter(User.email == email).first()
@@ -31,11 +37,11 @@ def create_admin():
             email=email,
             hashed_password=get_password_hash(password),
             full_name=full_name,
-            role="admin"
+            role=role,
         )
         db.add(admin)
         db.commit()
-        print(f"Admin user {email} created successfully!")
+        print(f"User {email} created successfully with role {role.value}!")
     except Exception as e:
         print(f"Error: {e}")
         db.rollback()

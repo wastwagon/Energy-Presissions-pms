@@ -29,7 +29,7 @@ async def list_products(
 @router.post("/upload-image")
 async def upload_product_image(
     file: UploadFile = File(...),
-    current_user: User = Depends(require_role(["admin"]))
+    current_user: User = Depends(require_role(["admin", "website_admin"]))
 ):
     """Upload a product featured image (admin only). Returns the URL to use in image_url."""
     if not file.content_type or not file.content_type.startswith("image/"):
@@ -67,7 +67,7 @@ async def get_product(
 async def create_product(
     product_data: ProductCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_role(["admin"]))
+    current_user: User = Depends(require_role(["admin", "website_admin"]))
 ):
     """Create a new product (admin only)"""
     data = product_data.dict()
@@ -85,7 +85,7 @@ async def update_product(
     product_id: int,
     product_data: ProductUpdate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_role(["admin"]))
+    current_user: User = Depends(require_role(["admin", "website_admin"]))
 ):
     """Update a product (admin only)"""
     product = db.query(Product).filter(Product.id == product_id).first()
@@ -106,7 +106,7 @@ async def update_product(
 async def delete_product(
     product_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_role(["admin"]))
+    current_user: User = Depends(require_role(["admin", "website_admin"]))
 ):
     """Delete (deactivate) a product (admin only)"""
     product = db.query(Product).filter(Product.id == product_id).first()

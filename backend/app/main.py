@@ -77,10 +77,9 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# CORS configuration:
-# - Keep safe defaults for localhost + production domains.
-# - Merge CORS_ORIGINS from env instead of replacing defaults.
-# - Always allow Render-hosted frontend subdomains via regex.
+# CORS: keep safe defaults (localhost + production), merge CORS_ORIGINS from env
+# so production is never locked out by an incomplete env list, and allow
+# Render-hosted frontend URLs via allow_origin_regex.
 default_cors_origins = [
     "http://localhost:3000",
     "http://localhost:5000",
@@ -109,6 +108,7 @@ if cors_origin_regex:
     cors_kwargs["allow_origin_regex"] = cors_origin_regex
 
 app.add_middleware(CORSMiddleware, allow_origins=cors_origins, **cors_kwargs)
+logger.info("CORS configured with %d explicit origins", len(cors_origins))
 
 
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):
