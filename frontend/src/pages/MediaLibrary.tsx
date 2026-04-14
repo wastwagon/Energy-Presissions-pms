@@ -45,6 +45,14 @@ interface MediaItem {
 const getFullUrl = (url: string) =>
   url.startsWith('http') ? url : `${API_BASE.replace(/\/$/, '')}${url}`;
 
+const getErrorMessage = (err: any, fallback: string) => {
+  const detail = err?.response?.data?.detail;
+  if (Array.isArray(detail)) {
+    return detail.map((item) => item?.msg).filter(Boolean).join(', ') || fallback;
+  }
+  return detail || fallback;
+};
+
 const MediaLibrary: React.FC = () => {
   const [items, setItems] = useState<MediaItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -90,7 +98,7 @@ const MediaLibrary: React.FC = () => {
       await api.post('/media/', fd);
       fetchItems();
     } catch (err: any) {
-      alert(err.response?.data?.detail || 'Upload failed');
+      alert(getErrorMessage(err, 'Upload failed'));
     } finally {
       setUploading(false);
       e.target.value = '';
