@@ -62,16 +62,41 @@ export const authService = {
         throw new Error('Invalid response from server');
       }
       return response.data;
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const err = error as {
+        message?: string;
+        code?: string;
+        response?: { data?: { detail?: unknown }; status?: number; statusText?: string };
+      };
       console.error('Login error:', {
-        message: error.message,
-        response: error.response?.data,
-        status: error.response?.status,
-        statusText: error.response?.statusText,
+        message: err.message,
+        code: err.code,
+        response: err.response?.data,
+        status: err.response?.status,
+        statusText: err.response?.statusText,
+        apiBase: API_URL,
       });
-      // Re-throw with a more descriptive error
-      const errorMessage = error.response?.data?.detail || error.message || 'Login failed';
-      throw new Error(errorMessage);
+      const detail = err.response?.data?.detail;
+      const detailStr =
+        typeof detail === 'string'
+          ? detail
+          : Array.isArray(detail)
+            ? detail.map((d: { msg?: string }) => d?.msg).filter(Boolean).join(', ')
+            : '';
+      if (detailStr) {
+        throw new Error(detailStr);
+      }
+      const isNetwork =
+        err.code === 'ERR_NETWORK' ||
+        err.message === 'Network Error' ||
+        (!err.response && err.message?.toLowerCase().includes('network'));
+      if (isNetwork) {
+        throw new Error(
+          `Cannot reach the API at ${API_URL}. Check your connection, try another browser or network, ` +
+            `or confirm the backend is running. If you use a custom domain, set REACT_APP_API_URL to your API base URL.`
+        );
+      }
+      throw new Error(err.message || 'Login failed');
     }
   },
 
