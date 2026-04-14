@@ -3,6 +3,7 @@ Script to reset admin password and verify it works
 Usage: python -m app.scripts.reset_admin_password
 """
 import sys
+import os
 from pathlib import Path
 
 # Add parent directory to path
@@ -16,8 +17,11 @@ from app.auth import get_password_hash, verify_password
 def reset_admin_password():
     db: Session = SessionLocal()
     try:
-        email = "admin@energyprecisions.com"
-        password = "admin123"
+        email = os.getenv("DEFAULT_ADMIN_EMAIL", "admin@energyprecisions.com").strip()
+        password = os.getenv("DEFAULT_ADMIN_PASSWORD", "").strip()
+        if not password:
+            print("Error: DEFAULT_ADMIN_PASSWORD is required. Refusing to use an insecure default password.")
+            return
         
         # Check if user exists
         user = db.query(User).filter(User.email == email).first()
@@ -54,9 +58,8 @@ def reset_admin_password():
         
         if test_result:
             print(f"✓ Password verification successful!")
-            print(f"\nLogin credentials:")
-            print(f"  Email: {email}")
-            print(f"  Password: {password}")
+            print(f"\nLogin email: {email}")
+            print("Password reset completed (password not echoed for security).")
         else:
             print(f"✗ Password verification FAILED!")
             print(f"  This should not happen. Please check the password hashing.")

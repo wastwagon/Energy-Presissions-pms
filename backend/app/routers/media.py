@@ -47,7 +47,7 @@ async def upload_media(
     title: Optional[str] = Form(None),
     alt_text: Optional[str] = Form(None),
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_role(["admin"])),
+    current_user: User = Depends(require_role(["admin", "website_admin"])),
 ):
     """Upload a file (admin only). Saves to static/media/ and creates MediaItem record."""
     contents = await file.read()
@@ -100,7 +100,7 @@ async def get_media(
 async def delete_media(
     item_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_role(["admin"])),
+    current_user: User = Depends(require_role(["admin", "website_admin"])),
 ):
     """Delete a media item (admin only). Removes file from disk and database record."""
     item = db.query(MediaItem).filter(MediaItem.id == item_id).first()

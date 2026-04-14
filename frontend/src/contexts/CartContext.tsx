@@ -1,6 +1,7 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import api from '../services/api';
 import { catalogLineUnitPrice } from '../utils/catalogPrice';
+import { useAuth } from './AuthContext';
 
 interface CartItem {
   id: number;
@@ -38,11 +39,12 @@ export const useCart = () => {
 };
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user } = useAuth();
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
+  const mergedForUserId = useRef<number | null>(null);
 
-  // Get or create session ID for guest carts
   useEffect(() => {
     let sid = localStorage.getItem('session_id');
     if (!sid) {
@@ -53,17 +55,16 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const refreshCart = useCallback(async () => {
-    if (!sessionId) return;
-    
     try {
       setLoading(true);
-      const response = await api.get('/ecommerce/cart', {
-        params: { session_id: sessionId },
-      });
+      const params: Record<string, string> = {};
+      if (!user && sessionId) {
+        params.session_id = sessionId;
+      }
+      const response = await api.get('/ecommerce/cart', { params });
       setCartItems(response.data || []);
     } catch (error) {
       console.error('Error fetching cart:', error);
-      // For guest users, if API fails, use localStorage as fallback
       const localCart = localStorage.getItem('cart');
       if (localCart) {
         setCartItems(JSON.parse(localCart));
@@ -71,11 +72,37 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } finally {
       setLoading(false);
     }
-  }, [sessionId]);
+  }, [sessionId, user]);
 
   useEffect(() => {
     refreshCart();
   }, [refreshCart]);
+
+  useEffect(() => {
+    if (!user?.id || !sessionId) return;
+    if (mergedForUserId.current === user.id) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        await api.post('/ecommerce/cart/merge', { session_id: sessionId });
+        if (!cancelled) {
+          mergedForUserId.current = user.id;
+          await refreshCart();
+        }
+      } catch (e) {
+        console.error('Cart merge failed', e);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.id, sessionId, refreshCart]);
+
+  useEffect(() => {
+    if (!user) {
+      mergedForUserId.current = null;
+    }
+  }, [user]);
 
   const addToCart = async (productId: number, quantity: number = 1) => {
     try {
@@ -83,7 +110,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await api.post('/ecommerce/cart/add', {
         product_id: productId,
         quantity,
-        session_id: sessionId,
+        session_id: user ? undefined : sessionId,
       });
       await refreshCart();
     } catch (error: any) {
@@ -97,11 +124,12 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const removeFromCart = async (itemId: number) => {
     try {
       setLoading(true);
-      await api.delete(`/ecommerce/cart/${itemId}`);
+      await api.delete(`/ecommerce/cart/${itemId}`, {
+        params: !user && sessionId ? { session_id: sessionId } : undefined,
+      });
       await refreshCart();
     } catch (error) {
       console.error('Error removing from cart:', error);
-      throw error;
     } finally {
       setLoading(false);
     }
@@ -111,12 +139,14 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       setLoading(true);
       await api.put(`/ecommerce/cart/${itemId}`, null, {
-        params: { quantity },
+        params: {
+          quantity,
+          ...(!user && sessionId ? { session_id: sessionId } : {}),
+        },
       });
       await refreshCart();
     } catch (error) {
       console.error('Error updating cart:', error);
-      throw error;
     } finally {
       setLoading(false);
     }
@@ -150,6 +180,3 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     </CartContext.Provider>
   );
 };
-
-
-

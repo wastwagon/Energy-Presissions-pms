@@ -6,7 +6,7 @@ import time
 from collections import defaultdict
 from datetime import datetime
 from threading import Lock
-from typing import List, Optional
+from typing import List, Literal, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from pydantic import BaseModel, EmailStr, Field
@@ -58,6 +58,7 @@ class ContactSubmit(BaseModel):
     service: Optional[str] = Field(None, max_length=120)
     message: str = Field(..., max_length=8000)
     company_website: Optional[str] = Field(None, max_length=200)  # honeypot — leave blank
+    topic: Optional[Literal["referral", "estimate", "load"]] = None  # from marketing URLs; ignore unknown client values
 
 
 class ContactInquiryOut(BaseModel):
@@ -86,13 +87,17 @@ async def submit_contact(
 
     _check_contact_rate_limit(request)
 
+    src = "website"
+    if data.topic:
+        src = f"website:{data.topic}"
+
     row = ContactInquiry(
         name=data.name.strip(),
         email=str(data.email).lower().strip(),
         phone=(data.phone or "").strip() or None,
         service=(data.service or "").strip() or None,
         message=data.message.strip(),
-        source="website",
+        source=src,
     )
     db.add(row)
     db.commit()
@@ -108,6 +113,7 @@ async def submit_contact(
                 "phone": row.phone or "",
                 "service": row.service or "",
                 "message": row.message,
+                "topic": data.topic or "",
             },
         )
 
@@ -119,7 +125,7 @@ async def list_contact_inquiries(
     skip: int = Query(0, ge=0),
     limit: int = Query(50, ge=1, le=200),
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_role(["admin"])),
+    current_user: User = Depends(require_role(["admin", "website_admin"])),
 ):
     """List recent contact submissions (admin)."""
     rows = (

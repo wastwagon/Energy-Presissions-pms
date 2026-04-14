@@ -16,6 +16,31 @@ from app.services.stock import deduct_stock_on_order_paid
 logger = logging.getLogger(__name__)
 
 
+def order_confirmation_public(order: Order):
+    """Non-sensitive order summary for post-checkout UI (after Paystack verify)."""
+    from app.schemas_ecommerce import OrderConfirmationPublic, OrderConfirmationItemPublic
+
+    items = [
+        OrderConfirmationItemPublic(
+            product_name=i.product_name,
+            quantity=int(i.quantity),
+            unit_price=float(i.unit_price),
+            total_price=float(i.total_price),
+        )
+        for i in (order.items or [])
+    ]
+    return OrderConfirmationPublic(
+        order_number=order.order_number,
+        status=(order.status or "pending"),
+        payment_status=(order.payment_status or "pending"),
+        subtotal=float(order.subtotal or 0),
+        shipping_cost=float(order.shipping_cost or 0),
+        discount_amount=float(order.discount_amount or 0),
+        total_amount=float(order.total_amount or 0),
+        items=items,
+    )
+
+
 def order_amount_matches_paystack_kobo(order: Order, amount_kobo: int | None) -> bool:
     """Paystack amounts are in the smallest currency unit (pesewas for GHS)."""
     if amount_kobo is None:

@@ -74,14 +74,14 @@ All factors are configurable through the Settings table in the database.
 
 4. Initialize database (first run):
    ```bash
-   # Wait for database to be ready, then run migrations
-   docker-compose exec backend alembic upgrade head
+   # Recommended order: create tables + settings, then align Alembic to the current head (single head after merge migrations).
+   docker compose exec backend python -m app.scripts.init_db
+   docker compose exec backend alembic upgrade head || docker compose exec backend alembic stamp head
    
-   # Initialize default settings and sample data
-   docker-compose exec backend python -m app.scripts.init_db
+   # If you use ./setup-everything.sh, it runs the above for you.
    ```
 
-5. Create admin user (interactive prompts):
+5. Create admin user (interactive prompts). You can choose **admin** (full PMS) or **website_admin** (shop, media, blog/FAQ CMS, newsletter — no projects/quotes):
    ```bash
    docker-compose exec backend python -m app.scripts.create_admin
    ```
@@ -89,6 +89,11 @@ All factors are configurable through the Settings table in the database.
    ```bash
    docker-compose exec backend python -m app.scripts.create_default_admin
    ```
+   Optional default **website_admin** (development only — `/web/admin` sign-in):
+   ```bash
+   docker-compose exec backend python -m app.scripts.create_default_website_admin
+   ```
+   The `website_admin` role requires the DB enum from migration `e5f6a7b8c9d0_website_admin_cart_user_cms` (included in `alembic upgrade head`).
 
 6. (Optional) Add sample products to catalog:
    - Log in as admin
@@ -110,7 +115,12 @@ All factors are configurable through the Settings table in the database.
 - React with TypeScript
 - Material UI components
 - Production Docker image uses `frontend/nginx.conf`: `/robots.txt` and `/sitemap.xml` are served as static files from the build output (correct `Content-Type`), not the SPA `index.html`. After changing SEO files or adding routes, rebuild and redeploy the frontend.
-- The marketing site is the default at `/`. Staff PMS sign-in is at `/pms/admin` (bookmark or type the URL; it is not linked from the public header). Per-route titles and meta tags use `react-helmet-async` (`Seo` in `frontend/src/components/Seo.tsx`).
+- The marketing site is the default at `/`. **PMS** staff sign-in: `/pms/admin`. **Website admin** (shop + marketing CMS): `/web/admin`. Those URLs are not linked from the public header; bookmark or share them with staff. Per-route titles and meta tags use `react-helmet-async` (`Seo` in `frontend/src/components/Seo.tsx`).
+- **Roles**: **admin** — full PMS (projects, quotes, sizing, reports, e-commerce). **website_admin** — `/web/app` only: products, orders, media, promo codes, contact leads, newsletter subscribers, blog/FAQ/site hero settings (no PMS sizing or customer project workflows). Admins can use both; **Settings → Users** can create `website_admin` accounts.
+- **Resources / blog & FAQs**: public routes `/blog`, `/blog/:slug`, `/faqs`. Content is served from the API when present (`GET /api/content/blog`, `/api/content/blog/{slug}`, `/api/content/faqs`); otherwise the app falls back to `frontend/src/data/blogPosts.ts` and extracted JSON.
+- **Public site settings (hero images)**: `GET /api/content/settings/public` exposes whitelisted keys (e.g. `home_hero_image`, `about_hero_image`, `services_hero_image`). Manage values under **Website admin → Blog & FAQs** (or via `PUT /api/content/admin/settings`). Defaults still come from `frontend/src/data/homePageMedia.ts` when keys are unset.
+- **Public page media (defaults)**: service card images in `frontend/src/data/homePageMedia.ts` (`servicesPageImages`); **Portfolio** grid in `frontend/src/data/portfolioPageItems.ts` (Unsplash defaults; replace with `/website_images/...` or CDN). Homepage section order follows typical solar marketing sites (trust strip → value props → services → portfolio → process → testimonials → CTA).
+- **GA4** (optional): set `REACT_APP_GA4_MEASUREMENT_ID` to your `G-XXXXXXXXXX` at **build** time. The app loads gtag, sends SPA `page_view` on navigation, ecommerce-style events `view_item` (product page), `add_to_cart` (shop + detail), `begin_checkout` (checkout with cart), `generate_lead` (contact/quote), and `purchase` (paid order on `/checkout/success`).
 
 ### Configuration (e-commerce & contact)
 
@@ -122,6 +132,7 @@ All factors are configurable through the Settings table in the database.
 | `ECOMMERCE_FREE_SHIPPING_THRESHOLD_GHS` | Subtotal (GHS) for free shipping (default `5000`; set `0` to disable the rule). |
 | `PAYSTACK_SECRET_KEY` / `PAYSTACK_PUBLIC_KEY` | Payment integration. |
 | `AUTH_DEBUG_LOG` | Set to `true` only when debugging login issues (extra logs). |
+| `REACT_APP_GA4_MEASUREMENT_ID` | Optional Google Analytics 4 measurement ID; must be present at **frontend build** time. |
 
 Checkout discounts are applied only via **`coupon_code`** on the order API; the client `discount_amount` field is ignored. Use **Coupons** in the database (see e-commerce migrations) and the checkout **Apply** control.
 
@@ -131,7 +142,9 @@ After pulling changes, run migrations (includes `contact_inquiries` and a merge 
 docker-compose exec backend alembic upgrade head
 ```
 
-In the PMS, admins can open **Contact leads** (`/pms/contact-leads`) to view website form submissions and **Promo codes** (`/pms/promo-codes`) to manage shop checkout coupons.
+In the PMS, admins can open **Contact leads** (`/pms/contact-leads`) and **Promo codes** (`/pms/promo-codes`). The same screens exist under **Website admin** at `/web/app/contact-leads` and `/web/app/promo-codes` for `website_admin` users. **Reports** (`/pms/reports`) includes e-commerce KPIs for the selected date range; downloaded analytics PDFs include the same shop metrics.
+
+**E-commerce security & stock**: `GET /api/ecommerce/orders/{order_number}` (full detail, addresses, customer PII) requires a **staff JWT**. The public success page uses **`GET /api/payments/paystack/verify/{reference}`**, which returns a non-sensitive `order_confirmation` after a successful Paystack verification. Inventory: stock is deducted **idempotently** when Paystack marks an order paid (verify/webhook) and when staff sets **payment status to paid** in the PMS (e.g. COD).
 
 ## Features
 
@@ -170,9 +183,12 @@ Key endpoints:
 - `/api/projects/` - Project CRUD
 - `/api/appliances/` - Appliance management
 - `/api/sizing/` - System sizing calculations
-- `/api/products/` - Product catalog (admin only)
+- `/api/products/` - Product catalog (admin / website_admin)
 - `/api/quotes/` - Quote management and PDF generation
 - `/api/settings/` - System settings (admin only)
+- `/api/content/...` - Public blog/FAQ/settings; admin CRUD under `/api/content/admin/...` (admin / website_admin)
+- `/api/newsletter/subscribers` - List/update subscribers (admin / website_admin)
+- `/api/ecommerce/cart/merge` - Merge guest session cart into logged-in user (JWT)
 
 ## Configuration
 

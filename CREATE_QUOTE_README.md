@@ -41,7 +41,7 @@ python create_kofi_oppong_quote.py [OPTIONS]
 Options:
   --api-url URL     API base URL (default: http://localhost:8000/api)
   --email EMAIL     Admin email (default: admin@energyprecisions.com)
-  --password PASS   Admin password (default: admin123)
+  --password PASS   Admin password (required)
   -h, --help        Show help message
 ```
 

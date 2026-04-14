@@ -10,6 +10,8 @@ export type SeoProps = {
   path: string;
   noIndex?: boolean;
   ogImage?: string;
+  /** Single JSON-LD object (e.g. WebApplication) serialized into a script tag. */
+  jsonLd?: Record<string, unknown>;
 };
 
 function canonicalUrl(path: string): string {
@@ -18,7 +20,7 @@ function canonicalUrl(path: string): string {
   return `${SITE_ORIGIN}${p}`;
 }
 
-export function Seo({ title, description, path, noIndex, ogImage }: SeoProps) {
+export function Seo({ title, description, path, noIndex, ogImage, jsonLd }: SeoProps) {
   const canonical = canonicalUrl(path);
   const pageTitle = title.includes('Energy Precisions') ? title : `${title} | Energy Precisions`;
   const image = ogImage || DEFAULT_OG_IMAGE;
@@ -37,6 +39,12 @@ export function Seo({ title, description, path, noIndex, ogImage }: SeoProps) {
       <meta name="twitter:description" content={description} />
       <meta name="twitter:image" content={image} />
       {noIndex ? <meta name="robots" content="noindex,nofollow" /> : null}
+      {jsonLd ? (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      ) : null}
     </Helmet>
   );
 }

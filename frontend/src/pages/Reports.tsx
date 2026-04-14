@@ -23,6 +23,9 @@ import {
   People as PeopleIcon,
   Folder as FolderIcon,
   Print as PrintIcon,
+  ShoppingCart as ShoppingCartIcon,
+  Payments as PaymentsIcon,
+  HourglassEmpty as HourglassIcon,
 } from '@mui/icons-material';
 import api from '../services/api';
 
@@ -44,6 +47,10 @@ interface Analytics {
   average_system_size_kw: number;
   revenue_change_percent?: number;
   quotes_by_month: Array<{ month: string; count: number }>;
+  ecommerce_order_count?: number;
+  ecommerce_paid_orders?: number;
+  ecommerce_paid_revenue_ghs?: number;
+  ecommerce_pending_payment_orders?: number;
 }
 
 const Reports: React.FC = () => {
@@ -405,6 +412,73 @@ const Reports: React.FC = () => {
                       Avg: GH₵ {analytics.average_accepted_value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </Typography>
                   )}
+                </CardContent>
+              </Card>
+            </Grid>
+            <Grid item xs={12}>
+              <Typography variant="subtitle1" sx={{ fontWeight: 600, mt: 1 }}>
+                E-commerce (same date range)
+              </Typography>
+            </Grid>
+            <Grid item xs={12} sm={6} md={3}>
+              <Card>
+                <CardContent>
+                  <Box display="flex" alignItems="center" mb={1}>
+                    <ShoppingCartIcon sx={{ mr: 1, color: 'primary.main' }} />
+                    <Typography variant="h6">Shop orders</Typography>
+                  </Box>
+                  <Typography variant="h4">{analytics.ecommerce_order_count ?? 0}</Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    All statuses in range
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+            <Grid item xs={12} sm={6} md={3}>
+              <Card>
+                <CardContent>
+                  <Box display="flex" alignItems="center" mb={1}>
+                    <PaymentsIcon sx={{ mr: 1, color: 'success.main' }} />
+                    <Typography variant="h6">Paid orders</Typography>
+                  </Box>
+                  <Typography variant="h4">{analytics.ecommerce_paid_orders ?? 0}</Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Completed payment
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+            <Grid item xs={12} sm={6} md={3}>
+              <Card>
+                <CardContent>
+                  <Box display="flex" alignItems="center" mb={1}>
+                    <TrendingUpIcon sx={{ mr: 1, color: 'success.main' }} />
+                    <Typography variant="h6">Paid revenue</Typography>
+                  </Box>
+                  <Typography variant="h4">
+                    GH₵{' '}
+                    {(analytics.ecommerce_paid_revenue_ghs ?? 0).toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    From paid orders
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+            <Grid item xs={12} sm={6} md={3}>
+              <Card>
+                <CardContent>
+                  <Box display="flex" alignItems="center" mb={1}>
+                    <HourglassIcon sx={{ mr: 1, color: 'warning.main' }} />
+                    <Typography variant="h6">Pending payment</Typography>
+                  </Box>
+                  <Typography variant="h4">{analytics.ecommerce_pending_payment_orders ?? 0}</Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Orders awaiting payment
+                  </Typography>
                 </CardContent>
               </Card>
             </Grid>

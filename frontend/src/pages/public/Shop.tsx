@@ -36,6 +36,7 @@ import api from '../../services/api';
 import { Seo } from '../../components/Seo';
 import { useCart } from '../../contexts/CartContext';
 import { catalogLineUnitPrice } from '../../utils/catalogPrice';
+import { trackAddToCart } from '../../utils/analytics';
 
 const API_URL = (window as any).REACT_APP_API_URL || process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
@@ -110,9 +111,12 @@ const Shop: React.FC = () => {
     page * itemsPerPage
   );
 
-  const handleAddToCart = async (productId: number) => {
+  const handleAddToCart = async (product: any) => {
     try {
-      await addToCart(productId, 1);
+      await addToCart(product.id, 1);
+      const unit = catalogLineUnitPrice(product);
+      const name = product.name || `${product.brand || ''} ${product.model || ''}`.trim() || 'Product';
+      trackAddToCart([{ item_id: String(product.id), item_name: name, price: unit, quantity: 1 }]);
       navigate('/cart');
     } catch (error: any) {
       alert(error.response?.data?.detail || 'Failed to add product to cart');
@@ -129,7 +133,7 @@ const Shop: React.FC = () => {
   };
 
   return (
-    <Box sx={{ py: { xs: 4, md: 6 }, minHeight: '80vh', bgcolor: '#f8f9fa' }}>
+    <Box sx={{ py: { xs: 2, md: 3 }, minHeight: '70vh', bgcolor: '#f8f9fa' }}>
       <Seo
         title="Shop Solar Equipment Ghana | Panels, Inverters & Batteries"
         description="Browse solar panels, inverters, batteries and accessories from Energy Precisions. Website pricing in GHS with delivery and support across Ghana."
@@ -140,27 +144,30 @@ const Shop: React.FC = () => {
         sx={{
           bgcolor: '#1a4d7a',
           color: 'white',
-          py: { xs: 6, md: 8 },
-          mb: 6,
+          py: { xs: 4, md: 5 },
+          mb: { xs: 3, md: 4 },
         }}
       >
       <Container maxWidth="xl">
           <Typography
             variant="h1"
             sx={{
-              fontSize: { xs: '2.5rem', md: '4rem' },
+              fontSize: { xs: '1.65rem', sm: '1.9rem', md: '2.2rem' },
               fontWeight: 800,
-              mb: 2,
+              mb: 1.5,
+              lineHeight: 1.15,
             }}
           >
             Premium Solar Equipment
           </Typography>
           <Typography
-            variant="h5"
+            variant="body1"
             sx={{
               color: 'rgba(255,255,255,0.9)',
-              maxWidth: '700px',
+              maxWidth: 560,
               fontWeight: 400,
+              lineHeight: 1.65,
+              fontSize: { xs: '0.95rem', md: '1rem' },
             }}
           >
             Shop Ghana's finest selection of solar panels, inverters, batteries, and accessories. 
@@ -441,7 +448,7 @@ const Shop: React.FC = () => {
                         fullWidth
                         variant="contained"
                         startIcon={<ShoppingCartIcon />}
-                        onClick={() => handleAddToCart(product.id)}
+                        onClick={() => handleAddToCart(product)}
                         disabled={product.in_stock === false}
                         sx={{
                           bgcolor: '#00E676',

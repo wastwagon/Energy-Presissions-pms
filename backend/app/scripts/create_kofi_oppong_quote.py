@@ -16,7 +16,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../.
 # Configuration - UPDATE THESE FOR YOUR ENVIRONMENT
 API_BASE_URL = os.getenv("API_BASE_URL", "http://localhost:8000/api")
 ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "admin@energyprecisions.com")
-ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "admin123")
+ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "")
 
 class QuoteCreator:
     def __init__(self, base_url: str, email: str, password: str):
@@ -354,6 +354,10 @@ def main():
     )
     
     args = parser.parse_args()
+
+    if not args.password or not args.password.strip():
+        print("Error: Admin password is required. Set ADMIN_PASSWORD or pass --password.")
+        sys.exit(2)
     
     creator = QuoteCreator(args.api_url, args.email, args.password)
     success = creator.run()

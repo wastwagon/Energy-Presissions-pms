@@ -41,7 +41,7 @@ interface ContactInquiry {
 
 const ContactInquiries: React.FC = () => {
   const { user } = useAuth();
-  const isAdmin = user?.role === 'admin';
+  const canViewLeads = user?.role === 'admin' || user?.role === 'website_admin';
 
   const [rows, setRows] = useState<ContactInquiry[]>([]);
   const [loading, setLoading] = useState(true);
@@ -50,7 +50,7 @@ const ContactInquiries: React.FC = () => {
   const [detail, setDetail] = useState<ContactInquiry | null>(null);
 
   const fetchInquiries = useCallback(async () => {
-    if (!isAdmin) return;
+    if (!canViewLeads) return;
     try {
       setLoading(true);
       setError(null);
@@ -63,7 +63,7 @@ const ContactInquiries: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [isAdmin]);
+  }, [canViewLeads]);
 
   useEffect(() => {
     fetchInquiries();
@@ -77,6 +77,7 @@ const ContactInquiries: React.FC = () => {
       r.email.toLowerCase().includes(q) ||
       (r.phone && r.phone.toLowerCase().includes(q)) ||
       (r.service && r.service.toLowerCase().includes(q)) ||
+      (r.source && r.source.toLowerCase().includes(q)) ||
       r.message.toLowerCase().includes(q)
     );
   });
@@ -89,10 +90,10 @@ const ContactInquiries: React.FC = () => {
     }
   };
 
-  if (!isAdmin) {
+  if (!canViewLeads) {
     return (
       <Box sx={{ p: 3 }}>
-        <Alert severity="warning">Only administrators can view website contact form submissions.</Alert>
+        <Alert severity="warning">Only administrators and website admins can view contact form submissions.</Alert>
       </Box>
     );
   }
@@ -146,19 +147,20 @@ const ContactInquiries: React.FC = () => {
                 <TableCell>Email</TableCell>
                 <TableCell>Phone</TableCell>
                 <TableCell>Service</TableCell>
+                <TableCell>Source</TableCell>
                 <TableCell align="right">Message</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {loading && rows.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} align="center" sx={{ py: 6 }}>
+                  <TableCell colSpan={7} align="center" sx={{ py: 6 }}>
                     <CircularProgress size={32} />
                   </TableCell>
                 </TableRow>
               ) : filtered.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} align="center" sx={{ py: 4, color: 'text.secondary' }}>
+                  <TableCell colSpan={7} align="center" sx={{ py: 4, color: 'text.secondary' }}>
                     No submissions yet.
                   </TableCell>
                 </TableRow>
@@ -174,6 +176,9 @@ const ContactInquiries: React.FC = () => {
                     </TableCell>
                     <TableCell>{r.phone || '—'}</TableCell>
                     <TableCell>{r.service || '—'}</TableCell>
+                    <TableCell sx={{ maxWidth: 140, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {r.source || '—'}
+                    </TableCell>
                     <TableCell align="right">
                       <IconButton size="small" aria-label="View message" onClick={() => setDetail(r)}>
                         <VisibilityIcon fontSize="small" />
@@ -207,6 +212,11 @@ const ContactInquiries: React.FC = () => {
               {detail.service && (
                 <Typography variant="body2">
                   <strong>Service:</strong> {detail.service}
+                </Typography>
+              )}
+              {detail.source && (
+                <Typography variant="body2">
+                  <strong>Source:</strong> {detail.source}
                 </Typography>
               )}
               <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap', mt: 1 }}>

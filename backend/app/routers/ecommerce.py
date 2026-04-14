@@ -4,20 +4,21 @@ Public-facing e-commerce endpoints and admin order management
 """
 from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, status, Request, Query
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import or_, desc
 from app.database import get_db
 from app.models import Product, ProductType, Customer, User
 from app.models_ecommerce import Order, OrderItem, CartItem, Coupon
 from app.schemas_ecommerce import (
     ProductPublic, OrderCreate, OrderResponse, OrderDetailResponse, OrderStatusUpdate,
-    CartItemCreate, CartItemResponse, CouponValidate,
+    CartItemCreate, CartItemResponse, CartMergeRequest, CouponValidate,
     CouponAdmin, CouponCreate, CouponUpdate,
 )
-from app.auth import get_current_active_user, require_role
+from app.auth import get_current_active_user, get_current_user_optional, require_role
 from app.services.ecommerce_pricing import catalog_unit_price
 from app.services.ecommerce_shipping import compute_shipping_cost
 from app.services.coupon_order import compute_order_coupon_discount
+from app.services.stock import deduct_stock_on_order_paid
 from datetime import datetime, timezone
 import uuid
 
@@ -119,101 +120,162 @@ async def get_categories(db: Session = Depends(get_db)):
 async def add_to_cart(
     item: CartItemCreate,
     request: Request,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: Optional[User] = Depends(get_current_user_optional),
 ):
-    """Add item to cart (supports both logged-in and guest users)"""
-    # Check if product exists and is active
+    """Add item to cart (guest session, signed-in user, or legacy customer_id)."""
     product = db.query(Product).filter(
         Product.id == item.product_id,
         Product.is_active == True
     ).first()
-    
+
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
-    
-    # Check stock
+
     if product.manage_stock and product.stock_quantity < item.quantity:
         raise HTTPException(
             status_code=400,
             detail=f"Insufficient stock. Available: {product.stock_quantity}"
         )
-    
-    # Get session ID for guest users
+
     session_id = item.session_id
-    if not session_id:
-        # Try to get from request cookies
-        session_id = request.cookies.get("session_id")
+    if not item.customer_id and current_user is None:
+        if not session_id:
+            session_id = request.cookies.get("session_id")
         if not session_id:
             session_id = str(uuid.uuid4())
-    
-    # Check if item already in cart
+
     existing_item = None
     if item.customer_id:
         existing_item = db.query(CartItem).filter(
             CartItem.customer_id == item.customer_id,
             CartItem.product_id == item.product_id
         ).first()
+    elif current_user is not None:
+        existing_item = db.query(CartItem).filter(
+            CartItem.user_id == current_user.id,
+            CartItem.product_id == item.product_id,
+        ).first()
     elif session_id:
         existing_item = db.query(CartItem).filter(
             CartItem.session_id == session_id,
             CartItem.product_id == item.product_id,
-            CartItem.customer_id.is_(None)
+            CartItem.customer_id.is_(None),
+            CartItem.user_id.is_(None),
         ).first()
-    
+
     if existing_item:
-        # Update quantity
         existing_item.quantity += item.quantity
         db.commit()
         db.refresh(existing_item)
         return existing_item
-    
-    # Create new cart item
+
     cart_item = CartItem(
         customer_id=item.customer_id,
+        user_id=current_user.id if current_user is not None and not item.customer_id else None,
         product_id=item.product_id,
         quantity=item.quantity,
-        session_id=session_id if not item.customer_id else None
+        session_id=(
+            None
+            if item.customer_id or current_user is not None
+            else session_id
+        ),
     )
     db.add(cart_item)
     db.commit()
     db.refresh(cart_item)
-    
+
     return cart_item
+
+
+@router.post("/cart/merge")
+async def merge_guest_cart_into_user(
+    body: CartMergeRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+):
+    """Attach guest session lines to the signed-in user (same product quantities combine)."""
+    guests = (
+        db.query(CartItem)
+        .filter(
+            CartItem.session_id == body.session_id.strip(),
+            CartItem.user_id.is_(None),
+            CartItem.customer_id.is_(None),
+        )
+        .all()
+    )
+    merged = 0
+    for g in guests:
+        existing = (
+            db.query(CartItem)
+            .filter(
+                CartItem.user_id == current_user.id,
+                CartItem.product_id == g.product_id,
+            )
+            .first()
+        )
+        if existing:
+            existing.quantity += g.quantity
+            db.delete(g)
+        else:
+            g.user_id = current_user.id
+            g.session_id = None
+        merged += 1
+    db.commit()
+    return {"merged": merged}
 
 
 @router.get("/cart", response_model=List[CartItemResponse])
 async def get_cart(
     customer_id: Optional[int] = None,
     session_id: Optional[str] = None,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: Optional[User] = Depends(get_current_user_optional),
 ):
-    """Get cart items"""
-    query = db.query(CartItem)
-    
+    """Guest: pass session_id. Signed-in staff/customer: uses JWT user cart (session_id ignored)."""
+    query = db.query(CartItem).options(joinedload(CartItem.product))
+
     if customer_id:
         query = query.filter(CartItem.customer_id == customer_id)
+    elif current_user is not None:
+        query = query.filter(CartItem.user_id == current_user.id)
     elif session_id:
         query = query.filter(
             CartItem.session_id == session_id,
-            CartItem.customer_id.is_(None)
+            CartItem.customer_id.is_(None),
+            CartItem.user_id.is_(None),
         )
     else:
         return []
-    
-    cart_items = query.all()
-    return cart_items
+
+    return query.all()
 
 
 @router.delete("/cart/{item_id}")
 async def remove_from_cart(
     item_id: int,
-    db: Session = Depends(get_db)
+    request: Request,
+    session_id: Optional[str] = Query(None),
+    db: Session = Depends(get_db),
+    current_user: Optional[User] = Depends(get_current_user_optional),
 ):
-    """Remove item from cart"""
+    """Remove item from cart with ownership checks."""
     cart_item = db.query(CartItem).filter(CartItem.id == item_id).first()
     if not cart_item:
         raise HTTPException(status_code=404, detail="Cart item not found")
-    
+
+    if cart_item.user_id is not None:
+        if current_user is None or current_user.id != cart_item.user_id:
+            raise HTTPException(status_code=403, detail="Not authorized to modify this cart item")
+    elif cart_item.session_id:
+        effective_session_id = (session_id or "").strip() or request.cookies.get("session_id")
+        if not effective_session_id or effective_session_id != cart_item.session_id:
+            raise HTTPException(status_code=403, detail="Not authorized to modify this cart item")
+    elif cart_item.customer_id is not None:
+        # Legacy customer-bound cart rows: only signed-in staff can modify these.
+        if current_user is None:
+            raise HTTPException(status_code=403, detail="Authentication required")
+
     db.delete(cart_item)
     db.commit()
     return {"message": "Item removed from cart"}
@@ -223,13 +285,28 @@ async def remove_from_cart(
 async def update_cart_item(
     item_id: int,
     quantity: int,
-    db: Session = Depends(get_db)
+    request: Request,
+    session_id: Optional[str] = Query(None),
+    db: Session = Depends(get_db),
+    current_user: Optional[User] = Depends(get_current_user_optional),
 ):
-    """Update cart item quantity"""
+    """Update cart item quantity with ownership checks."""
     cart_item = db.query(CartItem).filter(CartItem.id == item_id).first()
     if not cart_item:
         raise HTTPException(status_code=404, detail="Cart item not found")
-    
+
+    if cart_item.user_id is not None:
+        if current_user is None or current_user.id != cart_item.user_id:
+            raise HTTPException(status_code=403, detail="Not authorized to modify this cart item")
+    elif cart_item.session_id:
+        effective_session_id = (session_id or "").strip() or request.cookies.get("session_id")
+        if not effective_session_id or effective_session_id != cart_item.session_id:
+            raise HTTPException(status_code=403, detail="Not authorized to modify this cart item")
+    elif cart_item.customer_id is not None:
+        # Legacy customer-bound cart rows: only signed-in staff can modify these.
+        if current_user is None:
+            raise HTTPException(status_code=403, detail="Authentication required")
+
     if quantity <= 0:
         db.delete(cart_item)
     else:
@@ -400,15 +477,23 @@ async def update_order_status(
     current_user: User = Depends(get_current_active_user)
 ):
     """Admin: Update order status (auth required)"""
-    order = db.query(Order).filter(Order.order_number == order_number).first()
+    order = (
+        db.query(Order)
+        .options(joinedload(Order.items))
+        .filter(Order.order_number == order_number)
+        .first()
+    )
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
+    was_paid = order.payment_status == "paid"
     if update.status is not None:
         order.status = update.status
     if update.payment_status is not None:
         order.payment_status = update.payment_status
     if update.tracking_number is not None:
         order.tracking_number = update.tracking_number
+    if update.payment_status == "paid" and not was_paid:
+        deduct_stock_on_order_paid(db, order.id)
     db.commit()
     db.refresh(order)
     return order
@@ -417,10 +502,16 @@ async def update_order_status(
 @router.get("/orders/{order_number}", response_model=OrderDetailResponse)
 async def get_order(
     order_number: str,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
 ):
-    """Get order by order number (includes items)"""
-    order = db.query(Order).filter(Order.order_number == order_number).first()
+    """Get order by order number (includes items). Staff auth required — avoids public PII leak."""
+    order = (
+        db.query(Order)
+        .options(joinedload(Order.items))
+        .filter(Order.order_number == order_number)
+        .first()
+    )
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
     return order
@@ -495,7 +586,7 @@ def _validate_coupon_values(discount_type: str, discount_value: float) -> None:
 @router.get("/coupons", response_model=List[CouponAdmin])
 async def list_coupons_admin(
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_role(["admin"])),
+    current_user: User = Depends(require_role(["admin", "website_admin"])),
 ):
     """List all promo codes (admin)."""
     return db.query(Coupon).order_by(desc(Coupon.created_at)).all()
@@ -505,7 +596,7 @@ async def list_coupons_admin(
 async def create_coupon_admin(
     body: CouponCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_role(["admin"])),
+    current_user: User = Depends(require_role(["admin", "website_admin"])),
 ):
     """Create a promo code (admin)."""
     code = body.code.strip().upper()
@@ -534,7 +625,7 @@ async def create_coupon_admin(
 async def get_coupon_admin(
     coupon_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_role(["admin"])),
+    current_user: User = Depends(require_role(["admin", "website_admin"])),
 ):
     row = db.query(Coupon).filter(Coupon.id == coupon_id).first()
     if not row:
@@ -547,7 +638,7 @@ async def update_coupon_admin(
     coupon_id: int,
     body: CouponUpdate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_role(["admin"])),
+    current_user: User = Depends(require_role(["admin", "website_admin"])),
 ):
     row = db.query(Coupon).filter(Coupon.id == coupon_id).first()
     if not row:
@@ -584,7 +675,7 @@ async def update_coupon_admin(
 async def deactivate_coupon_admin(
     coupon_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_role(["admin"])),
+    current_user: User = Depends(require_role(["admin", "website_admin"])),
 ):
     """Soft-deactivate a coupon (does not delete history)."""
     row = db.query(Coupon).filter(Coupon.id == coupon_id).first()

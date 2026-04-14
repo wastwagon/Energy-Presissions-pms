@@ -8,12 +8,15 @@ import { CartProvider } from './contexts/CartContext';
 import PrivateRoute from './components/PrivateRoute';
 import PublicLayout from './components/public/PublicLayout';
 import Layout from './components/Layout';
+import WebAdminLayout from './components/WebAdminLayout';
+import AnalyticsRouteListener from './components/AnalyticsRouteListener';
 
 // Eager-load critical above-the-fold pages
 import Home from './pages/public/Home';
 import PMSLogin from './pages/PMSLogin';
 import WebAdminLogin from './pages/WebAdminLogin';
 import Dashboard from './pages/Dashboard';
+import WebAdminDashboard from './pages/WebAdminDashboard';
 
 // Lazy-load remaining pages for better initial load
 const About = lazy(() => import('./pages/public/About'));
@@ -26,6 +29,11 @@ const CheckoutSuccess = lazy(() => import('./pages/public/CheckoutSuccess'));
 const Contact = lazy(() => import('./pages/public/Contact'));
 const FAQs = lazy(() => import('./pages/public/FAQs'));
 const Financing = lazy(() => import('./pages/public/Financing'));
+const SolarEstimate = lazy(() => import('./pages/public/SolarEstimate'));
+const LoadCalculator = lazy(() => import('./pages/public/LoadCalculator'));
+const ReferralProgram = lazy(() => import('./pages/public/ReferralProgram'));
+const Blog = lazy(() => import('./pages/public/Blog'));
+const BlogPost = lazy(() => import('./pages/public/BlogPost'));
 const Portfolio = lazy(() => import('./pages/public/Portfolio'));
 const Customers = lazy(() => import('./pages/Customers'));
 const Projects = lazy(() => import('./pages/Projects'));
@@ -40,10 +48,12 @@ const Settings = lazy(() => import('./pages/Settings'));
 const Reports = lazy(() => import('./pages/Reports'));
 const ContactInquiries = lazy(() => import('./pages/ContactInquiries'));
 const PromoCodes = lazy(() => import('./pages/PromoCodes'));
+const NewsletterSubscribers = lazy(() => import('./pages/NewsletterSubscribers'));
+const WebContentAdmin = lazy(() => import('./pages/WebContentAdmin'));
 
 const PageLoader = () => (
-  <Box display="flex" justifyContent="center" alignItems="center" minHeight="40vh">
-    <CircularProgress />
+  <Box display="flex" justifyContent="center" alignItems="center" minHeight="28vh" py={2}>
+    <CircularProgress size={36} />
   </Box>
 );
 
@@ -80,6 +90,7 @@ function App() {
               v7_relativeSplatPath: true,
             }}
           >
+          <AnalyticsRouteListener />
           <Routes>
             {/* Legacy interface chooser → corporate home */}
             <Route path="/select" element={<Navigate to="/" replace />} />
@@ -99,6 +110,11 @@ function App() {
               <Route path="contact" element={<Suspense fallback={<PageLoader />}><Contact /></Suspense>} />
               <Route path="faqs" element={<Suspense fallback={<PageLoader />}><FAQs /></Suspense>} />
               <Route path="financing" element={<Suspense fallback={<PageLoader />}><Financing /></Suspense>} />
+              <Route path="solar-estimate" element={<Suspense fallback={<PageLoader />}><SolarEstimate /></Suspense>} />
+              <Route path="load-calculator" element={<Suspense fallback={<PageLoader />}><LoadCalculator /></Suspense>} />
+              <Route path="referral" element={<Suspense fallback={<PageLoader />}><ReferralProgram /></Suspense>} />
+              <Route path="blog" element={<Suspense fallback={<PageLoader />}><Blog /></Suspense>} />
+              <Route path="blog/:slug" element={<Suspense fallback={<PageLoader />}><BlogPost /></Suspense>} />
               <Route path="portfolio" element={<Suspense fallback={<PageLoader />}><Portfolio /></Suspense>} />
             </Route>
 
@@ -134,9 +150,28 @@ function App() {
               <Route path="promo-codes" element={<Suspense fallback={<PageLoader />}><PromoCodes /></Suspense>} />
             </Route>
 
+            {/* Website admin (shop + marketing CMS) — admin or website_admin only */}
+            <Route
+              path="/web/app"
+              element={
+                <PrivateRoute variant="web">
+                  <WebAdminLayout />
+                </PrivateRoute>
+              }
+            >
+              <Route index element={<WebAdminDashboard />} />
+              <Route path="products" element={<Suspense fallback={<PageLoader />}><Products /></Suspense>} />
+              <Route path="orders" element={<Suspense fallback={<PageLoader />}><Orders /></Suspense>} />
+              <Route path="media" element={<Suspense fallback={<PageLoader />}><MediaLibrary /></Suspense>} />
+              <Route path="promo-codes" element={<Suspense fallback={<PageLoader />}><PromoCodes /></Suspense>} />
+              <Route path="contact-leads" element={<Suspense fallback={<PageLoader />}><ContactInquiries /></Suspense>} />
+              <Route path="newsletter" element={<Suspense fallback={<PageLoader />}><NewsletterSubscribers /></Suspense>} />
+              <Route path="content" element={<Suspense fallback={<PageLoader />}><WebContentAdmin /></Suspense>} />
+            </Route>
+
             {/* Legacy redirects for backward compatibility */}
             <Route path="/admin/login" element={<Navigate to="/pms/admin" replace />} />
-            <Route path="/admin/*" element={<Navigate to="/pms/*" replace />} />
+            <Route path="/admin/*" element={<Navigate to="/pms/dashboard" replace />} />
           </Routes>
           </Router>
         </CartProvider>

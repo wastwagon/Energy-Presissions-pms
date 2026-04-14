@@ -21,7 +21,7 @@ This document confirms the professional setup performed against your Render exte
 | Script | Status | Purpose |
 |--------|--------|---------|
 | `init_db` | ✅ Complete | Default settings, peak sun hours (Ghana cities) |
-| `create_default_admin` | ✅ Complete | Admin user: admin@energyprecisions.com / admin123 |
+| `create_default_admin` | ✅ Complete | Admin user created (password supplied via env) |
 | `setup_bank_details` | ✅ Complete | Bank-related settings for Proforma Invoice |
 | `seed_ecommerce_products` | ✅ Complete | 7 sample products (panels, inverters, batteries) |
 
@@ -30,7 +30,7 @@ This document confirms the professional setup performed against your Render exte
 | Field | Value |
 |-------|-------|
 | **Email** | `admin@energyprecisions.com` |
-| **Password** | `admin123` |
+| **Password** | Set via `DEFAULT_ADMIN_PASSWORD` during setup |
 
 **Change this password after first login.**
 

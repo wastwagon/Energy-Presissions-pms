@@ -72,7 +72,7 @@ Use your GitHub username and a **Personal Access Token** (not your password) whe
    When prompted, set:
    - **CORS_ORIGINS:** `https://energy-pms-frontend.onrender.com`  
      (Replace with your real frontend URL after the first deploy if Render gives a different name.)
-   - **REACT_APP_API_URL:** `https://energy-pms-backend.onrender.com`  
+  - **REACT_APP_API_URL:** `https://energy-pms-backend-1b7h.onrender.com`  
      (Replace with your real backend URL after the first deploy if needed.)
    - Optionally: **COMPANY_PHONE**, **COMPANY_EMAIL**, **SMTP_*** for email.
 
@@ -80,7 +80,7 @@ Use your GitHub username and a **Personal Access Token** (not your password) whe
 
 7. **After first deploy:**
    - In **Dashboard**, open **energy-pms-backend** → **Environment** and set **CORS_ORIGINS** to your frontend URL (e.g. `https://energy-pms-frontend.onrender.com`).
-   - Open **energy-pms-frontend** → **Environment** and set **REACT_APP_API_URL** to your backend URL (e.g. `https://energy-pms-backend.onrender.com`).
+  - Open **energy-pms-frontend** → **Environment** and set **REACT_APP_API_URL** to your backend URL (e.g. `https://energy-pms-backend-1b7h.onrender.com`).
    - Trigger a **Manual Deploy** on the frontend so it rebuilds with the correct API URL.
 
 ---
@@ -98,7 +98,12 @@ python -m app.scripts.init_db
 python -m app.scripts.setup_bank_details
 ```
 
-4. Default admin: **Email** `admin@energyprecisions.com`, **Password** `admin123`. Change after first login.
+4. Create admin with explicit password:
+   ```bash
+   export DEFAULT_ADMIN_PASSWORD="change-me-now"
+   python -m app.scripts.create_default_admin
+   ```
+   Login email is `admin@energyprecisions.com`. Change password after first login.
 
 ---
 
@@ -113,8 +118,8 @@ python -m app.scripts.setup_bank_details
 
 - **Frontend (PMS):** `https://energy-pms-frontend.onrender.com`  
   (or the URL Render shows for `energy-pms-frontend`.)
-- **Backend API:** `https://energy-pms-backend.onrender.com`  
-  **API docs:** `https://energy-pms-backend.onrender.com/docs`
+- **Backend API:** `https://energy-pms-backend-1b7h.onrender.com`  
+  **API docs:** `https://energy-pms-backend-1b7h.onrender.com/docs`
 
 ---
 
@@ -123,7 +128,7 @@ python -m app.scripts.setup_bank_details
 - **Backend 500 / DB errors:** In backend **Shell**, run `alembic upgrade head` and `python -m app.scripts.init_db`.
 - **Frontend “can’t reach API”:** Set **REACT_APP_API_URL** to the backend URL and redeploy the frontend.
    - **CORS errors ("No 'Access-Control-Allow-Origin' header"):**
-  - **Important:** When `CORS_ORIGINS` is set, it **replaces** the default list entirely. If you set it to only `https://energy-pms-frontend.onrender.com`, requests from `https://energyprecisions.com` will be blocked.
+  - If you set `CORS_ORIGINS`, include all required frontend origins to avoid blocking production website requests.
   - **Fix:** In Render Dashboard → **energy-pms-backend** → **Environment**, set **CORS_ORIGINS** to include **all** frontend origins (comma-separated, no trailing slashes), e.g.:
     ```
     https://energyprecisions.com,https://www.energyprecisions.com,https://energy-pms-frontend.onrender.com

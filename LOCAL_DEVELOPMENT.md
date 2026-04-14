@@ -54,6 +54,7 @@ docker-compose up -d
 # Wait ~10 seconds for Postgres to be ready, then:
 docker-compose exec backend alembic upgrade head
 docker-compose exec backend python -m app.scripts.init_db
+export DEFAULT_ADMIN_PASSWORD='change-me-now'
 docker-compose exec backend python -m app.scripts.create_default_admin
 docker-compose exec backend python -m app.scripts.setup_bank_details
 docker-compose exec backend python -m app.scripts.seed_ecommerce_products
@@ -74,7 +75,7 @@ docker-compose exec backend python -m app.scripts.seed_ecommerce_products
 | Field | Value |
 |-------|-------|
 | **Email** | `admin@energyprecisions.com` |
-| **Password** | `admin123` |
+| **Password** | Value you set in `DEFAULT_ADMIN_PASSWORD` |
 
 ---
 

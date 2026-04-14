@@ -91,9 +91,16 @@
       ]
     }
     </script>
-    <!-- Runtime API URL configuration -->
+    <!-- Runtime API URL: set REACT_APP_API_URL at build/deploy, or inject before this script. -->
     <script>
-      window.REACT_APP_API_URL = window.REACT_APP_API_URL || 'http://localhost:8000';
+      (function () {
+        var h = window.location.hostname;
+        var fallback = 'http://localhost:8000';
+        if (h === 'energyprecisions.com' || h === 'www.energyprecisions.com') {
+          fallback = 'https://energy-pms-backend-1b7h.onrender.com';
+        }
+        window.REACT_APP_API_URL = window.REACT_APP_API_URL || fallback;
+      })();
     </script>
   </head>
   <body>

@@ -140,7 +140,7 @@ function App() {
 
                 {/* Legacy redirects for backward compatibility */}
                 <Route path="/admin/login" element={<Navigate to="/pms/admin" replace />} />
-                <Route path="/admin/*" element={<Navigate to="/pms/*" replace />} />
+                <Route path="/admin/*" element={<Navigate to="/pms/dashboard" replace />} />
               </Routes>
             </Suspense>
           </Router>

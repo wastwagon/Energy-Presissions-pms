@@ -11,6 +11,8 @@ class UserRole(str, enum.Enum):
     ADMIN = "admin"
     SALES = "sales"
     VIEWER = "viewer"
+    # Website / shop content only — cannot access full PMS (projects, quotes, sizing)
+    WEBSITE_ADMIN = "website_admin"
 
 
 class CustomerType(str, enum.Enum):

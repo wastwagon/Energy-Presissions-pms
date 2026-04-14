@@ -427,7 +427,17 @@ const Settings: React.FC = () => {
                     <TableCell>{u.full_name}</TableCell>
                     <TableCell>{u.email}</TableCell>
                     <TableCell>
-                      <Chip label={u.role} size="small" color={u.role === 'admin' ? 'primary' : 'default'} />
+                      <Chip
+                        label={u.role}
+                        size="small"
+                        color={
+                          u.role === 'admin'
+                            ? 'primary'
+                            : u.role === 'website_admin'
+                              ? 'secondary'
+                              : 'default'
+                        }
+                      />
                     </TableCell>
                     <TableCell>
                       <Chip label={u.is_active ? 'Active' : 'Inactive'} size="small" color={u.is_active ? 'success' : 'default'} />
@@ -478,6 +488,7 @@ const Settings: React.FC = () => {
                 margin="normal"
               >
                 <MenuItem value={UserRole.ADMIN}>Admin</MenuItem>
+                <MenuItem value={UserRole.WEBSITE_ADMIN}>Website admin</MenuItem>
                 <MenuItem value={UserRole.SALES}>Sales</MenuItem>
                 <MenuItem value={UserRole.VIEWER}>Viewer</MenuItem>
               </TextField>

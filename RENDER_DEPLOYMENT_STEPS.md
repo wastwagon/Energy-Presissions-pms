@@ -73,7 +73,13 @@ After the backend service is created and running:
    This will:
    - Run all database migrations
    - Initialize default settings
-   - Create admin user (email: `admin@energyprecisions.com`, password: `admin123`)
+   - Prepare the system for admin creation (password must be supplied explicitly)
+
+   Then create admin user with an explicit password:
+   ```bash
+   export DEFAULT_ADMIN_PASSWORD="change-me-now"
+   python -m app.scripts.create_default_admin
+   ```
 
 ## Step 3: Create Frontend Web Service
 
@@ -88,7 +94,7 @@ After the backend service is created and running:
 
 4. **Environment Variables:**
    ```
-   REACT_APP_API_URL=https://energy-pms-backend.onrender.com
+   REACT_APP_API_URL=https://energy-pms-backend-1b7h.onrender.com
    ```
 
    **Note:** Replace `energy-pms-backend` with your actual backend service name if different.
@@ -114,7 +120,7 @@ After the frontend is deployed, update the backend's `CORS_ORIGINS` environment 
 1. Log into your application at: `https://energy-pms-frontend.onrender.com`
 2. Use admin credentials:
    - Email: `admin@energyprecisions.com`
-   - Password: `admin123`
+   - Password: value you set in `DEFAULT_ADMIN_PASSWORD`
 3. Go to **Settings** → **General** tab
 4. Upload your company logo
 5. Update company contact details if needed

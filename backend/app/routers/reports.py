@@ -8,6 +8,7 @@ from datetime import datetime, timedelta
 from app.database import get_db
 from app.auth import get_current_active_user
 from app.models import User, Quote, Project, Customer, QuoteStatus, SizingResult
+from app.models_ecommerce import Order
 from app.services.report_pdf_generator import generate_report_pdf
 from io import StringIO
 import csv
@@ -15,25 +16,8 @@ import csv
 router = APIRouter(prefix="/reports", tags=["reports"])
 
 
-@router.get("/analytics")
-async def get_analytics(
-    start_date: Optional[str] = None,
-    end_date: Optional[str] = None,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_active_user)
-):
-    """Get analytics and statistics"""
-    # Parse dates
-    if start_date:
-        start = datetime.fromisoformat(start_date.replace('Z', '+00:00'))
-    else:
-        start = datetime.utcnow() - timedelta(days=90)
-    
-    if end_date:
-        end = datetime.fromisoformat(end_date.replace('Z', '+00:00'))
-    else:
-        end = datetime.utcnow()
-    
+def _compute_analytics(db: Session, start: datetime, end: datetime) -> dict:
+    """Build analytics payload for JSON API, CSV context, and PDF reports."""
     # Total quotes
     total_quotes = db.query(Quote).filter(
         Quote.created_at >= start,
@@ -75,7 +59,6 @@ async def get_analytics(
     ).scalar() or 0
     
     # Average system size (from projects with sizing)
-    from sqlalchemy.orm import joinedload
     quotes_with_sizing = db.query(Quote).join(Project).join(SizingResult).filter(
         Quote.created_at >= start,
         Quote.created_at <= end
@@ -138,7 +121,33 @@ async def get_analytics(
         }
         for year, month, count in quotes_by_month
     ]
-    
+
+    # E-commerce (shop orders) in the same date window
+    ecommerce_order_count = db.query(Order).filter(
+        Order.created_at >= start,
+        Order.created_at <= end,
+    ).count()
+    ecommerce_paid_orders = db.query(Order).filter(
+        Order.created_at >= start,
+        Order.created_at <= end,
+        Order.payment_status == "paid",
+    ).count()
+    ecommerce_paid_revenue = (
+        db.query(func.coalesce(func.sum(Order.total_amount), 0))
+        .filter(
+            Order.created_at >= start,
+            Order.created_at <= end,
+            Order.payment_status == "paid",
+        )
+        .scalar()
+        or 0
+    )
+    ecommerce_pending_payment = db.query(Order).filter(
+        Order.created_at >= start,
+        Order.created_at <= end,
+        Order.payment_status == "pending",
+    ).count()
+
     return {
         "period": {
             "start": start.isoformat(),
@@ -156,8 +165,31 @@ async def get_analytics(
         "average_accepted_value": round(float(avg_accepted_value), 2),
         "average_system_size_kw": round(float(avg_system_size), 2),
         "revenue_change_percent": round(float(revenue_change), 2),
-        "quotes_by_month": monthly_data
+        "quotes_by_month": monthly_data,
+        "ecommerce_order_count": int(ecommerce_order_count),
+        "ecommerce_paid_orders": int(ecommerce_paid_orders),
+        "ecommerce_paid_revenue_ghs": round(float(ecommerce_paid_revenue), 2),
+        "ecommerce_pending_payment_orders": int(ecommerce_pending_payment),
     }
+
+
+@router.get("/analytics")
+async def get_analytics(
+    start_date: Optional[str] = None,
+    end_date: Optional[str] = None,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+):
+    """Get analytics and statistics"""
+    if start_date:
+        start = datetime.fromisoformat(start_date.replace('Z', '+00:00'))
+    else:
+        start = datetime.utcnow() - timedelta(days=90)
+    if end_date:
+        end = datetime.fromisoformat(end_date.replace('Z', '+00:00'))
+    else:
+        end = datetime.utcnow()
+    return _compute_analytics(db, start, end)
 
 
 @router.get("/export/quotes")
@@ -337,132 +369,9 @@ async def get_report_pdf(
         end = datetime.fromisoformat(end_date.replace('Z', '+00:00'))
     else:
         end = datetime.utcnow()
-    
-    # Get analytics data (reuse logic from get_analytics)
-    # Total quotes
-    total_quotes = db.query(Quote).filter(
-        Quote.created_at >= start,
-        Quote.created_at <= end
-    ).count()
-    
-    # Quotes by status
-    quotes_by_status = db.query(
-        Quote.status,
-        func.count(Quote.id).label('count')
-    ).filter(
-        Quote.created_at >= start,
-        Quote.created_at <= end
-    ).group_by(Quote.status).all()
-    
-    status_counts = {status.value: count for status, count in quotes_by_status}
-    
-    # Accepted quotes
-    accepted_quotes = db.query(Quote).filter(
-        Quote.status == QuoteStatus.ACCEPTED,
-        Quote.created_at >= start,
-        Quote.created_at <= end
-    ).count()
-    
-    # Conversion rate
-    conversion_rate = (accepted_quotes / total_quotes * 100) if total_quotes > 0 else 0
-    
-    # Total quoted value
-    total_quoted = db.query(func.sum(Quote.grand_total)).filter(
-        Quote.created_at >= start,
-        Quote.created_at <= end
-    ).scalar() or 0
-    
-    # Accepted value
-    accepted_value = db.query(func.sum(Quote.grand_total)).filter(
-        Quote.status == QuoteStatus.ACCEPTED,
-        Quote.created_at >= start,
-        Quote.created_at <= end
-    ).scalar() or 0
-    
-    # Average system size
-    from sqlalchemy.orm import joinedload
-    quotes_with_sizing = db.query(Quote).join(Project).join(SizingResult).filter(
-        Quote.created_at >= start,
-        Quote.created_at <= end
-    ).all()
-    
-    if quotes_with_sizing:
-        system_sizes = []
-        for quote in quotes_with_sizing:
-            if quote.project and quote.project.sizing_result:
-                system_sizes.append(quote.project.sizing_result.system_size_kw)
-        avg_system_size = sum(system_sizes) / len(system_sizes) if system_sizes else 0
-    else:
-        sizing_results = db.query(SizingResult).join(Project).join(Quote).filter(
-            Quote.created_at >= start,
-            Quote.created_at <= end
-        ).all()
-        if sizing_results:
-            avg_system_size = sum(sr.system_size_kw for sr in sizing_results) / len(sizing_results)
-        else:
-            avg_system_size = 0
-    
-    # Average quote value
-    avg_quote_value = (total_quoted / total_quotes) if total_quotes > 0 else 0
-    
-    # Average accepted quote value
-    avg_accepted_value = (accepted_value / accepted_quotes) if accepted_quotes > 0 else 0
-    
-    # Pending quotes
-    pending_quotes = status_counts.get('pending', 0)
-    
-    # Rejected quotes
-    rejected_quotes = status_counts.get('rejected', 0)
-    
-    # Revenue trend
-    prev_start = start - (end - start)
-    prev_total_quoted = db.query(func.sum(Quote.grand_total)).filter(
-        Quote.created_at >= prev_start,
-        Quote.created_at < start
-    ).scalar() or 0
-    revenue_change = ((total_quoted - prev_total_quoted) / prev_total_quoted * 100) if prev_total_quoted > 0 else 0
-    
-    # Quotes by month
-    quotes_by_month = db.query(
-        extract('year', Quote.created_at).label('year'),
-        extract('month', Quote.created_at).label('month'),
-        func.count(Quote.id).label('count')
-    ).filter(
-        Quote.created_at >= start,
-        Quote.created_at <= end
-    ).group_by(
-        extract('year', Quote.created_at),
-        extract('month', Quote.created_at)
-    ).order_by('year', 'month').all()
-    
-    monthly_data = [
-        {
-            "month": f"{int(year)}-{int(month):02d}",
-            "count": count
-        }
-        for year, month, count in quotes_by_month
-    ]
-    
-    analytics = {
-        "period": {
-            "start": start.isoformat(),
-            "end": end.isoformat()
-        },
-        "total_quotes": total_quotes,
-        "quotes_by_status": status_counts,
-        "accepted_quotes": accepted_quotes,
-        "pending_quotes": pending_quotes,
-        "rejected_quotes": rejected_quotes,
-        "conversion_rate": round(conversion_rate, 2),
-        "total_quoted_value": float(total_quoted),
-        "accepted_value": float(accepted_value),
-        "average_quote_value": round(float(avg_quote_value), 2),
-        "average_accepted_value": round(float(avg_accepted_value), 2),
-        "average_system_size_kw": round(float(avg_system_size), 2),
-        "revenue_change_percent": round(float(revenue_change), 2),
-        "quotes_by_month": monthly_data
-    }
-    
+
+    analytics = _compute_analytics(db, start, end)
+
     # Generate PDF
     pdf_bytes = generate_report_pdf(db, analytics)
     

@@ -2,6 +2,8 @@ export enum UserRole {
   ADMIN = "admin",
   SALES = "sales",
   VIEWER = "viewer",
+  /** Shop & marketing content only (no projects/quotes/sizing) */
+  WEBSITE_ADMIN = "website_admin",
 }
 
 export enum CustomerType {

@@ -9,69 +9,14 @@ import {
   CardContent,
   Chip,
   Button,
-  useTheme,
-  useMediaQuery,
 } from '@mui/material';
 import { ArrowForward as ArrowForwardIcon } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
 import { Seo } from '../../components/Seo';
 import { colors } from '../../theme/colors';
-
-const portfolioItems = [
-  {
-    id: 1,
-    title: 'Residential Solar Installation - Accra',
-    category: 'Residential',
-    description: 'Complete 5kW home solar system with battery backup for a family in East Legon.',
-    image: 'https://images.unsplash.com/photo-1509391366360-2e959784a276?w=800',
-    location: 'Accra, Ghana',
-  },
-  {
-    id: 2,
-    title: 'Commercial Office Solar - Kumasi',
-    category: 'Commercial',
-    description: '25kW solar installation for a corporate office building with smart monitoring.',
-    image: 'https://images.unsplash.com/photo-1559302504-64aae0ca2a3d?w=800',
-    location: 'Kumasi, Ghana',
-  },
-  {
-    id: 3,
-    title: 'Industrial Facility - Tema',
-    category: 'Industrial',
-    description: '100kW hybrid solar system for manufacturing facility with battery storage.',
-    image: 'https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=800',
-    location: 'Tema, Ghana',
-  },
-  {
-    id: 4,
-    title: 'School Solar Project',
-    category: 'Education',
-    description: 'Off-grid solar solution for rural school providing 24/7 power for learning.',
-    image: 'https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=800',
-    location: 'Northern Region',
-  },
-  {
-    id: 5,
-    title: 'Hospital Backup Power',
-    category: 'Healthcare',
-    description: 'Critical backup solar system ensuring uninterrupted power for medical equipment.',
-    image: 'https://images.unsplash.com/photo-1559302504-64aae0ca2a3d?w=800',
-    location: 'Greater Accra',
-  },
-  {
-    id: 6,
-    title: 'Residential Estate',
-    category: 'Residential',
-    description: 'Multiple home installations across a new residential development.',
-    image: 'https://images.unsplash.com/photo-1509391366360-2e959784a276?w=800',
-    location: 'Accra, Ghana',
-  },
-];
+import { portfolioPageItems } from '../../data/portfolioPageItems';
 
 const Portfolio: React.FC = () => {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-
   return (
     <Box>
       <Seo
@@ -84,7 +29,7 @@ const Portfolio: React.FC = () => {
         sx={{
           background: `linear-gradient(135deg, ${colors.blueBlack} 0%, ${colors.blueBlackLight} 100%)`,
           color: 'white',
-          py: { xs: 8, md: 12 },
+          py: { xs: 5, md: 6 },
           position: 'relative',
           overflow: 'hidden',
           '&::before': {
@@ -107,30 +52,32 @@ const Portfolio: React.FC = () => {
                 bgcolor: colors.green,
                 color: 'white',
                 fontWeight: 700,
-                mb: 2,
-                px: 2,
-                py: 0.5,
-                letterSpacing: 1,
+                mb: 1.5,
+                px: 1.75,
+                height: 'auto',
+                fontSize: '0.7rem',
+                letterSpacing: 0.5,
               }}
             />
             <Typography
               variant="h1"
               sx={{
-                fontSize: { xs: '2.5rem', md: '3.5rem', lg: '4rem' },
+                fontSize: { xs: '1.75rem', sm: '2rem', md: '2.35rem' },
                 fontWeight: 800,
-                mb: 2,
-                lineHeight: 1.2,
+                mb: 1.5,
+                lineHeight: 1.15,
                 letterSpacing: '-0.02em',
               }}
             >
               Projects That Power Ghana
             </Typography>
             <Typography
-              variant="h6"
+              variant="body1"
               sx={{
-                color: 'rgba(255,255,255,0.9)',
+                color: 'rgba(255,255,255,0.88)',
                 fontWeight: 400,
-                lineHeight: 1.8,
+                lineHeight: 1.65,
+                fontSize: { xs: '0.95rem', md: '1rem' },
               }}
             >
               Explore our completed solar installations across residential, commercial, and industrial sectors.
@@ -140,34 +87,34 @@ const Portfolio: React.FC = () => {
       </Box>
 
       {/* Portfolio Grid */}
-      <Box sx={{ py: { xs: 8, md: 12 }, bgcolor: colors.offWhite }}>
+      <Box sx={{ py: { xs: 6, md: 8 }, bgcolor: colors.offWhite }}>
         <Container maxWidth="xl">
-          <Grid container spacing={4}>
-            {portfolioItems.map((item) => (
+          <Grid container spacing={{ xs: 2, md: 3 }}>
+            {portfolioPageItems.map((item) => (
               <Grid item xs={12} sm={6} md={4} key={item.id}>
                 <Card
                   sx={{
                     height: '100%',
                     display: 'flex',
                     flexDirection: 'column',
-                    borderRadius: 3,
+                    borderRadius: 2,
                     overflow: 'hidden',
                     border: '1px solid',
                     borderColor: colors.gray200,
-                    transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                    transition: 'transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease',
                     '&:hover': {
-                      transform: 'translateY(-8px)',
-                      boxShadow: `0 24px 48px rgba(0,0,0,0.12)`,
+                      transform: 'translateY(-3px)',
+                      boxShadow: '0 12px 32px rgba(0,0,0,0.1)',
                       borderColor: colors.green,
                       '& .portfolio-image': {
-                        transform: 'scale(1.05)',
+                        transform: 'scale(1.03)',
                       },
                     },
                   }}
                 >
                   <Box
                     sx={{
-                      height: 260,
+                      height: { xs: 200, sm: 220 },
                       overflow: 'hidden',
                       position: 'relative',
                       bgcolor: colors.gray200,
@@ -202,23 +149,24 @@ const Portfolio: React.FC = () => {
                       />
                     </Box>
                   </Box>
-                  <CardContent sx={{ flexGrow: 1, p: 3 }}>
+                  <CardContent sx={{ flexGrow: 1, p: { xs: 2, md: 2.25 } }}>
                     <Typography
-                      variant="h6"
+                      variant="subtitle1"
                       sx={{
                         fontWeight: 700,
                         color: colors.blueBlack,
-                        mb: 1,
+                        mb: 0.75,
                         lineHeight: 1.3,
+                        fontSize: '0.95rem',
                       }}
                     >
                       {item.title}
                     </Typography>
                     <Typography
-                      variant="body2"
+                      variant="caption"
                       sx={{
                         color: colors.gray600,
-                        mb: 1.5,
+                        mb: 1,
                         display: 'flex',
                         alignItems: 'center',
                         gap: 0.5,
@@ -226,7 +174,7 @@ const Portfolio: React.FC = () => {
                     >
                       {item.location}
                     </Typography>
-                    <Typography variant="body2" sx={{ color: colors.gray600, lineHeight: 1.6 }}>
+                    <Typography variant="body2" sx={{ color: colors.gray600, lineHeight: 1.55, fontSize: '0.82rem' }}>
                       {item.description}
                     </Typography>
                   </CardContent>
@@ -240,30 +188,30 @@ const Portfolio: React.FC = () => {
       {/* CTA */}
       <Box
         sx={{
-          py: { xs: 8, md: 10 },
+          py: { xs: 6, md: 7 },
           background: `linear-gradient(135deg, ${colors.blueBlack} 0%, ${colors.blueBlackLight} 100%)`,
           color: 'white',
           textAlign: 'center',
         }}
       >
-        <Container maxWidth="md">
-          <Typography variant="h4" sx={{ fontWeight: 700, mb: 2 }}>
+        <Container maxWidth="sm">
+          <Typography variant="h2" sx={{ fontWeight: 800, mb: 1.5, fontSize: { xs: '1.5rem', md: '1.75rem' } }}>
             Start Your Solar Project
           </Typography>
-          <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.9)', mb: 3 }}>
+          <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.88)', mb: 2.5, lineHeight: 1.6 }}>
             Join hundreds of satisfied customers. Get a free quote for your project.
           </Typography>
           <Button
             variant="contained"
-            size="large"
+            size="medium"
             component={Link}
             to="/contact?action=quote"
-            endIcon={<ArrowForwardIcon />}
+            endIcon={<ArrowForwardIcon sx={{ fontSize: 18 }} />}
             sx={{
               bgcolor: colors.green,
               color: 'white',
-              px: 4,
-              py: 1.5,
+              px: 3.5,
+              py: 1.15,
               fontWeight: 600,
               textTransform: 'none',
               borderRadius: 2,

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   Container,
@@ -23,9 +23,27 @@ import {
 import websiteContent from '../../data/extracted_content.json';
 import { Seo } from '../../components/Seo';
 import { colors } from '../../theme/colors';
+import { homePageImages } from '../../data/homePageMedia';
+import api from '../../services/api';
+import TrustStrip from '../../components/public/TrustStrip';
 
 const About: React.FC = () => {
   const content = websiteContent;
+  const [aboutHero, setAboutHero] = useState<string>(homePageImages.hero);
+
+  useEffect(() => {
+    let cancelled = false;
+    api
+      .get<Record<string, string>>('/content/settings/public')
+      .then((res) => {
+        const u = res.data?.about_hero_image?.trim();
+        if (u && !cancelled) setAboutHero(u);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   return (
     <Box>
@@ -39,68 +57,71 @@ const About: React.FC = () => {
         sx={{
           bgcolor: colors.blueBlack,
           color: 'white',
-          py: { xs: 8, md: 12 },
+          py: { xs: 5, md: 6 },
           position: 'relative',
           overflow: 'hidden',
         }}
       >
         <Container maxWidth="xl">
-          <Grid container spacing={6} alignItems="center">
+          <Grid container spacing={{ xs: 3, md: 4 }} alignItems="center">
             <Grid item xs={12} md={6}>
               <Chip
                 label="ABOUT ENERGY PRECISIONS"
                 sx={{
                   bgcolor: colors.green,
                   color: 'white',
-                  fontWeight: 'bold',
-                  mb: 3,
-                  px: 2,
+                  fontWeight: 700,
+                  mb: 1.5,
+                  px: 1.75,
+                  height: 'auto',
+                  fontSize: '0.7rem',
                 }}
               />
               <Typography
                 variant="h1"
                 sx={{
-                  fontSize: { xs: '2.5rem', md: '4rem' },
+                  fontSize: { xs: '1.75rem', sm: '2rem', md: '2.35rem' },
                   fontWeight: 800,
-                  mb: 3,
-                  lineHeight: 1.1,
+                  mb: 2,
+                  lineHeight: 1.15,
                 }}
               >
                 Ghana's Premier Solar Energy Company
               </Typography>
               <Typography
-                variant="h6"
+                variant="body1"
                 sx={{
-                  color: 'rgba(255,255,255,0.9)',
-                  lineHeight: 1.8,
+                  color: 'rgba(255,255,255,0.88)',
+                  lineHeight: 1.65,
                   fontWeight: 400,
-                  mb: 4,
+                  mb: 2.5,
+                  fontSize: { xs: '0.95rem', md: '1rem' },
                 }}
               >
                 {content.about.content}
               </Typography>
-              <Stack direction="row" spacing={4} flexWrap="wrap">
+              <Stack direction="row" spacing={{ xs: 2, sm: 3 }} flexWrap="wrap" useFlexGap>
                 <Box>
-                  <Typography variant="h3" sx={{ fontWeight: 'bold', color: colors.green }}>
+                  <Typography variant="h5" sx={{ fontWeight: 800, color: colors.green, lineHeight: 1.1 }}>
                     500+
                   </Typography>
-                  <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>
+                  <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.78)' }}>
                     Installations
                   </Typography>
                 </Box>
                 <Box>
-                  <Typography variant="h3" sx={{ fontWeight: 'bold', color: colors.green }}>
+                  <Typography variant="h5" sx={{ fontWeight: 800, color: colors.green, lineHeight: 1.1 }}>
                     10+
                   </Typography>
-                  <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>
+                  <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.78)' }}>
                     Years Experience
                   </Typography>
                 </Box>
                 <Box>
-                  <Typography variant="h3" sx={{ fontWeight: 'bold', color: colors.green }}>
+                  <Typography variant="h5" sx={{ fontWeight: 800, color: colors.green, lineHeight: 1.1 }}>
                     98%
                   </Typography>
-                  <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>
+                  <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.78)' }}>
                     Satisfaction Rate
                   </Typography>
                 </Box>
@@ -109,19 +130,29 @@ const About: React.FC = () => {
             <Grid item xs={12} md={6}>
               <Box
                 sx={{
-                  borderRadius: 3,
+                  borderRadius: 2,
                   overflow: 'hidden',
-                  boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
+                  boxShadow: '0 16px 48px rgba(0,0,0,0.35)',
+                  maxHeight: { xs: 280, md: 400 },
                 }}
               >
                 <Box
                   component="img"
-                  src="/website_images/remove-bg3.png"
-                  alt="Energy Precisions Team"
+                  src={aboutHero}
+                  alt="Energy Precisions solar installation"
                   sx={{
                     width: '100%',
-                    height: 'auto',
+                    height: '100%',
+                    maxHeight: { xs: 280, md: 400 },
+                    objectFit: 'cover',
+                    objectPosition: 'center top',
                     display: 'block',
+                  }}
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    if (!target.src.includes('/website_images/')) {
+                      target.src = '/website_images/remove-bg3.png';
+                    }
                   }}
                 />
               </Box>
@@ -130,17 +161,19 @@ const About: React.FC = () => {
         </Container>
       </Box>
 
+      <TrustStrip variant="muted" />
+
       {/* Mission & Vision */}
-      <Box sx={{ py: { xs: 8, md: 12 }, bgcolor: 'white' }}>
+      <Box sx={{ py: { xs: 6, md: 8 }, bgcolor: 'white' }}>
         <Container maxWidth="xl">
-          <Grid container spacing={6}>
+          <Grid container spacing={{ xs: 3, md: 4 }}>
             <Grid item xs={12} md={6}>
               <Card
                 sx={{
                   height: '100%',
-                  p: 5,
-                  borderRadius: 3,
-                  border: '2px solid colors.green',
+                  p: { xs: 3, md: 4 },
+                  borderRadius: 2,
+                  border: `2px solid ${colors.green}`,
                   bgcolor: '#f8f9fa',
                 }}
               >
