@@ -1,10 +1,9 @@
 import axios, { AxiosInstance } from 'axios';
 import api from './api';
 import { User } from '../types';
+import { resolveApiUrl } from '../utils/apiUrl';
 
-// Support both build-time env var and runtime config (injected via script tag)
-// @ts-ignore - runtime config is injected via script tag
-const API_URL = (window as any).REACT_APP_API_URL || process.env.REACT_APP_API_URL || 'http://localhost:8000';
+const API_URL = resolveApiUrl();
 
 export interface LoginCredentials {
   username: string;

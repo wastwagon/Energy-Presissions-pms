@@ -120,8 +120,8 @@ default_cors_origins = [
 cors_origins_env = os.getenv("CORS_ORIGINS", "").strip()
 env_cors_origins = [origin.strip() for origin in cors_origins_env.split(",") if origin.strip()] if cors_origins_env else []
 cors_origins = list(dict.fromkeys(default_cors_origins + env_cors_origins))
-# Allow any Render frontend subdomain (preview/ephemeral deploys)
-cors_origin_regex = r"https://energy-pms-frontend-[a-z0-9]+\.onrender\.com"
+# Allow Render-hosted frontends (preview/ephemeral deploys)
+cors_origin_regex = r"https://([a-z0-9-]+\.)?onrender\.com"
 
 cors_kwargs = dict(
     allow_credentials=True,
