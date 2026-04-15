@@ -37,14 +37,20 @@ import { Seo } from '../../components/Seo';
 import { useCart } from '../../contexts/CartContext';
 import { catalogLineUnitPrice } from '../../utils/catalogPrice';
 import { trackAddToCart } from '../../utils/analytics';
+import { resolveApiUrl } from '../../utils/apiUrl';
 
-const API_URL = (window as any).REACT_APP_API_URL || process.env.REACT_APP_API_URL || 'http://localhost:8000';
+const API_URL = resolveApiUrl();
 
 const getImageUrl = (url: string | undefined): string => {
   if (!url) return '';
-  if (url.startsWith('http://') || url.startsWith('https://')) return url;
-  if (url.startsWith('/')) return `${API_URL.replace(/\/$/, '')}${url}`;
-  return url;
+  const clean = url.trim();
+  if (!clean) return '';
+  if (/^https?:\/\//i.test(clean)) return clean;
+  const base = API_URL.replace(/\/$/, '');
+  if (clean.startsWith('/')) return `${base}${clean}`;
+  // Handle stored values like "static/media/file.jpg"
+  if (clean.startsWith('static/')) return `${base}/${clean}`;
+  return `${base}/${clean}`;
 };
 
 const Shop: React.FC = () => {
@@ -315,7 +321,9 @@ const Shop: React.FC = () => {
                         }}
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
-                          target.style.display = 'none';
+                          if (!target.src.includes('placehold.co')) {
+                            target.src = 'https://placehold.co/300x300/e8e8e8/999?text=No+Image';
+                          }
                         }}
                       />
                       {/* Badge */}

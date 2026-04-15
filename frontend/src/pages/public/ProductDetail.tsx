@@ -17,14 +17,19 @@ import { useCart } from '../../contexts/CartContext';
 import { catalogLineUnitPrice } from '../../utils/catalogPrice';
 import { Seo } from '../../components/Seo';
 import { trackViewItem, trackAddToCart } from '../../utils/analytics';
+import { resolveApiUrl } from '../../utils/apiUrl';
 
-const API_URL = (window as any).REACT_APP_API_URL || process.env.REACT_APP_API_URL || 'http://localhost:8000';
+const API_URL = resolveApiUrl();
 
 const getImageUrl = (url: string | undefined): string => {
   if (!url) return '';
-  if (url.startsWith('http://') || url.startsWith('https://')) return url;
-  if (url.startsWith('/')) return `${API_URL.replace(/\/$/, '')}${url}`;
-  return url;
+  const clean = url.trim();
+  if (!clean) return '';
+  if (/^https?:\/\//i.test(clean)) return clean;
+  const base = API_URL.replace(/\/$/, '');
+  if (clean.startsWith('/')) return `${base}${clean}`;
+  if (clean.startsWith('static/')) return `${base}/${clean}`;
+  return `${base}/${clean}`;
 };
 
 const ProductDetail: React.FC = () => {
