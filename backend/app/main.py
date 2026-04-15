@@ -8,6 +8,7 @@ import os
 import logging
 from contextlib import asynccontextmanager
 from app.database import engine, Base
+from app.storage import get_static_root
 # Import e-commerce models to register them
 from app import models_ecommerce
 from app.routers import auth, customers, projects, appliances, sizing, products, quotes, settings, reports, dashboard, users
@@ -145,11 +146,11 @@ app.include_router(content.router)
 app.include_router(public_load.router)
 
 # Create static directory if it doesn't exist
-static_dir = Path("static")
+static_dir = get_static_root()
 static_dir.mkdir(exist_ok=True)
 
 # Mount static files
-app.mount("/static", StaticFiles(directory="static"), name="static")
+app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
 
 
 @app.get("/")

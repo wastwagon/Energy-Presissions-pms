@@ -10,10 +10,11 @@ from app.database import get_db
 from app.auth import get_current_active_user, require_role
 from app.models import User, MediaItem
 from app.schemas_media import MediaItemResponse
+from app.storage import get_static_root
 
 router = APIRouter(prefix="/media", tags=["media"])
 
-MEDIA_DIR = Path("static") / "media"
+MEDIA_DIR = get_static_root() / "media"
 ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg", ".pdf"}
 MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
 

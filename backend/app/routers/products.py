@@ -6,6 +6,7 @@ from app.database import get_db
 from app.auth import get_current_active_user, require_role
 from app.models import User, Product, ProductType
 from app.schemas import Product as ProductSchema, ProductCreate, ProductUpdate
+from app.storage import get_static_root
 
 router = APIRouter(prefix="/products", tags=["products"])
 
@@ -42,7 +43,7 @@ async def upload_product_image(
         ext = ".jpg"
     import uuid
     filename = f"product_{uuid.uuid4().hex[:12]}{ext}"
-    static_dir = Path("static") / "products"
+    static_dir = get_static_root() / "products"
     static_dir.mkdir(parents=True, exist_ok=True)
     file_path = static_dir / filename
     with open(file_path, "wb") as f:
