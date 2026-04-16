@@ -43,10 +43,18 @@ const API_URL = resolveApiUrl();
 
 const getImageUrl = (url: string | undefined): string => {
   if (!url) return '';
-  const clean = url.trim();
+  const clean = url.trim().replace(/^['"]|['"]$/g, '');
   if (!clean) return '';
-  if (/^https?:\/\//i.test(clean)) return clean;
   const base = API_URL.replace(/\/$/, '');
+  if (/^https?:\/\//i.test(clean)) {
+    // Repair legacy DB values saved with localhost host while browsing production.
+    const isLegacyLocal = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?\//i.test(clean);
+    if (isLegacyLocal && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+      const path = clean.replace(/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?/i, '');
+      return `${base}${path.startsWith('/') ? path : `/${path}`}`;
+    }
+    return clean;
+  }
   if (clean.startsWith('/')) return `${base}${clean}`;
   // Handle stored values like "static/media/file.jpg"
   if (clean.startsWith('static/')) return `${base}/${clean}`;
