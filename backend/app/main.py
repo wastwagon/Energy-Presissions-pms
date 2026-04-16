@@ -147,7 +147,7 @@ app.include_router(public_load.router)
 
 # Create static directory if it doesn't exist
 static_dir = get_static_root()
-static_dir.mkdir(exist_ok=True)
+static_dir.mkdir(parents=True, exist_ok=True)
 logger.info("Static files directory: %s", static_dir.resolve())
 
 # Mount static files
