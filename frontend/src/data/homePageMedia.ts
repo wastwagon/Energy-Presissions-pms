@@ -12,12 +12,9 @@ export const homePageImages = {
   services: {
     residential:
       'https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=800&q=80',
-    commercial:
-      'https://images.unsplash.com/photo-1559302504-64aae0ca2a3d?auto=format&fit=crop&w=800&q=80',
-    industrial:
-      'https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?auto=format&fit=crop&w=800&q=80',
-    agricultural:
-      'https://images.unsplash.com/photo-1625246333195-78d9c38ad449?auto=format&fit=crop&w=800&q=80',
+    commercial: '/website_images/service-commercial-solar.png',
+    industrial: '/website_images/service-industrial-solar.png',
+    agricultural: '/website_images/service-agricultural-productive-use.png',
   },
 } as const;
 
@@ -26,12 +23,9 @@ export const servicesPageImages = {
   residential: homePageImages.services.residential,
   commercial: homePageImages.services.commercial,
   industrial: homePageImages.services.industrial,
-  battery:
-    'https://images.unsplash.com/photo-1617788138017-80ad40651399?auto=format&fit=crop&w=800&q=80',
-  consultation:
-    'https://images.unsplash.com/photo-1497430603517-7e2fab8fff72?auto=format&fit=crop&w=800&q=80',
-  maintenance:
-    'https://images.unsplash.com/photo-1621905251189-0b2e291625fb?auto=format&fit=crop&w=800&q=80',
+  battery: '/website_images/service-battery-storage-solutions.png',
+  consultation: '/website_images/service-solar-energy-consultation.png',
+  maintenance: '/website_images/service-maintenance-monitoring.png',
 } as const;
 
 export type HomePortfolioPreviewItem = {
