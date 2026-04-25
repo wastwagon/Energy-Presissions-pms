@@ -26,8 +26,7 @@ import api from '../services/api';
 import { Product, ProductType } from '../types';
 import MediaPicker from '../components/MediaPicker';
 import { useAuth } from '../contexts/AuthContext';
-
-const API_BASE = (window as any).REACT_APP_API_URL || process.env.REACT_APP_API_URL || 'http://localhost:8000';
+import { resolveMediaUrl } from '../utils/mediaUrl';
 
 const Products: React.FC = () => {
   const { user } = useAuth();
@@ -311,10 +310,12 @@ const Products: React.FC = () => {
             {formData.image_url && (
               <Box
                 component="img"
-                src={formData.image_url.startsWith('http') ? formData.image_url : `${API_BASE}${formData.image_url}`}
+                src={resolveMediaUrl(formData.image_url)}
                 alt="Preview"
                 sx={{ maxWidth: 120, maxHeight: 120, objectFit: 'contain', border: '1px solid #ddd', borderRadius: 1 }}
-                onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = 'none';
+                }}
               />
             )}
           </Box>
