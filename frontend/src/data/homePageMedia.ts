@@ -12,9 +12,12 @@ export const homePageImages = {
   services: {
     residential:
       'https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=800&q=80',
-    commercial: '/website_images/service-commercial-solar.png',
-    industrial: '/website_images/service-industrial-solar.png',
-    agricultural: '/website_images/service-agricultural-productive-use.png',
+    commercial:
+      '/website_images/services-commercial-solar.png',
+    industrial:
+      '/website_images/services-industrial-solar.png',
+    agricultural:
+      '/website_images/services-agricultural-productive-use.png',
   },
 } as const;
 
@@ -23,9 +26,12 @@ export const servicesPageImages = {
   residential: homePageImages.services.residential,
   commercial: homePageImages.services.commercial,
   industrial: homePageImages.services.industrial,
-  battery: '/website_images/service-battery-storage-solutions.png',
-  consultation: '/website_images/service-solar-energy-consultation.png',
-  maintenance: '/website_images/service-maintenance-monitoring.png',
+  battery:
+    '/website_images/services-battery-storage-solutions.png',
+  consultation:
+    '/website_images/services-solar-energy-consultation.png',
+  maintenance:
+    '/website_images/services-maintenance-monitoring.png',
 } as const;
 
 export type HomePortfolioPreviewItem = {
