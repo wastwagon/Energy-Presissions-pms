@@ -617,7 +617,6 @@ const Home: React.FC = () => {
                       sx={{ objectFit: 'cover' }}
                     />
                     <CardContent sx={{ p: 2, width: '100%', textAlign: 'left' }}>
-                      <Chip label={project.category} size="small" sx={{ mb: 1, fontSize: '0.65rem', height: 22, bgcolor: colors.greenLight, color: colors.blueBlack }} />
                       <Typography variant="subtitle1" sx={{ fontWeight: 700, color: colors.blueBlack, fontSize: '0.95rem', lineHeight: 1.35 }}>
                         {project.title}
                       </Typography>
