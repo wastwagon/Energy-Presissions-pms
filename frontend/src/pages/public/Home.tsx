@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Box,
   Container,
@@ -12,6 +12,7 @@ import {
   Stack,
   Divider,
   CardMedia,
+  IconButton,
 } from '@mui/material';
 import {
   CheckCircle as CheckCircleIcon,
@@ -30,6 +31,8 @@ import {
   Home as HomeIcon,
   Factory as FactoryIcon,
   Agriculture as AgricultureIcon,
+  ChevronLeft as ChevronLeftIcon,
+  ChevronRight as ChevronRightIcon,
 } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
 import { Seo } from '../../components/Seo';
@@ -38,8 +41,18 @@ import { homePageImages, homePortfolioPreview } from '../../data/homePageMedia';
 import api from '../../services/api';
 import TrustStrip from '../../components/public/TrustStrip';
 
+const whyChooseFeatures = [
+  { icon: <PremiumIcon sx={{ fontSize: '2.25rem' }} />, title: 'Premium Quality Equipment', description: 'We source only the finest solar panels, inverters, and batteries from leading global manufacturers. Every product is tested and certified for Ghana\'s climate.', color: colors.green },
+  { icon: <SpeedIcon sx={{ fontSize: '2.25rem' }} />, title: 'Expert Installation Team', description: 'Our certified technicians have installed over 500 solar systems across Ghana. Professional installation ensures maximum efficiency and longevity.', color: colors.blueBlack },
+  { icon: <SecurityIcon sx={{ fontSize: '2.25rem' }} />, title: 'Comprehensive Warranty', description: '10-year warranty on installations, 25-year panel warranty, and lifetime support. Your investment is protected with our comprehensive coverage.', color: colors.green },
+  { icon: <SupportIcon sx={{ fontSize: '2.25rem' }} />, title: 'Local Partner, Full Lifecycle', description: 'Accra-based team with national reach: responsive support, maintenance, and after-sales service — closing the gap many installers leave open after commissioning.', color: colors.blueBlack },
+  { icon: <TrendingUpIcon sx={{ fontSize: '2.25rem' }} />, title: 'Proven Track Record', description: 'Trusted by residential, commercial, and industrial clients across Ghana. See our case studies and customer testimonials.', color: colors.green },
+  { icon: <EcoIcon sx={{ fontSize: '2.25rem' }} />, title: 'Sustainable Future', description: 'Join thousands of Ghanaians reducing electricity costs and carbon footprint. Make a positive impact on Ghana\'s energy future.', color: colors.blueBlack },
+];
+
 const Home: React.FC = () => {
   const [heroSrc, setHeroSrc] = useState<string>(homePageImages.hero);
+  const whyScrollRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -382,18 +395,77 @@ const Home: React.FC = () => {
             </Typography>
           </Box>
 
-          <Grid container spacing={{ xs: 2, md: 3 }}>
-            {[
-              { icon: <PremiumIcon sx={{ fontSize: '2.25rem' }} />, title: 'Premium Quality Equipment', description: 'We source only the finest solar panels, inverters, and batteries from leading global manufacturers. Every product is tested and certified for Ghana\'s climate.', color: colors.green },
-              { icon: <SpeedIcon sx={{ fontSize: '2.25rem' }} />, title: 'Expert Installation Team', description: 'Our certified technicians have installed over 500 solar systems across Ghana. Professional installation ensures maximum efficiency and longevity.', color: colors.blueBlack },
-              { icon: <SecurityIcon sx={{ fontSize: '2.25rem' }} />, title: 'Comprehensive Warranty', description: '10-year warranty on installations, 25-year panel warranty, and lifetime support. Your investment is protected with our comprehensive coverage.', color: colors.green },
-              { icon: <SupportIcon sx={{ fontSize: '2.25rem' }} />, title: 'Local Partner, Full Lifecycle', description: 'Accra-based team with national reach: responsive support, maintenance, and after-sales service — closing the gap many installers leave open after commissioning.', color: colors.blueBlack },
-              { icon: <TrendingUpIcon sx={{ fontSize: '2.25rem' }} />, title: 'Proven Track Record', description: 'Trusted by residential, commercial, and industrial clients across Ghana. See our case studies and customer testimonials.', color: colors.green },
-              { icon: <EcoIcon sx={{ fontSize: '2.25rem' }} />, title: 'Sustainable Future', description: 'Join thousands of Ghanaians reducing electricity costs and carbon footprint. Make a positive impact on Ghana\'s energy future.', color: colors.blueBlack },
-            ].map((feature, index) => (
-              <Grid item xs={12} sm={6} md={4} key={index}>
+          <Box sx={{ position: 'relative', mx: { xs: -1, sm: 0 } }}>
+            <IconButton
+              aria-label="Scroll reasons left"
+              onClick={() => {
+                const el = whyScrollRef.current;
+                if (!el) return;
+                el.scrollBy({ left: -Math.min(el.clientWidth * 0.92, 400), behavior: 'smooth' });
+              }}
+              sx={{
+                display: { xs: 'none', md: 'flex' },
+                position: 'absolute',
+                left: -12,
+                top: '50%',
+                transform: 'translateY(-50%)',
+                zIndex: 2,
+                bgcolor: 'white',
+                boxShadow: '0 4px 20px rgba(10,14,23,0.12)',
+                border: `1px solid ${colors.gray200}`,
+                '&:hover': { bgcolor: colors.offWhite },
+              }}
+            >
+              <ChevronLeftIcon />
+            </IconButton>
+            <IconButton
+              aria-label="Scroll reasons right"
+              onClick={() => {
+                const el = whyScrollRef.current;
+                if (!el) return;
+                el.scrollBy({ left: Math.min(el.clientWidth * 0.92, 400), behavior: 'smooth' });
+              }}
+              sx={{
+                display: { xs: 'none', md: 'flex' },
+                position: 'absolute',
+                right: -12,
+                top: '50%',
+                transform: 'translateY(-50%)',
+                zIndex: 2,
+                bgcolor: 'white',
+                boxShadow: '0 4px 20px rgba(10,14,23,0.12)',
+                border: `1px solid ${colors.gray200}`,
+                '&:hover': { bgcolor: colors.offWhite },
+              }}
+            >
+              <ChevronRightIcon />
+            </IconButton>
+            <Box
+              ref={whyScrollRef}
+              sx={{
+                display: 'flex',
+                gap: 2,
+                overflowX: 'auto',
+                scrollSnapType: 'x mandatory',
+                WebkitOverflowScrolling: 'touch',
+                pb: 1.5,
+                px: { xs: 0.5, md: 0 },
+                scrollBehavior: 'smooth',
+                scrollbarWidth: 'thin',
+                '&::-webkit-scrollbar': { height: 6 },
+                '&::-webkit-scrollbar-thumb': {
+                  backgroundColor: 'rgba(10,14,23,0.2)',
+                  borderRadius: 999,
+                },
+              }}
+            >
+              {whyChooseFeatures.map((feature, index) => (
                 <Card
+                  key={index}
                   sx={{
+                    flex: '0 0 min(100%, 340px)',
+                    maxWidth: { xs: 'min(100%, 340px)', sm: 'min(100%, 360px)' },
+                    scrollSnapAlign: 'start',
                     height: '100%',
                     p: { xs: 2.5, md: 3 },
                     border: `1px solid ${colors.gray200}`,
@@ -414,9 +486,9 @@ const Home: React.FC = () => {
                     {feature.description}
                   </Typography>
                 </Card>
-              </Grid>
-            ))}
-          </Grid>
+              ))}
+            </Box>
+          </Box>
         </Container>
       </Box>
 

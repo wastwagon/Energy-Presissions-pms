@@ -14,8 +14,7 @@ import {
 } from '@mui/material';
 import { Image as ImageIcon, Search as SearchIcon, Check as CheckIcon } from '@mui/icons-material';
 import api from '../services/api';
-
-const API_BASE = (window as any).REACT_APP_API_URL || process.env.REACT_APP_API_URL || 'http://localhost:8000';
+import { resolveApiUrl } from '../utils/apiUrl';
 
 interface MediaItem {
   id: number;
@@ -33,8 +32,11 @@ interface MediaPickerProps {
   acceptImagesOnly?: boolean;
 }
 
-const getFullUrl = (url: string) =>
-  url.startsWith('http') ? url : `${API_BASE.replace(/\/$/, '')}${url}`;
+const getFullUrl = (url: string) => {
+  if (url.startsWith('http')) return url;
+  const base = resolveApiUrl().replace(/\/$/, '');
+  return url.startsWith('/') ? `${base}${url}` : `${base}/${url}`;
+};
 
 const MediaPicker: React.FC<MediaPickerProps> = ({ open, onClose, onSelect, acceptImagesOnly = true }) => {
   const [items, setItems] = useState<MediaItem[]>([]);

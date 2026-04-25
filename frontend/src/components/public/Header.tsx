@@ -11,6 +11,7 @@ import {
   ListItem,
   ListItemButton,
   ListItemText,
+  Divider,
   useTheme,
   useMediaQuery,
   Typography,
@@ -21,6 +22,7 @@ import {
 } from '@mui/material';
 import {
   Menu as MenuIcon,
+  Close as CloseIcon,
   Phone as PhoneIcon,
   Email as EmailIcon,
   ShoppingCart as ShoppingCartIcon,
@@ -81,6 +83,11 @@ const Header: React.FC = () => {
     { label: 'Contact', path: '/contact' },
   ];
 
+  const isPathActive = (path: string) => {
+    if (path === '/') return location.pathname === '/';
+    return location.pathname === path || location.pathname.startsWith(`${path}/`);
+  };
+
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
@@ -117,32 +124,110 @@ const Header: React.FC = () => {
   };
 
   const drawer = (
-    <Box onClick={handleDrawerToggle} sx={{ textAlign: 'center', pt: 1.5 }}>
-      <Typography variant="subtitle1" sx={{ mb: 1.5, color: theme.palette.primary.main, fontWeight: 700 }}>
-        ENERGY PRECISIONS
-      </Typography>
-      <List>
+    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', bgcolor: '#f8fafb' }}>
+      <Box
+        sx={{
+          px: 2,
+          py: 2,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          background: `linear-gradient(135deg, ${colors.blueBlack} 0%, ${colors.blueBlackLight} 100%)`,
+          color: 'white',
+        }}
+      >
+        <Box>
+          <Typography variant="subtitle1" sx={{ fontWeight: 800, letterSpacing: '0.08em', fontSize: '0.8rem' }}>
+            ENERGY PRECISIONS
+          </Typography>
+          <Typography variant="caption" sx={{ opacity: 0.85, display: 'block', mt: 0.25 }}>
+            Navigate
+          </Typography>
+        </Box>
+        <IconButton
+          onClick={handleDrawerToggle}
+          aria-label="Close menu"
+          edge="end"
+          sx={{ color: 'white', '&:hover': { bgcolor: 'rgba(255,255,255,0.1)' } }}
+        >
+          <CloseIcon />
+        </IconButton>
+      </Box>
+      <Divider />
+      <List sx={{ py: 1.5, px: 1, flex: 1 }}>
         {menuItems.map((item) => (
-          <ListItem key={item.label} disablePadding>
+          <React.Fragment key={item.label}>
             {item.submenu ? (
               <>
-                <ListItemButton component={Link} to={item.path} sx={{ textAlign: 'center' }}>
-                  <ListItemText primary={item.label} />
-                </ListItemButton>
+                <ListItem disablePadding sx={{ mb: 0.25 }}>
+                  <ListItemButton
+                    component={Link}
+                    to={item.path}
+                    onClick={handleDrawerToggle}
+                    sx={{
+                      borderRadius: 2,
+                      py: 1.25,
+                      px: 1.5,
+                      textAlign: 'left',
+                      '&:hover': { bgcolor: 'rgba(0, 230, 118, 0.08)' },
+                    }}
+                  >
+                    <ListItemText
+                      primary={item.label}
+                      primaryTypographyProps={{ fontWeight: 700, color: colors.blueBlack, fontSize: '0.95rem' }}
+                    />
+                  </ListItemButton>
+                </ListItem>
                 {item.submenu.map((sub) => (
-                  <ListItem key={sub.label} disablePadding sx={{ pl: 2 }}>
-                    <ListItemButton component={Link} to={sub.path} sx={{ textAlign: 'center' }}>
-                      <ListItemText primary={sub.label} secondary="" />
+                  <ListItem key={sub.label} disablePadding sx={{ mb: 0.25 }}>
+                    <ListItemButton
+                      component={Link}
+                      to={sub.path}
+                      onClick={handleDrawerToggle}
+                      sx={{
+                        borderRadius: 2,
+                        py: 1,
+                        pl: 3,
+                        pr: 1.5,
+                        textAlign: 'left',
+                        borderLeft: `3px solid ${colors.green}`,
+                        ml: 1.25,
+                        '&:hover': { bgcolor: 'rgba(10, 14, 23, 0.04)' },
+                      }}
+                    >
+                      <ListItemText
+                        primary={sub.label}
+                        primaryTypographyProps={{ fontWeight: 500, color: colors.gray600, fontSize: '0.875rem' }}
+                      />
                     </ListItemButton>
                   </ListItem>
                 ))}
               </>
             ) : (
-              <ListItemButton component={Link} to={item.path} sx={{ textAlign: 'center' }}>
-                <ListItemText primary={item.label} />
-              </ListItemButton>
+              <ListItem disablePadding sx={{ mb: 0.25 }}>
+                <ListItemButton
+                  component={Link}
+                  to={item.path}
+                  onClick={handleDrawerToggle}
+                  sx={{
+                    borderRadius: 2,
+                    py: 1.15,
+                    px: 1.5,
+                    textAlign: 'left',
+                    ...(isPathActive(item.path)
+                      ? { bgcolor: 'rgba(0, 230, 118, 0.12)', borderLeft: `3px solid ${colors.green}` }
+                      : { borderLeft: '3px solid transparent' }),
+                    '&:hover': { bgcolor: 'rgba(0, 230, 118, 0.08)' },
+                  }}
+                >
+                  <ListItemText
+                    primary={item.label}
+                    primaryTypographyProps={{ fontWeight: 600, color: colors.blueBlack, fontSize: '0.95rem' }}
+                  />
+                </ListItemButton>
+              </ListItem>
             )}
-          </ListItem>
+          </React.Fragment>
         ))}
       </List>
     </Box>
@@ -163,11 +248,6 @@ const Header: React.FC = () => {
       bgcolor: 'rgba(0, 230, 118, 0.08)',
     },
     transition: 'color 0.2s ease, background-color 0.2s ease',
-  };
-
-  const isPathActive = (path: string) => {
-    if (path === '/') return location.pathname === '/';
-    return location.pathname === path || location.pathname.startsWith(`${path}/`);
   };
 
   const mobileBottomActive = (key: 'home' | 'shop' | 'services' | 'cart' | 'more') => {
