@@ -1,3 +1,10 @@
+import { portfolioPageItems } from './portfolioPageItems';
+
+const portfolioImage = (id: number): string => {
+  const item = portfolioPageItems.find((p) => p.id === id);
+  return item?.image ?? '';
+};
+
 /**
  * Homepage imagery — single place to swap URLs when wiring admin/CMS.
  * Default sources: Unsplash (https://unsplash.com/license — free use with attribution appreciated).
@@ -46,15 +53,13 @@ export const homePortfolioPreview: HomePortfolioPreviewItem[] = [
   {
     title: 'Residential rooftop — Greater Accra',
     category: 'Residential',
-    image:
-      'https://images.unsplash.com/photo-1611365892117-00ac5ef43c90?auto=format&fit=crop&w=900&q=80',
+    image: portfolioImage(1),
     alt: 'Solar panels installed on a residential roof',
   },
   {
     title: 'Commercial office array',
     category: 'Commercial',
-    image:
-      'https://images.unsplash.com/photo-1497435334941-8c899ee9e8e9?auto=format&fit=crop&w=900&q=80',
+    image: portfolioImage(2),
     alt: 'Solar installation on a commercial building',
   },
   {
