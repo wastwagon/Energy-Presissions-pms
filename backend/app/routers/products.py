@@ -1,14 +1,19 @@
 from typing import List
+import re
 from pathlib import Path
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
+from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.auth import get_current_active_user, require_role
 from app.models import User, Product, ProductType
 from app.schemas import Product as ProductSchema, ProductCreate, ProductUpdate
 from app.storage import get_static_root
+from app.upload_naming import safe_filename_stem, unique_filename_in_dir
 
 router = APIRouter(prefix="/products", tags=["products"])
+
+_PRODUCT_IMAGE_NAME = re.compile(r"^[\w\-. ]+\.(?:jpg|jpeg|png|gif|webp)$", re.IGNORECASE)
 
 
 @router.get("/", response_model=List[ProductSchema])
@@ -41,14 +46,30 @@ async def upload_product_image(
     ext = Path(file.filename).suffix.lower() if file.filename else ".jpg"
     if ext not in [".jpg", ".jpeg", ".png", ".gif", ".webp"]:
         ext = ".jpg"
-    import uuid
-    filename = f"product_{uuid.uuid4().hex[:12]}{ext}"
+    stem = safe_filename_stem(file.filename, fallback="product")
     static_dir = get_static_root() / "products"
     static_dir.mkdir(parents=True, exist_ok=True)
+    filename = unique_filename_in_dir(static_dir, stem, ext)
     file_path = static_dir / filename
     with open(file_path, "wb") as f:
         f.write(contents)
-    return {"url": f"/static/products/{filename}"}
+    return {"url": f"/api/products/image/{filename}"}
+
+
+@router.get("/image/{filename}", response_class=FileResponse)
+async def serve_product_image(filename: str):
+    """Public image bytes under /api (avoids /static not being routed to the API in production)."""
+    if not _PRODUCT_IMAGE_NAME.match(filename) or ".." in filename or "/" in filename:
+        raise HTTPException(status_code=400, detail="Invalid filename")
+    base = (get_static_root() / "products").resolve()
+    path = (base / filename).resolve()
+    try:
+        path.relative_to(base)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid path")
+    if not path.is_file():
+        raise HTTPException(status_code=404, detail="Not found")
+    return FileResponse(path)
 
 
 @router.get("/{product_id}", response_model=ProductSchema)
