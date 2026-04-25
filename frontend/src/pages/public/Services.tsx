@@ -15,9 +15,6 @@ import {
 import {
   CheckCircle as CheckCircleIcon,
   ArrowForward as ArrowForwardIcon,
-  Home as HomeIcon,
-  Business as BusinessIcon,
-  Factory as FactoryIcon,
   BatteryChargingFull as BatteryIcon,
   SolarPower as SolarPowerIcon,
   Engineering as EngineeringIcon,
@@ -49,7 +46,6 @@ const Services: React.FC = () => {
 
   const premiumServices = [
     {
-      icon: <HomeIcon sx={{ fontSize: '2.25rem' }} />,
       title: 'Residential Solar Installation',
       description: 'Complete home solar systems designed for Ghanaian families. Reduce electricity bills by up to 90% with reliable, grid-tied or off-grid solutions.',
       features: [
@@ -64,7 +60,6 @@ const Services: React.FC = () => {
       color: colors.green,
     },
     {
-      icon: <BusinessIcon sx={{ fontSize: '2.25rem' }} />,
       title: 'Commercial Solar Installation',
       description: 'Large-scale solar solutions for businesses, offices, and commercial buildings. Maximize ROI with custom-designed systems.',
       features: [
@@ -79,7 +74,6 @@ const Services: React.FC = () => {
       color: colors.blueBlack,
     },
     {
-      icon: <FactoryIcon sx={{ fontSize: '2.25rem' }} />,
       title: 'Industrial Solar Solutions',
       description: 'Heavy-duty solar systems for factories and industrial facilities. Power your operations with reliable, cost-effective solar energy.',
       features: [
@@ -94,7 +88,6 @@ const Services: React.FC = () => {
       color: colors.green,
     },
     {
-      icon: <BatteryIcon sx={{ fontSize: '2.25rem' }} />,
       title: 'Battery Storage Solutions',
       description: 'Advanced battery storage systems for energy independence. Store solar energy for use during power outages and peak hours.',
       features: [
@@ -109,7 +102,6 @@ const Services: React.FC = () => {
       color: colors.blueBlack,
     },
     {
-      icon: <SolarPowerIcon sx={{ fontSize: '2.25rem' }} />,
       title: 'Solar Energy Consultation',
       description: 'Expert consultation to help you choose the right solar solution. Free site assessments and energy audits for your property.',
       features: [
@@ -124,7 +116,6 @@ const Services: React.FC = () => {
       color: colors.green,
     },
     {
-      icon: <EngineeringIcon sx={{ fontSize: '2.25rem' }} />,
       title: 'System Maintenance & Monitoring',
       description: 'Ongoing maintenance and monitoring services to ensure your solar system operates at peak efficiency for years to come.',
       features: [
@@ -252,19 +243,6 @@ const Services: React.FC = () => {
                         '&:hover': { transform: 'scale(1.03)' },
                       }}
                     />
-                    <Box
-                      sx={{
-                        position: 'absolute',
-                        top: 16,
-                        left: 16,
-                        color: 'white',
-                        bgcolor: 'rgba(0,0,0,0.5)',
-                        borderRadius: 1,
-                        p: 1,
-                      }}
-                    >
-                      {service.icon}
-                    </Box>
                   </Box>
                   <CardContent sx={{ flexGrow: 1, p: { xs: 2.5, md: 3 } }}>
                     <Typography

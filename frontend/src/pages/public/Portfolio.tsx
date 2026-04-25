@@ -131,23 +131,6 @@ const Portfolio: React.FC = () => {
                         transition: 'transform 0.5s ease',
                       }}
                     />
-                    <Box
-                      sx={{
-                        position: 'absolute',
-                        top: 16,
-                        left: 16,
-                      }}
-                    >
-                      <Chip
-                        label={item.category}
-                        size="small"
-                        sx={{
-                          bgcolor: colors.green,
-                          color: 'white',
-                          fontWeight: 600,
-                        }}
-                      />
-                    </Box>
                   </Box>
                   <CardContent sx={{ flexGrow: 1, p: { xs: 2, md: 2.25 } }}>
                     <Typography
