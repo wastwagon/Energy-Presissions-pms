@@ -247,7 +247,7 @@ const About: React.FC = () => {
                   sx={{
                     mb: 3,
                     fontWeight: 800,
-                    color: colors.blueNavy,
+                    color: colors.blueBlack,
                   }}
                 >
                   Our Mission
@@ -318,7 +318,7 @@ const About: React.FC = () => {
                 mt: 2,
                 mb: 3,
                 fontWeight: 800,
-                color: colors.blueNavy,
+                color: colors.blueBlack,
                 fontSize: { xs: '2.05rem', md: '3.15rem' },
                 lineHeight: 1.15,
               }}
@@ -460,7 +460,7 @@ const About: React.FC = () => {
                 mt: 2,
                 mb: 3,
                 fontWeight: 800,
-                color: colors.blueNavy,
+                color: colors.blueBlack,
                 fontSize: { xs: '2.05rem', md: '3.1rem' },
                 lineHeight: 1.16,
               }}
@@ -621,7 +621,7 @@ const About: React.FC = () => {
                 mt: 2,
                 mb: 3,
                 fontWeight: 800,
-                color: colors.blueNavy,
+                color: colors.blueBlack,
                 fontSize: { xs: '2.5rem', md: '3.5rem' },
               }}
             >
