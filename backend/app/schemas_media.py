@@ -16,6 +16,7 @@ class MediaItemResponse(BaseModel):
     alt_text: Optional[str] = None
     mime_type: Optional[str] = None
     file_size: Optional[int] = None
+    original_filename: Optional[str] = None
     created_at: datetime
 
     class Config:

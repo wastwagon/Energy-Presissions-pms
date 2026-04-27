@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Form
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 from sqlalchemy.orm import Session
 from sqlalchemy import or_
 
@@ -11,13 +11,30 @@ from app.auth import get_current_active_user, require_role
 from app.models import User, MediaItem
 from app.schemas_media import MediaItemResponse
 from app.storage import get_static_root
-from app.upload_naming import safe_filename_stem, unique_filename_in_dir
+from app.services.media_persist import create_db_backed_media_item
 
 router = APIRouter(prefix="/media", tags=["media"])
 
 MEDIA_DIR = get_static_root() / "media"
 ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg", ".pdf"}
 MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
+
+
+@router.get("/public/{item_id}")
+async def serve_public_media(item_id: int, db: Session = Depends(get_db)):
+    """Serve uploaded media without auth (used by shop and public pages)."""
+    item = db.query(MediaItem).filter(MediaItem.id == item_id).first()
+    if not item:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Not found")
+    if item.content is not None:
+        return Response(
+            content=bytes(item.content),
+            media_type=item.mime_type or "application/octet-stream",
+        )
+    file_path = MEDIA_DIR / item.filename
+    if file_path.is_file():
+        return FileResponse(file_path, media_type=item.mime_type or "application/octet-stream")
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="File not found")
 
 
 @router.get("/", response_model=List[MediaItemResponse])
@@ -35,6 +52,7 @@ async def list_media(
         query = query.filter(
             or_(
                 MediaItem.filename.ilike(search_term),
+                MediaItem.original_filename.ilike(search_term),
                 MediaItem.title.ilike(search_term),
                 MediaItem.alt_text.ilike(search_term),
             )
@@ -51,7 +69,7 @@ async def upload_media(
     db: Session = Depends(get_db),
     current_user: User = Depends(require_role(["admin", "website_admin"])),
 ):
-    """Upload a file (admin only). Saves to static/media/ and creates MediaItem record."""
+    """Upload a file (admin only). Stores bytes in DB so URLs keep working after redeploy."""
     contents = await file.read()
     if len(contents) > MAX_FILE_SIZE:
         raise HTTPException(
@@ -62,47 +80,16 @@ async def upload_media(
     if ext not in ALLOWED_EXTENSIONS:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Allowed extensions: {', '.join(ALLOWED_EXTENSIONS)}",
+            detail=f"Allowed extensions: {', '.join(sorted(ALLOWED_EXTENSIONS))}",
         )
-    stem = safe_filename_stem(file.filename)
-    MEDIA_DIR.mkdir(parents=True, exist_ok=True)
-    filename = unique_filename_in_dir(MEDIA_DIR, stem, ext)
-    file_path = MEDIA_DIR / filename
-    with open(file_path, "wb") as f:
-        f.write(contents)
     mime_type = file.content_type or "application/octet-stream"
-    db_item = MediaItem(
-        filename=filename,
-        url="",
+    return create_db_backed_media_item(
+        db,
+        contents=contents,
+        original_name=file.filename,
+        mime_type=mime_type,
         title=title,
         alt_text=alt_text,
-        mime_type=mime_type,
-        file_size=len(contents),
-    )
-    db.add(db_item)
-    db.flush()
-    db_item.url = f"/api/media/file/{db_item.id}"
-    db.commit()
-    db.refresh(db_item)
-    return db_item
-
-
-@router.get("/file/{item_id}", response_class=FileResponse)
-async def serve_media_file(
-    item_id: int,
-    db: Session = Depends(get_db),
-):
-    """Public binary for a library item (same origin as API); avoids /static not being proxied."""
-    item = db.query(MediaItem).filter(MediaItem.id == item_id).first()
-    if not item:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Media item not found")
-    path = MEDIA_DIR / item.filename
-    if not path.is_file():
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="File not found on disk")
-    return FileResponse(
-        path,
-        media_type=item.mime_type or "application/octet-stream",
-        filename=item.filename,
     )
 
 
@@ -125,7 +112,7 @@ async def delete_media(
     db: Session = Depends(get_db),
     current_user: User = Depends(require_role(["admin", "website_admin"])),
 ):
-    """Delete a media item (admin only). Removes file from disk and database record."""
+    """Delete a media item (admin only). Removes legacy disk file if present."""
     item = db.query(MediaItem).filter(MediaItem.id == item_id).first()
     if not item:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Media item not found")

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, Boolean, DateTime, ForeignKey, Text, Enum as SQLEnum, JSON
+from sqlalchemy import Column, Integer, String, Float, Boolean, DateTime, ForeignKey, Text, Enum as SQLEnum, JSON, LargeBinary
 from sqlalchemy.dialects.postgresql import ENUM
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
@@ -494,11 +494,14 @@ class MediaItem(Base):
     
     id = Column(Integer, primary_key=True, index=True)
     filename = Column(String, nullable=False)
-    url = Column(String, nullable=False)  # Path like /static/media/xxx.jpg
+    url = Column(String, nullable=False)  # /api/media/public/{id} (DB) or /static/media/... (legacy)
     title = Column(String)
     alt_text = Column(String)
     mime_type = Column(String)
     file_size = Column(Integer)  # Size in bytes
+    # Bytea survives ephemeral app disks (e.g. Render) so images keep working after redeploy.
+    content = Column(LargeBinary, nullable=True)
+    original_filename = Column(String, nullable=True)  # Sanitized user-facing name
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
