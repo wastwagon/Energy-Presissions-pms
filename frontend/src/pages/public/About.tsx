@@ -168,7 +168,7 @@ const About: React.FC = () => {
         sx={{
           py: { xs: 6, md: 9 },
           bgcolor: 'white',
-          backgroundImage: `linear-gradient(180deg, #ffffff 0%, ${colors.lightGray} 100%)`,
+          backgroundImage: `linear-gradient(180deg, #ffffff 0%, ${colors.gray100} 100%)`,
         }}
       >
         <Container maxWidth="xl">
