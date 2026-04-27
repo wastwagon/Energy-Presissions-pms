@@ -7,6 +7,7 @@ from pathlib import Path
 import os
 import logging
 from contextlib import asynccontextmanager
+from sqlalchemy import inspect, text
 from app.database import engine, Base
 from app.storage import get_static_root
 # Import e-commerce models to register them
@@ -15,6 +16,32 @@ from app.routers import auth, customers, projects, appliances, sizing, products,
 from app.routers import ecommerce, payments, media, newsletter, contact, content, public_load
 
 logger = logging.getLogger(__name__)
+
+
+def _ensure_media_columns():
+    """Self-heal media schema when migrations were stamped but not fully applied."""
+    try:
+        insp = inspect(engine)
+        table_names = set(insp.get_table_names())
+        if "media_items" not in table_names:
+            return
+        existing_cols = {col["name"] for col in insp.get_columns("media_items")}
+        with engine.begin() as conn:
+            dialect = conn.dialect.name
+            if "content" not in existing_cols:
+                if dialect == "postgresql":
+                    conn.execute(text("ALTER TABLE media_items ADD COLUMN IF NOT EXISTS content BYTEA"))
+                else:
+                    conn.execute(text("ALTER TABLE media_items ADD COLUMN content BLOB"))
+                logger.info("Added missing media_items.content column")
+            if "original_filename" not in existing_cols:
+                if dialect == "postgresql":
+                    conn.execute(text("ALTER TABLE media_items ADD COLUMN IF NOT EXISTS original_filename VARCHAR"))
+                else:
+                    conn.execute(text("ALTER TABLE media_items ADD COLUMN original_filename VARCHAR"))
+                logger.info("Added missing media_items.original_filename column")
+    except Exception as e:
+        logger.warning("Media schema self-heal skipped: %s", e)
 
 
 def _run_migrations():
@@ -64,6 +91,7 @@ def _run_init_and_seed():
 async def lifespan(app: FastAPI):
     """Run migrations and seed on startup"""
     _run_migrations()
+    _ensure_media_columns()
     _run_init_and_seed()
     yield
 
