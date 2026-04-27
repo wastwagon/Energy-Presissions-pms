@@ -37,8 +37,8 @@ async def upload_product_image(
     if not file.content_type or not file.content_type.startswith("image/"):
         raise HTTPException(status_code=400, detail="File must be an image (jpg, png, gif, webp)")
     contents = await file.read()
-    if len(contents) > 5 * 1024 * 1024:  # 5MB max
-        raise HTTPException(status_code=400, detail="File size must be less than 5MB")
+    if len(contents) > 10 * 1024 * 1024:  # 10MB max (align with media library uploads)
+        raise HTTPException(status_code=400, detail="File size must be less than 10MB")
     ext = Path(file.filename).suffix.lower() if file.filename else ".jpg"
     if ext not in [".jpg", ".jpeg", ".png", ".gif", ".webp"]:
         ext = ".jpg"

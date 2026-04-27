@@ -37,6 +37,12 @@ async def serve_public_media(item_id: int, db: Session = Depends(get_db)):
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="File not found")
 
 
+@router.get("/file/{item_id}")
+async def serve_legacy_file_media(item_id: int, db: Session = Depends(get_db)):
+    """Backward-compatible alias for older image URLs stored as /api/media/file/{id}."""
+    return await serve_public_media(item_id=item_id, db=db)
+
+
 @router.get("/", response_model=List[MediaItemResponse])
 async def list_media(
     search: Optional[str] = None,
