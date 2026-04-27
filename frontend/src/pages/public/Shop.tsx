@@ -290,9 +290,6 @@ const Shop: React.FC = () => {
                         position: 'relative',
                         bgcolor: '#f8f9fa',
                         height: 250,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
                         overflow: 'hidden',
                       }}
                     >
@@ -301,9 +298,14 @@ const Shop: React.FC = () => {
                         src={resolveMediaUrl(product.image_url) || 'https://placehold.co/300x300/e8e8e8/999?text=No+Image'}
                       alt={product.name || `${product.brand} ${product.model}`}
                         sx={{
+                          position: 'absolute',
+                          inset: 0,
                           width: '100%',
                           height: '100%',
+                          display: 'block',
                           objectFit: 'cover',
+                          objectPosition: 'center',
+                          transform: 'scale(1.08)',
                         }}
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
