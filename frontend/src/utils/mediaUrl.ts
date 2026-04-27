@@ -5,6 +5,16 @@ export function resolveMediaUrl(url: string | undefined | null): string {
   if (url == null) return '';
   const clean = String(url).trim().replace(/^['"]|['"]$/g, '');
   if (!clean) return '';
+  // Legacy/build assets are served by the frontend origin (not the API host).
+  // These show up as "/static/media/..." in seeded data or old entries.
+  if (
+    (clean.startsWith('/static/') || clean.startsWith('static/')) &&
+    typeof window !== 'undefined' &&
+    window.location?.origin
+  ) {
+    const path = clean.startsWith('/') ? clean : `/${clean}`;
+    return `${window.location.origin.replace(/\/$/, '')}${path}`;
+  }
   const base = resolveApiUrl().replace(/\/$/, '');
   if (/^https?:\/\//i.test(clean)) {
     const isLegacyLocal = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?\//i.test(clean);
@@ -20,6 +30,5 @@ export function resolveMediaUrl(url: string | undefined | null): string {
     return clean;
   }
   if (clean.startsWith('/')) return `${base}${clean}`;
-  if (clean.startsWith('static/')) return `${base}/${clean}`;
   return `${base}/${clean}`;
 }

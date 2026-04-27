@@ -1,19 +1,14 @@
 from typing import List
-import re
 from pathlib import Path
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
-from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.auth import get_current_active_user, require_role
 from app.models import User, Product, ProductType
 from app.schemas import Product as ProductSchema, ProductCreate, ProductUpdate
-from app.storage import get_static_root
-from app.upload_naming import safe_filename_stem, unique_filename_in_dir
+from app.services.media_persist import create_db_backed_media_item
 
 router = APIRouter(prefix="/products", tags=["products"])
-
-_PRODUCT_IMAGE_NAME = re.compile(r"^[\w\-. ]+\.(?:jpg|jpeg|png|gif|webp)$", re.IGNORECASE)
 
 
 @router.get("/", response_model=List[ProductSchema])
@@ -35,9 +30,10 @@ async def list_products(
 @router.post("/upload-image")
 async def upload_product_image(
     file: UploadFile = File(...),
-    current_user: User = Depends(require_role(["admin", "website_admin"]))
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role(["admin", "website_admin"])),
 ):
-    """Upload a product featured image (admin only). Returns the URL to use in image_url."""
+    """Upload a product featured image (admin only). Returns a durable URL for image_url."""
     if not file.content_type or not file.content_type.startswith("image/"):
         raise HTTPException(status_code=400, detail="File must be an image (jpg, png, gif, webp)")
     contents = await file.read()
@@ -46,30 +42,16 @@ async def upload_product_image(
     ext = Path(file.filename).suffix.lower() if file.filename else ".jpg"
     if ext not in [".jpg", ".jpeg", ".png", ".gif", ".webp"]:
         ext = ".jpg"
-    stem = safe_filename_stem(file.filename, fallback="product")
-    static_dir = get_static_root() / "products"
-    static_dir.mkdir(parents=True, exist_ok=True)
-    filename = unique_filename_in_dir(static_dir, stem, ext)
-    file_path = static_dir / filename
-    with open(file_path, "wb") as f:
-        f.write(contents)
-    return {"url": f"/api/products/image/{filename}"}
-
-
-@router.get("/image/{filename}", response_class=FileResponse)
-async def serve_product_image(filename: str):
-    """Public image bytes under /api (avoids /static not being routed to the API in production)."""
-    if not _PRODUCT_IMAGE_NAME.match(filename) or ".." in filename or "/" in filename:
-        raise HTTPException(status_code=400, detail="Invalid filename")
-    base = (get_static_root() / "products").resolve()
-    path = (base / filename).resolve()
-    try:
-        path.relative_to(base)
-    except ValueError:
-        raise HTTPException(status_code=400, detail="Invalid path")
-    if not path.is_file():
-        raise HTTPException(status_code=404, detail="Not found")
-    return FileResponse(path)
+    stem = Path(file.filename or "upload").stem or "upload"
+    original_for_persist = f"{stem}{ext}"
+    item = create_db_backed_media_item(
+        db,
+        contents=contents,
+        original_name=original_for_persist,
+        mime_type=file.content_type or "image/jpeg",
+        title=original_for_persist,
+    )
+    return {"url": item.url}
 
 
 @router.get("/{product_id}", response_model=ProductSchema)

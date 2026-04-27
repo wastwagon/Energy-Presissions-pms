@@ -14,7 +14,7 @@ import {
 } from '@mui/material';
 import { Image as ImageIcon, Search as SearchIcon, Check as CheckIcon } from '@mui/icons-material';
 import api from '../services/api';
-import { resolveApiUrl } from '../utils/apiUrl';
+import { resolveMediaUrl } from '../utils/mediaUrl';
 
 interface MediaItem {
   id: number;
@@ -23,6 +23,7 @@ interface MediaItem {
   title?: string;
   alt_text?: string;
   mime_type?: string;
+  original_filename?: string;
 }
 
 interface MediaPickerProps {
@@ -32,11 +33,7 @@ interface MediaPickerProps {
   acceptImagesOnly?: boolean;
 }
 
-const getFullUrl = (url: string) => {
-  if (url.startsWith('http')) return url;
-  const base = resolveApiUrl().replace(/\/$/, '');
-  return url.startsWith('/') ? `${base}${url}` : `${base}/${url}`;
-};
+const getFullUrl = (url: string) => resolveMediaUrl(url);
 
 const MediaPicker: React.FC<MediaPickerProps> = ({ open, onClose, onSelect, acceptImagesOnly = true }) => {
   const [items, setItems] = useState<MediaItem[]>([]);
@@ -112,31 +109,46 @@ const MediaPicker: React.FC<MediaPickerProps> = ({ open, onClose, onSelect, acce
           <Grid container spacing={1}>
             {items.map((item) => (
               <Grid item xs={4} sm={3} md={2} key={item.id}>
-                <Box
-                  onClick={() => handleSelect(item)}
-                  sx={{
-                    aspectRatio: '1',
-                    border: '2px solid #e0e0e0',
-                    borderRadius: 1,
-                    overflow: 'hidden',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    bgcolor: '#f5f5f5',
-                    '&:hover': { borderColor: '#00E676', boxShadow: 2 },
-                  }}
-                >
-                  {item.mime_type?.startsWith('image/') ? (
-                    <Box
-                      component="img"
-                      src={getFullUrl(item.url)}
-                      alt={item.alt_text || item.filename}
-                      sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                    />
-                  ) : (
-                    <ImageIcon sx={{ fontSize: 40, color: 'grey.400' }} />
-                  )}
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                  <Box
+                    onClick={() => handleSelect(item)}
+                    sx={{
+                      aspectRatio: '1',
+                      border: '2px solid #e0e0e0',
+                      borderRadius: 1,
+                      overflow: 'hidden',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      bgcolor: '#f5f5f5',
+                      '&:hover': { borderColor: '#00E676', boxShadow: 2 },
+                    }}
+                  >
+                    {item.mime_type?.startsWith('image/') ? (
+                      <Box
+                        component="img"
+                        src={getFullUrl(item.url)}
+                        alt={item.alt_text || item.original_filename || item.filename}
+                        sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      />
+                    ) : (
+                      <ImageIcon sx={{ fontSize: 40, color: 'grey.400' }} />
+                    )}
+                  </Box>
+                  <Box
+                    sx={{
+                      fontSize: '0.72rem',
+                      lineHeight: 1.2,
+                      color: 'text.secondary',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                    }}
+                    title={item.original_filename || item.title || item.filename}
+                  >
+                    {item.original_filename || item.title || item.filename}
+                  </Box>
                 </Box>
               </Grid>
             ))}

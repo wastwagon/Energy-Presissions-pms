@@ -29,9 +29,7 @@ import {
 } from '@mui/icons-material';
 import api from '../services/api';
 import { resolveApiUrl } from '../utils/apiUrl';
-
-/** Same base URL as `api` client — avoids uploads hitting localhost while list uses production. */
-const API_BASE = resolveApiUrl();
+import { resolveMediaUrl } from '../utils/mediaUrl';
 
 interface MediaItem {
   id: number;
@@ -41,11 +39,11 @@ interface MediaItem {
   alt_text?: string;
   mime_type?: string;
   file_size?: number;
+  original_filename?: string;
   created_at: string;
 }
 
-const getFullUrl = (url: string) =>
-  url.startsWith('http') ? url : `${API_BASE.replace(/\/$/, '')}${url}`;
+const getFullUrl = (url: string) => resolveMediaUrl(url);
 
 /** Never return a non-string (avoids alert showing "[object Object]"). */
 const stringifyDetail = (value: unknown): string => {
@@ -158,7 +156,7 @@ const MediaLibrary: React.FC = () => {
       const fd = new FormData();
       fd.append('file', file);
       const token = localStorage.getItem('token');
-      const response = await fetch(`${API_BASE.replace(/\/$/, '')}/api/media/`, {
+      const response = await fetch(`${resolveApiUrl().replace(/\/$/, '')}/api/media/`, {
         method: 'POST',
         headers: token ? { Authorization: `Bearer ${token}` } : {},
         body: fd,
@@ -288,8 +286,8 @@ const MediaLibrary: React.FC = () => {
                   )}
                 </Box>
                 <CardContent sx={{ py: 1, '&:last-child': { pb: 1 } }}>
-                  <Typography variant="caption" noWrap display="block" title={item.filename}>
-                    {item.title || item.filename}
+                  <Typography variant="caption" noWrap display="block" title={item.original_filename || item.title || item.filename}>
+                    {item.original_filename || item.title || item.filename}
                   </Typography>
                 </CardContent>
                 <CardActions sx={{ justifyContent: 'flex-end', py: 0 }}>
@@ -306,7 +304,7 @@ const MediaLibrary: React.FC = () => {
       <Dialog open={!!selectedItem} onClose={() => setSelectedItem(null)} maxWidth="sm" fullWidth>
         {selectedItem && (
           <>
-            <DialogTitle>{selectedItem.title || selectedItem.filename}</DialogTitle>
+            <DialogTitle>{selectedItem.original_filename || selectedItem.title || selectedItem.filename}</DialogTitle>
             <DialogContent>
               {isImage() ? (
                 <Box
