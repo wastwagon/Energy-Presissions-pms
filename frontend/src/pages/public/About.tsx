@@ -164,17 +164,24 @@ const About: React.FC = () => {
       <TrustStrip variant="muted" />
 
       {/* Mission & Vision */}
-      <Box sx={{ py: { xs: 6, md: 8 }, bgcolor: 'white' }}>
+      <Box
+        sx={{
+          py: { xs: 6, md: 9 },
+          bgcolor: 'white',
+          backgroundImage: `linear-gradient(180deg, #ffffff 0%, ${colors.lightGray} 100%)`,
+        }}
+      >
         <Container maxWidth="xl">
-          <Grid container spacing={{ xs: 3, md: 4 }}>
+          <Grid container spacing={{ xs: 3, md: 4 }} alignItems="stretch">
             <Grid item xs={12} md={6}>
               <Card
                 sx={{
                   height: '100%',
                   p: { xs: 3, md: 4 },
-                  borderRadius: 2,
+                  borderRadius: 3,
                   border: `2px solid ${colors.green}`,
-                  bgcolor: '#f8f9fa',
+                  bgcolor: 'white',
+                  boxShadow: '0 16px 40px rgba(0,0,0,0.08)',
                 }}
               >
                 <Typography
@@ -182,7 +189,7 @@ const About: React.FC = () => {
                   sx={{
                     mb: 3,
                     fontWeight: 800,
-                    color: 'colors.blueNavy',
+                    color: colors.blueNavy,
                   }}
                 >
                   Our Mission
@@ -198,10 +205,12 @@ const About: React.FC = () => {
               <Card
                 sx={{
                   height: '100%',
-                  p: 5,
+                  p: { xs: 3, md: 4 },
                   borderRadius: 3,
-                  border: '2px solid colors.blueNavy',
-                  bgcolor: 'white',
+                  border: `2px solid ${colors.blueNavy}`,
+                  bgcolor: colors.blueNavy,
+                  color: 'white',
+                  boxShadow: '0 18px 44px rgba(7, 26, 50, 0.28)',
                 }}
               >
                 <Typography
@@ -209,12 +218,12 @@ const About: React.FC = () => {
                   sx={{
                     mb: 3,
                     fontWeight: 800,
-                    color: 'colors.blueNavy',
+                    color: 'white',
                   }}
                 >
                   Our Vision
                 </Typography>
-                <Typography variant="body1" sx={{ color: '#666', lineHeight: 1.8, fontSize: '1.1rem' }}>
+                <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.9)', lineHeight: 1.8, fontSize: '1.1rem' }}>
                   To become Ghana's most trusted and recognized solar energy company, leading the transition 
                   to clean energy. We envision a future where every Ghanaian has access to reliable, 
                   sustainable solar power that powers their dreams and ambitions.
@@ -226,7 +235,7 @@ const About: React.FC = () => {
       </Box>
 
       {/* Why Choose Us */}
-      <Box sx={{ py: { xs: 8, md: 12 }, bgcolor: '#f8f9fa' }}>
+      <Box sx={{ py: { xs: 8, md: 12 }, bgcolor: '#f6f8fb' }}>
         <Container maxWidth="xl">
           <Box textAlign="center" mb={8}>
             <Chip
@@ -245,7 +254,7 @@ const About: React.FC = () => {
                 mt: 2,
                 mb: 3,
                 fontWeight: 800,
-                color: 'colors.blueNavy',
+                color: colors.blueNavy,
                 fontSize: { xs: '2.5rem', md: '3.5rem' },
               }}
             >
@@ -298,22 +307,37 @@ const About: React.FC = () => {
                     height: '100%',
                     p: 4,
                     borderRadius: 3,
-                    border: '1px solid #e0e0e0',
+                    border: '1px solid #dde5ef',
+                    bgcolor: 'white',
                     transition: 'all 0.3s ease',
                     '&:hover': {
                       borderColor: feature.color,
                       transform: 'translateY(-8px)',
-                      boxShadow: '0 12px 40px rgba(0,0,0,0.1)',
+                      boxShadow: '0 14px 36px rgba(7, 26, 50, 0.14)',
                     },
                   }}
                 >
-                  <Box sx={{ color: feature.color, mb: 2 }}>{feature.icon}</Box>
+                  <Box
+                    sx={{
+                      color: feature.color,
+                      mb: 2.5,
+                      width: 68,
+                      height: 68,
+                      borderRadius: '50%',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      bgcolor: 'rgba(0, 230, 118, 0.08)',
+                    }}
+                  >
+                    {feature.icon}
+                  </Box>
                   <Typography
                     variant="h5"
                     sx={{
                       mb: 2,
                       fontWeight: 700,
-                      color: 'colors.blueNavy',
+                      color: colors.blueNavy,
                     }}
                   >
                     {feature.title}
@@ -329,7 +353,14 @@ const About: React.FC = () => {
       </Box>
 
       {/* Our Values */}
-      <Box sx={{ py: { xs: 8, md: 12 }, bgcolor: 'white' }}>
+      <Box
+        sx={{
+          py: { xs: 8, md: 12 },
+          bgcolor: 'white',
+          borderTop: '1px solid #edf2f8',
+          borderBottom: '1px solid #edf2f8',
+        }}
+      >
         <Container maxWidth="xl">
           <Box textAlign="center" mb={8}>
             <Chip
@@ -348,7 +379,7 @@ const About: React.FC = () => {
                 mt: 2,
                 mb: 3,
                 fontWeight: 800,
-                color: 'colors.blueNavy',
+                color: colors.blueNavy,
                 fontSize: { xs: '2.5rem', md: '3.5rem' },
               }}
             >
@@ -365,12 +396,13 @@ const About: React.FC = () => {
                     textAlign: 'center',
                     p: 4,
                     borderRadius: 3,
-                    border: '2px solid #e0e0e0',
+                    border: '2px solid #e6ebf1',
+                    bgcolor: index % 2 === 0 ? '#fcfffd' : '#ffffff',
                     transition: 'all 0.3s ease',
                     '&:hover': {
                       borderColor: colors.green,
                       transform: 'translateY(-8px)',
-                      boxShadow: '0 12px 40px rgba(0,0,0,0.1)',
+                      boxShadow: '0 12px 32px rgba(0,0,0,0.1)',
                     },
                   }}
                 >
@@ -395,7 +427,14 @@ const About: React.FC = () => {
       </Box>
 
       {/* Stats Section */}
-      <Box sx={{ py: { xs: 8, md: 12 }, bgcolor: 'colors.blueNavy', color: 'white' }}>
+      <Box
+        sx={{
+          py: { xs: 8, md: 12 },
+          bgcolor: colors.blueNavy,
+          color: 'white',
+          backgroundImage: 'linear-gradient(135deg, rgba(7,26,50,1) 0%, rgba(8,42,72,1) 60%, rgba(6,70,88,1) 100%)',
+        }}
+      >
         <Container maxWidth="xl">
           <Box textAlign="center" mb={8}>
             <Typography
@@ -410,10 +449,20 @@ const About: React.FC = () => {
             </Typography>
           </Box>
 
-          <Grid container spacing={6}>
+          <Grid container spacing={4}>
             {content.about.stats.map((stat, index) => (
               <Grid item xs={12} md={4} key={index}>
-                <Box textAlign="center">
+                <Card
+                  sx={{
+                    textAlign: 'center',
+                    height: '100%',
+                    p: { xs: 3, md: 4 },
+                    borderRadius: 3,
+                    bgcolor: 'rgba(255,255,255,0.06)',
+                    border: '1px solid rgba(255,255,255,0.18)',
+                    backdropFilter: 'blur(4px)',
+                  }}
+                >
                   <Typography
                     variant="h1"
                     sx={{
@@ -444,7 +493,7 @@ const About: React.FC = () => {
                   >
                     {stat.description}
                   </Typography>
-                </Box>
+                </Card>
               </Grid>
             ))}
           </Grid>
@@ -452,7 +501,13 @@ const About: React.FC = () => {
       </Box>
 
       {/* Location & Contact */}
-      <Box sx={{ py: { xs: 8, md: 12 }, bgcolor: '#f8f9fa' }}>
+      <Box
+        sx={{
+          py: { xs: 8, md: 12 },
+          bgcolor: '#f8f9fa',
+          backgroundImage: 'radial-gradient(circle at top left, rgba(0,230,118,0.07), transparent 38%)',
+        }}
+      >
         <Container maxWidth="xl">
           <Box textAlign="center" mb={6}>
             <Chip
@@ -471,7 +526,7 @@ const About: React.FC = () => {
                 mt: 2,
                 mb: 3,
                 fontWeight: 800,
-                color: 'colors.blueNavy',
+                color: colors.blueNavy,
                 fontSize: { xs: '2.5rem', md: '3.5rem' },
               }}
             >
@@ -484,12 +539,12 @@ const About: React.FC = () => {
 
           <Grid container spacing={4}>
             <Grid item xs={12} md={6}>
-              <Card sx={{ p: 4, borderRadius: 3, height: '100%' }}>
+              <Card sx={{ p: 4, borderRadius: 3, height: '100%', boxShadow: '0 14px 38px rgba(0,0,0,0.08)' }}>
                 <Stack spacing={3}>
                   <Box display="flex" alignItems="center" gap={2}>
                     <LocationIcon sx={{ fontSize: '2.5rem', color: colors.green }} />
                     <Box>
-                      <Typography variant="h6" sx={{ fontWeight: 700, color: 'colors.blueNavy', mb: 0.5 }}>
+                      <Typography variant="h6" sx={{ fontWeight: 700, color: colors.blueNavy, mb: 0.5 }}>
                         Our Location
                       </Typography>
                       <Typography variant="body1" sx={{ color: '#666' }}>
@@ -509,7 +564,16 @@ const About: React.FC = () => {
               </Card>
             </Grid>
             <Grid item xs={12} md={6}>
-              <Card sx={{ p: 4, borderRadius: 3, height: '100%', bgcolor: 'colors.blueNavy', color: 'white' }}>
+              <Card
+                sx={{
+                  p: 4,
+                  borderRadius: 3,
+                  height: '100%',
+                  bgcolor: colors.blueNavy,
+                  color: 'white',
+                  boxShadow: '0 18px 42px rgba(7, 26, 50, 0.32)',
+                }}
+              >
                 <Typography variant="h5" sx={{ mb: 3, fontWeight: 700 }}>
                   Ready to Go Solar?
                 </Typography>
