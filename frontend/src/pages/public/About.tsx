@@ -9,6 +9,9 @@ import {
   Stack,
   Divider,
   Chip,
+  IconButton,
+  useTheme,
+  useMediaQuery,
 } from '@mui/material';
 import {
   LocationOn as LocationIcon,
@@ -19,6 +22,8 @@ import {
   Security as SecurityIcon,
   Phone as PhoneIcon,
   Email as EmailIcon,
+  ArrowBackIosNew as ArrowBackIcon,
+  ArrowForwardIos as ArrowForwardIcon,
 } from '@mui/icons-material';
 import websiteContent from '../../data/extracted_content.json';
 import { Seo } from '../../components/Seo';
@@ -30,6 +35,59 @@ import TrustStrip from '../../components/public/TrustStrip';
 const About: React.FC = () => {
   const content = websiteContent;
   const [aboutHero, setAboutHero] = useState<string>(homePageImages.hero);
+  const [featureSlideIndex, setFeatureSlideIndex] = useState(0);
+  const theme = useTheme();
+  const isMdDown = useMediaQuery(theme.breakpoints.down('md'));
+  const isSmDown = useMediaQuery(theme.breakpoints.down('sm'));
+
+  const whyChooseFeatures = [
+    {
+      icon: <LocationIcon sx={{ fontSize: '3rem' }} />,
+      title: 'Based in Ghana, For Ghana',
+      description: 'We understand Ghana\'s unique energy challenges and climate. Our solutions are specifically designed for Ghanaian homes and businesses.',
+      color: colors.green,
+    },
+    {
+      icon: <BusinessIcon sx={{ fontSize: '3rem' }} />,
+      title: 'Complete Solutions Provider',
+      description: 'From equipment sales to installation, maintenance, and support - we provide end-to-end solar solutions under one roof.',
+      color: colors.blueNavy,
+    },
+    {
+      icon: <PeopleIcon sx={{ fontSize: '3rem' }} />,
+      title: 'Expert Team',
+      description: 'Our certified technicians have years of experience installing solar systems across Ghana. Continuous training ensures we stay ahead.',
+      color: colors.green,
+    },
+    {
+      icon: <SecurityIcon sx={{ fontSize: '3rem' }} />,
+      title: 'Trusted & Reliable',
+      description: '10+ years in business, 500+ successful installations, and 98% customer satisfaction. Your trust is our greatest asset.',
+      color: colors.blueNavy,
+    },
+    {
+      icon: <TrendingUpIcon sx={{ fontSize: '3rem' }} />,
+      title: 'Proven Track Record',
+      description: 'Trusted by residential, commercial, and industrial clients across Accra, Kumasi, Tamale, and beyond.',
+      color: colors.green,
+    },
+    {
+      icon: <EcoIcon sx={{ fontSize: '3rem' }} />,
+      title: 'Sustainable Future',
+      description: 'Join thousands of Ghanaians reducing electricity costs and carbon footprint. Together, we build a greener Ghana.',
+      color: colors.blueNavy,
+    },
+  ];
+
+  const cardsPerView = isSmDown ? 1 : isMdDown ? 2 : 3;
+  const maxFeatureSlideIndex = Math.max(0, whyChooseFeatures.length - cardsPerView);
+
+  const goFeaturePrev = () => setFeatureSlideIndex((prev) => Math.max(0, prev - 1));
+  const goFeatureNext = () => setFeatureSlideIndex((prev) => Math.min(maxFeatureSlideIndex, prev + 1));
+
+  useEffect(() => {
+    setFeatureSlideIndex((prev) => Math.min(prev, maxFeatureSlideIndex));
+  }, [maxFeatureSlideIndex]);
 
   useEffect(() => {
     let cancelled = false;
@@ -235,7 +293,13 @@ const About: React.FC = () => {
       </Box>
 
       {/* Why Choose Us */}
-      <Box sx={{ py: { xs: 8, md: 12 }, bgcolor: '#f6f8fb' }}>
+      <Box
+        sx={{
+          py: { xs: 8, md: 12 },
+          bgcolor: '#f6f8fb',
+          backgroundImage: 'radial-gradient(circle at top right, rgba(0,230,118,0.08), transparent 36%)',
+        }}
+      >
         <Container maxWidth="xl">
           <Box textAlign="center" mb={8}>
             <Chip
@@ -255,65 +319,81 @@ const About: React.FC = () => {
                 mb: 3,
                 fontWeight: 800,
                 color: colors.blueNavy,
-                fontSize: { xs: '2.5rem', md: '3.5rem' },
+                fontSize: { xs: '2.05rem', md: '3.15rem' },
+                lineHeight: 1.15,
               }}
             >
               What Makes Us Ghana's Best
             </Typography>
+            <Box display="flex" justifyContent="center" gap={1.5} mt={2}>
+              <IconButton
+                onClick={goFeaturePrev}
+                disabled={featureSlideIndex === 0}
+                aria-label="Previous cards"
+                sx={{
+                  border: '1px solid #d4deea',
+                  bgcolor: 'white',
+                  '&:hover': { bgcolor: '#f2f6fb' },
+                  '&.Mui-disabled': { opacity: 0.45 },
+                }}
+              >
+                <ArrowBackIcon sx={{ fontSize: 18 }} />
+              </IconButton>
+              <IconButton
+                onClick={goFeatureNext}
+                disabled={featureSlideIndex >= maxFeatureSlideIndex}
+                aria-label="Next cards"
+                sx={{
+                  border: '1px solid #d4deea',
+                  bgcolor: 'white',
+                  '&:hover': { bgcolor: '#f2f6fb' },
+                  '&.Mui-disabled': { opacity: 0.45 },
+                }}
+              >
+                <ArrowForwardIcon sx={{ fontSize: 18 }} />
+              </IconButton>
+            </Box>
           </Box>
 
-          <Grid container spacing={4}>
-            {[
-              {
-                icon: <LocationIcon sx={{ fontSize: '3rem' }} />,
-                title: 'Based in Ghana, For Ghana',
-                description: 'We understand Ghana\'s unique energy challenges and climate. Our solutions are specifically designed for Ghanaian homes and businesses.',
-                color: colors.green,
-              },
-              {
-                icon: <BusinessIcon sx={{ fontSize: '3rem' }} />,
-                title: 'Complete Solutions Provider',
-                description: 'From equipment sales to installation, maintenance, and support - we provide end-to-end solar solutions under one roof.',
-                color: 'colors.blueNavy',
-              },
-              {
-                icon: <PeopleIcon sx={{ fontSize: '3rem' }} />,
-                title: 'Expert Team',
-                description: 'Our certified technicians have years of experience installing solar systems across Ghana. Continuous training ensures we stay ahead.',
-                color: colors.green,
-              },
-              {
-                icon: <SecurityIcon sx={{ fontSize: '3rem' }} />,
-                title: 'Trusted & Reliable',
-                description: '10+ years in business, 500+ successful installations, and 98% customer satisfaction. Your trust is our greatest asset.',
-                color: 'colors.blueNavy',
-              },
-              {
-                icon: <TrendingUpIcon sx={{ fontSize: '3rem' }} />,
-                title: 'Proven Track Record',
-                description: 'Trusted by residential, commercial, and industrial clients across Accra, Kumasi, Tamale, and beyond.',
-                color: colors.green,
-              },
-              {
-                icon: <EcoIcon sx={{ fontSize: '3rem' }} />,
-                title: 'Sustainable Future',
-                description: 'Join thousands of Ghanaians reducing electricity costs and carbon footprint. Together, we build a greener Ghana.',
-                color: 'colors.blueNavy',
-              },
-            ].map((feature, index) => (
-              <Grid item xs={12} sm={6} md={4} key={index}>
+          <Box sx={{ overflow: 'hidden' }}>
+            <Box
+              sx={{
+                display: 'flex',
+                gap: 3,
+                transition: 'transform 0.45s ease',
+                transform: `translateX(-${featureSlideIndex * (100 / cardsPerView)}%)`,
+              }}
+            >
+              {whyChooseFeatures.map((feature, index) => (
+                <Box
+                  key={index}
+                  sx={{
+                    flex: `0 0 calc(${100 / cardsPerView}% - ${(cardsPerView - 1) * (24 / cardsPerView)}px)`,
+                  }}
+                >
                 <Card
                   sx={{
                     height: '100%',
-                    p: 4,
+                    p: { xs: 3, md: 3.5 },
                     borderRadius: 3,
-                    border: '1px solid #dde5ef',
+                    border: '1px solid #d9e3ee',
                     bgcolor: 'white',
                     transition: 'all 0.3s ease',
+                    position: 'relative',
+                    overflow: 'hidden',
+                    '&::before': {
+                      content: '""',
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      height: 5,
+                      backgroundColor: feature.color,
+                    },
                     '&:hover': {
                       borderColor: feature.color,
-                      transform: 'translateY(-8px)',
-                      boxShadow: '0 14px 36px rgba(7, 26, 50, 0.14)',
+                      transform: 'translateY(-10px)',
+                      boxShadow: '0 18px 40px rgba(7, 26, 50, 0.16)',
                     },
                   }}
                 >
@@ -327,7 +407,7 @@ const About: React.FC = () => {
                       display: 'inline-flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      bgcolor: 'rgba(0, 230, 118, 0.08)',
+                      bgcolor: feature.color === colors.green ? 'rgba(0, 230, 118, 0.1)' : 'rgba(26, 77, 122, 0.1)',
                     }}
                   >
                     {feature.icon}
@@ -346,9 +426,10 @@ const About: React.FC = () => {
                     {feature.description}
                   </Typography>
                 </Card>
-              </Grid>
-            ))}
-          </Grid>
+                </Box>
+              ))}
+            </Box>
+          </Box>
         </Container>
       </Box>
 
@@ -356,9 +437,9 @@ const About: React.FC = () => {
       <Box
         sx={{
           py: { xs: 8, md: 12 },
-          bgcolor: 'white',
-          borderTop: '1px solid #edf2f8',
-          borderBottom: '1px solid #edf2f8',
+          bgcolor: '#ffffff',
+          borderTop: '1px solid #eaf0f7',
+          borderBottom: '1px solid #eaf0f7',
         }}
       >
         <Container maxWidth="xl">
@@ -380,42 +461,56 @@ const About: React.FC = () => {
                 mb: 3,
                 fontWeight: 800,
                 color: colors.blueNavy,
-                fontSize: { xs: '2.5rem', md: '3.5rem' },
+                fontSize: { xs: '2.05rem', md: '3.1rem' },
+                lineHeight: 1.16,
               }}
             >
               What We Stand For
             </Typography>
           </Box>
 
-          <Grid container spacing={4}>
+          <Grid container spacing={3}>
             {content.about.specialties.map((specialty, index) => (
               <Grid item xs={12} sm={6} md={3} key={index}>
                 <Card
                   sx={{
                     height: '100%',
                     textAlign: 'center',
-                    p: 4,
+                    p: { xs: 3, md: 3.5 },
                     borderRadius: 3,
                     border: '2px solid #e6ebf1',
-                    bgcolor: index % 2 === 0 ? '#fcfffd' : '#ffffff',
+                    bgcolor: '#ffffff',
                     transition: 'all 0.3s ease',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    minHeight: { xs: 148, md: 170 },
                     '&:hover': {
                       borderColor: colors.green,
                       transform: 'translateY(-8px)',
-                      boxShadow: '0 12px 32px rgba(0,0,0,0.1)',
+                      boxShadow: '0 14px 34px rgba(7, 26, 50, 0.14)',
                     },
                   }}
                 >
                   <CardContent>
-                    <Chip
-                      label={specialty}
+                    <Typography
+                      variant="h6"
                       sx={{
+                        color: colors.blueNavy,
+                        fontWeight: 700,
+                        lineHeight: 1.35,
+                        mb: 2,
+                      }}
+                    >
+                      {specialty}
+                    </Typography>
+                    <Box
+                      sx={{
+                        width: 56,
+                        height: 4,
+                        borderRadius: 999,
+                        mx: 'auto',
                         bgcolor: colors.green,
-                        color: 'white',
-                        fontWeight: 'bold',
-                        px: 2,
-                        py: 3,
-                        fontSize: '1rem',
                       }}
                     />
                   </CardContent>
