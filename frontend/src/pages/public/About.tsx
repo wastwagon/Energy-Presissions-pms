@@ -35,7 +35,7 @@ import TrustStrip from '../../components/public/TrustStrip';
 const About: React.FC = () => {
   const content = websiteContent;
   const [aboutHero, setAboutHero] = useState<string>(homePageImages.hero);
-  const [featureSlideIndex, setFeatureSlideIndex] = useState(0);
+  const whyScrollRef = React.useRef<HTMLDivElement | null>(null);
   const theme = useTheme();
   const isMdDown = useMediaQuery(theme.breakpoints.down('md'));
   const isSmDown = useMediaQuery(theme.breakpoints.down('sm'));
@@ -79,15 +79,16 @@ const About: React.FC = () => {
     },
   ];
 
-  const cardsPerView = isSmDown ? 1 : isMdDown ? 2 : 3;
-  const maxFeatureSlideIndex = Math.max(0, whyChooseFeatures.length - cardsPerView);
-
-  const goFeaturePrev = () => setFeatureSlideIndex((prev) => Math.max(0, prev - 1));
-  const goFeatureNext = () => setFeatureSlideIndex((prev) => Math.min(maxFeatureSlideIndex, prev + 1));
-
-  useEffect(() => {
-    setFeatureSlideIndex((prev) => Math.min(prev, maxFeatureSlideIndex));
-  }, [maxFeatureSlideIndex]);
+  const goFeaturePrev = () => {
+    const el = whyScrollRef.current;
+    if (!el) return;
+    el.scrollBy({ left: -Math.min(el.clientWidth * 0.9, 420), behavior: 'smooth' });
+  };
+  const goFeatureNext = () => {
+    const el = whyScrollRef.current;
+    if (!el) return;
+    el.scrollBy({ left: Math.min(el.clientWidth * 0.9, 420), behavior: 'smooth' });
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -302,16 +303,6 @@ const About: React.FC = () => {
       >
         <Container maxWidth="xl">
           <Box textAlign="center" mb={8}>
-            <Chip
-              label="WHY CHOOSE US"
-              sx={{
-                bgcolor: colors.green,
-                color: 'white',
-                fontWeight: 'bold',
-                mb: 2,
-                px: 2,
-              }}
-            />
             <Typography
               variant="h2"
               sx={{
@@ -328,26 +319,22 @@ const About: React.FC = () => {
             <Box display="flex" justifyContent="center" gap={1.5} mt={2}>
               <IconButton
                 onClick={goFeaturePrev}
-                disabled={featureSlideIndex === 0}
                 aria-label="Previous cards"
                 sx={{
                   border: '1px solid #d4deea',
                   bgcolor: 'white',
                   '&:hover': { bgcolor: '#f2f6fb' },
-                  '&.Mui-disabled': { opacity: 0.45 },
                 }}
               >
                 <ArrowBackIcon sx={{ fontSize: 18 }} />
               </IconButton>
               <IconButton
                 onClick={goFeatureNext}
-                disabled={featureSlideIndex >= maxFeatureSlideIndex}
                 aria-label="Next cards"
                 sx={{
                   border: '1px solid #d4deea',
                   bgcolor: 'white',
                   '&:hover': { bgcolor: '#f2f6fb' },
-                  '&.Mui-disabled': { opacity: 0.45 },
                 }}
               >
                 <ArrowForwardIcon sx={{ fontSize: 18 }} />
@@ -355,22 +342,34 @@ const About: React.FC = () => {
             </Box>
           </Box>
 
-          <Box sx={{ overflow: 'hidden' }}>
+          <Box
+            ref={whyScrollRef}
+            sx={{
+              display: 'flex',
+              gap: 3,
+              overflowX: 'auto',
+              scrollSnapType: 'x mandatory',
+              WebkitOverflowScrolling: 'touch',
+              pb: 1.25,
+              px: { xs: 0.5, md: 0 },
+              scrollBehavior: 'smooth',
+              scrollbarWidth: 'thin',
+              '&::-webkit-scrollbar': { height: 6 },
+              '&::-webkit-scrollbar-thumb': {
+                backgroundColor: 'rgba(10,14,23,0.22)',
+                borderRadius: 999,
+              },
+            }}
+          >
+            {whyChooseFeatures.map((feature, index) => (
             <Box
+              key={index}
               sx={{
-                display: 'flex',
-                gap: 3,
-                transition: 'transform 0.45s ease',
-                transform: `translateX(-${featureSlideIndex * (100 / cardsPerView)}%)`,
+                flex: '0 0 min(100%, 365px)',
+                maxWidth: { xs: 'min(100%, 335px)', sm: 'min(100%, 360px)', md: 'min(100%, 365px)' },
+                scrollSnapAlign: 'start',
               }}
             >
-              {whyChooseFeatures.map((feature, index) => (
-                <Box
-                  key={index}
-                  sx={{
-                    flex: `0 0 calc(${100 / cardsPerView}% - ${(cardsPerView - 1) * (24 / cardsPerView)}px)`,
-                  }}
-                >
                 <Card
                   sx={{
                     height: '100%',
@@ -427,9 +426,8 @@ const About: React.FC = () => {
                     {feature.description}
                   </Typography>
                 </Card>
-                </Box>
-              ))}
             </Box>
+            ))}
           </Box>
         </Container>
       </Box>
