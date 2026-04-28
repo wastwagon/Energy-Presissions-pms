@@ -42,37 +42,37 @@ const About: React.FC = () => {
 
   const whyChooseFeatures = [
     {
-      icon: <LocationIcon sx={{ fontSize: '3rem' }} />,
+      icon: <LocationIcon sx={{ fontSize: '2.25rem' }} />,
       title: 'Based in Ghana, For Ghana',
       description: 'We understand Ghana\'s unique energy challenges and climate. Our solutions are specifically designed for Ghanaian homes and businesses.',
       color: colors.green,
     },
     {
-      icon: <BusinessIcon sx={{ fontSize: '3rem' }} />,
+      icon: <BusinessIcon sx={{ fontSize: '2.25rem' }} />,
       title: 'Complete Solutions Provider',
       description: 'From equipment sales to installation, maintenance, and support - we provide end-to-end solar solutions under one roof.',
       color: colors.blueNavy,
     },
     {
-      icon: <PeopleIcon sx={{ fontSize: '3rem' }} />,
+      icon: <PeopleIcon sx={{ fontSize: '2.25rem' }} />,
       title: 'Expert Team',
       description: 'Our certified technicians have years of experience installing solar systems across Ghana. Continuous training ensures we stay ahead.',
       color: colors.green,
     },
     {
-      icon: <SecurityIcon sx={{ fontSize: '3rem' }} />,
+      icon: <SecurityIcon sx={{ fontSize: '2.25rem' }} />,
       title: 'Trusted & Reliable',
       description: '10+ years in business, 500+ successful installations, and 98% customer satisfaction. Your trust is our greatest asset.',
       color: colors.blueNavy,
     },
     {
-      icon: <TrendingUpIcon sx={{ fontSize: '3rem' }} />,
+      icon: <TrendingUpIcon sx={{ fontSize: '2.25rem' }} />,
       title: 'Proven Track Record',
       description: 'Trusted by residential, commercial, and industrial clients across Accra, Kumasi, Tamale, and beyond.',
       color: colors.green,
     },
     {
-      icon: <EcoIcon sx={{ fontSize: '3rem' }} />,
+      icon: <EcoIcon sx={{ fontSize: '2.25rem' }} />,
       title: 'Sustainable Future',
       description: 'Join thousands of Ghanaians reducing electricity costs and carbon footprint. Together, we build a greener Ghana.',
       color: colors.blueNavy,
@@ -374,7 +374,7 @@ const About: React.FC = () => {
                 <Card
                   sx={{
                     height: '100%',
-                    p: { xs: 3, md: 3.5 },
+                    p: { xs: 2.25, md: 2.5 },
                     borderRadius: 3,
                     border: '1px solid #d9e3ee',
                     bgcolor: 'white',
@@ -392,7 +392,7 @@ const About: React.FC = () => {
                     },
                     '&:hover': {
                       borderColor: feature.color,
-                      transform: 'translateY(-10px)',
+                      transform: 'translateY(-6px)',
                       boxShadow: '0 18px 40px rgba(7, 26, 50, 0.16)',
                     },
                   }}
@@ -400,9 +400,9 @@ const About: React.FC = () => {
                   <Box
                     sx={{
                       color: feature.color,
-                      mb: 2.5,
-                      width: 68,
-                      height: 68,
+                      mb: 1.75,
+                      width: 56,
+                      height: 56,
                       borderRadius: '50%',
                       display: 'inline-flex',
                       alignItems: 'center',
@@ -415,14 +415,15 @@ const About: React.FC = () => {
                   <Typography
                     variant="h5"
                     sx={{
-                      mb: 2,
+                      mb: 1.25,
                       fontWeight: 700,
                       color: colors.blueNavy,
+                      fontSize: { xs: '1.5rem', md: '1.35rem' },
                     }}
                   >
                     {feature.title}
                   </Typography>
-                  <Typography variant="body1" sx={{ color: '#666', lineHeight: 1.8 }}>
+                  <Typography variant="body1" sx={{ color: '#666', lineHeight: 1.65, fontSize: '0.98rem' }}>
                     {feature.description}
                   </Typography>
                 </Card>
