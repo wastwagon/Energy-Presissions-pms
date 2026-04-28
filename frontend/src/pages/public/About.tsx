@@ -36,13 +36,9 @@ const About: React.FC = () => {
   const content = websiteContent;
   const [aboutHero, setAboutHero] = useState<string>(homePageImages.hero);
   const [featureSlideIndex, setFeatureSlideIndex] = useState(0);
-  const [valuesSlideIndex, setValuesSlideIndex] = useState(0);
-  const [isValuesHovered, setIsValuesHovered] = useState(false);
   const theme = useTheme();
   const isMdDown = useMediaQuery(theme.breakpoints.down('md'));
   const isSmDown = useMediaQuery(theme.breakpoints.down('sm'));
-  const valuesTouchStartX = React.useRef<number | null>(null);
-  const valuesTouchCurrentX = React.useRef<number | null>(null);
 
   const whyChooseFeatures = [
     {
@@ -85,33 +81,13 @@ const About: React.FC = () => {
 
   const cardsPerView = isSmDown ? 1 : isMdDown ? 2 : 3;
   const maxFeatureSlideIndex = Math.max(0, whyChooseFeatures.length - cardsPerView);
-  const valuesCardsPerView = isSmDown ? 1 : isMdDown ? 2 : 4;
-  const maxValuesSlideIndex = Math.max(0, content.about.specialties.length - valuesCardsPerView);
 
   const goFeaturePrev = () => setFeatureSlideIndex((prev) => Math.max(0, prev - 1));
   const goFeatureNext = () => setFeatureSlideIndex((prev) => Math.min(maxFeatureSlideIndex, prev + 1));
-  const goValuesPrev = () => {
-    setValuesSlideIndex((prev) => (prev <= 0 ? maxValuesSlideIndex : prev - 1));
-  };
-  const goValuesNext = () => {
-    setValuesSlideIndex((prev) => (prev >= maxValuesSlideIndex ? 0 : prev + 1));
-  };
 
   useEffect(() => {
     setFeatureSlideIndex((prev) => Math.min(prev, maxFeatureSlideIndex));
   }, [maxFeatureSlideIndex]);
-
-  useEffect(() => {
-    setValuesSlideIndex((prev) => Math.min(prev, maxValuesSlideIndex));
-  }, [maxValuesSlideIndex]);
-
-  useEffect(() => {
-    if (maxValuesSlideIndex === 0 || isValuesHovered) return;
-    const timer = setInterval(() => {
-      setValuesSlideIndex((prev) => (prev >= maxValuesSlideIndex ? 0 : prev + 1));
-    }, 4200);
-    return () => clearInterval(timer);
-  }, [isValuesHovered, maxValuesSlideIndex]);
 
   useEffect(() => {
     let cancelled = false;
@@ -465,11 +441,12 @@ const About: React.FC = () => {
           bgcolor: '#ffffff',
           borderTop: '1px solid #eaf0f7',
           borderBottom: '1px solid #eaf0f7',
-          backgroundImage: 'radial-gradient(circle at top right, rgba(0,230,118,0.08), transparent 38%)',
+          backgroundImage:
+            'linear-gradient(180deg, rgba(246,248,251,0.55) 0%, rgba(255,255,255,1) 45%, rgba(255,255,255,1) 100%)',
         }}
       >
         <Container maxWidth="xl">
-          <Box textAlign="center" mb={8}>
+          <Box textAlign="center" mb={{ xs: 5, md: 6 }}>
             <Chip
               label="OUR VALUES"
               sx={{
@@ -484,11 +461,11 @@ const About: React.FC = () => {
               variant="h2"
               sx={{
                 mt: 2,
-                mb: 2.5,
+                mb: 1.5,
                 fontWeight: 800,
                 color: colors.blueBlack,
-                fontSize: { xs: '2rem', md: '3rem' },
-                lineHeight: 1.14,
+                fontSize: { xs: '1.9rem', md: '2.8rem' },
+                lineHeight: 1.16,
               }}
             >
               What We Stand For
@@ -496,139 +473,95 @@ const About: React.FC = () => {
             <Typography
               variant="body1"
               sx={{
-                maxWidth: 620,
+                maxWidth: 680,
                 mx: 'auto',
                 color: '#667085',
                 fontSize: { xs: '0.95rem', md: '1rem' },
-                lineHeight: 1.7,
-                mb: 3,
+                lineHeight: 1.75,
               }}
             >
-              Our value framework guides every project, from design to long-term support, so clients
-              receive dependable and future-ready solar solutions.
+              Our values define how we design systems, serve clients, and deliver long-term solar
+              performance across Ghana.
             </Typography>
-            <Box display="flex" justifyContent="center" gap={1.5}>
-              <IconButton
-                onClick={goValuesPrev}
-                aria-label="Previous values"
-                sx={{
-                  border: '1px solid #d4deea',
-                  bgcolor: 'white',
-                  '&:hover': { bgcolor: '#f2f6fb' },
-                }}
-              >
-                <ArrowBackIcon sx={{ fontSize: 18 }} />
-              </IconButton>
-              <IconButton
-                onClick={goValuesNext}
-                aria-label="Next values"
-                sx={{
-                  border: '1px solid #d4deea',
-                  bgcolor: 'white',
-                  '&:hover': { bgcolor: '#f2f6fb' },
-                }}
-              >
-                <ArrowForwardIcon sx={{ fontSize: 18 }} />
-              </IconButton>
-            </Box>
           </Box>
 
-          <Box
-            sx={{ overflow: 'hidden' }}
-            onMouseEnter={() => setIsValuesHovered(true)}
-            onMouseLeave={() => setIsValuesHovered(false)}
-            onTouchStart={(e) => {
-              valuesTouchStartX.current = e.touches[0].clientX;
-              valuesTouchCurrentX.current = e.touches[0].clientX;
-            }}
-            onTouchMove={(e) => {
-              valuesTouchCurrentX.current = e.touches[0].clientX;
-            }}
-            onTouchEnd={() => {
-              if (valuesTouchStartX.current == null || valuesTouchCurrentX.current == null) return;
-              const delta = valuesTouchStartX.current - valuesTouchCurrentX.current;
-              if (Math.abs(delta) > 40) {
-                if (delta > 0) goValuesNext();
-                if (delta < 0) goValuesPrev();
-              }
-              valuesTouchStartX.current = null;
-              valuesTouchCurrentX.current = null;
-            }}
-          >
-            <Box
-              sx={{
-                display: 'flex',
-                gap: 3,
-                transition: 'transform 0.5s ease',
-                transform: `translateX(-${valuesSlideIndex * (100 / valuesCardsPerView)}%)`,
-              }}
-            >
-              {content.about.specialties.map((specialty, index) => (
-                <Box
-                  key={index}
-                  sx={{
-                    flex: `0 0 calc(${100 / valuesCardsPerView}% - ${(valuesCardsPerView - 1) * (24 / valuesCardsPerView)}px)`,
-                  }}
-                >
+          <Grid container spacing={{ xs: 2, md: 3 }}>
+            {content.about.specialties.map((specialty, index) => (
+              <Grid item xs={12} sm={6} md={3} key={index}>
                 <Card
                   sx={{
                     height: '100%',
-                    textAlign: 'center',
-                    p: { xs: 2.5, md: 3 },
+                    p: { xs: 2.75, md: 3 },
                     borderRadius: 3,
-                    border: '1px solid #dce6f2',
+                    border: '1px solid #d9e3ef',
                     bgcolor: '#ffffff',
                     transition: 'all 0.25s ease',
                     display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    minHeight: { xs: 136, md: 156 },
+                    flexDirection: 'column',
+                    justifyContent: 'space-between',
+                    minHeight: { xs: 158, md: 176 },
                     position: 'relative',
                     overflow: 'hidden',
-                    '&::before': {
+                    boxShadow: '0 8px 20px rgba(7, 26, 50, 0.05)',
+                    '&::after': {
                       content: '""',
                       position: 'absolute',
                       left: 0,
                       right: 0,
                       top: 0,
                       height: 4,
-                      background: `linear-gradient(90deg, ${colors.green} 0%, #17c4d3 100%)`,
+                      background: `linear-gradient(90deg, ${colors.green} 0%, ${colors.greenLight} 100%)`,
                     },
                     '&:hover': {
                       borderColor: colors.green,
-                      transform: 'translateY(-5px)',
-                      boxShadow: '0 12px 28px rgba(7, 26, 50, 0.12)',
+                      transform: 'translateY(-4px)',
+                      boxShadow: '0 14px 30px rgba(7, 26, 50, 0.1)',
                     },
                   }}
                 >
-                  <CardContent>
+                  <CardContent sx={{ p: 0 }}>
+                    <Box
+                      sx={{
+                        width: 34,
+                        height: 34,
+                        borderRadius: '50%',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '0.82rem',
+                        fontWeight: 800,
+                        color: colors.blueNavy,
+                        bgcolor: 'rgba(0, 230, 118, 0.12)',
+                        mb: 1.5,
+                      }}
+                    >
+                      {String(index + 1).padStart(2, '0')}
+                    </Box>
                     <Typography
-                      variant="h5"
+                      variant="h6"
                       sx={{
                         color: colors.blueNavy,
                         fontWeight: 700,
-                        lineHeight: 1.35,
-                        fontSize: { xs: '1.2rem', md: '1.5rem' },
-                        mb: 1.5,
+                        fontSize: { xs: '1.25rem', md: '1.55rem' },
+                        lineHeight: 1.3,
                       }}
                     >
                       {specialty}
                     </Typography>
-                    <Box
-                      sx={{
-                        width: 54,
-                        height: 3,
-                        borderRadius: 999,
-                        mx: 'auto',
-                        bgcolor: colors.green,
-                      }}
-                    />
                   </CardContent>
+                  <Box
+                    sx={{
+                      width: 56,
+                      height: 3,
+                      borderRadius: 999,
+                      bgcolor: colors.green,
+                      mt: 2,
+                    }}
+                  />
                 </Card>
-                </Box>
-              ))}
-            </Box>
-          </Box>
+              </Grid>
+            ))}
+          </Grid>
         </Container>
       </Box>
 
