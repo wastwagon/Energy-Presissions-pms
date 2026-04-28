@@ -377,13 +377,13 @@ const About: React.FC = () => {
                     borderRadius: 3,
                     border: '1px solid #d9e3ee',
                     bgcolor: 'white',
-                    transition: 'all 0.3s ease',
+                    transition: 'box-shadow 0.3s ease',
                     position: 'relative',
                     overflow: 'hidden',
                     '&:hover': {
                       borderColor: '#d9e3ee',
-                      transform: 'translateY(-6px)',
-                      boxShadow: '0 18px 40px rgba(7, 26, 50, 0.16)',
+                      transform: 'none',
+                      boxShadow: 'none',
                     },
                   }}
                 >
