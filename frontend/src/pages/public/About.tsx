@@ -380,17 +380,8 @@ const About: React.FC = () => {
                     transition: 'all 0.3s ease',
                     position: 'relative',
                     overflow: 'hidden',
-                    '&::before': {
-                      content: '""',
-                      position: 'absolute',
-                      top: 0,
-                      left: 0,
-                      right: 0,
-                      height: 5,
-                      backgroundColor: feature.color,
-                    },
                     '&:hover': {
-                      borderColor: feature.color,
+                      borderColor: '#d9e3ee',
                       transform: 'translateY(-6px)',
                       boxShadow: '0 18px 40px rgba(7, 26, 50, 0.16)',
                     },
@@ -398,7 +389,7 @@ const About: React.FC = () => {
                 >
                   <Box
                     sx={{
-                      color: feature.color,
+                      color: colors.blueNavy,
                       mb: 1.75,
                       width: 56,
                       height: 56,
@@ -406,7 +397,7 @@ const About: React.FC = () => {
                       display: 'inline-flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      bgcolor: feature.color === colors.green ? 'rgba(0, 230, 118, 0.1)' : 'rgba(26, 77, 122, 0.1)',
+                      bgcolor: 'rgba(26, 77, 122, 0.1)',
                     }}
                   >
                     {feature.icon}
