@@ -54,7 +54,19 @@ def _run_init_and_seed():
             backend_dir = Path(__file__).parent.parent
             subprocess.run([sys.executable, "scripts/seed_production.py"], cwd=str(backend_dir), check=False, capture_output=True)
             subprocess.run([sys.executable, "-m", "app.scripts.seed_ecommerce_products"], cwd=str(backend_dir), check=False, capture_output=True)
-            logger.info("Seed scripts completed")
+            pr = subprocess.run(
+                [sys.executable, "-m", "app.scripts.seed_proforma_catalog_items"],
+                cwd=str(backend_dir),
+                check=False,
+                capture_output=True,
+            )
+            if pr.returncode != 0:
+                logger.warning(
+                    "seed_proforma_catalog_items exit=%s stderr=%s",
+                    pr.returncode,
+                    (pr.stderr or b"").decode("utf-8", errors="replace")[:800],
+                )
+            logger.info("Seed scripts completed (production admin, ecommerce products, proforma catalog BOM)")
         except Exception as e:
             logger.warning("Seed skipped: %s", e)
 

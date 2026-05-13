@@ -24,7 +24,8 @@ def get_setting_value(db: Session, key: str, default: float) -> float:
 def generate_quote_items_from_sizing(
     db: Session,
     sizing_result: SizingResultModel,
-    quote_id: int
+    quote_id: int,
+    quote_option_id: int,
 ) -> List[QuoteItem]:
     """
     Generate quote items from sizing result
@@ -77,6 +78,7 @@ def generate_quote_items_from_sizing(
         panel_wattage = panel_product.wattage or sizing_result.panel_wattage
         items.append(QuoteItem(
             quote_id=quote_id,
+            quote_option_id=quote_option_id,
             product_id=panel_product.id,
             description=f"{panel_product.brand or sizing_result.panel_brand} {panel_wattage}W Panel",
             quantity=sizing_result.number_of_panels,
@@ -145,6 +147,7 @@ def generate_quote_items_from_sizing(
         
         items.append(QuoteItem(
             quote_id=quote_id,
+            quote_option_id=quote_option_id,
             product_id=inverter_product.id,
             description=description,
             quantity=inverter_count,
@@ -225,6 +228,7 @@ def generate_quote_items_from_sizing(
             
             items.append(QuoteItem(
                 quote_id=quote_id,
+            quote_option_id=quote_option_id,
                 product_id=battery_product.id,
                 description=f"{battery_product.brand or ''} {battery_product.capacity_kwh}kWh Battery",
                 quantity=num_batteries,
@@ -252,6 +256,7 @@ def generate_quote_items_from_sizing(
         
         items.append(QuoteItem(
             quote_id=quote_id,
+            quote_option_id=quote_option_id,
             product_id=mounting_product.id,
             description="Mounting Structure",
             quantity=1,
@@ -283,6 +288,7 @@ def generate_quote_items_from_sizing(
         
         items.append(QuoteItem(
             quote_id=quote_id,
+            quote_option_id=quote_option_id,
             product_id=bos_product.id,
             description="Balance of System (BOS)",
             quantity=1,
@@ -298,6 +304,7 @@ def generate_quote_items_from_sizing(
         
         items.append(QuoteItem(
             quote_id=quote_id,
+            quote_option_id=quote_option_id,
             product_id=None,  # No product, using setting
             description=f"Balance of System (BOS) - {bos_percentage}% of equipment",
             quantity=1,
@@ -319,6 +326,7 @@ def generate_quote_items_from_sizing(
     if transport_product:
         items.append(QuoteItem(
             quote_id=quote_id,
+            quote_option_id=quote_option_id,
             product_id=transport_product.id,
             description="Transport & Logistics",
             quantity=1,
@@ -331,6 +339,7 @@ def generate_quote_items_from_sizing(
         transport_cost = get_setting_value(db, "transport_cost_fixed", 1000.0)
         items.append(QuoteItem(
             quote_id=quote_id,
+            quote_option_id=quote_option_id,
             product_id=None,
             description="Transport & Logistics",
             quantity=1,
@@ -357,6 +366,7 @@ def generate_quote_items_from_sizing(
             unit_price = installation_product.base_price
         items.append(QuoteItem(
             quote_id=quote_id,
+            quote_option_id=quote_option_id,
             product_id=installation_product.id,
             description="Installation",
             quantity=1,
@@ -370,6 +380,7 @@ def generate_quote_items_from_sizing(
         unit_price = total_equipment_cost * (installation_cost_percent / 100)
         items.append(QuoteItem(
             quote_id=quote_id,
+            quote_option_id=quote_option_id,
             product_id=None,
             description=f"Installation ({installation_cost_percent:.1f}% of total equipment cost)",
             quantity=1,

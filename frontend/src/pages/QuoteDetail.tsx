@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import {
   Box,
@@ -21,6 +21,12 @@ import {
   DialogActions,
   Alert,
   Snackbar,
+  Tabs,
+  Tab,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from '@mui/material';
 import { Download as DownloadIcon, Print as PrintIcon, Email as EmailIcon, Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import { IconButton } from '@mui/material';
@@ -42,6 +48,12 @@ const QuoteDetail: React.FC = () => {
   const [itemForm, setItemForm] = useState({ description: '', quantity: 1, unit_price: 0 });
   const [quoteForm, setQuoteForm] = useState({ notes: '', payment_terms: '', validity_days: 30 });
   const [editingPercentage, setEditingPercentage] = useState<{ itemId: number; type: 'bos' | 'installation'; value: number } | null>(null);
+  const [activeOptionId, setActiveOptionId] = useState<number | null>(null);
+  const [addOptionOpen, setAddOptionOpen] = useState(false);
+  const [newOptionTitle, setNewOptionTitle] = useState('OPTION 2');
+  const [editOptionOpen, setEditOptionOpen] = useState(false);
+  const [editOptionTitle, setEditOptionTitle] = useState('');
+  const [editOptionNarrative, setEditOptionNarrative] = useState('');
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-GH', {
@@ -55,6 +67,26 @@ const QuoteDetail: React.FC = () => {
       fetchQuote();
     }
   }, [id]);
+
+  useEffect(() => {
+    if (!quote?.options?.length) {
+      setActiveOptionId(null);
+      return;
+    }
+    setActiveOptionId((prev) => {
+      if (prev != null && quote.options!.some((o) => o.id === prev)) return prev;
+      return quote.options![0].id;
+    });
+  }, [quote?.id, quote?.options]);
+
+  const activeItems = useMemo(() => {
+    if (!quote) return [];
+    if (quote.options && quote.options.length > 0 && activeOptionId != null) {
+      const opt = quote.options.find((o) => o.id === activeOptionId);
+      if (opt?.items) return opt.items;
+    }
+    return quote.items || [];
+  }, [quote, activeOptionId]);
 
   const fetchQuote = async () => {
     try {
@@ -133,6 +165,64 @@ const QuoteDetail: React.FC = () => {
       setSnackbar({ open: true, message: 'Please allow popups to print', severity: 'error' });
       return;
     }
+
+    const esc = (s: string) =>
+      (s || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+
+    const pDisplayOrder = (item: QuoteItem) => {
+      const d = (item.description || '').toUpperCase();
+      if (d.includes('PANEL')) return 0;
+      if (d.includes('INVERTER')) return 1;
+      if (d.includes('BATTERY')) return 2;
+      if (d.includes('MOUNTING')) return 3;
+      if (d.includes('BOS') || d.includes('BALANCE OF SYSTEM')) return 4;
+      if (d.includes('TRANSPORT') || d.includes('LOGISTICS')) return 5;
+      if (d.includes('INSTALLATION')) return 6;
+      return 7;
+    };
+
+    const printSections =
+      quote?.options && quote.options.length > 0
+        ? quote.options
+        : [{ title: 'Quotation', narrative: '', items: quote?.items || [] }];
+
+    const optionSectionsHtml = printSections
+      .map((opt) => {
+        const title = 'title' in opt ? (opt as { title: string }).title : 'Quotation';
+        const narrative = 'narrative' in opt ? (opt as { narrative?: string | null }).narrative : '';
+        const sorted = [...((opt as { items?: QuoteItem[] }).items || [])].sort(
+          (a, b) => pDisplayOrder(a) - pDisplayOrder(b) || (a.sort_order ?? 0) - (b.sort_order ?? 0),
+        );
+        const rows = sorted
+          .map(
+            (item) => `
+                <tr>
+                  <td>${esc(item.description)}</td>
+                  <td style="text-align: right;">${item.quantity}</td>
+                  <td style="text-align: right;">${formatCurrency(item.unit_price)}</td>
+                  <td style="text-align: right;">${formatCurrency(item.total_price)}</td>
+                </tr>`,
+          )
+          .join('');
+        return `
+          <h2 style="margin-top:24px;font-size:16px;">${esc(title)}</h2>
+          ${narrative ? `<p style="white-space:pre-wrap;">${esc(narrative)}</p>` : ''}
+          <table>
+            <thead>
+              <tr>
+                <th>Description</th>
+                <th style="text-align: right;">Quantity</th>
+                <th style="text-align: right;">Unit Price (GHS)</th>
+                <th style="text-align: right;">Total (GHS)</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>`;
+      })
+      .join('');
 
     const printContent = `
       <!DOCTYPE html>
@@ -223,28 +313,10 @@ const QuoteDetail: React.FC = () => {
             </div>
           </div>
 
-          <table>
-            <thead>
-              <tr>
-                <th>Description</th>
-                <th style="text-align: right;">Quantity</th>
-                <th style="text-align: right;">Unit Price (GHS)</th>
-                <th style="text-align: right;">Total (GHS)</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${quote?.items?.map(item => `
-                <tr>
-                  <td>${item.description}</td>
-                  <td style="text-align: right;">${item.quantity}</td>
-                  <td style="text-align: right;">${formatCurrency(item.unit_price)}</td>
-                  <td style="text-align: right;">${formatCurrency(item.total_price)}</td>
-                </tr>
-              `).join('') || ''}
-            </tbody>
-          </table>
+          ${optionSectionsHtml}
 
           <div class="totals">
+            <p style="text-align:right;color:#666;font-size:12px;">Summary uses first option equipment/services; overall quote total may reflect the larger package when multiple options exist.</p>
             <div class="totals-row">
               <div class="totals-label">Equipment Subtotal (GHS):</div>
               <div class="totals-value">${formatCurrency(quote?.equipment_subtotal || 0)}</div>
@@ -266,7 +338,7 @@ const QuoteDetail: React.FC = () => {
             </div>
             ` : ''}
             <div class="totals-row grand-total">
-              <div class="totals-label">Grand Total (GHS):</div>
+              <div class="totals-label">Quote total (GHS):</div>
               <div class="totals-value">${formatCurrency(quote?.grand_total || 0)}</div>
             </div>
           </div>
@@ -374,7 +446,9 @@ const QuoteDetail: React.FC = () => {
     if (!id) return;
     
     try {
-      await api.put(`/quotes/${id}/update-percentage?item_type=${type}`, { percentage });
+      const optParam =
+        activeOptionId != null ? `&quote_option_id=${encodeURIComponent(String(activeOptionId))}` : '';
+      await api.put(`/quotes/${id}/update-percentage?item_type=${type}${optParam}`, { percentage });
       
       // Wait a moment for backend to recalculate
       setTimeout(() => {
@@ -457,6 +531,83 @@ const QuoteDetail: React.FC = () => {
     }, 500);
     
     setUpdateTimeout(timeout);
+  };
+
+  const handleAddOption = async () => {
+    if (!id) return;
+    try {
+      await api.post(`/quotes/${id}/options`, { title: newOptionTitle.trim() || 'New option' });
+      setAddOptionOpen(false);
+      setNewOptionTitle(`OPTION ${(quote?.options?.length || 1) + 1}`);
+      await fetchQuote();
+      setSnackbar({ open: true, message: 'Option added', severity: 'success' });
+    } catch (error: any) {
+      setSnackbar({
+        open: true,
+        message: error.response?.data?.detail || 'Could not add option',
+        severity: 'error',
+      });
+    }
+  };
+
+  const handleDeleteOption = async () => {
+    if (!id || activeOptionId == null) return;
+    if (!window.confirm('Delete this option and all its line items?')) return;
+    try {
+      await api.delete(`/quotes/${id}/options/${activeOptionId}`);
+      await fetchQuote();
+      setSnackbar({ open: true, message: 'Option deleted', severity: 'success' });
+    } catch (error: any) {
+      setSnackbar({
+        open: true,
+        message: error.response?.data?.detail || 'Could not delete option',
+        severity: 'error',
+      });
+    }
+  };
+
+  const handleOpenEditOption = () => {
+    const opt = quote?.options?.find((o) => o.id === activeOptionId);
+    if (!opt) return;
+    setEditOptionTitle(opt.title);
+    setEditOptionNarrative(opt.narrative || '');
+    setEditOptionOpen(true);
+  };
+
+  const handleSaveOptionMeta = async () => {
+    if (!id || activeOptionId == null) return;
+    try {
+      await api.patch(`/quotes/${id}/options/${activeOptionId}`, {
+        title: editOptionTitle.trim() || 'Option',
+        narrative: editOptionNarrative.trim() || null,
+      });
+      setEditOptionOpen(false);
+      await fetchQuote();
+      setSnackbar({ open: true, message: 'Option updated', severity: 'success' });
+    } catch (error: any) {
+      setSnackbar({
+        open: true,
+        message: error.response?.data?.detail || 'Could not update option',
+        severity: 'error',
+      });
+    }
+  };
+
+  const handleAcceptedPackageChange = async (value: number | '') => {
+    if (!id) return;
+    try {
+      await api.put(`/quotes/${id}`, {
+        accepted_quote_option_id: value === '' ? null : value,
+      });
+      await fetchQuote();
+      setSnackbar({ open: true, message: 'Package for stock updated', severity: 'success' });
+    } catch (error: any) {
+      setSnackbar({
+        open: true,
+        message: error.response?.data?.detail || 'Could not update',
+        severity: 'error',
+      });
+    }
   };
 
   // Cleanup timeout on unmount
@@ -560,6 +711,33 @@ const QuoteDetail: React.FC = () => {
             )}
           </Paper>
 
+          {quote.options && quote.options.length > 0 && (
+            <Box sx={{ mb: 2, display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 1 }}>
+              <Tabs
+                value={activeOptionId ?? quote.options[0]?.id ?? false}
+                onChange={(_, v) => setActiveOptionId(v)}
+                variant="scrollable"
+                scrollButtons="auto"
+                sx={{ minHeight: 40 }}
+              >
+                {quote.options.map((o) => (
+                  <Tab key={o.id} label={o.title} value={o.id} sx={{ minHeight: 40 }} />
+                ))}
+              </Tabs>
+              <Button size="small" variant="outlined" onClick={() => setAddOptionOpen(true)}>
+                Add option
+              </Button>
+              <Button size="small" variant="outlined" onClick={handleOpenEditOption}>
+                Edit option title & notes
+              </Button>
+              {quote.options.length > 1 && (
+                <Button size="small" color="error" variant="outlined" onClick={handleDeleteOption}>
+                  Delete this option
+                </Button>
+              )}
+            </Box>
+          )}
+
           <TableContainer component={Paper}>
             <Table>
               <TableHead>
@@ -584,7 +762,7 @@ const QuoteDetail: React.FC = () => {
                     if (d.includes('INSTALLATION')) return 6;
                     return 7;
                   };
-                  const sorted = [...(quote.items || [])].sort(
+                  const sorted = [...activeItems].sort(
                     (a, b) => displayOrder(a) - displayOrder(b) || (a.sort_order ?? 0) - (b.sort_order ?? 0)
                   );
                   return sorted.map((item) => {
@@ -670,6 +848,37 @@ const QuoteDetail: React.FC = () => {
               <Typography variant="h6" gutterBottom>
                 Pricing Summary
               </Typography>
+              {quote.options && quote.options.length > 1 && (
+                <Alert severity="info" sx={{ mb: 2 }}>
+                  Multiple packages on this quote: line items and BOS/installation percentages are per tab. The
+                  quote total (GHS) uses the higher option total for pipeline reporting; tax % applies separately to
+                  each option on the PDF.
+                </Alert>
+              )}
+              {quote.options && quote.options.length > 0 && (
+                <FormControl fullWidth size="small" sx={{ mb: 2 }}>
+                  <InputLabel id="accepted-pkg-label">Stock / accepted package</InputLabel>
+                  <Select
+                    labelId="accepted-pkg-label"
+                    label="Stock / accepted package"
+                    value={quote.accepted_quote_option_id ?? ''}
+                    onChange={(e) =>
+                      handleAcceptedPackageChange(
+                        e.target.value === '' ? '' : Number(e.target.value),
+                      )
+                    }
+                  >
+                    <MenuItem value="">
+                      <em>Default (first option)</em>
+                    </MenuItem>
+                    {quote.options.map((o) => (
+                      <MenuItem key={o.id} value={o.id}>
+                        {o.title}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              )}
               <Box display="flex" justifyContent="space-between" mb={1}>
                 <Typography>Equipment:</Typography>
                 <Typography>{formatCurrency(quote.equipment_subtotal)}</Typography>
@@ -734,6 +943,54 @@ const QuoteDetail: React.FC = () => {
           </Card>
         </Grid>
       </Grid>
+
+      <Dialog open={addOptionOpen} onClose={() => setAddOptionOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>Add quote option</DialogTitle>
+        <DialogContent>
+          <TextField
+            fullWidth
+            label="Option title"
+            value={newOptionTitle}
+            onChange={(e) => setNewOptionTitle(e.target.value)}
+            margin="normal"
+            helperText="e.g. OPTION 2: HYBRID — then add line items on the new tab."
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setAddOptionOpen(false)}>Cancel</Button>
+          <Button onClick={handleAddOption} variant="contained">
+            Add
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={editOptionOpen} onClose={() => setEditOptionOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>Edit option</DialogTitle>
+        <DialogContent>
+          <TextField
+            fullWidth
+            label="Title"
+            value={editOptionTitle}
+            onChange={(e) => setEditOptionTitle(e.target.value)}
+            margin="normal"
+          />
+          <TextField
+            fullWidth
+            label="Narrative (shown on PDF above line items)"
+            value={editOptionNarrative}
+            onChange={(e) => setEditOptionNarrative(e.target.value)}
+            margin="normal"
+            multiline
+            minRows={4}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setEditOptionOpen(false)}>Cancel</Button>
+          <Button onClick={handleSaveOptionMeta} variant="contained">
+            Save
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       <Dialog open={emailDialogOpen} onClose={() => setEmailDialogOpen(false)} maxWidth="sm" fullWidth>
         <DialogTitle>Send Quote via Email</DialogTitle>

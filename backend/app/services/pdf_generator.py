@@ -10,7 +10,17 @@ import base64
 from jinja2 import Template, Environment
 from weasyprint import HTML
 from sqlalchemy.orm import Session
-from app.models import Quote, Customer, Project, SizingResult as SizingResultModel, Setting, Product, ProductType
+from app.models import (
+    Quote,
+    QuoteOption,
+    Customer,
+    Project,
+    SizingResult as SizingResultModel,
+    Setting,
+    Product,
+    ProductType,
+)
+from app.services.quote_totals import equipment_services_subtotals_for_items
 from app.config import settings
 
 
@@ -148,6 +158,24 @@ QUOTATION_TEMPLATE = """
         .pricing-table-wrapper {
             position: relative;
             z-index: 1;
+        }
+        .option-block {
+            margin-bottom: 28px;
+        }
+        .option-title {
+            color: #ffffff;
+            font-size: 14pt;
+            font-weight: bold;
+            margin: 0 0 8px 0;
+            padding-bottom: 6px;
+            border-bottom: 1px solid rgba(255,255,255,0.35);
+        }
+        .option-narrative {
+            color: #e3f2fd;
+            font-size: 9.5pt;
+            line-height: 1.55;
+            margin-bottom: 12px;
+            white-space: pre-wrap;
         }
         table {
             width: 100%;
@@ -405,70 +433,70 @@ QUOTATION_TEMPLATE = """
 
     <!-- Main Content with Dark Blue Background -->
     <div class="main-content">
-        <div class="pricing-table-wrapper">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Item Details</th>
-                        <th class="text-right" style="width: 120px;">Estimated Cost (GHS)</th>
-                        <th class="text-right" style="width: 100px;">Quantity</th>
-                        <th class="text-right" style="width: 120px;">Total (GHS)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% if sorted_items %}
-                    {% for item in sorted_items %}
-                    <tr>
-                        <td>{{ item.description }}</td>
-                        <td class="text-right">{{ item.unit_price|format_currency }}</td>
-                        <td class="text-right">{{ item.quantity }}</td>
-                        <td class="text-right">{{ item.total_price|format_currency }}</td>
-                    </tr>
-                    {% endfor %}
+        {% for section in option_sections %}
+        <div class="option-block">
+            <div class="option-title">{{ section.title }}</div>
+            {% if section.narrative %}
+            <div class="option-narrative">{{ section.narrative }}</div>
+            {% endif %}
+            <div class="pricing-table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th class="text-right" style="width: 100px;">Unit price (GHS)</th>
+                            <th class="text-right" style="width: 90px;">Qty</th>
+                            <th class="text-right" style="width: 110px;">Amount (GHS)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in section.sorted_items %}
+                        <tr>
+                            <td>{{ item.description }}</td>
+                            <td class="text-right">{{ item.unit_price|format_currency }}</td>
+                            <td class="text-right">{{ item.quantity }}</td>
+                            <td class="text-right">{{ item.total_price|format_currency }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="totals-container">
+                <div class="totals-box">
+                    <div class="total-row">
+                        <span class="total-label">Sub total:</span>
+                        <span class="total-value">{{ section.subtotal|format_currency }}</span>
+                    </div>
+                    {% if quote.tax_percent and quote.tax_percent > 0 %}
+                    <div class="total-row">
+                        <span class="total-label">Tax ({{ quote.tax_percent|round(1) }}%):</span>
+                        <span class="total-value">{{ section.tax_amount|format_currency }}</span>
+                    </div>
+                    {% else %}
+                    <div class="total-row">
+                        <span class="total-label">Tax (0%):</span>
+                        <span class="total-value">0.00</span>
+                    </div>
                     {% endif %}
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Totals Box -->
-        <div class="totals-container">
-            <div class="totals-box">
-                <div class="total-row">
-                    <span class="total-label">Sub Total:</span>
-                    <span class="total-value">{{ (quote.equipment_subtotal + quote.services_subtotal)|format_currency }}</span>
-                </div>
-                {% if quote.tax_percent and quote.tax_percent > 0 %}
-                <div class="total-row">
-                    <span class="total-label">Tax ({{ quote.tax_percent|round(1) }}%):</span>
-                    <span class="total-value">{{ quote.tax_amount|format_currency }}</span>
-                </div>
-                {% else %}
-                <div class="total-row">
-                    <span class="total-label">Tax (0%):</span>
-                    <span class="total-value">0.00</span>
-                </div>
-                {% endif %}
-                {% if quote.discount_percent and quote.discount_percent > 0 %}
-                <div class="total-row">
-                    <span class="total-label">Discount ({{ quote.discount_percent|round(1) }}%):</span>
-                    <span class="total-value">-{{ quote.discount_amount|format_currency }}</span>
-                </div>
-                {% else %}
-                <div class="total-row">
-                    <span class="total-label">Discount (0%):</span>
-                    <span class="total-value">0.00</span>
-                </div>
-                {% endif %}
-                <div class="total-row">
-                    <span class="total-label">Others:</span>
-                    <span class="total-value">0.00</span>
-                </div>
-                <div class="total-row grand-total">
-                    <span class="total-label">Total (GHS):</span>
-                    <span class="total-value">{{ quote.grand_total|format_currency }}</span>
+                    {% if quote.discount_percent and quote.discount_percent > 0 %}
+                    <div class="total-row">
+                        <span class="total-label">Discount ({{ quote.discount_percent|round(1) }}%):</span>
+                        <span class="total-value">-{{ section.discount_amount|format_currency }}</span>
+                    </div>
+                    {% else %}
+                    <div class="total-row">
+                        <span class="total-label">Discount (0%):</span>
+                        <span class="total-value">0.00</span>
+                    </div>
+                    {% endif %}
+                    <div class="total-row grand-total">
+                        <span class="total-label">Option total (GHS):</span>
+                        <span class="total-value">{{ section.grand_total|format_currency }}</span>
+                    </div>
                 </div>
             </div>
         </div>
+        {% endfor %}
     </div>
 
     <!-- Footer Section -->
@@ -618,9 +646,14 @@ def generate_quotation_pdf(
     Proforma Invoice shows the same content with title "PROFORMA INVOICE" and bank details.
     Returns a BytesIO object containing the PDF.
     """
-    # Fetch quote with relationships (eagerly load items)
     from sqlalchemy.orm import joinedload
-    quote = db.query(Quote).options(joinedload(Quote.items)).filter(Quote.id == quote_id).first()
+
+    quote = (
+        db.query(Quote)
+        .options(joinedload(Quote.items), joinedload(Quote.options).joinedload(QuoteOption.items))
+        .filter(Quote.id == quote_id)
+        .first()
+    )
     if not quote:
         raise ValueError(f"Quote {quote_id} not found")
     
@@ -641,8 +674,13 @@ def generate_quotation_pdf(
     # This prevents mismatches when sizing was done with one brand but quote uses another
     panel_brand_from_quote = None
     panel_wattage_from_quote = None
-    if quote.items:
-        for item in quote.items:
+    all_quote_items = list(quote.items or [])
+    if not all_quote_items and quote.options:
+        for opt in quote.options:
+            all_quote_items.extend(opt.items or [])
+
+    if all_quote_items:
+        for item in all_quote_items:
             if item.product_id:
                 product = db.query(Product).filter(Product.id == item.product_id).first()
                 if product and product.product_type == ProductType.PANEL:
@@ -791,10 +829,60 @@ def generate_quotation_pdf(
             return 6
         return 7
 
-    sorted_items = sorted(
-        quote.items or [],
-        key=lambda x: (_quote_item_display_order(x), x.sort_order if x.sort_order is not None else 0),
+    options_sorted = sorted(
+        quote.options or [],
+        key=lambda o: (o.sort_order if o.sort_order is not None else 0, o.id),
     )
+    option_sections = []
+    for opt in options_sorted:
+        raw_items = list(opt.items or [])
+        sorted_opt_items = sorted(
+            raw_items,
+            key=lambda x: (_quote_item_display_order(x), x.sort_order if x.sort_order is not None else 0),
+        )
+        eq, svc = equipment_services_subtotals_for_items(db, raw_items)
+        subtotal = eq + svc
+        tax_p = float(quote.tax_percent or 0.0)
+        disc_p = float(quote.discount_percent or 0.0)
+        tax_amt = subtotal * (tax_p / 100.0) if tax_p else 0.0
+        disc_amt = subtotal * (disc_p / 100.0) if disc_p else 0.0
+        grand = subtotal + tax_amt - disc_amt
+        option_sections.append(
+            {
+                "title": opt.title or "Option",
+                "narrative": (opt.narrative or "").strip() or None,
+                "sorted_items": sorted_opt_items,
+                "subtotal": subtotal,
+                "tax_amount": tax_amt,
+                "discount_amount": disc_amt,
+                "grand_total": grand,
+            }
+        )
+
+    if not option_sections:
+        raw_items = list(quote.items or [])
+        sorted_opt_items = sorted(
+            raw_items,
+            key=lambda x: (_quote_item_display_order(x), x.sort_order if x.sort_order is not None else 0),
+        )
+        eq, svc = equipment_services_subtotals_for_items(db, raw_items)
+        subtotal = eq + svc
+        tax_p = float(quote.tax_percent or 0.0)
+        disc_p = float(quote.discount_percent or 0.0)
+        tax_amt = subtotal * (tax_p / 100.0) if tax_p else 0.0
+        disc_amt = subtotal * (disc_p / 100.0) if disc_p else 0.0
+        grand = subtotal + tax_amt - disc_amt
+        option_sections.append(
+            {
+                "title": "Quotation",
+                "narrative": None,
+                "sorted_items": sorted_opt_items,
+                "subtotal": subtotal,
+                "tax_amount": tax_amt,
+                "discount_amount": disc_amt,
+                "grand_total": grand,
+            }
+        )
 
     # Render template
     # Create Jinja2 environment with custom filter
@@ -803,7 +891,7 @@ def generate_quotation_pdf(
     template = env.from_string(QUOTATION_TEMPLATE)
     html_content = template.render(
         quote=quote,
-        sorted_items=sorted_items,
+        option_sections=option_sections,
         customer=customer,
         project=project,
         sizing_result=sizing_result,

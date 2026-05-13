@@ -11,7 +11,7 @@ import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 
 from app.database import SessionLocal
-from app.models import Quote, QuoteItem, Product, ProductType, SizingResult, Project
+from app.models import Quote, QuoteItem, QuoteOption, Product, ProductType, SizingResult, Project
 from sqlalchemy.orm import joinedload
 from sqlalchemy import func
 
@@ -81,7 +81,19 @@ def update_quote():
         for item in quote.items:
             db.delete(item)
         db.flush()
-        
+
+        opt = (
+            db.query(QuoteOption)
+            .filter(QuoteOption.quote_id == quote.id)
+            .order_by(QuoteOption.sort_order, QuoteOption.id)
+            .first()
+        )
+        if not opt:
+            opt = QuoteOption(quote_id=quote.id, title="Option 1", sort_order=0)
+            db.add(opt)
+            db.flush()
+        qoid = opt.id
+
         # Add new items
         sort_order = 0
         
@@ -89,6 +101,7 @@ def update_quote():
         panel_price = ja_panel.base_price if ja_panel.price_type == "per_panel" else ja_panel.base_price * (570 / 1000)
         panel_item = QuoteItem(
             quote_id=quote.id,
+            quote_option_id=qoid,
             product_id=ja_panel.id,
             description=f"{ja_panel.brand} {ja_panel.wattage}W Panel",
             quantity=new_number_of_panels,
@@ -110,6 +123,7 @@ def update_quote():
             inverter_price = inverter.base_price if inverter.price_type == "fixed" else inverter.base_price * sizing.inverter_size_kw
             inverter_item = QuoteItem(
                 quote_id=quote.id,
+                quote_option_id=qoid,
                 product_id=inverter.id,
                 description=f"{inverter.brand or ''} {sizing.inverter_size_kw}kW Inverter",
                 quantity=1,
@@ -125,6 +139,7 @@ def update_quote():
         battery_price = battery_16kwh.base_price if battery_16kwh.price_type == "fixed" else battery_16kwh.base_price * 16.0
         battery_item = QuoteItem(
             quote_id=quote.id,
+            quote_option_id=qoid,
             product_id=battery_16kwh.id,
             description=f"{battery_16kwh.brand} {battery_16kwh.capacity_kwh}kWh Battery",
             quantity=1,
@@ -151,6 +166,7 @@ def update_quote():
             
             mounting_item = QuoteItem(
                 quote_id=quote.id,
+                quote_option_id=qoid,
                 product_id=mounting.id,
                 description="Mounting Structure",
                 quantity=1,
@@ -179,6 +195,7 @@ def update_quote():
             
             bos_item = QuoteItem(
                 quote_id=quote.id,
+                quote_option_id=qoid,
                 product_id=bos.id,
                 description="Balance of System (BOS)",
                 quantity=1,
@@ -198,6 +215,7 @@ def update_quote():
         installation_price = total_equipment_cost * (installation_cost_percent / 100)
         installation_item = QuoteItem(
             quote_id=quote.id,
+            quote_option_id=qoid,
             product_id=None,
             description=f"Installation ({installation_cost_percent:.1f}% of total equipment cost)",
             quantity=1,
@@ -219,6 +237,7 @@ def update_quote():
         if transport:
             transport_item = QuoteItem(
                 quote_id=quote.id,
+                quote_option_id=qoid,
                 product_id=transport.id,
                 description="Transport & Logistics",
                 quantity=1,

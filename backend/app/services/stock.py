@@ -4,12 +4,16 @@ Deducts stock when project status → ACCEPTED and when e-commerce order payment
 Restores stock when project status ACCEPTED → REJECTED.
 """
 import math
-from typing import List, Tuple, Optional
+from typing import List, Optional, Tuple
 from sqlalchemy.orm import Session
 from app.models import (
-    Quote, QuoteItem, Product,
+    Quote,
+    QuoteItem,
+    QuoteOption,
+    Product,
     QuoteStatus,
-    StockMovement, StockMovementType
+    StockMovement,
+    StockMovementType,
 )
 
 
@@ -34,14 +38,37 @@ def _get_quote_for_project(db: Session, project_id: int) -> Optional[Quote]:
     return quote
 
 
+def _stock_quote_option_id(db: Session, quote: Quote) -> Optional[int]:
+    """Use accepted option when set; otherwise first option by sort order."""
+    if quote.accepted_quote_option_id:
+        return quote.accepted_quote_option_id
+    opt = (
+        db.query(QuoteOption)
+        .filter(QuoteOption.quote_id == quote.id)
+        .order_by(QuoteOption.sort_order, QuoteOption.id)
+        .first()
+    )
+    return opt.id if opt else None
+
+
 def _items_for_stock_deduction(db: Session, quote_id: int) -> List[Tuple[QuoteItem, int]]:
     """
     Get quote items that have product_id and manage_stock=True.
     Returns list of (item, qty_to_deduct) where qty is integer (ceil of quantity).
+    Uses one quote option only so multi-option quotes do not double-count inventory.
     """
+    quote = db.query(Quote).filter(Quote.id == quote_id).first()
+    if not quote:
+        return []
+
+    oid = _stock_quote_option_id(db, quote)
+    if not oid:
+        return []
+
     items = db.query(QuoteItem).filter(
         QuoteItem.quote_id == quote_id,
-        QuoteItem.product_id.isnot(None)
+        QuoteItem.quote_option_id == oid,
+        QuoteItem.product_id.isnot(None),
     ).all()
 
     result = []

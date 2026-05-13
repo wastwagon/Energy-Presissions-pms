@@ -337,8 +337,41 @@ class QuoteItemUpdate(BaseModel):
 class QuoteItem(QuoteItemBase):
     id: int
     quote_id: int
+    quote_option_id: int
     created_at: datetime
     
+    class Config:
+        from_attributes = True
+
+
+class QuoteItemAddRequest(QuoteItemBase):
+    """POST /quotes/{id}/items — quote_option_id defaults to first option when omitted."""
+
+    quote_option_id: Optional[int] = None
+
+
+class QuoteOptionBase(BaseModel):
+    title: str = "Option 1"
+    narrative: Optional[str] = None
+    sort_order: int = 0
+
+
+class QuoteOptionCreate(QuoteOptionBase):
+    pass
+
+
+class QuoteOptionUpdate(BaseModel):
+    title: Optional[str] = None
+    narrative: Optional[str] = None
+    sort_order: Optional[int] = None
+
+
+class QuoteOption(QuoteOptionBase):
+    id: int
+    quote_id: int
+    created_at: datetime
+    items: List[QuoteItem] = []
+
     class Config:
         from_attributes = True
 
@@ -361,6 +394,7 @@ class QuoteUpdate(BaseModel):
     validity_days: Optional[int] = None
     payment_terms: Optional[str] = None
     notes: Optional[str] = None
+    accepted_quote_option_id: Optional[int] = None
 
 
 class Quote(QuoteBase):
@@ -375,9 +409,11 @@ class Quote(QuoteBase):
     discount_percent: float
     discount_amount: float
     grand_total: float
+    accepted_quote_option_id: Optional[int] = None
     emailed_at: Optional[datetime] = None
     created_at: datetime
     updated_at: Optional[datetime] = None
+    options: List[QuoteOption] = []
     items: List[QuoteItem] = []
     project: Optional[Project] = None
     

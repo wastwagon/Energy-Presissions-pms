@@ -85,25 +85,36 @@ Use your GitHub username and a **Personal Access Token** (not your password) whe
 
 ---
 
-## 3. Run migrations and seed data (one-time)
+## 3. Migrations and seed data (automatic on deploy)
 
-1. In Render Dashboard, open **energy-pms-backend**.
-2. Open the **Shell** tab.
-3. Run:
+The backend **startup** (`app/main.py` lifespan) already runs:
+
+1. **Alembic** `upgrade head`
+2. **`init_db`** settings + Ghana peak sun hours (idempotent)
+3. If **`AUTO_SEED=true`** (default in `render.yaml`): **`scripts/seed_production.py`**, **`seed_ecommerce_products`**, and **`seed_proforma_catalog_items`** (proforma BOM catalog SKUs; skips existing SKUs)
+
+Set **`DEFAULT_ADMIN_PASSWORD`** in the Render **environment** for the backend so the production admin seed can run on first deploy (required by `seed_production.py`).
+
+**Manual Shell (only if you disabled `AUTO_SEED` or need to repair):**
+
+1. In Render Dashboard, open **energy-pms-backend** → **Shell**.
+2. Run:
 
 ```bash
 cd /app
 alembic upgrade head
 python -m app.scripts.init_db
-python -m app.scripts.setup_bank_details
+python -m app.scripts.seed_proforma_catalog_items
 ```
 
-4. Create admin with explicit password:
-   ```bash
-   export DEFAULT_ADMIN_PASSWORD="change-me-now"
-   python -m app.scripts.create_default_admin
-   ```
-   Login email is `admin@energyprecisions.com`. Change password after first login.
+3. Admin (if not using `seed_production` with `DEFAULT_ADMIN_PASSWORD`):
+
+```bash
+export DEFAULT_ADMIN_PASSWORD="change-me-now"
+python -m app.scripts.create_default_admin
+```
+
+Login email is `admin@energyprecisions.com`. Change password after first login.
 
 ---
 

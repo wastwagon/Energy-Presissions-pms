@@ -61,6 +61,10 @@ services:
         sync: false
       - key: PAYSTACK_PUBLIC_KEY
         sync: false
+      - key: AUTO_SEED
+        value: "true"  # Each deploy/restart: seed_production (admin/bank stubs), seed_ecommerce_products (if catalog empty), seed_proforma_catalog_items (BOM SKUs, idempotent)
+      - key: DEFAULT_ADMIN_PASSWORD
+        sync: false  # Set in Render dashboard: required on first deploy for seed_production admin (when AUTO_SEED is true)
 
   - type: web
     name: energy-pms-frontend

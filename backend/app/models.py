@@ -412,10 +412,46 @@ class Quote(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     
+    # When set, stock deduction uses line items for this option only (pick one package).
+    accepted_quote_option_id = Column(Integer, ForeignKey("quote_options.id"), nullable=True)
+
     # Relationships
     project = relationship("Project", back_populates="quotes")
     created_by_user = relationship("User", foreign_keys=[created_by])
+    options = relationship(
+        "QuoteOption",
+        back_populates="quote",
+        cascade="all, delete-orphan",
+        foreign_keys="[QuoteOption.quote_id]",
+        order_by="QuoteOption.sort_order",
+    )
     items = relationship("QuoteItem", back_populates="quote", cascade="all, delete-orphan")
+    accepted_quote_option = relationship(
+        "QuoteOption",
+        foreign_keys=[accepted_quote_option_id],
+        post_update=True,
+    )
+
+
+class QuoteOption(Base):
+    """One priced scenario inside a quote (e.g. OPTION 1 / OPTION 2) — one PDF to the client."""
+
+    __tablename__ = "quote_options"
+
+    id = Column(Integer, primary_key=True, index=True)
+    quote_id = Column(Integer, ForeignKey("quotes.id", ondelete="CASCADE"), nullable=False, index=True)
+    title = Column(String(255), nullable=False, default="Option 1")
+    narrative = Column(Text, nullable=True)
+    sort_order = Column(Integer, nullable=False, default=0)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    quote = relationship("Quote", back_populates="options", foreign_keys=[quote_id])
+    items = relationship(
+        "QuoteItem",
+        back_populates="quote_option",
+        cascade="all, delete-orphan",
+        order_by="QuoteItem.sort_order",
+    )
 
 
 class QuoteItem(Base):
@@ -423,6 +459,7 @@ class QuoteItem(Base):
     
     id = Column(Integer, primary_key=True, index=True)
     quote_id = Column(Integer, ForeignKey("quotes.id"), nullable=False)
+    quote_option_id = Column(Integer, ForeignKey("quote_options.id", ondelete="CASCADE"), nullable=False, index=True)
     product_id = Column(Integer, ForeignKey("products.id"), nullable=True)  # Nullable for custom items
     description = Column(String, nullable=False)
     quantity = Column(Float, nullable=False)
@@ -434,6 +471,7 @@ class QuoteItem(Base):
     
     # Relationships
     quote = relationship("Quote", back_populates="items")
+    quote_option = relationship("QuoteOption", back_populates="items")
     product = relationship("Product")
 
 

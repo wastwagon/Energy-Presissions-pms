@@ -22,7 +22,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 from app.models import (
-    Customer, Project, Appliance, SizingResult, Quote, QuoteItem, Product,
+    Customer, Project, Appliance, SizingResult, Quote, QuoteItem, QuoteOption, Product,
     User, Setting, PeakSunHours
 )
 
@@ -328,6 +328,7 @@ try:
         )
         prod_db.add(new_quote)
         prod_db.flush()
+        prod_db.add(QuoteOption(quote_id=new_quote.id, title="Option 1", sort_order=0))
         quote_id_map[local_quote.id] = new_quote.id
         imported_quotes += 1
         print(f"  ✅ Imported: {local_quote.quote_number}")
@@ -352,9 +353,21 @@ try:
             if not new_product_id:
                 print(f"  ⚠️  Product ID {local_item.product_id} not found, setting to NULL")
         
+        opt_row = (
+            prod_db.query(QuoteOption)
+            .filter(QuoteOption.quote_id == new_quote_id)
+            .order_by(QuoteOption.sort_order, QuoteOption.id)
+            .first()
+        )
+        if not opt_row:
+            opt_row = QuoteOption(quote_id=new_quote_id, title="Option 1", sort_order=0)
+            prod_db.add(opt_row)
+            prod_db.flush()
+
         # Create new quote item
         new_item = QuoteItem(
             quote_id=new_quote_id,
+            quote_option_id=opt_row.id,
             product_id=new_product_id,  # Use mapped product ID or None
             description=local_item.description,
             quantity=local_item.quantity,

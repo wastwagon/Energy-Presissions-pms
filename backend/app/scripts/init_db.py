@@ -151,6 +151,12 @@ def init_settings():
                 "category": "pricing"
             },
             {
+                "key": "append_catalog_bom_on_quote",
+                "value": "true",
+                "description": "When true, creating a quote from sizing (hybrid/off-grid) appends standard BOM lines from catalog SKUs (cables, breakers, DBs, etc.) if those products exist. Set false to disable.",
+                "category": "pricing"
+            },
+            {
                 "key": "maintenance_cost_annual",
                 "value": "2000",
                 "description": "Annual maintenance cost estimate for Ghana (GH₵2,000 - optional, can be added to quotes)",

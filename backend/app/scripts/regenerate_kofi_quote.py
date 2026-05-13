@@ -8,8 +8,9 @@ import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 
 from app.database import SessionLocal
-from app.models import Project, Quote, QuoteItem, SizingResult, Product, ProductType
+from app.models import Project, Quote, QuoteItem, QuoteOption, SizingResult, Product, ProductType
 from app.services.pricing import generate_quote_items_from_sizing
+from app.services.quote_totals import refresh_quote_header_totals
 from sqlalchemy.orm import joinedload
 
 def regenerate_quote():
@@ -39,7 +40,7 @@ def regenerate_quote():
         print()
         
         # Get quote
-        quote = db.query(Quote).options(joinedload(Quote.items)).filter(Quote.project_id == project.id).first()
+        quote = db.query(Quote).options(joinedload(Quote.items), joinedload(Quote.options)).filter(Quote.project_id == project.id).first()
         if not quote:
             print("✗ Quote not found")
             return False
@@ -53,38 +54,26 @@ def regenerate_quote():
         db.flush()
         print("✓ Deleted existing quote items\n")
         
+        opt = (
+            db.query(QuoteOption)
+            .filter(QuoteOption.quote_id == quote.id)
+            .order_by(QuoteOption.sort_order, QuoteOption.id)
+            .first()
+        )
+        if not opt:
+            print("✗ No quote option row — run DB migration")
+            return False
+
         # Generate new items from sizing
         print("Generating new quote items from sizing...")
-        items = generate_quote_items_from_sizing(db, sizing, quote.id)
+        items = generate_quote_items_from_sizing(db, sizing, quote.id, opt.id)
         
         for item in items:
             db.add(item)
         
         db.flush()
-        
-        # Calculate totals
-        equipment_subtotal = 0
-        services_subtotal = 0
-        
-        for item in items:
-            if item.product_id:
-                product = db.query(Product).filter(Product.id == item.product_id).first()
-                if product and product.product_type.value in ["panel", "inverter", "battery", "mounting"]:
-                    equipment_subtotal += item.total_price
-                else:
-                    services_subtotal += item.total_price
-            else:
-                # Items without product_id (using settings) are services
-                desc_lower = item.description.lower()
-                if any(keyword in desc_lower for keyword in ["bos", "balance of system", "installation", "transport", "logistics", "maintenance"]):
-                    services_subtotal += item.total_price
-                else:
-                    services_subtotal += item.total_price
-        
-        quote.equipment_subtotal = equipment_subtotal
-        quote.services_subtotal = services_subtotal
-        quote.grand_total = equipment_subtotal + services_subtotal + (quote.tax_amount or 0) - (quote.discount_amount or 0)
-        
+
+        refresh_quote_header_totals(db, quote.id)
         db.commit()
         
         print(f"✓ Generated {len(items)} quote items\n")

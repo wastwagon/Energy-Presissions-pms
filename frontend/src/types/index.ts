@@ -309,6 +309,7 @@ export interface Product {
 export interface QuoteItem {
   id: number;
   quote_id: number;
+  quote_option_id: number;
   product_id?: number;
   description: string;
   quantity: number;
@@ -317,6 +318,17 @@ export interface QuoteItem {
   is_custom: boolean;
   sort_order: number;
   created_at: string;
+}
+
+/** One priced package inside a quote (multiple options = one client PDF). */
+export interface QuoteOption {
+  id: number;
+  quote_id: number;
+  title: string;
+  narrative?: string | null;
+  sort_order: number;
+  created_at: string;
+  items?: QuoteItem[];
 }
 
 export interface Quote {
@@ -335,9 +347,11 @@ export interface Quote {
   validity_days: number;
   payment_terms?: string;
   notes?: string;
+  accepted_quote_option_id?: number | null;
   emailed_at?: string;
   created_at: string;
   updated_at?: string;
+  options?: QuoteOption[];
   items?: QuoteItem[];
   project?: Project;
 }

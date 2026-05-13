@@ -9,7 +9,7 @@ import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 
 from app.database import SessionLocal
-from app.models import Project, SizingResult, Quote, QuoteItem, Product, ProductType
+from app.models import Project, SizingResult, Quote, QuoteItem, QuoteOption, Product, ProductType
 from app.schemas import SizingInput
 from app.services.sizing import calculate_sizing
 from app.services.load_calculator import calculate_total_daily_kwh
@@ -155,9 +155,20 @@ def fix_quote_battery():
         else:
             unit_price = battery_product.base_price
         
+        opt = (
+            db.query(QuoteOption)
+            .filter(QuoteOption.quote_id == quote.id)
+            .order_by(QuoteOption.sort_order, QuoteOption.id)
+            .first()
+        )
+        if not opt:
+            print("   ❌ Quote has no quote_options row (run migrations)")
+            return False
+
         # Create battery item
         battery_item = QuoteItem(
             quote_id=quote.id,
+            quote_option_id=opt.id,
             product_id=battery_product.id,
             description=f"{battery_product.brand or ''} {battery_product.capacity_kwh}kWh Battery",
             quantity=num_batteries,
