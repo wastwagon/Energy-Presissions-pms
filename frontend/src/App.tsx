@@ -10,6 +10,7 @@ import PublicLayout from './components/public/PublicLayout';
 import Layout from './components/Layout';
 import WebAdminLayout from './components/WebAdminLayout';
 import AnalyticsRouteListener from './components/AnalyticsRouteListener';
+import ScrollToTop from './components/ScrollToTop';
 
 // Eager-load critical above-the-fold pages
 import Home from './pages/public/Home';
@@ -90,6 +91,7 @@ function App() {
               v7_relativeSplatPath: true,
             }}
           >
+          <ScrollToTop />
           <AnalyticsRouteListener />
           <Routes>
             {/* Legacy interface chooser → corporate home */}

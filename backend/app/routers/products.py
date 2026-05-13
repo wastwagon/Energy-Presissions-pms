@@ -6,6 +6,7 @@ from app.database import get_db
 from app.auth import get_current_active_user, require_role
 from app.models import User, Product, ProductType
 from app.schemas import Product as ProductSchema, ProductCreate, ProductUpdate
+from app.services.media_persist import create_db_backed_media_item
 
 router = APIRouter(prefix="/products", tags=["products"])
 
@@ -29,25 +30,28 @@ async def list_products(
 @router.post("/upload-image")
 async def upload_product_image(
     file: UploadFile = File(...),
-    current_user: User = Depends(require_role(["admin", "website_admin"]))
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role(["admin", "website_admin"])),
 ):
-    """Upload a product featured image (admin only). Returns the URL to use in image_url."""
+    """Upload a product featured image (admin only). Returns a durable URL for image_url."""
     if not file.content_type or not file.content_type.startswith("image/"):
         raise HTTPException(status_code=400, detail="File must be an image (jpg, png, gif, webp)")
     contents = await file.read()
-    if len(contents) > 5 * 1024 * 1024:  # 5MB max
-        raise HTTPException(status_code=400, detail="File size must be less than 5MB")
+    if len(contents) > 10 * 1024 * 1024:  # 10MB max (align with media library uploads)
+        raise HTTPException(status_code=400, detail="File size must be less than 10MB")
     ext = Path(file.filename).suffix.lower() if file.filename else ".jpg"
     if ext not in [".jpg", ".jpeg", ".png", ".gif", ".webp"]:
         ext = ".jpg"
-    import uuid
-    filename = f"product_{uuid.uuid4().hex[:12]}{ext}"
-    static_dir = Path("static") / "products"
-    static_dir.mkdir(parents=True, exist_ok=True)
-    file_path = static_dir / filename
-    with open(file_path, "wb") as f:
-        f.write(contents)
-    return {"url": f"/static/products/{filename}"}
+    stem = Path(file.filename or "upload").stem or "upload"
+    original_for_persist = f"{stem}{ext}"
+    item = create_db_backed_media_item(
+        db,
+        contents=contents,
+        original_name=original_for_persist,
+        mime_type=file.content_type or "image/jpeg",
+        title=original_for_persist,
+    )
+    return {"url": item.url}
 
 
 @router.get("/{product_id}", response_model=ProductSchema)

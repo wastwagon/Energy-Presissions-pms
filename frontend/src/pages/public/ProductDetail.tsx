@@ -17,15 +17,7 @@ import { useCart } from '../../contexts/CartContext';
 import { catalogLineUnitPrice } from '../../utils/catalogPrice';
 import { Seo } from '../../components/Seo';
 import { trackViewItem, trackAddToCart } from '../../utils/analytics';
-
-const API_URL = (window as any).REACT_APP_API_URL || process.env.REACT_APP_API_URL || 'http://localhost:8000';
-
-const getImageUrl = (url: string | undefined): string => {
-  if (!url) return '';
-  if (url.startsWith('http://') || url.startsWith('https://')) return url;
-  if (url.startsWith('/')) return `${API_URL.replace(/\/$/, '')}${url}`;
-  return url;
-};
+import { resolveMediaUrl } from '../../utils/mediaUrl';
 
 const ProductDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -101,7 +93,7 @@ const ProductDetail: React.FC = () => {
 
   const title = product.name || `${product.brand || ''} ${product.model || ''}`.trim() || 'Product';
   const unit = catalogLineUnitPrice(product);
-  const img = getImageUrl(product.image_url);
+  const img = resolveMediaUrl(product.image_url);
   const desc =
     (product.description || product.short_description || 'Premium solar equipment from Energy Precisions catalog.').slice(0, 300);
   const ogImage = /^https?:\/\//i.test(img) ? img : undefined;

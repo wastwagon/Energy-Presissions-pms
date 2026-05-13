@@ -27,14 +27,7 @@ import { useNavigate } from 'react-router-dom';
 import { useCart } from '../../contexts/CartContext';
 import { catalogLineUnitPrice } from '../../utils/catalogPrice';
 import { Seo } from '../../components/Seo';
-
-const API_URL = (window as any).REACT_APP_API_URL || process.env.REACT_APP_API_URL || 'http://localhost:8000';
-const getImageUrl = (url: string | undefined): string => {
-  if (!url) return '';
-  if (url.startsWith('http://') || url.startsWith('https://')) return url;
-  if (url.startsWith('/')) return `${API_URL.replace(/\/$/, '')}${url}`;
-  return url;
-};
+import { resolveMediaUrl } from '../../utils/mediaUrl';
 
 const Cart: React.FC = () => {
   const navigate = useNavigate();
@@ -131,9 +124,9 @@ const Cart: React.FC = () => {
                                 justifyContent: 'center',
                               }}
                             >
-                              {getImageUrl(item.product?.image_url) ? (
+                              {resolveMediaUrl(item.product?.image_url) ? (
                                 <img
-                                  src={getImageUrl(item.product?.image_url)}
+                                  src={resolveMediaUrl(item.product?.image_url)}
                                   alt={item.product?.name || 'Product'}
                                   style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                                 />

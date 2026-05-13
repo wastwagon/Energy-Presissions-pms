@@ -37,15 +37,7 @@ import { Seo } from '../../components/Seo';
 import { useCart } from '../../contexts/CartContext';
 import { catalogLineUnitPrice } from '../../utils/catalogPrice';
 import { trackAddToCart } from '../../utils/analytics';
-
-const API_URL = (window as any).REACT_APP_API_URL || process.env.REACT_APP_API_URL || 'http://localhost:8000';
-
-const getImageUrl = (url: string | undefined): string => {
-  if (!url) return '';
-  if (url.startsWith('http://') || url.startsWith('https://')) return url;
-  if (url.startsWith('/')) return `${API_URL.replace(/\/$/, '')}${url}`;
-  return url;
-};
+import { resolveMediaUrl } from '../../utils/mediaUrl';
 
 const Shop: React.FC = () => {
   const navigate = useNavigate();
@@ -298,24 +290,28 @@ const Shop: React.FC = () => {
                         position: 'relative',
                         bgcolor: '#f8f9fa',
                         height: 250,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        p: 2,
+                        overflow: 'hidden',
                       }}
                     >
                       <Box
                       component="img"
-                        src={getImageUrl(product.image_url) || 'https://placehold.co/300x300/e8e8e8/999?text=No+Image'}
+                        src={resolveMediaUrl(product.image_url) || 'https://placehold.co/300x300/e8e8e8/999?text=No+Image'}
                       alt={product.name || `${product.brand} ${product.model}`}
                         sx={{
-                          maxWidth: '100%',
-                          maxHeight: '100%',
-                          objectFit: 'contain',
+                          position: 'absolute',
+                          inset: 0,
+                          width: '100%',
+                          height: '100%',
+                          display: 'block',
+                          objectFit: 'cover',
+                          objectPosition: 'center',
+                          transform: 'scale(1.08)',
                         }}
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
-                          target.style.display = 'none';
+                          if (!target.src.includes('placehold.co')) {
+                            target.src = 'https://placehold.co/300x300/e8e8e8/999?text=No+Image';
+                          }
                         }}
                       />
                       {/* Badge */}
@@ -335,7 +331,7 @@ const Shop: React.FC = () => {
                       )}
                     </Box>
 
-                    <CardContent sx={{ flexGrow: 1, p: 3 }}>
+                    <CardContent sx={{ flexGrow: 1, p: 2 }}>
                       {/* Category */}
                       <Chip
                         label={getProductTypeLabel(product.product_type || product.category || 'Product')}
@@ -356,7 +352,7 @@ const Shop: React.FC = () => {
                           mb: 1,
                           fontWeight: 700,
                           color: '#1a4d7a',
-                          minHeight: '3rem',
+                          minHeight: '2.6rem',
                           display: '-webkit-box',
                           WebkitLineClamp: 2,
                           WebkitBoxOrient: 'vertical',
@@ -368,7 +364,7 @@ const Shop: React.FC = () => {
 
                       {/* Brand */}
                       {product.brand && (
-                        <Typography variant="body2" sx={{ color: '#999', mb: 1.5 }}>
+                        <Typography variant="body2" sx={{ color: '#999', mb: 1 }}>
                           {product.brand}
                         </Typography>
                       )}
@@ -377,9 +373,9 @@ const Shop: React.FC = () => {
                       <Typography
                         variant="body2"
                         sx={{
-                          mb: 2,
+                          mb: 1.25,
                           color: '#666',
-                          minHeight: '3rem',
+                          minHeight: '2.4rem',
                           display: '-webkit-box',
                           WebkitLineClamp: 2,
                           WebkitBoxOrient: 'vertical',
@@ -390,7 +386,7 @@ const Shop: React.FC = () => {
                       </Typography>
 
                       {/* Features */}
-                      <Stack direction="row" spacing={1} sx={{ mb: 2, flexWrap: 'wrap', gap: 1 }}>
+                      <Stack direction="row" spacing={1} sx={{ mb: 1.25, flexWrap: 'wrap', gap: 1 }}>
                         <Chip
                           icon={<SecurityIcon sx={{ fontSize: '1rem' }} />}
                           label="Warranty"
@@ -407,10 +403,10 @@ const Shop: React.FC = () => {
                         />
                       </Stack>
 
-                      <Divider sx={{ my: 2 }} />
+                      <Divider sx={{ my: 1.25 }} />
 
                       {/* Price */}
-                      <Box sx={{ mb: 2 }}>
+                      <Box sx={{ mb: 1.25 }}>
                       <Typography
                           variant="h4"
                           sx={{

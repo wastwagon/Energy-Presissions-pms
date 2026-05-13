@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Box,
   Container,
@@ -11,17 +11,17 @@ import {
   Chip,
   Divider,
   Stack,
+  IconButton,
 } from '@mui/material';
 import {
   CheckCircle as CheckCircleIcon,
   ArrowForward as ArrowForwardIcon,
-  Home as HomeIcon,
-  Business as BusinessIcon,
-  Factory as FactoryIcon,
   BatteryChargingFull as BatteryIcon,
   SolarPower as SolarPowerIcon,
   Engineering as EngineeringIcon,
   SupportAgent as SupportIcon,
+  ChevronLeft as ChevronLeftIcon,
+  ChevronRight as ChevronRightIcon,
 } from '@mui/icons-material';
 import { Link, useLocation } from 'react-router-dom';
 import { Seo } from '../../components/Seo';
@@ -32,6 +32,7 @@ import api from '../../services/api';
 const Services: React.FC = () => {
   const { pathname } = useLocation();
   const [servicesHeroBg, setServicesHeroBg] = useState<string | null>(null);
+  const processScrollRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -49,7 +50,6 @@ const Services: React.FC = () => {
 
   const premiumServices = [
     {
-      icon: <HomeIcon sx={{ fontSize: '2.25rem' }} />,
       title: 'Residential Solar Installation',
       description: 'Complete home solar systems designed for Ghanaian families. Reduce electricity bills by up to 90% with reliable, grid-tied or off-grid solutions.',
       features: [
@@ -64,7 +64,6 @@ const Services: React.FC = () => {
       color: colors.green,
     },
     {
-      icon: <BusinessIcon sx={{ fontSize: '2.25rem' }} />,
       title: 'Commercial Solar Installation',
       description: 'Large-scale solar solutions for businesses, offices, and commercial buildings. Maximize ROI with custom-designed systems.',
       features: [
@@ -79,7 +78,6 @@ const Services: React.FC = () => {
       color: colors.blueBlack,
     },
     {
-      icon: <FactoryIcon sx={{ fontSize: '2.25rem' }} />,
       title: 'Industrial Solar Solutions',
       description: 'Heavy-duty solar systems for factories and industrial facilities. Power your operations with reliable, cost-effective solar energy.',
       features: [
@@ -94,7 +92,6 @@ const Services: React.FC = () => {
       color: colors.green,
     },
     {
-      icon: <BatteryIcon sx={{ fontSize: '2.25rem' }} />,
       title: 'Battery Storage Solutions',
       description: 'Advanced battery storage systems for energy independence. Store solar energy for use during power outages and peak hours.',
       features: [
@@ -109,7 +106,6 @@ const Services: React.FC = () => {
       color: colors.blueBlack,
     },
     {
-      icon: <SolarPowerIcon sx={{ fontSize: '2.25rem' }} />,
       title: 'Solar Energy Consultation',
       description: 'Expert consultation to help you choose the right solar solution. Free site assessments and energy audits for your property.',
       features: [
@@ -124,7 +120,6 @@ const Services: React.FC = () => {
       color: colors.green,
     },
     {
-      icon: <EngineeringIcon sx={{ fontSize: '2.25rem' }} />,
       title: 'System Maintenance & Monitoring',
       description: 'Ongoing maintenance and monitoring services to ensure your solar system operates at peak efficiency for years to come.',
       features: [
@@ -252,19 +247,6 @@ const Services: React.FC = () => {
                         '&:hover': { transform: 'scale(1.03)' },
                       }}
                     />
-                    <Box
-                      sx={{
-                        position: 'absolute',
-                        top: 16,
-                        left: 16,
-                        color: 'white',
-                        bgcolor: 'rgba(0,0,0,0.5)',
-                        borderRadius: 1,
-                        p: 1,
-                      }}
-                    >
-                      {service.icon}
-                    </Box>
                   </Box>
                   <CardContent sx={{ flexGrow: 1, p: { xs: 2.5, md: 3 } }}>
                     <Typography
@@ -371,89 +353,153 @@ const Services: React.FC = () => {
             </Typography>
           </Box>
 
-          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: { xs: 2, md: 2 }, justifyContent: 'center' }}>
-            {[
-              {
-                step: '01',
-                title: 'Free Consultation',
-                desc: 'Site assessment and energy needs analysis. We visit your property to understand your requirements.',
-                icon: <SupportIcon />,
-              },
-              {
-                step: '02',
-                title: 'Custom Design',
-                desc: 'Our engineers create a tailored system design optimized for your property and energy needs.',
-                icon: <EngineeringIcon />,
-              },
-              {
-                step: '03',
-                title: 'Equipment Selection',
-                desc: 'Choose from our premium selection of solar panels, inverters, and batteries with expert guidance.',
-                icon: <SolarPowerIcon />,
-              },
-              {
-                step: '04',
-                title: 'Professional Installation',
-                desc: 'Certified technicians install your system with minimal disruption to your daily activities.',
-                icon: <CheckCircleIcon />,
-              },
-              {
-                step: '05',
-                title: 'Activation & Support',
-                desc: 'System activation, training, and ongoing maintenance support to ensure optimal performance.',
-                icon: <BatteryIcon />,
-              },
-            ].map((item, index) => (
-              <Box
-                key={index}
-                sx={{
-                  flex: '1 1 200px',
-                  maxWidth: { xs: '100%', sm: 'calc(50% - 8px)', md: 'calc(20% - 13px)' },
-                  minWidth: { xs: '100%', sm: '220px', md: '160px' },
-                }}
-              >
-                <Card
+          <Box sx={{ position: 'relative', mx: { xs: -1, sm: 0 } }}>
+            <IconButton
+              aria-label="Scroll installation steps left"
+              onClick={() => {
+                const el = processScrollRef.current;
+                if (!el) return;
+                el.scrollBy({ left: -Math.min(el.clientWidth * 0.85, 280), behavior: 'smooth' });
+              }}
+              sx={{
+                display: { xs: 'none', md: 'flex' },
+                position: 'absolute',
+                left: -8,
+                top: '50%',
+                transform: 'translateY(-50%)',
+                zIndex: 2,
+                bgcolor: 'white',
+                boxShadow: '0 4px 20px rgba(10,14,23,0.12)',
+                border: `1px solid ${colors.gray200}`,
+                '&:hover': { bgcolor: colors.offWhite },
+              }}
+            >
+              <ChevronLeftIcon />
+            </IconButton>
+            <IconButton
+              aria-label="Scroll installation steps right"
+              onClick={() => {
+                const el = processScrollRef.current;
+                if (!el) return;
+                el.scrollBy({ left: Math.min(el.clientWidth * 0.85, 280), behavior: 'smooth' });
+              }}
+              sx={{
+                display: { xs: 'none', md: 'flex' },
+                position: 'absolute',
+                right: -8,
+                top: '50%',
+                transform: 'translateY(-50%)',
+                zIndex: 2,
+                bgcolor: 'white',
+                boxShadow: '0 4px 20px rgba(10,14,23,0.12)',
+                border: `1px solid ${colors.gray200}`,
+                '&:hover': { bgcolor: colors.offWhite },
+              }}
+            >
+              <ChevronRightIcon />
+            </IconButton>
+            <Box
+              ref={processScrollRef}
+              sx={{
+                display: 'flex',
+                gap: 2,
+                overflowX: 'auto',
+                scrollSnapType: 'x mandatory',
+                WebkitOverflowScrolling: 'touch',
+                pb: 1,
+                px: { xs: 0.5, md: 0 },
+                scrollBehavior: 'smooth',
+                scrollbarWidth: 'thin',
+                '&::-webkit-scrollbar': { height: 6 },
+                '&::-webkit-scrollbar-thumb': {
+                  backgroundColor: 'rgba(10,14,23,0.2)',
+                  borderRadius: 999,
+                },
+              }}
+            >
+              {[
+                {
+                  step: '01',
+                  title: 'Free Consultation',
+                  desc: 'Site assessment and energy needs analysis. We visit your property to understand your requirements.',
+                  icon: <SupportIcon />,
+                },
+                {
+                  step: '02',
+                  title: 'Custom Design',
+                  desc: 'Our engineers create a tailored system design optimized for your property and energy needs.',
+                  icon: <EngineeringIcon />,
+                },
+                {
+                  step: '03',
+                  title: 'Equipment Selection',
+                  desc: 'Choose from our premium selection of solar panels, inverters, and batteries with expert guidance.',
+                  icon: <SolarPowerIcon />,
+                },
+                {
+                  step: '04',
+                  title: 'Professional Installation',
+                  desc: 'Certified technicians install your system with minimal disruption to your daily activities.',
+                  icon: <CheckCircleIcon />,
+                },
+                {
+                  step: '05',
+                  title: 'Activation & Support',
+                  desc: 'System activation, training, and ongoing maintenance support to ensure optimal performance.',
+                  icon: <BatteryIcon />,
+                },
+              ].map((item, index) => (
+                <Box
+                  key={index}
                   sx={{
-                    height: '100%',
-                    textAlign: 'center',
-                    p: { xs: 2, md: 2.5 },
-                    borderRadius: 2,
-                    border: `1px solid ${colors.gray200}`,
-                    transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
-                    '&:hover': {
-                      borderColor: colors.green,
-                      boxShadow: '0 8px 24px rgba(0,0,0,0.06)',
-                    },
+                    flex: '0 0 min(100%, 260px)',
+                    maxWidth: { xs: 'min(100%, 280px)', sm: 'min(100%, 240px)' },
+                    scrollSnapAlign: 'start',
                   }}
                 >
-                  <Box
+                  <Card
                     sx={{
-                      width: 56,
-                      height: 56,
-                      borderRadius: '50%',
-                      bgcolor: colors.green,
-                      color: 'white',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      mx: 'auto',
-                      mb: 1.5,
-                      fontSize: '1.1rem',
-                      fontWeight: 800,
+                      height: '100%',
+                      textAlign: 'center',
+                      p: { xs: 2, md: 2.5 },
+                      borderRadius: 2,
+                      border: `1px solid ${colors.gray200}`,
+                      transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
+                      '&:hover': {
+                        borderColor: colors.green,
+                        boxShadow: '0 8px 24px rgba(0,0,0,0.06)',
+                      },
                     }}
                   >
-                    {item.step}
-                  </Box>
-                  <Box sx={{ color: colors.blueNavy, mb: 1.25, fontSize: '1.85rem', display: 'flex', justifyContent: 'center' }}>{item.icon}</Box>
-                  <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 700, color: colors.blueNavy, fontSize: '0.95rem' }}>
-                    {item.title}
-                  </Typography>
-                  <Typography variant="body2" sx={{ color: colors.gray600, lineHeight: 1.55, fontSize: '0.8rem' }}>
-                    {item.desc}
-                  </Typography>
-                </Card>
-              </Box>
-            ))}
+                    <Box
+                      sx={{
+                        width: 56,
+                        height: 56,
+                        borderRadius: '50%',
+                        bgcolor: colors.green,
+                        color: 'white',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        mx: 'auto',
+                        mb: 1.5,
+                        fontSize: '1.1rem',
+                        fontWeight: 800,
+                      }}
+                    >
+                      {item.step}
+                    </Box>
+                    <Box sx={{ color: colors.blueNavy, mb: 1.25, fontSize: '1.85rem', display: 'flex', justifyContent: 'center' }}>{item.icon}</Box>
+                    <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 700, color: colors.blueNavy, fontSize: '0.95rem' }}>
+                      {item.title}
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: colors.gray600, lineHeight: 1.55, fontSize: '0.8rem' }}>
+                      {item.desc}
+                    </Typography>
+                  </Card>
+                </Box>
+              ))}
+            </Box>
           </Box>
         </Container>
       </Box>

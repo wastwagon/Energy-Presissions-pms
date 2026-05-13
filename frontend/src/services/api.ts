@@ -1,14 +1,13 @@
 import axios from 'axios';
 import { resolveApiUrl } from '../utils/apiUrl';
 
-const API_URL = resolveApiUrl();
-
 const api = axios.create({
-  baseURL: `${API_URL}/api`,
+  baseURL: '/api',
 });
 
 // Add token to requests
 api.interceptors.request.use((config) => {
+  config.baseURL = `${resolveApiUrl().replace(/\/+$/, '')}/api`;
   if (config.data instanceof FormData) {
     // Let the browser set multipart boundaries for file uploads.
     const headers = config.headers as any;
