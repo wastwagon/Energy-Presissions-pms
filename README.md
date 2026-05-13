@@ -9,6 +9,16 @@ A comprehensive full-stack solar sizing, load analysis, and quotation system for
 - **Database**: PostgreSQL
 - **Containerization**: Docker & Docker Compose
 
+## Documentation map
+
+| Topic | Start here |
+|--------|----------------|
+| Local setup | This README (Getting Started) and `QUICK_START.md` |
+| Render / production | `DEPLOY_RENDER_BLUEPRINT.md`, `render.yaml` |
+| Routing (PMS vs public vs web admin) | `ROUTING_STRUCTURE.md` |
+| Corporate site phases / CMS | `docs/CORPORATE_WEBSITE_PHASES.md` |
+| Historical reports | Root `*_REPORT.md` / `*_SUMMARY.md` files (reference only; prefer live code and the table above) |
+
 ## Engineering Factors & Assumptions
 
 ### PV System Efficiency
@@ -22,13 +32,8 @@ A comprehensive full-stack solar sizing, load analysis, and quotation system for
   - Default: 1.3
 
 ### Peak Sun Hours
-- Location-specific data stored in database
-- Examples:
-  - Arizona: 6.5-7.0 hours
-  - California: 5.5-6.5 hours
-  - New York: 3.5-4.5 hours
-  - Texas: 5.0-6.0 hours
-  - Florida: 5.0-5.5 hours
+- Location-specific data stored in the database (`peak_sun_hours` table), seeded for Ghana regions (e.g. Accra, Kumasi, Tamale) and editable in admin.
+- Other climates (for reference only): US Southwest often 5.5–7.0 h; Northern Europe often below 4.0 h. Production defaults target Ghana.
 
 ### Appliance Duty Cycles
 - **Refrigerator/Freezer**: 50-70% (default: 0.6)
@@ -119,13 +124,17 @@ All factors are configurable through the Settings table in the database.
 - **Roles**: **admin** — full PMS (projects, quotes, sizing, reports, e-commerce). **website_admin** — `/web/app` only: products, orders, media, promo codes, contact leads, newsletter subscribers, blog/FAQ/site hero settings (no PMS sizing or customer project workflows). Admins can use both; **Settings → Users** can create `website_admin` accounts.
 - **Resources / blog & FAQs**: public routes `/blog`, `/blog/:slug`, `/faqs`. Content is served from the API when present (`GET /api/content/blog`, `/api/content/blog/{slug}`, `/api/content/faqs`); otherwise the app falls back to `frontend/src/data/blogPosts.ts` and extracted JSON.
 - **Public site settings (hero images)**: `GET /api/content/settings/public` exposes whitelisted keys (e.g. `home_hero_image`, `about_hero_image`, `services_hero_image`). Manage values under **Website admin → Blog & FAQs** (or via `PUT /api/content/admin/settings`). Defaults still come from `frontend/src/data/homePageMedia.ts` when keys are unset.
+- **About / Contact / FAQs (static blocks)** — `frontend/src/data/extracted_content.json` (rebuild frontend to publish changes).
+- **Blog list** — merges `frontend/src/data/blogPosts.ts` with `GET /api/content/blog` (CMS wins for matching slugs).
+
+After changing only JSON/TS marketing files, run a frontend build before expecting them in production.
+
 - **Public page media (defaults)**: service card images in `frontend/src/data/homePageMedia.ts` (`servicesPageImages`); **Portfolio** grid in `frontend/src/data/portfolioPageItems.ts` (Unsplash defaults; replace with `/website_images/...` or CDN). Homepage section order follows typical solar marketing sites (trust strip → value props → services → portfolio → process → testimonials → CTA).
 - **GA4** (optional): set `REACT_APP_GA4_MEASUREMENT_ID` to your `G-XXXXXXXXXX` at **build** time. The app loads gtag, sends SPA `page_view` on navigation, ecommerce-style events `view_item` (product page), `add_to_cart` (shop + detail), `begin_checkout` (checkout with cart), `generate_lead` (contact/quote), and `purchase` (paid order on `/checkout/success`).
 
 ### Configuration (e-commerce & contact)
 
 | Variable | Purpose |
-|----------|---------|
 | `FRONTEND_URL` | Paystack return URL base (e.g. `http://localhost:5000` locally). |
 | `ADMIN_EMAIL` | Receives contact form submissions and new-order alerts. |
 | `ECOMMERCE_SHIPPING_FLAT_GHS` | Shipping charge when below free-shipping threshold (default `0`). |
@@ -217,7 +226,9 @@ All engineering factors are stored in the database Settings table and can be adj
 - Verify `REACT_APP_API_URL` is set correctly
 - Clear browser cache if experiencing authentication issues
 
-## License
+## Security note for operators
 
-Proprietary - Energy Precisions
+If a production database URL or password was ever committed to git (even if removed later), **rotate the database password** in your host’s dashboard (e.g. Render Postgres) and update `DATABASE_URL` / env vars everywhere they are used. Prefer `DATABASE_URL` or `PROD_DATABASE_URL` via environment or a secrets manager — never hard-code credentials in scripts.
+
+## License
 

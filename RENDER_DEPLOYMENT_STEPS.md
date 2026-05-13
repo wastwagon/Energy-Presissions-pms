@@ -1,13 +1,12 @@
 # Render Deployment Steps - Energy Precision PMS
 
-## Your Database Details (from Render Dashboard)
+## Your database (from Render Dashboard)
 
-Based on your Render dashboard:
-- **Database Name:** `energy_pms`
-- **Username:** `energy_pms`
-- **Hostname:** `dpg-d4kpnmnpm1nc738dncg0-a`
+Use the values from **your** Postgres instance (do not copy hostnames or passwords from the repo):
+- **Database Name** — e.g. `energy_pms`
+- **Username** — e.g. `energy_pms`
+- **Internal hostname** — from Render (e.g. `dpg-xxxxx-a`); prefer the **External Database URL** as `DATABASE_URL` when the web service is not on the same private network
 - **Port:** `5432`
-- **Region:** Oregon (US West)
 
 ## Step 1: Create Backend Web Service
 
@@ -27,7 +26,7 @@ Based on your Render dashboard:
    Add these environment variables (use the values from your database connection page):
 
    ```
-   POSTGRES_HOST=dpg-d4kpnmnpm1nc738dncg0-a
+   POSTGRES_HOST=<your-internal-host-from-render>
    POSTGRES_PORT=5432
    POSTGRES_DB=energy_pms
    POSTGRES_USER=energy_pms

@@ -4,7 +4,7 @@ This document confirms the professional setup performed against your Render exte
 
 ## Database
 
-- **URL:** `postgresql://...@dpg-d6126asr85hc739ilucg-a.oregon-postgres.render.com/energy_pms_7hx7`
+- **URL:** Set via `DATABASE_URL` in Render (external Postgres URL from the dashboard — do not commit).
 - **Connection:** SSL required (`?sslmode=require`)
 
 ## Completed Steps

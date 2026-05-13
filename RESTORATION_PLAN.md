@@ -7,9 +7,9 @@ You deleted local Docker containers and the local database. Your **Render** depl
 ## Current state
 
 - **Local:** Containers and Postgres data are gone. Your **project code** is still on disk.
-- **Render:** Services are up: `energy-pms-frontend`, `energy-pms-backend`, `energy-pms-db` (PostgreSQL 18, Oregon).
-- **Render external DB URL:**  
-  `postgresql://energy_pms:1vRyoWoCctFDa7lIMg0kVZUAVRoy8eWe@dpg-d6126asr85hc739ilucg-a.oregon-postgres.render.com/energy_pms_7hx7`
+- **Render:** Services are up (frontend, backend, managed Postgres). Use the **External Database URL** from your Render dashboard (never commit it to git).
+- **Example shape (not real credentials):**  
+  `postgresql://USER:PASSWORD@HOST.region.render.com/DATABASE?sslmode=require`
 
 ---
 
@@ -53,14 +53,11 @@ You deleted local Docker containers and the local database. Your **Render** depl
 
 1. In the project root, create a file named `.env` (if it doesn’t exist).
 
-2. Add this line (use your actual Render external URL):
+2. Add this line (paste your actual Render external URL from the dashboard):
    ```env
-   DATABASE_URL=postgresql://energy_pms:1vRyoWoCctFDa7lIMg0kVZUAVRoy8eWe@dpg-d6126asr85hc739ilucg-a.oregon-postgres.render.com/energy_pms_7hx7
+   DATABASE_URL=postgresql://USER:PASSWORD@HOST.REGION.render.com/DATABASE_NAME
    ```
-   If Render requires SSL, use:
-   ```env
-   DATABASE_URL=postgresql://energy_pms:1vRyoWoCctFDa7lIMg0kVZUAVRoy8eWe@dpg-d6126asr85hc739ilucg-a.oregon-postgres.render.com/energy_pms_7hx7?sslmode=require
-   ```
+   If Render requires SSL, append `?sslmode=require`.
 
 3. Restart the backend so it picks up `DATABASE_URL`:
    ```bash
@@ -87,9 +84,9 @@ You deleted local Docker containers and the local database. Your **Render** depl
 
 2. Install `psql` / `pg_dump` on your Mac if needed (e.g. `brew install libpq` and use `pg_dump` from there).
 
-3. Dump from Render (run from your Mac; replace with your URL if different):
+3. Dump from Render (run from your Mac; use the External Database URL from the dashboard):
    ```bash
-   pg_dump "postgresql://energy_pms:1vRyoWoCctFDa7lIMg0kVZUAVRoy8eWe@dpg-d6126asr85hc739ilucg-a.oregon-postgres.render.com/energy_pms_7hx7?sslmode=require" --no-owner --no-acl -F p -f render_backup.sql
+   pg_dump "$DATABASE_URL" --no-owner --no-acl -F p -f render_backup.sql
    ```
 
 4. Restore into the local Postgres container (local DB is empty after Phase 1):

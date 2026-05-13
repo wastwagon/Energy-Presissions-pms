@@ -1,38 +1,69 @@
 #!/usr/bin/env python3
 """
-Migrate data from local Docker database to production database
-Usage: python migrate_data_to_prod.py
+Migrate PMS data from a local database to a production (or staging) database.
+
+Requires:
+  PROD_DATABASE_URL — full PostgreSQL URL for the target database (never commit this).
+
+Optional:
+  LOCAL_DATABASE_URL — source database (default: docker-compose service hostname).
+  LOCAL_DATABASE_URL_FALLBACK — second URL to try if the first fails (default: localhost).
+
+Example:
+  export PROD_DATABASE_URL='postgresql://user:pass@host:5432/dbname?sslmode=require'
+  python migrate_data_to_prod.py
 """
 import sys
 import os
-import json
 from pathlib import Path
-from datetime import datetime
 
-# Set production database environment variables
-os.environ["POSTGRES_HOST"] = "dpg-d4kpnmnpm1nc738dncg0-a.oregon-postgres.render.com"
-os.environ["POSTGRES_PORT"] = "5432"
-os.environ["POSTGRES_USER"] = "energy_pms"
-os.environ["POSTGRES_PASSWORD"] = "aq15QZwv164f0LEzQhwCoidaBGqrQDqH"
-os.environ["POSTGRES_DB"] = "energy_pms"
-
-# Add app to path
+# Add app to path before imports
 sys.path.insert(0, str(Path(__file__).parent))
 
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 from app.models import (
-    Customer, Project, Appliance, SizingResult, Quote, QuoteItem, QuoteOption, Product,
-    User, Setting, PeakSunHours
+    Customer,
+    Project,
+    Appliance,
+    SizingResult,
+    Quote,
+    QuoteItem,
+    QuoteOption,
+    Product,
+    User,
+    UserRole,
 )
 
-# Local database (Docker Desktop)
-# Try connecting via Docker network first, fallback to localhost
-LOCAL_DB_URL = "postgresql://energy_pms:changeme@energy_pms_db:5432/energy_pms"
-LOCAL_DB_URL_FALLBACK = "postgresql://energy_pms:changeme@localhost:5432/energy_pms"
 
-# Production database
-PROD_DB_URL = "postgresql://energy_pms:aq15QZwv164f0LEzQhwCoidaBGqrQDqH@dpg-d4kpnmnpm1nc738dncg0-a.oregon-postgres.render.com:5432/energy_pms"
+def _normalize_url(url: str) -> str:
+    u = url.strip()
+    if u.startswith("postgres://"):
+        u = u.replace("postgres://", "postgresql://", 1)
+    return u
+
+
+PROD_DB_URL = _normalize_url(os.environ.get("PROD_DATABASE_URL", ""))
+if not PROD_DB_URL:
+    print(
+        "ERROR: Set PROD_DATABASE_URL to the target PostgreSQL URL.\n"
+        "Example: export PROD_DATABASE_URL='postgresql://user:pass@host:5432/dbname?sslmode=require'",
+        file=sys.stderr,
+    )
+    sys.exit(1)
+
+LOCAL_DB_URL = _normalize_url(
+    os.environ.get(
+        "LOCAL_DATABASE_URL",
+        "postgresql://energy_pms:changeme@db:5432/energy_pms",
+    )
+)
+LOCAL_DB_URL_FALLBACK = _normalize_url(
+    os.environ.get(
+        "LOCAL_DATABASE_URL_FALLBACK",
+        "postgresql://energy_pms:changeme@localhost:5432/energy_pms",
+    )
+)
 
 print("=" * 60)
 print("Energy Precision PMS - Data Migration to Production")
@@ -129,7 +160,12 @@ try:
     
     prod_db.commit()
     print(f"✅ Imported {imported_customers} customers")
-    
+
+    admin_user = prod_db.query(User).filter(User.role == UserRole.ADMIN).first()
+    if not admin_user:
+        print("❌ No admin user in production. Create one before migrating projects or quotes.")
+        sys.exit(1)
+
     # 2. Export and Import Projects
     print("\n📦 Step 2: Migrating Projects...")
     local_projects = local_db.query(Project).all()
@@ -152,13 +188,7 @@ try:
         if not new_customer_id:
             print(f"  ⚠️  Customer not found for project {local_project.reference_code}, skipping")
             continue
-        
-        # Get created_by user (use first admin user or create a default)
-        admin_user = prod_db.query(User).filter(User.role == "admin").first()
-        if not admin_user:
-            print("  ⚠️  No admin user found, skipping project")
-            continue
-        
+
         # Create new project
         new_project = Project(
             customer_id=new_customer_id,
@@ -290,7 +320,7 @@ try:
     print(f"✅ Imported {imported_products} products")
     
     # 6. Export and Import Quotes
-    print("\n📦 Step 5: Migrating Quotes...")
+    print("\n📦 Step 6: Migrating Quotes...")
     local_quotes = local_db.query(Quote).all()
     imported_quotes = 0
     quote_id_map = {}  # Map old IDs to new IDs
