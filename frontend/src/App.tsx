@@ -36,6 +36,7 @@ const ReferralProgram = lazy(() => import('./pages/public/ReferralProgram'));
 const Blog = lazy(() => import('./pages/public/Blog'));
 const BlogPost = lazy(() => import('./pages/public/BlogPost'));
 const Portfolio = lazy(() => import('./pages/public/Portfolio'));
+const HybridPackages = lazy(() => import('./pages/public/HybridPackages'));
 const Customers = lazy(() => import('./pages/Customers'));
 const Projects = lazy(() => import('./pages/Projects'));
 const ProjectDetail = lazy(() => import('./pages/ProjectDetail'));
@@ -118,6 +119,7 @@ function App() {
               <Route path="blog" element={<Suspense fallback={<PageLoader />}><Blog /></Suspense>} />
               <Route path="blog/:slug" element={<Suspense fallback={<PageLoader />}><BlogPost /></Suspense>} />
               <Route path="portfolio" element={<Suspense fallback={<PageLoader />}><Portfolio /></Suspense>} />
+              <Route path="solar-packages" element={<Suspense fallback={<PageLoader />}><HybridPackages /></Suspense>} />
             </Route>
 
             {/* Website Admin Login */}

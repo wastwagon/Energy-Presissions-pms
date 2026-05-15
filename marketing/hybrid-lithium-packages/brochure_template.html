@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>{{ brand.document_title }} — {{ brand.company_name }}</title>
+  <style>
+    @page {
+      size: A4 landscape;
+      margin: 10mm 12mm;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Segoe UI", Helvetica, Arial, sans-serif;
+      font-size: 7.5pt;
+      color: #1a2a3a;
+      line-height: 1.35;
+    }
+
+    /* —— Page shell —— */
+    .page {
+      page-break-after: always;
+      min-height: 185mm;
+      position: relative;
+    }
+    .page:last-child { page-break-after: auto; }
+
+    /* —— Header —— */
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 6mm;
+      padding-bottom: 4mm;
+      border-bottom: 3px solid #00c853;
+    }
+    .brand-block { max-width: 55%; }
+    .logo-text {
+      font-size: 22pt;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      color: #0d3d6b;
+      line-height: 1.1;
+    }
+    .logo-text span { color: #00c853; }
+    .tagline {
+      font-size: 8.5pt;
+      color: #455a64;
+      margin-top: 3px;
+      font-weight: 500;
+    }
+    .hero-title {
+      margin-top: 8px;
+      font-size: 13pt;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: #0d3d6b;
+    }
+    .hero-sub {
+      font-size: 7.5pt;
+      color: #546e7a;
+      margin-top: 4px;
+      max-width: 420px;
+    }
+    .offices {
+      text-align: right;
+      font-size: 7pt;
+      color: #37474f;
+    }
+    .office-block {
+      margin-bottom: 6px;
+    }
+    .office-label {
+      font-weight: 800;
+      font-size: 7.5pt;
+      color: #00a85a;
+      letter-spacing: 0.8px;
+    }
+    .office-lines div { margin: 1px 0; }
+
+    /* —— Package grid —— */
+    .grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 3mm;
+      margin-top: 2mm;
+    }
+    .pkg {
+      width: calc(33.333% - 2mm);
+      background: linear-gradient(180deg, #f8fbff 0%, #ffffff 100%);
+      border: 1px solid #cfd8dc;
+      border-radius: 6px;
+      overflow: hidden;
+      vertical-align: top;
+    }
+    .pkg-head {
+      background: linear-gradient(135deg, #0d3d6b 0%, #1565a8 100%);
+      color: #fff;
+      padding: 5px 8px 6px;
+      position: relative;
+    }
+    .pkg-badge {
+      position: absolute;
+      top: 5px;
+      right: 6px;
+      background: #c9a227;
+      color: #1a1a1a;
+      font-size: 6pt;
+      font-weight: 800;
+      padding: 2px 6px;
+      border-radius: 3px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .pkg-kva {
+      font-size: 11pt;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+    }
+    .pkg-load {
+      font-size: 6.5pt;
+      opacity: 0.9;
+      margin-top: 2px;
+    }
+    .pkg-price-row {
+      background: #00c853;
+      color: #003d16;
+      padding: 5px 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+    .price-from {
+      font-size: 6.5pt;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    .price-value {
+      font-size: 13pt;
+      font-weight: 900;
+      letter-spacing: -0.3px;
+    }
+    .pkg-highlight {
+      font-size: 6pt;
+      font-style: italic;
+      color: #2e7d32;
+      padding: 3px 8px 0;
+      font-weight: 600;
+    }
+    .pkg-body { padding: 5px 8px 6px; }
+    .pkg-components {
+      list-style: none;
+      font-size: 6.3pt;
+      color: #263238;
+    }
+    .pkg-components li {
+      padding: 1.5px 0 1.5px 10px;
+      position: relative;
+    }
+    .pkg-components li::before {
+      content: "✓";
+      position: absolute;
+      left: 0;
+      color: #00c853;
+      font-weight: bold;
+      font-size: 6pt;
+    }
+    .pkg-appliances {
+      margin-top: 4px;
+      padding-top: 4px;
+      border-top: 1px dashed #b0bec5;
+      font-size: 5.8pt;
+      color: #546e7a;
+      line-height: 1.3;
+    }
+    .pkg-appliances strong {
+      display: block;
+      font-size: 6pt;
+      color: #0d3d6b;
+      margin-bottom: 2px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    /* —— Page 2 —— */
+    .compare-banner {
+      background: #0d3d6b;
+      color: #fff;
+      padding: 8px 14px;
+      border-radius: 6px;
+      margin-bottom: 6mm;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .compare-banner h2 {
+      font-size: 11pt;
+      font-weight: 800;
+    }
+    .compare-banner p {
+      font-size: 7pt;
+      opacity: 0.9;
+      max-width: 60%;
+      text-align: right;
+    }
+    .two-col {
+      display: flex;
+      gap: 8mm;
+    }
+    .col { flex: 1; }
+    .section-title {
+      font-size: 9pt;
+      font-weight: 800;
+      color: #0d3d6b;
+      border-bottom: 2px solid #00c853;
+      padding-bottom: 3px;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+    }
+    .bullet-list {
+      list-style: none;
+      font-size: 7.5pt;
+      color: #37474f;
+    }
+    .bullet-list li {
+      padding: 4px 0 4px 14px;
+      position: relative;
+    }
+    .bullet-list li::before {
+      content: "●";
+      position: absolute;
+      left: 0;
+      color: #00c853;
+      font-size: 6pt;
+      top: 5px;
+    }
+    .value-cards {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 3mm;
+      margin-top: 4mm;
+    }
+    .value-card {
+      width: calc(50% - 1.5mm);
+      background: #e8f5e9;
+      border-left: 4px solid #00c853;
+      padding: 6px 8px;
+      border-radius: 0 4px 4px 0;
+      font-size: 7pt;
+    }
+    .value-card strong {
+      display: block;
+      color: #0d3d6b;
+      font-size: 7.5pt;
+      margin-bottom: 2px;
+    }
+    .cta-box {
+      margin-top: 6mm;
+      text-align: center;
+      padding: 10px;
+      background: linear-gradient(135deg, #00c853 0%, #00a85a 100%);
+      border-radius: 8px;
+      color: #003d16;
+    }
+    .cta-box .cta-title {
+      font-size: 12pt;
+      font-weight: 900;
+    }
+    .cta-box .cta-sub {
+      font-size: 8pt;
+      margin-top: 4px;
+      font-weight: 600;
+    }
+    .footnote {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      font-size: 6pt;
+      color: #78909c;
+      text-align: center;
+      border-top: 1px solid #eceff1;
+      padding-top: 4px;
+    }
+    .lithium-ribbon {
+      display: inline-block;
+      background: #0d3d6b;
+      color: #fff;
+      font-size: 7pt;
+      font-weight: 800;
+      padding: 3px 10px;
+      border-radius: 20px;
+      margin-top: 6px;
+      letter-spacing: 0.5px;
+    }
+    .lithium-ribbon em {
+      color: #69f0ae;
+      font-style: normal;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- PAGE 1: Packages -->
+  <div class="page">
+    <header class="top-bar">
+      <div class="brand-block">
+        <div class="logo-text">Energy <span>Precisions</span></div>
+        <div class="tagline">{{ brand.tagline }}</div>
+        <div class="hero-title">{{ brand.document_title }}</div>
+        <div class="lithium-ribbon">WITH <em>LiFePO₄</em> LITHIUM BATTERIES</div>
+        <p class="hero-sub">{{ brand.subtitle }}</p>
+      </div>
+      <div class="offices">
+        <div class="office-block">
+          <div class="office-label">{{ contact.heading }}</div>
+          <div class="office-lines">
+            <div>{{ contact.address }}</div>
+            <div>{{ contact.email }}</div>
+            <div>{{ contact.phone }}</div>
+            <div style="margin-top:4px;font-size:6.5pt;opacity:0.9;">{{ contact.note }}</div>
+          </div>
+        </div>
+        <div style="margin-top:6px;font-weight:600;">{{ brand.website }}</div>
+      </div>
+    </header>
+
+    <div class="grid">
+      {% for pkg in packages %}
+      <article class="pkg">
+        <header class="pkg-head">
+          <span class="pkg-badge">{{ pkg.badge }}</span>
+          <div class="pkg-kva">{{ pkg.kva_label }}</div>
+          <div class="pkg-load">Maximum connected load ~{{ pkg.max_watts }} watts</div>
+        </header>
+        <div class="pkg-price-row">
+          <span class="price-from">{{ pkg.price_label }}</span>
+          <span class="price-value">GHS {{ "{:,.0f}".format(pkg.price_ghs) }}</span>
+        </div>
+        {% if pkg.highlights %}
+        <div class="pkg-highlight">{{ pkg.highlights[0] }}</div>
+        {% endif %}
+        <div class="pkg-body">
+          <ul class="pkg-components">
+            {% for line in pkg.components %}
+            <li>{{ line }}</li>
+            {% endfor %}
+          </ul>
+          <div class="pkg-appliances">
+            <strong>Typical loads covered</strong>
+            {{ pkg.appliances }}
+          </div>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- PAGE 2: Why Energy Precisions -->
+  <div class="page">
+    <div class="compare-banner">
+      <h2>Why Energy Precisions?</h2>
+      <p>Engineered packages — not guesswork. Every install includes professional commissioning, monitoring setup & Ghana-standard electrical protection.</p>
+    </div>
+
+    <div class="two-col">
+      <div class="col">
+        <h3 class="section-title">What every package includes</h3>
+        <ul class="bullet-list">
+          <li>Hybrid inverter architecture (grid + battery backup)</li>
+          <li>LiFePO₄ lithium storage — safer chemistry, longer cycle life</li>
+          <li>Tier-1 solar modules (Jinko / Longi class)</li>
+          <li>Roof mounting, DC/AC cabling, earthing & labelling</li>
+          <li>Changeover / protection — client-ready distribution</li>
+          <li>Remote monitoring & battery management where specified</li>
+          <li>Installation, testing & handover checklist</li>
+        </ul>
+
+        <h3 class="section-title" style="margin-top:8mm;">Before you order</h3>
+        <ul class="bullet-list">
+          {% for note in footer_bullets %}
+          <li>{{ note }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <div class="col">
+        <h3 class="section-title">The Energy Precisions difference</h3>
+        <div class="value-cards">
+          <div class="value-card">
+            <strong>Site survey first</strong>
+            We confirm roof area, cable routes & load before final BOM — no surprises on install day.
+          </div>
+          <div class="value-card">
+            <strong>Transparent engineering</strong>
+            Larger projects receive load analysis, string design & itemized quotation from our PMS.
+          </div>
+          <div class="value-card">
+            <strong>Competitive turnkey pricing</strong>
+            Package prices bundle supply + install — compare fairly against piecemeal quotes.
+          </div>
+          <div class="value-card">
+            <strong>Local support</strong>
+            Accra-based team — maintenance, upgrades & nationwide projects by appointment.
+          </div>
+        </div>
+
+        <p style="margin-top:6mm;font-size:7pt;color:#546e7a;">{{ brand.warranty_note }}</p>
+        <p style="margin-top:3mm;font-size:6.5pt;color:#90a4ae;">{{ brand.validity_note }}</p>
+
+        <div class="cta-box">
+          <div class="cta-title">Book a free site assessment</div>
+          <div class="cta-sub">{{ brand.email }} · {{ brand.website }}</div>
+        </div>
+      </div>
+    </div>
+
+    <p class="footnote">{{ brand.company_name }} — {{ brand.document_title }} · Printed {{ generated_date }}</p>
+  </div>
+
+</body>
+</html>

@@ -120,17 +120,35 @@ const Portfolio: React.FC = () => {
                       bgcolor: colors.gray200,
                     }}
                   >
-                    <CardMedia
-                      component="img"
-                      image={item.image}
-                      alt={item.title}
-                      className="portfolio-image"
-                      sx={{
-                        height: '100%',
-                        objectFit: 'cover',
-                        transition: 'transform 0.5s ease',
-                      }}
-                    />
+                    {item.mediaType === 'video' ? (
+                      <Box
+                        component="video"
+                        src={item.image}
+                        muted
+                        playsInline
+                        loop
+                        autoPlay
+                        className="portfolio-image"
+                        sx={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover',
+                          transition: 'transform 0.5s ease',
+                        }}
+                      />
+                    ) : (
+                      <CardMedia
+                        component="img"
+                        image={item.image}
+                        alt={item.title}
+                        className="portfolio-image"
+                        sx={{
+                          height: '100%',
+                          objectFit: 'cover',
+                          transition: 'transform 0.5s ease',
+                        }}
+                      />
+                    )}
                   </Box>
                   <CardContent sx={{ flexGrow: 1, p: { xs: 2, md: 2.25 } }}>
                     <Typography

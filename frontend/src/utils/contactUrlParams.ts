@@ -1,5 +1,5 @@
 /** Normalized marketing topics accepted by POST /contact/submit */
-export type ContactTopic = 'referral' | 'estimate' | 'load';
+export type ContactTopic = 'referral' | 'estimate' | 'load' | 'package';
 
 export function normalizeContactTopic(raw: string | null): ContactTopic | undefined {
   if (!raw) return undefined;
@@ -7,6 +7,7 @@ export function normalizeContactTopic(raw: string | null): ContactTopic | undefi
   if (t === 'referral') return 'referral';
   if (t === 'estimate' || t === 'solar-estimate') return 'estimate';
   if (t === 'load' || t === 'load-calculator' || t === 'appliances') return 'load';
+  if (t === 'package' || t === 'solar-packages' || t === 'packages') return 'package';
   return undefined;
 }
 
@@ -17,6 +18,8 @@ export const CONTACT_TOPIC_MESSAGE_HINTS: Record<ContactTopic, string> = {
     'I used the online solar estimate tool and would like a proper site assessment and quote.',
   load:
     'I used the website appliance load calculator and would like an engineered review and quote.',
+  package:
+    'I am interested in one of your hybrid lithium solar packages and would like a site survey and formal quotation.',
 };
 
 export const CONTACT_TOPIC_BANNERS: Record<
@@ -34,5 +37,9 @@ export const CONTACT_TOPIC_BANNERS: Record<
   load: {
     title: 'After the load calculator',
     body: 'You built an indicative appliance list on our site. Add your location, roof or site type, and anything we should know — our engineers will validate load and design on site.',
+  },
+  package: {
+    title: 'Hybrid solar package enquiry',
+    body: 'You selected a turnkey package tier on our website. Tell us your location, preferred package (3–20 kVA), and any special loads (AC, business equipment).',
   },
 };

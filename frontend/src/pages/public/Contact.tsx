@@ -18,6 +18,7 @@ import {
 import { Phone as PhoneIcon, Email as EmailIcon, LocationOn as LocationIcon } from '@mui/icons-material';
 import { useLocation, useSearchParams } from 'react-router-dom';
 import websiteContent from '../../data/extracted_content.json';
+import { COMPANY } from '../../data/companyContact';
 import { Seo } from '../../components/Seo';
 import { trackGenerateLead } from '../../utils/analytics';
 import {
@@ -51,6 +52,7 @@ const Contact: React.FC = () => {
   useEffect(() => {
     const params = new URLSearchParams(search);
     const topic = normalizeContactTopic(params.get('topic'));
+    const messageParam = params.get('message');
     const prefill = sessionStorage.getItem('ep_load_prefill');
     if (prefill) {
       sessionStorage.removeItem('ep_load_prefill');
@@ -64,6 +66,9 @@ const Contact: React.FC = () => {
           ? `${prev.message.trim()}\n\n---\n\n${block}`
           : block;
         return { ...prev, message: nextMsg };
+      }
+      if (messageParam && prev.message.trim() === '') {
+        return { ...prev, message: messageParam };
       }
       if (topic && prev.message.trim() === '') {
         return { ...prev, message: CONTACT_TOPIC_MESSAGE_HINTS[topic] };
@@ -247,8 +252,13 @@ const Contact: React.FC = () => {
                       <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
                         Call For Services
                       </Typography>
-                      <Typography variant="body2" sx={{ color: '#666' }}>
-                        {content.contact.phone}
+                      <Typography
+                        component="a"
+                        href={COMPANY.phoneHref}
+                        variant="body2"
+                        sx={{ color: '#666', textDecoration: 'none' }}
+                      >
+                        {COMPANY.phoneDisplay}
                       </Typography>
                     </Box>
                   </Box>
@@ -263,8 +273,13 @@ const Contact: React.FC = () => {
                       <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
                         Send Us Email
                       </Typography>
-                      <Typography variant="body2" sx={{ color: '#666' }}>
-                        {content.contact.email_alt}
+                      <Typography
+                        component="a"
+                        href={`mailto:${COMPANY.emailSales}`}
+                        variant="body2"
+                        sx={{ color: '#666', textDecoration: 'none' }}
+                      >
+                        {COMPANY.emailSales}
                       </Typography>
                     </Box>
                   </Box>
@@ -280,7 +295,7 @@ const Contact: React.FC = () => {
                         Visit Our Location
                       </Typography>
                       <Typography variant="body2" sx={{ color: '#666' }}>
-                        {content.contact.address}
+                        {COMPANY.addressFull}
                       </Typography>
                     </Box>
                   </Box>

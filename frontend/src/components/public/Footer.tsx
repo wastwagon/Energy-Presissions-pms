@@ -24,6 +24,7 @@ import {
 } from '@mui/icons-material';
 import api from '../../services/api';
 import { SOCIAL_LINKS } from '../../data/socialLinks';
+import { COMPANY } from '../../data/companyContact';
 
 const Footer: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -247,15 +248,29 @@ const Footer: React.FC = () => {
         >
           <Box display="flex" alignItems="center" gap={1}>
             <PhoneIcon />
-            <Typography variant="body2">(+233) 533 611 611</Typography>
+            <Typography
+              component="a"
+              href={COMPANY.phoneHref}
+              variant="body2"
+              sx={{ color: 'inherit', textDecoration: 'none', '&:hover': { color: colors.green } }}
+            >
+              {COMPANY.phoneDisplay}
+            </Typography>
           </Box>
           <Box display="flex" alignItems="center" gap={1}>
             <EmailIcon />
-            <Typography variant="body2">energyprecisions@gmail.com</Typography>
+            <Typography
+              component="a"
+              href={`mailto:${COMPANY.emailSales}`}
+              variant="body2"
+              sx={{ color: 'inherit', textDecoration: 'none', '&:hover': { color: colors.green } }}
+            >
+              {COMPANY.emailSales}
+            </Typography>
           </Box>
           <Box display="flex" alignItems="center" gap={1}>
             <LocationIcon />
-            <Typography variant="body2">Haatso, Ecomog</Typography>
+            <Typography variant="body2">{COMPANY.addressFull}</Typography>
           </Box>
         </Box>
 

@@ -3,6 +3,8 @@
  * SPA: page views fire on route changes via App.
  */
 
+import type { ContactTopic } from './contactUrlParams';
+
 declare global {
   interface Window {
     dataLayer?: unknown[];
@@ -55,7 +57,7 @@ export function trackEvent(name: string, params?: Record<string, unknown>): void
 /** Contact / quote form successfully submitted */
 export function trackGenerateLead(
   source: 'contact_form' | 'quote_request',
-  options?: { topic?: 'referral' | 'estimate' | 'load' }
+  options?: { topic?: ContactTopic }
 ): void {
   trackEvent('generate_lead', {
     currency: 'GHS',
