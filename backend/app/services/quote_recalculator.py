@@ -4,14 +4,22 @@ Service to recalculate dependent quote items (BOS, Installation) when equipment 
 from sqlalchemy.orm import Session
 
 from app.models import Product, QuoteItem
-from app.services.pricing import get_setting_value
+from app.services.bom_quantities import catalog_bom_append_enabled
+from app.services.pricing import get_setting_value, use_bos_percentage_pricing
 from app.services.quote_totals import refresh_quote_header_totals
 
 
 def recalculate_dependent_items(db: Session, quote_id: int, quote_option_id: int) -> None:
     """
     Recalculate BOS and Installation items when equipment totals change for one quote option.
+
+    Skipped when itemized catalog BOM is enabled — BOS/install/transport are fixed
+    catalog lines, not legacy % of equipment.
     """
+    if catalog_bom_append_enabled(db):
+        refresh_quote_header_totals(db, quote_id)
+        db.commit()
+        return
     all_items = (
         db.query(QuoteItem)
         .filter(QuoteItem.quote_id == quote_id, QuoteItem.quote_option_id == quote_option_id)
@@ -33,7 +41,7 @@ def recalculate_dependent_items(db: Session, quote_id: int, quote_option_id: int
             bos_item = item
             break
 
-    if bos_item:
+    if bos_item and use_bos_percentage_pricing(db):
         if bos_item.product_id:
             bos_product = db.query(Product).filter(Product.id == bos_item.product_id).first()
             if bos_product and bos_product.price_type == "percentage":
@@ -65,7 +73,7 @@ def recalculate_dependent_items(db: Session, quote_id: int, quote_option_id: int
 
     if installation_item:
         total_equipment_for_installation = equipment_total
-        if bos_item:
+        if bos_item and use_bos_percentage_pricing(db):
             total_equipment_for_installation += bos_item.total_price
 
         if installation_item.product_id:

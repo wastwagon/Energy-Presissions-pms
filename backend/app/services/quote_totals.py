@@ -23,7 +23,16 @@ def equipment_services_subtotals_for_items(
 
     bos_item = None
     for item in items:
-        if "BOS" in (item.description or "").upper() or "Balance of System" in (item.description or ""):
+        desc = item.description or ""
+        desc_upper = desc.upper()
+        # Avoid matching unrelated text; legacy lump BOS only
+        is_lump_bos = (
+            "Balance of System" in desc
+            or "BOS) -" in desc_upper
+            or "BOS -" in desc_upper
+            or desc_upper.strip().startswith("BOS ")
+        )
+        if is_lump_bos:
             bos_item = item
             break
 

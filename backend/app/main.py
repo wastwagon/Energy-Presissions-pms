@@ -45,6 +45,155 @@ def _ensure_media_columns():
         logger.warning("Media schema self-heal skipped: %s", e)
 
 
+def _ensure_quote_options_schema():
+    """Self-heal quote_options migration when alembic was stamped but DDL partially applied."""
+    try:
+        insp = inspect(engine)
+        table_names = set(insp.get_table_names())
+        if "quotes" not in table_names:
+            return
+
+        with engine.begin() as conn:
+            dialect = conn.dialect.name
+            quote_cols = {col["name"] for col in insp.get_columns("quotes")}
+
+            if "accepted_quote_option_id" not in quote_cols and "quote_options" in table_names:
+                if dialect == "postgresql":
+                    conn.execute(
+                        text(
+                            "ALTER TABLE quotes ADD COLUMN IF NOT EXISTS "
+                            "accepted_quote_option_id INTEGER"
+                        )
+                    )
+                else:
+                    conn.execute(
+                        text("ALTER TABLE quotes ADD COLUMN accepted_quote_option_id INTEGER")
+                    )
+                conn.execute(
+                    text(
+                        "ALTER TABLE quotes ADD CONSTRAINT quotes_accepted_quote_option_id_fkey "
+                        "FOREIGN KEY (accepted_quote_option_id) REFERENCES quote_options(id)"
+                    )
+                )
+                logger.info("Added missing quotes.accepted_quote_option_id column")
+
+            if "quote_items" not in table_names or "quote_options" not in table_names:
+                return
+
+            item_cols = {col["name"] for col in insp.get_columns("quote_items")}
+            if "quote_option_id" in item_cols:
+                return
+
+            if dialect == "postgresql":
+                conn.execute(
+                    text("ALTER TABLE quote_items ADD COLUMN IF NOT EXISTS quote_option_id INTEGER")
+                )
+            else:
+                conn.execute(text("ALTER TABLE quote_items ADD COLUMN quote_option_id INTEGER"))
+
+            item_count = conn.execute(text("SELECT COUNT(*) FROM quote_items")).scalar() or 0
+            if item_count:
+                conn.execute(
+                    text(
+                        """
+                        INSERT INTO quote_options (quote_id, title, narrative, sort_order)
+                        SELECT q.id, 'Option 1', NULL, 0
+                        FROM quotes q
+                        WHERE NOT EXISTS (
+                            SELECT 1 FROM quote_options qo
+                            WHERE qo.quote_id = q.id AND qo.sort_order = 0
+                        )
+                        """
+                    )
+                )
+                conn.execute(
+                    text(
+                        """
+                        UPDATE quote_items AS qi
+                        SET quote_option_id = qo.id
+                        FROM quote_options AS qo
+                        WHERE qi.quote_id = qo.quote_id AND qo.sort_order = 0
+                          AND qi.quote_option_id IS NULL
+                        """
+                    )
+                )
+
+            conn.execute(
+                text(
+                    "CREATE INDEX IF NOT EXISTS ix_quote_items_quote_option_id "
+                    "ON quote_items (quote_option_id)"
+                )
+            )
+            conn.execute(
+                text(
+                    "ALTER TABLE quote_items ADD CONSTRAINT quote_items_quote_option_id_fkey "
+                    "FOREIGN KEY (quote_option_id) REFERENCES quote_options(id) ON DELETE CASCADE"
+                )
+            )
+            if item_count:
+                conn.execute(
+                    text("ALTER TABLE quote_items ALTER COLUMN quote_option_id SET NOT NULL")
+                )
+            logger.info("Added missing quote_items.quote_option_id column")
+    except Exception as e:
+        logger.warning("Quote options schema self-heal skipped: %s", e)
+
+
+def _ensure_sizing_mounting_columns():
+    """Self-heal mounting rail columns when merge migration was stamped but not applied."""
+    try:
+        insp = inspect(engine)
+        if "sizing_results" not in set(insp.get_table_names()):
+            return
+        existing_cols = {col["name"] for col in insp.get_columns("sizing_results")}
+        with engine.begin() as conn:
+            dialect = conn.dialect.name
+            if "mounting_rail_linear_m_estimate" not in existing_cols:
+                if dialect == "postgresql":
+                    conn.execute(
+                        text(
+                            "ALTER TABLE sizing_results ADD COLUMN IF NOT EXISTS "
+                            "mounting_rail_linear_m_estimate DOUBLE PRECISION"
+                        )
+                    )
+                else:
+                    conn.execute(
+                        text(
+                            "ALTER TABLE sizing_results ADD COLUMN "
+                            "mounting_rail_linear_m_estimate FLOAT"
+                        )
+                    )
+                logger.info("Added missing sizing_results.mounting_rail_linear_m_estimate column")
+            if "mounting_rails_estimate" not in existing_cols:
+                if dialect == "postgresql":
+                    conn.execute(
+                        text(
+                            "ALTER TABLE sizing_results ADD COLUMN IF NOT EXISTS "
+                            "mounting_rails_estimate INTEGER"
+                        )
+                    )
+                else:
+                    conn.execute(
+                        text("ALTER TABLE sizing_results ADD COLUMN mounting_rails_estimate INTEGER")
+                    )
+                logger.info("Added missing sizing_results.mounting_rails_estimate column")
+            if "dc_string_count" not in existing_cols:
+                if dialect == "postgresql":
+                    conn.execute(
+                        text(
+                            "ALTER TABLE sizing_results ADD COLUMN IF NOT EXISTS "
+                            "dc_string_count INTEGER"
+                        )
+                    )
+                else:
+                    conn.execute(
+                        text("ALTER TABLE sizing_results ADD COLUMN dc_string_count INTEGER")
+                    )
+                logger.info("Added missing sizing_results.dc_string_count column")
+    except Exception as e:
+        logger.warning("Sizing mounting schema self-heal skipped: %s", e)
+
+
 def _run_migrations():
     """Run Alembic migrations on startup"""
     try:
@@ -105,6 +254,8 @@ async def lifespan(app: FastAPI):
     """Run migrations and seed on startup"""
     _run_migrations()
     _ensure_media_columns()
+    _ensure_quote_options_schema()
+    _ensure_sizing_mounting_columns()
     _run_init_and_seed()
     yield
 
@@ -149,9 +300,6 @@ cors_kwargs = dict(
 if cors_origin_regex:
     cors_kwargs["allow_origin_regex"] = cors_origin_regex
 
-app.add_middleware(CORSMiddleware, allow_origins=cors_origins, **cors_kwargs)
-logger.info("CORS configured with %d explicit origins", len(cors_origins))
-
 
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):
     """Add security headers to all responses"""
@@ -165,6 +313,9 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
 
 
 app.add_middleware(SecurityHeadersMiddleware)
+# CORS outermost so error responses still include Access-Control-Allow-Origin.
+app.add_middleware(CORSMiddleware, allow_origins=cors_origins, **cors_kwargs)
+logger.info("CORS configured with %d explicit origins", len(cors_origins))
 
 
 @app.exception_handler(Exception)

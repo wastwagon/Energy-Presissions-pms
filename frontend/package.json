@@ -10,7 +10,6 @@
     "@mui/x-data-grid": "^6.18.2",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
-    "ajv": "^8.18.0",
     "axios": "^1.6.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -30,6 +29,12 @@
     "extends": [
       "react-app"
     ]
+  },
+  "overrides": {
+    "fork-ts-checker-webpack-plugin": {
+      "ajv": "6.12.6",
+      "ajv-keywords": "3.5.2"
+    }
   },
   "browserslist": {
     "production": [

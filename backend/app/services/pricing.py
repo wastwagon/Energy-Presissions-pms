@@ -7,6 +7,7 @@ Falls back to settings values when products are not found.
 from typing import List
 from sqlalchemy.orm import Session
 from app.models import Product, QuoteItem, SizingResult as SizingResultModel, ProductType, Setting
+from app.services.bom_quantities import catalog_bom_append_enabled
 import math
 
 
@@ -19,6 +20,17 @@ def get_setting_value(db: Session, key: str, default: float) -> float:
         except (ValueError, TypeError):
             return default
     return default
+
+
+def use_bos_percentage_pricing(db: Session) -> bool:
+    """
+    When False (default), BOS is covered by itemized catalog lines (cables, breakers, rails, etc.)
+    from append_standard_bom_from_catalog — no lump-sum % of equipment line.
+    """
+    setting = db.query(Setting).filter(Setting.key == "use_bos_percentage").first()
+    if setting:
+        return str(setting.value).strip().lower() in ("1", "true", "yes")
+    return False
 
 
 def generate_quote_items_from_sizing(
@@ -35,13 +47,14 @@ def generate_quote_items_from_sizing(
     - Inverter (based on calculated size)
     - Battery (if applicable)
     - Mounting structure
-    - BOS (Balance of System)
+    - BOS lump-sum % (optional; off when use_bos_percentage is false — use catalog BOM instead)
     - Installation
     - Transport
     """
     items = []
     sort_order = 0
-    
+    itemized_bom = catalog_bom_append_enabled(db)
+
     # 1. PV Panels
     # Try exact match first
     panel_product = db.query(Product).filter(
@@ -238,86 +251,84 @@ def generate_quote_items_from_sizing(
             ))
             sort_order += 1
     
-    # 4. Mounting Structure
-    mounting_product = db.query(Product).filter(
-        Product.product_type == ProductType.MOUNTING,
-        Product.is_active == True
-    ).first()
-    
-    if mounting_product:
-        if mounting_product.price_type == "per_kw":
-            unit_price = mounting_product.base_price * sizing_result.system_size_kw
-        elif mounting_product.price_type == "per_panel":
-            unit_price = mounting_product.base_price * sizing_result.number_of_panels
-        elif mounting_product.price_type == "fixed":
-            unit_price = mounting_product.base_price
-        else:
-            unit_price = mounting_product.base_price
-        
-        items.append(QuoteItem(
-            quote_id=quote_id,
-            quote_option_id=quote_option_id,
-            product_id=mounting_product.id,
-            description="Mounting Structure",
-            quantity=1,
-            unit_price=unit_price,
-            total_price=unit_price,
-            sort_order=sort_order
-        ))
-        sort_order += 1
-    
-    # 5. BOS (Balance of System)
-    # Calculate equipment total first (panels, inverter, battery)
+    # 4. Mounting — itemized catalog BOM adds rail sets / 18 ft sticks instead
+    if not itemized_bom:
+        mounting_product = db.query(Product).filter(
+            Product.product_type == ProductType.MOUNTING,
+            Product.is_active == True
+        ).first()
+
+        if mounting_product:
+            if mounting_product.price_type == "per_kw":
+                unit_price = mounting_product.base_price * sizing_result.system_size_kw
+            elif mounting_product.price_type == "per_panel":
+                unit_price = mounting_product.base_price * sizing_result.number_of_panels
+            else:
+                unit_price = mounting_product.base_price
+
+            items.append(QuoteItem(
+                quote_id=quote_id,
+                quote_option_id=quote_option_id,
+                product_id=mounting_product.id,
+                description="Mounting Structure",
+                quantity=1,
+                unit_price=unit_price,
+                total_price=unit_price,
+                sort_order=sort_order
+            ))
+            sort_order += 1
+
+    # 5. BOS lump-sum % (legacy) — skipped when itemized catalog BOM is used instead
     equipment_total = sum(item.total_price for item in items)
-    
-    bos_product = db.query(Product).filter(
-        Product.product_type == ProductType.BOS,
-        Product.is_active == True
-    ).first()
-    
-    if bos_product:
-        # Use product pricing
-        if bos_product.price_type == "percentage":
-            unit_price = equipment_total * (bos_product.base_price / 100)
-        elif bos_product.price_type == "per_kw":
-            unit_price = bos_product.base_price * sizing_result.system_size_kw
-        elif bos_product.price_type == "fixed":
-            unit_price = bos_product.base_price
+
+    if use_bos_percentage_pricing(db):
+        bos_product = db.query(Product).filter(
+            Product.product_type == ProductType.BOS,
+            Product.is_active == True
+        ).first()
+
+        if bos_product:
+            if bos_product.price_type == "percentage":
+                unit_price = equipment_total * (bos_product.base_price / 100)
+            elif bos_product.price_type == "per_kw":
+                unit_price = bos_product.base_price * sizing_result.system_size_kw
+            else:
+                unit_price = bos_product.base_price
+
+            items.append(QuoteItem(
+                quote_id=quote_id,
+                quote_option_id=quote_option_id,
+                product_id=bos_product.id,
+                description="Balance of System (BOS)",
+                quantity=1,
+                unit_price=unit_price,
+                total_price=unit_price,
+                sort_order=sort_order
+            ))
+            sort_order += 1
         else:
-            unit_price = bos_product.base_price
-        
-        items.append(QuoteItem(
-            quote_id=quote_id,
-            quote_option_id=quote_option_id,
-            product_id=bos_product.id,
-            description="Balance of System (BOS)",
-            quantity=1,
-            unit_price=unit_price,
-            total_price=unit_price,
-            sort_order=sort_order
-        ))
-        sort_order += 1
-    else:
-        # Fallback to settings: bos_percentage
-        bos_percentage = get_setting_value(db, "bos_percentage", 10.0)
-        unit_price = equipment_total * (bos_percentage / 100)
-        
-        items.append(QuoteItem(
-            quote_id=quote_id,
-            quote_option_id=quote_option_id,
-            product_id=None,  # No product, using setting
-            description=f"Balance of System (BOS) - {bos_percentage}% of equipment",
-            quantity=1,
-            unit_price=unit_price,
-            total_price=unit_price,
-            sort_order=sort_order
-        ))
-        sort_order += 1
-    
-    # Equipment total for installation % (panels, inverter, battery, mounting, BOS only – exclude transport)
+            bos_percentage = get_setting_value(db, "bos_percentage", 10.0)
+            unit_price = equipment_total * (bos_percentage / 100)
+            items.append(QuoteItem(
+                quote_id=quote_id,
+                quote_option_id=quote_option_id,
+                product_id=None,
+                description=f"Balance of System (BOS) - {bos_percentage}% of equipment",
+                quantity=1,
+                unit_price=unit_price,
+                total_price=unit_price,
+                sort_order=sort_order
+            ))
+            sort_order += 1
+
+    # Installation % base: panels, inverter, battery, mounting (+ legacy BOS lump if enabled)
     total_equipment_cost = sum(item.total_price for item in items)
     
-    # 6. Transport & Logistics (before Installation – display order: Panel, Inverter, Battery, BOS, Transport, Installation)
+    # 6–7. Transport & installation — added by itemized catalog BOM when enabled
+    if itemized_bom:
+        return items
+
+    # Transport & Logistics (before Installation)
     transport_product = db.query(Product).filter(
         Product.product_type == ProductType.TRANSPORT,
         Product.is_active == True

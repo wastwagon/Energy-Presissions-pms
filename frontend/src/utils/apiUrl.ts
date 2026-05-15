@@ -34,6 +34,10 @@ export const resolveApiUrl = (): string => {
 
   const host = window.location.hostname;
   if (isLocalHost(host)) {
+    // Same-origin /api via CRA proxy in development (avoids CORS).
+    if (process.env.NODE_ENV === 'development') {
+      return '';
+    }
     return LOCAL_API_URL;
   }
 

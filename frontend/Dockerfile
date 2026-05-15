@@ -5,19 +5,8 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm install --legacy-peer-deps
-
-# Fix ajv-keywords compatibility issue by creating the missing path
-RUN cd node_modules/ajv && \
-    mkdir -p dist/compile && \
-    if [ -f "lib/compile/codegen/index.js" ]; then \
-      echo "module.exports = require('../../lib/compile/codegen');" > dist/compile/codegen.js; \
-    elif [ -f "lib/compile/codegen.js" ]; then \
-      echo "module.exports = require('../../lib/compile/codegen');" > dist/compile/codegen.js; \
-    else \
-      echo "module.exports = {};" > dist/compile/codegen.js; \
-    fi || true
+# Install dependencies (lockfile keeps ajv / react-scripts compatible)
+RUN npm ci --legacy-peer-deps || npm install --legacy-peer-deps
 
 # Copy application code
 COPY . .

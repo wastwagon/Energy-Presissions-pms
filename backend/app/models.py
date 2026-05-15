@@ -335,6 +335,8 @@ class SizingResult(Base):
     # Twin-rail layout heuristic (see app.services.sizing.estimate_mounting_rail_inventory)
     mounting_rail_linear_m_estimate = Column(Float, nullable=True)
     mounting_rails_estimate = Column(Integer, nullable=True)
+    # DC strings for BOM (ceil(panels / panels_per_string)); see Settings panels_per_string
+    dc_string_count = Column(Integer, nullable=True)
     min_inverter_kw = Column(Float)  # Minimum required inverter capacity (calculated)
     inverter_size_kw = Column(Float)  # Total inverter capacity (selected product size)
     inverter_count = Column(Integer, default=1)  # Number of parallel inverters

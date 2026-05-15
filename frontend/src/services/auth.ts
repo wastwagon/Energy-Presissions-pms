@@ -3,8 +3,6 @@ import api from './api';
 import { User } from '../types';
 import { resolveApiUrl } from '../utils/apiUrl';
 
-const API_URL = resolveApiUrl();
-
 export interface LoginCredentials {
   username: string;
   password: string;
@@ -16,8 +14,18 @@ export interface AuthResponse {
 }
 
 // Create a separate axios instance for login without default JSON headers
+const loginBaseUrl = () => {
+  const base = resolveApiUrl().replace(/\/+$/, '');
+  return base ? `${base}/api` : '/api';
+};
+
 const loginAxios: AxiosInstance = axios.create({
-  baseURL: `${API_URL}/api`,
+  baseURL: '/api',
+});
+
+loginAxios.interceptors.request.use((config) => {
+  config.baseURL = loginBaseUrl();
+  return config;
 });
 
 export const authService = {
@@ -32,8 +40,9 @@ export const authService = {
     formData.append('password', password);
     
     const formDataString = formData.toString();
+    const apiUrl = resolveApiUrl();
     console.log('Login request:', {
-      url: `${API_URL}/api/auth/login`,
+      url: `${apiUrl || window.location.origin}/api/auth/login`,
       username: username,
       passwordLength: password.length,
       formDataPreview: formDataString.substring(0, 30) + '...',
@@ -74,7 +83,7 @@ export const authService = {
         response: err.response?.data,
         status: err.response?.status,
         statusText: err.response?.statusText,
-        apiBase: API_URL,
+        apiBase: resolveApiUrl() || window.location.origin,
       });
       const detail = err.response?.data?.detail;
       const detailStr =
@@ -92,7 +101,7 @@ export const authService = {
         (!err.response && err.message?.toLowerCase().includes('network'));
       if (isNetwork) {
         throw new Error(
-          `Cannot reach the API at ${API_URL}. Check your connection, try another browser or network, ` +
+          `Cannot reach the API at ${resolveApiUrl() || window.location.origin}. Check your connection, try another browser or network, ` +
             `or confirm the backend is running. If you use a custom domain, set REACT_APP_API_URL to your API base URL.`
         );
       }

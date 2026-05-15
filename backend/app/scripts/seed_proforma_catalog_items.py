@@ -30,9 +30,9 @@ def _upsert_by_sku(db: Session, row: dict) -> str:
     return "insert"
 
 
-def seed_proforma_catalog_items() -> None:
-    """Default unit prices align with the sample proforma (Option 1); adjust in Products UI later."""
-    rows: list[dict] = [
+def build_catalog_rows() -> list[dict]:
+    """All proforma / BOM catalog product rows (SKU-keyed)."""
+    return [
         # --- Core PV (only if you want these SKUs on a fresh DB; skipped if SKU exists) ---
         {
             "product_type": ProductType.PANEL,
@@ -114,6 +114,21 @@ def seed_proforma_catalog_items() -> None:
             "stock_quantity": 0,
         },
         {
+            "product_type": ProductType.MOUNTING,
+            "brand": "Generic",
+            "model": "Roof hook",
+            "name": "Roof hook / L-foot (each)",
+            "description": "Roof anchor for rail — enable via bom_include_roof_hooks if not in rail set price.",
+            "short_description": "Roof hook each",
+            "category": "Mounting",
+            "base_price": 45.0,
+            "price_type": "fixed",
+            "sku": "BOS-ROOF-HOOK-EA",
+            "manage_stock": False,
+            "in_stock": True,
+            "stock_quantity": 0,
+        },
+        {
             "product_type": ProductType.OTHER,
             "brand": "Generic",
             "model": "PV clamp",
@@ -129,6 +144,36 @@ def seed_proforma_catalog_items() -> None:
             "stock_quantity": 0,
         },
         # --- Cabling ---
+        {
+            "product_type": ProductType.OTHER,
+            "brand": "Generic",
+            "model": "MC4 pair",
+            "name": "MC4 connector pair",
+            "description": "Male/female MC4 pair for DC string wiring.",
+            "short_description": "MC4 pair",
+            "category": "Balance of System",
+            "base_price": 25.0,
+            "price_type": "fixed",
+            "sku": "BOS-MC4-PAIR",
+            "manage_stock": False,
+            "in_stock": True,
+            "stock_quantity": 0,
+        },
+        {
+            "product_type": ProductType.OTHER,
+            "brand": "Generic",
+            "model": "AC 6mm 100m",
+            "name": "AC cable 6 mm² (100m coil)",
+            "description": "Branch AC wiring coil for DB and load circuits.",
+            "short_description": "AC 6mm 100m",
+            "category": "Balance of System",
+            "base_price": 1800.0,
+            "price_type": "fixed",
+            "sku": "CAB-AC-6MM-100M",
+            "manage_stock": False,
+            "in_stock": True,
+            "stock_quantity": 0,
+        },
         {
             "product_type": ProductType.OTHER,
             "brand": "Generic",
@@ -205,6 +250,36 @@ def seed_proforma_catalog_items() -> None:
             "stock_quantity": 0,
         },
         # --- Protection / distribution ---
+        {
+            "product_type": ProductType.OTHER,
+            "brand": "Generic",
+            "model": "DC isolator 32A",
+            "name": "DC isolator switch 32A",
+            "description": "Lockable DC disconnect for string maintenance.",
+            "short_description": "DC isolator 32A",
+            "category": "Balance of System",
+            "base_price": 350.0,
+            "price_type": "fixed",
+            "sku": "BOS-DC-ISO-32A",
+            "manage_stock": False,
+            "in_stock": True,
+            "stock_quantity": 0,
+        },
+        {
+            "product_type": ProductType.OTHER,
+            "brand": "Generic",
+            "model": "AC isolator 40A",
+            "name": "AC isolator switch 40A",
+            "description": "AC side disconnect at inverter.",
+            "short_description": "AC isolator 40A",
+            "category": "Balance of System",
+            "base_price": 280.0,
+            "price_type": "fixed",
+            "sku": "BOS-AC-ISO-40A",
+            "manage_stock": False,
+            "in_stock": True,
+            "stock_quantity": 0,
+        },
         {
             "product_type": ProductType.OTHER,
             "brand": "Generic",
@@ -343,9 +418,54 @@ def seed_proforma_catalog_items() -> None:
         {
             "product_type": ProductType.OTHER,
             "brand": "Kit",
+            "model": "Earth kit",
+            "name": "Earthing kit (rod, clamp, 16mm earth cable)",
+            "description": "Equipment bonding / array ground kit per lot.",
+            "short_description": "Earthing kit",
+            "category": "Balance of System",
+            "base_price": 450.0,
+            "price_type": "fixed",
+            "sku": "BOS-EARTH-KIT",
+            "manage_stock": False,
+            "in_stock": True,
+            "stock_quantity": 0,
+        },
+        {
+            "product_type": ProductType.OTHER,
+            "brand": "Kit",
+            "model": "Trunking 25mm",
+            "name": "PVC trunking 25mm (per metre)",
+            "description": "Cable trunking; quantity = metres.",
+            "short_description": "Trunking 25mm /m",
+            "category": "Balance of System",
+            "base_price": 35.0,
+            "price_type": "fixed",
+            "sku": "BOS-TRUNK-25MM-M",
+            "manage_stock": False,
+            "in_stock": True,
+            "stock_quantity": 0,
+        },
+        {
+            "product_type": ProductType.OTHER,
+            "brand": "Kit",
+            "model": "Label kit",
+            "name": "DC/AC labeling & warning kit",
+            "description": "Circuit labels and safety signage for commissioning.",
+            "short_description": "Label kit",
+            "category": "Balance of System",
+            "base_price": 120.0,
+            "price_type": "fixed",
+            "sku": "BOS-LABEL-KIT",
+            "manage_stock": False,
+            "in_stock": True,
+            "stock_quantity": 0,
+        },
+        {
+            "product_type": ProductType.OTHER,
+            "brand": "Kit",
             "model": "Misc BOS",
-            "name": "Miscellaneous (MC4, trunking, PVC, glands, fixings, lugs, ties)",
-            "description": "Lump consumables line; adjust quantity if you price per-lot.",
+            "name": "Miscellaneous (glands, lugs, fixings, ties)",
+            "description": "Remaining consumables when MC4/isolators/earth are itemized separately.",
             "short_description": "Misc BOS consumables",
             "category": "Balance of System",
             "base_price": 1500.0,
@@ -418,17 +538,18 @@ def seed_proforma_catalog_items() -> None:
         },
     ]
 
+
+def seed_proforma_catalog_items() -> None:
+    """Default unit prices align with the sample proforma (Option 1); adjust in Products UI later."""
+    from app.services.catalog_seed import ensure_catalog_skus
+
     db: Session = SessionLocal()
-    inserted = 0
-    skipped = 0
     try:
-        for row in rows:
-            if _upsert_by_sku(db, row) == "insert":
-                inserted += 1
-            else:
-                skipped += 1
-        db.commit()
-        print(f"Proforma catalog seed: inserted {inserted}, skipped (existing SKU) {skipped}")
+        result = ensure_catalog_skus(db, skus=None)
+        print(
+            f"Proforma catalog seed: inserted {len(result['inserted'])}, "
+            f"skipped (existing SKU) {len(result['skipped'])}"
+        )
     except Exception as e:
         db.rollback()
         print(f"Error: {e}")

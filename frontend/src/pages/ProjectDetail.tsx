@@ -57,6 +57,9 @@ import {
   Print as PrintIcon,
   Download as DownloadIcon,
   Update as UpdateIcon,
+  MenuBook as MenuBookIcon,
+  FactCheck as FactCheckIcon,
+  AutoFixHigh as AutoFixHighIcon,
 } from '@mui/icons-material';
 import api from '../services/api';
 import {
@@ -109,6 +112,18 @@ const ProjectDetail: React.FC = () => {
   const [peakSunHoursOptions, setPeakSunHoursOptions] = useState<Array<{label: string, value: string, hours: number}>>([]);
   const [sizingError, setSizingError] = useState<string>('');
   const [calculating, setCalculating] = useState(false);
+  const [syncQuoteBomAfterSizing, setSyncQuoteBomAfterSizing] = useState(true);
+  const [sizingSyncNotice, setSizingSyncNotice] = useState<string | null>(null);
+  const [bomPreview, setBomPreview] = useState<{
+    ok?: boolean;
+    message?: string;
+    missing_products?: { sku: string; expected_qty: number }[];
+    ready_skus?: { sku: string; expected_qty: number; product_name?: string }[];
+    expected_line_count?: number;
+  } | null>(null);
+  const [bomGuideOpen, setBomGuideOpen] = useState(false);
+  const [bomGuideLoading, setBomGuideLoading] = useState(false);
+  const [bomGuide, setBomGuide] = useState<{ methodology?: string[]; overlap_notes?: string[] } | null>(null);
   const [monthlyForm, setMonthlyForm] = useState({
     monthly_kwh: '',
     monthly_bill: '',
@@ -246,8 +261,34 @@ const ProjectDetail: React.FC = () => {
     try {
       const response = await api.get(`/sizing/project/${id}`);
       setSizingResult(response.data);
+      fetchBomPreview();
     } catch (error) {
-      // Sizing result might not exist yet
+      setSizingResult(null);
+      setBomPreview(null);
+    }
+  };
+
+  const fetchBomPreview = async () => {
+    if (!id) return;
+    try {
+      const response = await api.get(`/sizing/project/${id}/bom-preview`);
+      setBomPreview(response.data);
+    } catch {
+      setBomPreview(null);
+    }
+  };
+
+  const openBomGuide = async () => {
+    setBomGuideOpen(true);
+    if (bomGuide) return;
+    setBomGuideLoading(true);
+    try {
+      const response = await api.get('/quotes/bom-rules-reference');
+      setBomGuide(response.data);
+    } catch {
+      setSizingError('Could not load BOM guide');
+    } finally {
+      setBomGuideLoading(false);
     }
   };
 
@@ -419,8 +460,25 @@ const ProjectDetail: React.FC = () => {
         params.essential_load_percent = (parseFloat(sizingForm.essential_load_percent.toString()) || 50) / 100;
       }
       
-      await api.post(`/sizing/from-appliances/${id}`, params);
+      const response = await api.post(`/sizing/from-appliances/${id}`, params, {
+        params: { sync_quote_bom: syncQuoteBomAfterSizing },
+      });
       await fetchSizingResult();
+      await fetchBomPreview();
+      if (syncQuoteBomAfterSizing) {
+        setSizingSyncNotice(
+          'Sizing saved. Existing quote BOM lines were rebuilt from the new sizing where quotes exist.'
+        );
+      } else {
+        setSizingSyncNotice(null);
+      }
+      if (response.data?.dc_string_count) {
+        setSizingSyncNotice((prev) =>
+          prev
+            ? `${prev} DC strings: ${response.data.dc_string_count}.`
+            : `Sizing saved (${response.data.dc_string_count} DC strings).`
+        );
+      }
       setSizingDialogOpen(false);
       setSizingError('');
     } catch (error: any) {
@@ -452,11 +510,58 @@ const ProjectDetail: React.FC = () => {
         params.essential_load_percent = (parseFloat(monthlyForm.essential_load_percent.toString()) || 50) / 100;
       }
       
-      await api.post('/sizing/from-monthly', params);
-      fetchSizingResult();
+      const response = await api.post('/sizing/from-monthly', null, {
+        params: {
+          ...params,
+          sync_quote_bom: syncQuoteBomAfterSizing,
+        },
+      });
+      await fetchSizingResult();
+      if (syncQuoteBomAfterSizing) {
+        setSizingSyncNotice(
+          'Sizing saved. Existing quote BOM lines were rebuilt from the new sizing where quotes exist.'
+        );
+      }
+      if (response.data?.dc_string_count) {
+        setSizingSyncNotice((prev) =>
+          prev
+            ? `${prev} DC strings: ${response.data.dc_string_count}.`
+            : `Sizing saved (${response.data.dc_string_count} DC strings).`
+        );
+      }
       setMonthlyDialogOpen(false);
     } catch (error) {
       console.error('Error calculating sizing from monthly:', error);
+    }
+  };
+
+  const handleFixProjectCatalog = async () => {
+    if (!id) return;
+    try {
+      const response = await api.post(`/sizing/project/${id}/fix-catalog`);
+      await fetchBomPreview();
+      const seeded = response.data.seed?.inserted?.length ?? 0;
+      setSizingSyncNotice(
+        seeded
+          ? `Catalog updated: ${seeded} new product SKU(s) added.`
+          : response.data.audit_after?.message || 'Catalog is up to date for BOM preview.'
+      );
+    } catch (error: any) {
+      setSizingError(error.response?.data?.detail || 'Failed to fix catalog');
+    }
+  };
+
+  const handleSyncQuoteBoms = async () => {
+    if (!id) return;
+    try {
+      const response = await api.post(`/sizing/project/${id}/sync-quote-boms`);
+      const data = response.data || {};
+      setSizingSyncNotice(
+        `Updated BOM on ${data.options_updated ?? 0} quote option(s) across ${data.quotes ?? 0} quote(s) (${data.lines_added ?? 0} catalog lines added).`
+      );
+    } catch (error: any) {
+      setSizingSyncNotice(null);
+      setSizingError(error.response?.data?.detail || 'Failed to sync quote BOMs from sizing');
     }
   };
 
@@ -955,6 +1060,76 @@ const ProjectDetail: React.FC = () => {
                 </Box>
               </Box>
               <Box display="flex" gap={2}>
+                <Button
+                  variant="outlined"
+                  size="large"
+                  startIcon={<MenuBookIcon />}
+                  onClick={openBomGuide}
+                  sx={{
+                    borderColor: 'rgba(255,255,255,0.8)',
+                    color: 'white',
+                    fontWeight: 'bold',
+                    px: 2,
+                    py: 1.5,
+                    '&:hover': { borderColor: 'white', bgcolor: 'rgba(255,255,255,0.1)' },
+                  }}
+                >
+                  BOM guide
+                </Button>
+                {sizingResult && (
+                  <Button
+                    variant="outlined"
+                    size="large"
+                    startIcon={<AutoFixHighIcon />}
+                    onClick={handleFixProjectCatalog}
+                    sx={{
+                      borderColor: 'rgba(255,255,255,0.8)',
+                      color: 'white',
+                      fontWeight: 'bold',
+                      px: 2,
+                      py: 1.5,
+                      '&:hover': { borderColor: 'white', bgcolor: 'rgba(255,255,255,0.1)' },
+                    }}
+                  >
+                    Fix catalog SKUs
+                  </Button>
+                )}
+                {sizingResult && (
+                  <Button
+                    variant="outlined"
+                    size="large"
+                    startIcon={<FactCheckIcon />}
+                    onClick={fetchBomPreview}
+                    sx={{
+                      borderColor: 'rgba(255,255,255,0.8)',
+                      color: 'white',
+                      fontWeight: 'bold',
+                      px: 2,
+                      py: 1.5,
+                      '&:hover': { borderColor: 'white', bgcolor: 'rgba(255,255,255,0.1)' },
+                    }}
+                  >
+                    Refresh BOM preview
+                  </Button>
+                )}
+                {sizingResult && (
+                  <Button
+                    variant="outlined"
+                    size="large"
+                    startIcon={<UpdateIcon />}
+                    onClick={handleSyncQuoteBoms}
+                    sx={{
+                      borderColor: 'rgba(255,255,255,0.8)',
+                      color: 'white',
+                      fontWeight: 'bold',
+                      px: 2,
+                      py: 1.5,
+                      '&:hover': { borderColor: 'white', bgcolor: 'rgba(255,255,255,0.1)' },
+                    }}
+                  >
+                    Sync quote BOMs
+                  </Button>
+                )}
                 {sizingResult && (
                   <Button
                     variant="contained"
@@ -1015,6 +1190,31 @@ const ProjectDetail: React.FC = () => {
           {sizingError && (
             <Alert severity="error" sx={{ mb: 3 }} onClose={() => setSizingError('')}>
               {sizingError}
+            </Alert>
+          )}
+
+          {sizingSyncNotice && (
+            <Alert severity="info" sx={{ mb: 3 }} onClose={() => setSizingSyncNotice(null)}>
+              {sizingSyncNotice}
+            </Alert>
+          )}
+
+          {bomPreview && sizingResult && (
+            <Alert
+              severity={bomPreview.ok ? 'success' : 'warning'}
+              sx={{ mb: 3 }}
+              icon={<FactCheckIcon />}
+            >
+              <Typography variant="body2" fontWeight="bold" gutterBottom>
+                BOM preview ({bomPreview.expected_line_count ?? 0} lines from sizing)
+              </Typography>
+              <Typography variant="body2">{bomPreview.message}</Typography>
+              {(bomPreview.missing_products?.length ?? 0) > 0 && (
+                <Typography variant="caption" display="block" sx={{ mt: 1 }}>
+                  Missing catalog SKUs: {bomPreview.missing_products!.map((m) => m.sku).join(', ')}.
+                  Run seed_proforma_catalog_items in backend.
+                </Typography>
+              )}
             </Alert>
           )}
 
@@ -1294,6 +1494,9 @@ const ProjectDetail: React.FC = () => {
                             </Typography>
                             <Typography variant="body2" color="text.secondary" fontWeight="500" sx={{ mt: 0.5, display: 'block' }}>
                               {sizingResult.number_of_panels} × {sizingResult.panel_brand} {sizingResult.panel_wattage}W
+                              {sizingResult.dc_string_count != null && (
+                                <> · {sizingResult.dc_string_count} DC string{sizingResult.dc_string_count === 1 ? '' : 's'}</>
+                              )}
                             </Typography>
                           </Box>
                           <SolarPowerIcon sx={{ fontSize: 48, color: '#2196f3', opacity: 0.3 }} />
@@ -2008,6 +2211,16 @@ const ProjectDetail: React.FC = () => {
               />
             </>
           )}
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={syncQuoteBomAfterSizing}
+                onChange={(e) => setSyncQuoteBomAfterSizing(e.target.checked)}
+              />
+            }
+            label="Update BOM on existing quotes after sizing"
+            sx={{ mt: 2, display: 'block' }}
+          />
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setMonthlyDialogOpen(false)}>Cancel</Button>
@@ -2148,6 +2361,16 @@ const ProjectDetail: React.FC = () => {
               </Paper>
             </Grid>
           </Grid>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={syncQuoteBomAfterSizing}
+                onChange={(e) => setSyncQuoteBomAfterSizing(e.target.checked)}
+              />
+            }
+            label="Update BOM on existing quotes after sizing"
+            sx={{ mt: 2 }}
+          />
         </DialogContent>
         <DialogActions>
           <Button onClick={() => {
@@ -2164,6 +2387,37 @@ const ProjectDetail: React.FC = () => {
           >
             {calculating ? 'Calculating...' : 'Calculate Sizing'}
           </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={bomGuideOpen} onClose={() => setBomGuideOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>BOM catalog guide</DialogTitle>
+        <DialogContent dividers>
+          {bomGuideLoading && (
+            <Box display="flex" justifyContent="center" py={3}>
+              <CircularProgress />
+            </Box>
+          )}
+          {!bomGuideLoading && bomGuide && (
+            <Box>
+              {bomGuide.methodology?.map((line, i) => (
+                <Typography key={i} variant="body2" paragraph>
+                  • {line}
+                </Typography>
+              ))}
+              {bomGuide.overlap_notes?.map((line, i) => (
+                <Alert key={i} severity="info" sx={{ mb: 1 }}>
+                  {line}
+                </Alert>
+              ))}
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
+                Open any quote for the full per-SKU table (BOM item guide).
+              </Typography>
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setBomGuideOpen(false)}>Close</Button>
         </DialogActions>
       </Dialog>
     </Box>

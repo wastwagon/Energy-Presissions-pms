@@ -255,8 +255,13 @@ def calculate_sizing(db: Session, sizing_input: SizingInput) -> SizingResult:
     system_size_kw *= design_factor
     
     # Step 4: Calculate number of panels
-    import math
     number_of_panels = math.ceil(system_size_kw * 1000 / panel_wattage)
+    panels_per_string = int(get_setting_value(db, "panels_per_string", 12))
+    dc_string_count = (
+        max(1, math.ceil(number_of_panels / panels_per_string))
+        if number_of_panels > 0
+        else None
+    )
     
     # Calculate actual panel array capacity (using actual number of panels)
     panel_array_capacity_kw = (number_of_panels * panel_wattage) / 1000
@@ -399,6 +404,7 @@ def calculate_sizing(db: Session, sizing_input: SizingInput) -> SizingResult:
         roof_area_m2=round(roof_area_m2, 2),
         mounting_rail_linear_m_estimate=rail_linear_m,
         mounting_rails_estimate=rail_pieces,
+        dc_string_count=dc_string_count,
         min_inverter_kw=round(min_inverter_kw, 1),  # Minimum required (calculated)
         inverter_size_kw=round(inverter_size_kw, 1),  # Selected product size
         inverter_count=inverter_config["count"],  # Number of parallel inverters

@@ -157,15 +157,21 @@ def init_settings():
                 "category": "pricing"
             },
             {
+                "key": "use_bos_percentage",
+                "value": "false",
+                "description": "When false, quotes use itemized catalog BOM (cables, breakers, rails, etc.) instead of a lump-sum BOS % line. Set true only for legacy pricing.",
+                "category": "pricing"
+            },
+            {
                 "key": "bos_percentage",
                 "value": "12.0",
-                "description": "Balance of System (BOS) as percentage of equipment cost for Ghana (includes cables, connectors, combiner boxes, monitoring, etc.)",
+                "description": "Legacy: BOS as % of equipment cost (only used when use_bos_percentage is true). Itemized BOM SKUs replace this for new quotes.",
                 "category": "pricing"
             },
             {
                 "key": "installation_cost_percent",
                 "value": "20.0",
-                "description": "Installation cost as percentage of total equipment cost (includes panels, inverter, battery, mounting, BOS). Typical range: 8-15% for Ghana (accounts for labor, mounting hardware, electrical work, permits)",
+                "description": "Installation cost as % of core equipment (panels, inverter, battery, mounting; legacy BOS % if enabled). Typical range: 8-20% for Ghana.",
                 "category": "pricing"
             },
             {
@@ -178,6 +184,54 @@ def init_settings():
                 "key": "append_catalog_bom_on_quote",
                 "value": "true",
                 "description": "When true, creating a quote from sizing (hybrid/off-grid) appends standard BOM lines from catalog SKUs (cables, breakers, DBs, etc.) if those products exist. Set false to disable.",
+                "category": "pricing"
+            },
+            {
+                "key": "bom_clamps_per_panel",
+                "value": "3.5",
+                "description": "PV mid/end clamp count per panel when auto-building itemized BOM from sizing.",
+                "category": "pricing"
+            },
+            {
+                "key": "panels_per_string",
+                "value": "12",
+                "description": "Modules per DC string for BOM (dc_string_count = ceil(panels / this)). Tune per module Voc and inverter MPPT.",
+                "category": "pricing"
+            },
+            {
+                "key": "module_isc_factor",
+                "value": "1.25",
+                "description": "OCPD sizing factor vs Isc (IEC 62548 planning reference; full Isc calc not automated yet).",
+                "category": "pricing"
+            },
+            {
+                "key": "bom_rail_pricing_mode",
+                "value": "sets",
+                "description": "Rail BOM: 'sets' (MNT-RAIL-SET-350, proforma) or 'sticks' (MNT-RAIL-18FT from sizing). Never both.",
+                "category": "pricing"
+            },
+            {
+                "key": "bom_explicit_consumables",
+                "value": "true",
+                "description": "When true, quote MC4, DC/AC isolators, earth kit, trunking, labels as separate lines (not only in misc kit).",
+                "category": "pricing"
+            },
+            {
+                "key": "bom_include_roof_hooks",
+                "value": "false",
+                "description": "When true, add BOS-ROOF-HOOK-EA (omit if rail set price already includes hooks).",
+                "category": "pricing"
+            },
+            {
+                "key": "bom_roof_hooks_per_panel",
+                "value": "2",
+                "description": "Roof hooks per panel when bom_include_roof_hooks is true.",
+                "category": "pricing"
+            },
+            {
+                "key": "bom_skip_changeover_grid_tied",
+                "value": "true",
+                "description": "When true, grid-tied quotes without backup omit PRT-CO-100A changeover.",
                 "category": "pricing"
             },
             {

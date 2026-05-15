@@ -32,23 +32,84 @@ from app.schemas import (
     QuoteOptionCreate,
     QuoteOptionUpdate,
 )
-from app.services.pricing import generate_quote_items_from_sizing
+from app.services.pricing import generate_quote_items_from_sizing, use_bos_percentage_pricing
 from app.services.pdf_generator import generate_quotation_pdf
 from app.services.email_service import send_quotation_email
 from app.services.quote_recalculator import recalculate_dependent_items
 from app.services.quote_totals import get_primary_quote_option_id, refresh_quote_header_totals
-from app.services.bom_from_catalog import append_standard_bom_from_catalog
+from app.services.bom_from_catalog import _BOM_SKU_ORDER, append_standard_bom_from_catalog
+from app.services.bom_sync import item_triggers_catalog_bom_rebuild, rebuild_catalog_bom_for_option
+from app.services.bom_rules_reference import full_bom_rules_reference
+from app.services.bom_audit import audit_quote
+from app.services.bom_fix import fix_quote_bom
+from app.services.bom_checklist_pdf import generate_bom_checklist_pdf
 
 router = APIRouter(prefix="/quotes", tags=["quotes"])
 
 
 def _item_triggers_bos_recalc(db: Session, item: QuoteItem) -> bool:
+    """Legacy lump-sum BOS % / installation % only (equipment drivers)."""
     if item.product_id:
         product = db.query(Product).filter(Product.id == item.product_id).first()
         if product and product.product_type.value in ["panel", "inverter", "battery", "mounting"]:
             return True
+    desc = item.description or ""
+    desc_upper = desc.upper()
+    if "Balance of System" in desc or "BOS) -" in desc_upper or "BOS -" in desc_upper:
+        return True
+    return False
+
+
+def _is_manual_service_line(db: Session, item: QuoteItem) -> bool:
+    """Transport, installation, and catalog BOM lines — edit price only, no % cascade."""
+    if item.product_id:
+        product = db.query(Product).filter(Product.id == item.product_id).first()
+        if not product:
+            return False
+        if product.product_type.value in ("transport", "installation"):
+            return True
+        if product.sku and product.sku in _BOM_SKU_ORDER:
+            return True
     desc_lower = (item.description or "").lower()
-    return "bos" in desc_lower or "balance of system" in desc_lower
+    if "transport" in desc_lower and "logistics" in desc_lower:
+        return True
+    if "installation" in desc_lower and "transport" not in desc_lower:
+        return True
+    return False
+
+
+def _finalize_quote_item_change(
+    db: Session,
+    quote_id: int,
+    quote_option_id: int,
+    item: QuoteItem,
+) -> None:
+    """Recalculate itemized BOM and/or legacy % lines, then quote header totals."""
+    quote = db.query(Quote).filter(Quote.id == quote_id).first()
+    project = db.query(Project).filter(Project.id == quote.project_id).first() if quote else None
+
+    if _is_manual_service_line(db, item):
+        refresh_quote_header_totals(db, quote_id)
+        db.commit()
+        return
+
+    if (
+        quote
+        and project
+        and item_triggers_catalog_bom_rebuild(db, item)
+    ):
+        rebuild_catalog_bom_for_option(
+            db, quote_id, quote_option_id, project.id, project.system_type
+        )
+        refresh_quote_header_totals(db, quote_id)
+        db.commit()
+        return
+
+    if _item_triggers_bos_recalc(db, item):
+        recalculate_dependent_items(db, quote_id, quote_option_id)
+    else:
+        refresh_quote_header_totals(db, quote_id)
+        db.commit()
 
 
 @router.get("/", response_model=List[QuoteSchema])
@@ -73,6 +134,81 @@ async def list_quotes(
     return quotes
 
 
+@router.get("/bom-rules-reference")
+async def get_bom_rules_reference(
+    current_user: User = Depends(get_current_active_user),
+):
+    """How itemized BOM quantities are derived (for admin / quote UI help)."""
+    return full_bom_rules_reference()
+
+
+@router.get("/{quote_id}/bom-audit")
+async def get_quote_bom_audit(
+    quote_id: int,
+    quote_option_id: Optional[int] = Query(None),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+):
+    """Compare expected catalog BOM (from sizing) to products and quote lines."""
+    return audit_quote(db, quote_id, quote_option_id)
+
+
+@router.post("/{quote_id}/fix-bom")
+async def fix_quote_bom_endpoint(
+    quote_id: int,
+    quote_option_id: Optional[int] = Query(None),
+    sync_all_options: bool = Query(
+        False,
+        description="Rebuild BOM on every quote option for this project",
+    ),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+):
+    """Seed missing catalog SKUs, rebuild BOM from sizing, return audit summary."""
+    quote = db.query(Quote).filter(Quote.id == quote_id).first()
+    if not quote:
+        raise HTTPException(status_code=404, detail="Quote not found")
+    result = fix_quote_bom(
+        db,
+        quote_id,
+        quote_option_id,
+        sync_all_options=sync_all_options,
+    )
+    if result.get("error"):
+        raise HTTPException(status_code=400, detail=result["error"])
+    return result
+
+
+@router.get("/{quote_id}/bom-checklist-pdf")
+async def get_bom_checklist_pdf(
+    quote_id: int,
+    quote_option_id: Optional[int] = Query(None),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+):
+    """Site handover checklist PDF with tick boxes per BOM line."""
+    try:
+        quote = db.query(Quote).filter(Quote.id == quote_id).first()
+        if not quote:
+            raise HTTPException(status_code=404, detail="Quote not found")
+        pdf_bytes = generate_bom_checklist_pdf(db, quote_id, quote_option_id)
+        filename = f"bom_checklist_{quote.quote_number}.pdf"
+        return StreamingResponse(
+            pdf_bytes,
+            media_type="application/pdf",
+            headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        import logging
+
+        logging.getLogger(__name__).error(
+            "BOM checklist PDF failed for quote %s: %s", quote_id, e, exc_info=True
+        )
+        raise HTTPException(status_code=500, detail=f"Error generating checklist PDF: {e}")
+
+
 @router.get("/{quote_id}", response_model=QuoteSchema)
 async def get_quote(
     quote_id: int,
@@ -87,6 +223,9 @@ async def get_quote(
     ).filter(Quote.id == quote_id).first()
     if not quote:
         raise HTTPException(status_code=404, detail="Quote not found")
+    refresh_quote_header_totals(db, quote_id)
+    db.commit()
+    db.refresh(quote)
     return quote
 
 
@@ -244,9 +383,8 @@ async def create_quote(
                     db_quote.id,
                     default_option.id,
                     project.system_type,
-                    sizing_result.number_of_panels or 0,
+                    sizing_result,
                     start_sort_order=next_so,
-                    mounting_rails_estimate=sizing_result.mounting_rails_estimate,
                 )
                 if n_extra:
                     logger.info(f"Appended {n_extra} catalog BOM line(s) after sizing items")
@@ -342,14 +480,38 @@ async def add_quote_item(
     db.add(db_item)
     db.flush()
 
-    if _item_triggers_bos_recalc(db, db_item):
-        recalculate_dependent_items(db, quote_id, opt_id)
-    else:
-        refresh_quote_header_totals(db, quote_id)
-        db.commit()
+    _finalize_quote_item_change(db, quote_id, opt_id, db_item)
 
     db.refresh(db_item)
     return db_item
+
+
+@router.post("/{quote_id}/rebuild-bom")
+async def rebuild_quote_bom(
+    quote_id: int,
+    quote_option_id: Optional[int] = Query(None),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+):
+    """Rebuild catalog BOM lines from project sizing + current panel/inverter/battery on quote."""
+    quote = db.query(Quote).filter(Quote.id == quote_id).first()
+    if not quote:
+        raise HTTPException(status_code=404, detail="Quote not found")
+    project = db.query(Project).filter(Project.id == quote.project_id).first()
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    opt_id = quote_option_id or get_primary_quote_option_id(db, quote_id)
+    if not opt_id:
+        raise HTTPException(status_code=400, detail="Quote has no options")
+
+    added = rebuild_catalog_bom_for_option(
+        db, quote_id, opt_id, project.id, project.system_type
+    )
+    refresh_quote_header_totals(db, quote_id)
+    db.commit()
+    db.refresh(quote)
+    return {"lines_added": added, "quote": quote}
 
 
 @router.put("/{quote_id}/items/{item_id}", response_model=QuoteItemSchema)
@@ -384,11 +546,7 @@ async def update_quote_item(
 
     db.flush()
 
-    if _item_triggers_bos_recalc(db, item):
-        recalculate_dependent_items(db, quote_id, item.quote_option_id)
-    else:
-        refresh_quote_header_totals(db, quote_id)
-        db.commit()
+    _finalize_quote_item_change(db, quote_id, item.quote_option_id, item)
 
     db.refresh(item)
     return item
@@ -411,12 +569,26 @@ async def delete_quote_item(
         raise HTTPException(status_code=404, detail="Quote item not found")
 
     option_id = item.quote_option_id
-    needs_recalc = _item_triggers_bos_recalc(db, item)
+    triggers_bom = item_triggers_catalog_bom_rebuild(db, item)
+    triggers_legacy = _item_triggers_bos_recalc(db, item)
 
     db.delete(item)
     db.flush()
 
-    if needs_recalc:
+    if triggers_bom and option_id:
+        quote = db.query(Quote).filter(Quote.id == quote_id).first()
+        project = (
+            db.query(Project).filter(Project.id == quote.project_id).first()
+            if quote
+            else None
+        )
+        if quote and project:
+            rebuild_catalog_bom_for_option(
+                db, quote_id, option_id, project.id, project.system_type
+            )
+            refresh_quote_header_totals(db, quote_id)
+            db.commit()
+    elif triggers_legacy and option_id:
         recalculate_dependent_items(db, quote_id, option_id)
     else:
         refresh_quote_header_totals(db, quote_id)
@@ -454,6 +626,14 @@ async def update_quote_percentage(
 
     target_item = None
     if item_type.lower() == "bos":
+        if not use_bos_percentage_pricing(db):
+            raise HTTPException(
+                status_code=400,
+                detail=(
+                    "Lump-sum BOS % pricing is disabled. BOS is itemized from the product catalog "
+                    "(cables, breakers, rails, etc.). Edit those line items directly."
+                ),
+            )
         for it in all_items:
             if "BOS" in it.description.upper() or "Balance of System" in it.description:
                 target_item = it

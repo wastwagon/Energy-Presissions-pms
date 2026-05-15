@@ -21,6 +21,7 @@ import {
   DialogActions,
   Alert,
   Snackbar,
+  CircularProgress,
   Tabs,
   Tab,
   FormControl,
@@ -28,10 +29,11 @@ import {
   Select,
   MenuItem,
 } from '@mui/material';
-import { Download as DownloadIcon, Print as PrintIcon, Email as EmailIcon, Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
+import { Download as DownloadIcon, Print as PrintIcon, Email as EmailIcon, Edit as EditIcon, Delete as DeleteIcon, Build as BuildIcon, MenuBook as MenuBookIcon, FactCheck as FactCheckIcon, AutoFixHigh as AutoFixHighIcon, Assignment as AssignmentIcon } from '@mui/icons-material';
 import { IconButton } from '@mui/material';
 import api from '../services/api';
 import { Quote, QuoteItem } from '../types';
+import { splitEquipmentServices, sumLineItems } from '../utils/quoteTotals';
 
 const QuoteDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -41,7 +43,11 @@ const QuoteDetail: React.FC = () => {
   const [updateTimeout, setUpdateTimeout] = useState<NodeJS.Timeout | null>(null);
   const [emailDialogOpen, setEmailDialogOpen] = useState(false);
   const [emailAddress, setEmailAddress] = useState('');
-  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' as 'success' | 'error' });
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: '',
+    severity: 'success' as 'success' | 'error' | 'warning' | 'info',
+  });
   const [editItemDialogOpen, setEditItemDialogOpen] = useState(false);
   const [editQuoteDialogOpen, setEditQuoteDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<QuoteItem | null>(null);
@@ -54,6 +60,38 @@ const QuoteDetail: React.FC = () => {
   const [editOptionOpen, setEditOptionOpen] = useState(false);
   const [editOptionTitle, setEditOptionTitle] = useState('');
   const [editOptionNarrative, setEditOptionNarrative] = useState('');
+  const [rebuildingBom, setRebuildingBom] = useState(false);
+  const [fixingBom, setFixingBom] = useState(false);
+  const [bomGuideOpen, setBomGuideOpen] = useState(false);
+  const [bomGuideLoading, setBomGuideLoading] = useState(false);
+  const [bomGuide, setBomGuide] = useState<{
+    methodology?: string[];
+    overlap_notes?: string[];
+    recommended_manual_lines?: { item: string; reason: string }[];
+    catalog?: {
+      categories?: string[];
+      items_by_category?: Record<string, Array<{
+        sku: string;
+        name: string;
+        usage: string;
+        qty_rule: string;
+        combines_with?: string | null;
+        essential?: boolean;
+        proforma?: boolean;
+      }>>;
+    };
+  } | null>(null);
+  const [bomAuditOpen, setBomAuditOpen] = useState(false);
+  const [bomAuditLoading, setBomAuditLoading] = useState(false);
+  const [bomAudit, setBomAudit] = useState<{
+    ok?: boolean;
+    message?: string;
+    missing_products?: { sku: string; expected_qty: number; fix?: string }[];
+    missing_on_quote?: { sku: string; expected_qty: number }[];
+    qty_mismatch?: { sku: string; expected_qty: number; quote_qty: number }[];
+    stale_on_quote?: { sku: string; quote_qty: number; description?: string }[];
+    ready_skus?: { sku: string; expected_qty: number; product_name?: string }[];
+  } | null>(null);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-GH', {
@@ -79,6 +117,13 @@ const QuoteDetail: React.FC = () => {
     });
   }, [quote?.id, quote?.options]);
 
+  useEffect(() => {
+    if (id && quote && (activeOptionId != null || !quote.options?.length)) {
+      runBomAudit(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, quote?.id, activeOptionId]);
+
   const activeItems = useMemo(() => {
     if (!quote) return [];
     if (quote.options && quote.options.length > 0 && activeOptionId != null) {
@@ -87,6 +132,15 @@ const QuoteDetail: React.FC = () => {
     }
     return quote.items || [];
   }, [quote, activeOptionId]);
+
+  const activeOptionSubtotal = useMemo(() => sumLineItems(activeItems), [activeItems]);
+
+  const activeOptionSplit = useMemo(
+    () => splitEquipmentServices(activeItems),
+    [activeItems]
+  );
+
+  const hasMultipleOptions = Boolean(quote?.options && quote.options.length > 1);
 
   const fetchQuote = async () => {
     try {
@@ -408,13 +462,20 @@ const QuoteDetail: React.FC = () => {
       await api.put(`/quotes/${id}/items/${editingItem.id}`, updatedItem);
       setEditItemDialogOpen(false);
       setEditingItem(null);
+      await fetchQuote();
       
-      // Wait a moment for backend to recalculate dependent items (BOS, Installation)
-      setTimeout(() => {
-        fetchQuote();
-      }, 300);
-      
-      setSnackbar({ open: true, message: 'Item updated successfully. BOS and Installation recalculated automatically.', severity: 'success' });
+      const desc = (itemForm.description || '').toLowerCase();
+      const isTransport = desc.includes('transport') || desc.includes('logistics');
+      const isInstall = desc.includes('installation') && !isTransport;
+      setSnackbar({
+        open: true,
+        message: isTransport
+          ? 'Transport line updated. Option total refreshed (other lines unchanged).'
+          : isInstall
+            ? 'Installation line updated. Option total refreshed.'
+            : 'Item updated. Totals refreshed for this option.',
+        severity: 'success',
+      });
     } catch (error: any) {
       setSnackbar({ open: true, message: error.response?.data?.detail || 'Error updating item', severity: 'error' });
     }
@@ -431,9 +492,132 @@ const QuoteDetail: React.FC = () => {
         fetchQuote();
       }, 300);
       
-      setSnackbar({ open: true, message: 'Item deleted successfully. BOS and Installation recalculated automatically.', severity: 'success' });
+      setSnackbar({
+        open: true,
+        message: 'Item deleted. BOM lines and totals updated where linked to equipment.',
+        severity: 'success',
+      });
     } catch (error: any) {
       setSnackbar({ open: true, message: error.response?.data?.detail || 'Error deleting item', severity: 'error' });
+    }
+  };
+
+  const openBomGuide = async () => {
+    setBomGuideOpen(true);
+    if (bomGuide) return;
+    setBomGuideLoading(true);
+    try {
+      const response = await api.get('/quotes/bom-rules-reference');
+      setBomGuide(response.data);
+    } catch {
+      setSnackbar({ open: true, message: 'Could not load BOM guide', severity: 'error' });
+    } finally {
+      setBomGuideLoading(false);
+    }
+  };
+
+  const runBomAudit = async (openDialog = true) => {
+    if (!id) return null;
+    setBomAuditLoading(true);
+    if (openDialog) setBomAuditOpen(true);
+    try {
+      const params: Record<string, number> = {};
+      if (activeOptionId != null) params.quote_option_id = activeOptionId;
+      const response = await api.get(`/quotes/${id}/bom-audit`, { params });
+      setBomAudit(response.data);
+      return response.data;
+    } catch (error: any) {
+      setSnackbar({
+        open: true,
+        message: error.response?.data?.detail || 'BOM audit failed',
+        severity: 'error',
+      });
+      return null;
+    } finally {
+      setBomAuditLoading(false);
+    }
+  };
+
+  const handleFixBom = async () => {
+    if (!id) return;
+    setFixingBom(true);
+    try {
+      const params: Record<string, number | boolean> = {};
+      if (activeOptionId != null) params.quote_option_id = activeOptionId;
+      const response = await api.post(`/quotes/${id}/fix-bom`, null, { params });
+      await fetchQuote();
+      setBomAudit(response.data.audit_after || null);
+      const seeded = response.data.seed?.inserted?.length ?? 0;
+      setSnackbar({
+        open: true,
+        message: response.data.message
+          ? `Fix BOM: ${response.data.message}${seeded ? ` (${seeded} SKU(s) seeded)` : ''}`
+          : 'BOM fixed from sizing',
+        severity: response.data.ok ? 'success' : 'warning',
+      });
+      if (!response.data.ok) setBomAuditOpen(true);
+    } catch (error: any) {
+      setSnackbar({
+        open: true,
+        message: error.response?.data?.detail || 'Fix BOM failed',
+        severity: 'error',
+      });
+    } finally {
+      setFixingBom(false);
+    }
+  };
+
+  const handleDownloadBomChecklist = async () => {
+    if (!id) return;
+    try {
+      const params: Record<string, number> = {};
+      if (activeOptionId != null) params.quote_option_id = activeOptionId;
+      const response = await api.get(`/quotes/${id}/bom-checklist-pdf`, {
+        params,
+        responseType: 'blob',
+      });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `bom_checklist_${quote?.quote_number || id}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setSnackbar({ open: true, message: 'BOM checklist PDF downloaded', severity: 'success' });
+    } catch (error: any) {
+      setSnackbar({
+        open: true,
+        message: error.response?.data?.detail || 'Failed to download BOM checklist',
+        severity: 'error',
+      });
+    }
+  };
+
+  const handleRebuildBom = async () => {
+    if (!id) return;
+    setRebuildingBom(true);
+    try {
+      const params: Record<string, number> = {};
+      if (activeOptionId != null) params.quote_option_id = activeOptionId;
+      const response = await api.post(`/quotes/${id}/rebuild-bom`, null, { params });
+      await fetchQuote();
+      const added = response.data?.lines_added ?? 0;
+      const audit = await runBomAudit(false);
+      const auditMsg = audit?.message ? ` ${audit.message}` : '';
+      setSnackbar({
+        open: true,
+        message: `BOM rebuilt (${added} line${added === 1 ? '' : 's'} added).${auditMsg}`,
+        severity: audit?.ok === false ? 'error' : 'success',
+      });
+      if (audit && !audit.ok) setBomAuditOpen(true);
+    } catch (error: any) {
+      setSnackbar({
+        open: true,
+        message: error.response?.data?.detail || 'Failed to rebuild BOM from sizing',
+        severity: 'error',
+      });
+    } finally {
+      setRebuildingBom(false);
     }
   };
 
@@ -623,17 +807,39 @@ const QuoteDetail: React.FC = () => {
     return <Typography>Loading...</Typography>;
   }
 
-  const subtotal = quote.equipment_subtotal + quote.services_subtotal;
-  
-  // Calculate tax and discount amounts locally for immediate display
+  const headerSubtotal = quote.equipment_subtotal + quote.services_subtotal;
+  const useLineItemTotals =
+    activeItems.length > 0 &&
+    (hasMultipleOptions || Math.abs(headerSubtotal - activeOptionSubtotal) > 0.02);
+
+  const displayEquipment = useLineItemTotals
+    ? activeOptionSplit.equipment
+    : quote.equipment_subtotal;
+  const displayServices = useLineItemTotals
+    ? activeOptionSplit.services
+    : quote.services_subtotal;
+  const subtotal = useLineItemTotals ? activeOptionSubtotal : headerSubtotal;
+
   const localTaxAmount = subtotal * (taxPercent / 100);
   const localDiscountAmount = subtotal * (discountPercent / 100);
   const localGrandTotal = subtotal + localTaxAmount - localDiscountAmount;
-  
-  // Use local calculations if they differ from stored values (user is typing)
-  const displayTaxAmount = (taxPercent !== quote.tax_percent) ? localTaxAmount : (quote.tax_amount || 0);
-  const displayDiscountAmount = (discountPercent !== quote.discount_percent) ? localDiscountAmount : (quote.discount_amount || 0);
-  const displayGrandTotal = (taxPercent !== quote.tax_percent || discountPercent !== quote.discount_percent) ? localGrandTotal : quote.grand_total;
+
+  const displayTaxAmount =
+    useLineItemTotals ||
+    taxPercent !== quote.tax_percent
+      ? localTaxAmount
+      : quote.tax_amount || 0;
+  const displayDiscountAmount =
+    useLineItemTotals ||
+    discountPercent !== quote.discount_percent
+      ? localDiscountAmount
+      : quote.discount_amount || 0;
+  const displayGrandTotal =
+    useLineItemTotals ||
+    taxPercent !== quote.tax_percent ||
+    discountPercent !== quote.discount_percent
+      ? localGrandTotal
+      : quote.grand_total;
 
   return (
     <Box>
@@ -735,7 +941,111 @@ const QuoteDetail: React.FC = () => {
                   Delete this option
                 </Button>
               )}
+              <Button
+                size="small"
+                variant="outlined"
+                color="secondary"
+                startIcon={rebuildingBom ? <CircularProgress size={16} /> : <BuildIcon />}
+                onClick={handleRebuildBom}
+                disabled={rebuildingBom}
+              >
+                Rebuild BOM from sizing
+              </Button>
+              <Button
+                size="small"
+                variant="text"
+                startIcon={<MenuBookIcon />}
+                onClick={openBomGuide}
+              >
+                BOM item guide
+              </Button>
+              <Button
+                size="small"
+                variant="text"
+                startIcon={bomAuditLoading ? <CircularProgress size={16} /> : <FactCheckIcon />}
+                onClick={() => runBomAudit(true)}
+                disabled={bomAuditLoading}
+              >
+                Check BOM
+              </Button>
+              <Button
+                size="small"
+                variant="contained"
+                color="primary"
+                startIcon={fixingBom ? <CircularProgress size={16} color="inherit" /> : <AutoFixHighIcon />}
+                onClick={handleFixBom}
+                disabled={fixingBom || rebuildingBom}
+              >
+                Fix BOM
+              </Button>
+              <Button
+                size="small"
+                variant="outlined"
+                startIcon={<AssignmentIcon />}
+                onClick={handleDownloadBomChecklist}
+              >
+                BOM checklist PDF
+              </Button>
             </Box>
+          )}
+
+          {!quote.options?.length && (
+            <Box sx={{ mb: 2, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+              <Button
+                size="small"
+                variant="outlined"
+                color="secondary"
+                startIcon={rebuildingBom ? <CircularProgress size={16} /> : <BuildIcon />}
+                onClick={handleRebuildBom}
+                disabled={rebuildingBom}
+              >
+                Rebuild BOM from sizing
+              </Button>
+              <Button size="small" variant="text" startIcon={<MenuBookIcon />} onClick={openBomGuide}>
+                BOM item guide
+              </Button>
+              <Button
+                size="small"
+                variant="text"
+                startIcon={bomAuditLoading ? <CircularProgress size={16} /> : <FactCheckIcon />}
+                onClick={() => runBomAudit(true)}
+                disabled={bomAuditLoading}
+              >
+                Check BOM
+              </Button>
+              <Button
+                size="small"
+                variant="contained"
+                color="primary"
+                startIcon={fixingBom ? <CircularProgress size={16} color="inherit" /> : <AutoFixHighIcon />}
+                onClick={handleFixBom}
+                disabled={fixingBom || rebuildingBom}
+              >
+                Fix BOM
+              </Button>
+              <Button
+                size="small"
+                variant="outlined"
+                startIcon={<AssignmentIcon />}
+                onClick={handleDownloadBomChecklist}
+              >
+                BOM checklist PDF
+              </Button>
+            </Box>
+          )}
+
+          {bomAudit && !bomAudit.ok && !bomAuditOpen && (
+            <Alert
+              severity="warning"
+              sx={{ mb: 2 }}
+              action={
+                <Button color="inherit" size="small" onClick={handleFixBom}>
+                  Fix BOM
+                </Button>
+              }
+            >
+              {bomAudit.message || 'BOM does not fully match sizing — use Fix BOM to seed catalog and rebuild.'}
+            </Alert>
           )}
 
           <TableContainer component={Paper}>
@@ -881,11 +1191,11 @@ const QuoteDetail: React.FC = () => {
               )}
               <Box display="flex" justifyContent="space-between" mb={1}>
                 <Typography>Equipment:</Typography>
-                <Typography>{formatCurrency(quote.equipment_subtotal)}</Typography>
+                <Typography>{formatCurrency(displayEquipment)}</Typography>
               </Box>
               <Box display="flex" justifyContent="space-between" mb={1}>
                 <Typography>Services:</Typography>
-                <Typography>{formatCurrency(quote.services_subtotal)}</Typography>
+                <Typography>{formatCurrency(displayServices)}</Typography>
               </Box>
               <Box display="flex" justifyContent="space-between" mb={2}>
                 <Typography variant="body2" fontWeight="bold">
@@ -1112,6 +1422,169 @@ const QuoteDetail: React.FC = () => {
         <DialogActions>
           <Button onClick={() => setEditQuoteDialogOpen(false)}>Cancel</Button>
           <Button onClick={handleSaveQuote} variant="contained">Save</Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={bomAuditOpen} onClose={() => setBomAuditOpen(false)} maxWidth="md" fullWidth>
+        <DialogTitle>BOM audit</DialogTitle>
+        <DialogContent dividers>
+          {bomAuditLoading && (
+            <Box display="flex" justifyContent="center" py={3}>
+              <CircularProgress />
+            </Box>
+          )}
+          {!bomAuditLoading && bomAudit && (
+            <Box>
+              <Alert severity={bomAudit.ok ? 'success' : 'warning'} sx={{ mb: 2 }}>
+                {bomAudit.message || (bomAudit.ok ? 'BOM OK' : 'Issues found')}
+              </Alert>
+              {(bomAudit.missing_products?.length ?? 0) > 0 && (
+                <>
+                  <Typography variant="subtitle2" color="error" gutterBottom>
+                    Missing from product catalog (seed required)
+                  </Typography>
+                  {bomAudit.missing_products!.map((row) => (
+                    <Typography key={row.sku} variant="body2" sx={{ mb: 0.5 }}>
+                      <strong>{row.sku}</strong> — qty {row.expected_qty}. {row.fix}
+                    </Typography>
+                  ))}
+                </>
+              )}
+              {(bomAudit.missing_on_quote?.length ?? 0) > 0 && (
+                <>
+                  <Typography variant="subtitle2" sx={{ mt: 2 }} gutterBottom>
+                    Expected but not on quote — click Rebuild BOM
+                  </Typography>
+                  {bomAudit.missing_on_quote!.map((row) => (
+                    <Typography key={row.sku} variant="body2">
+                      {row.sku} (×{row.expected_qty})
+                    </Typography>
+                  ))}
+                </>
+              )}
+              {(bomAudit.qty_mismatch?.length ?? 0) > 0 && (
+                <>
+                  <Typography variant="subtitle2" sx={{ mt: 2 }} gutterBottom>
+                    Quantity mismatch
+                  </Typography>
+                  {bomAudit.qty_mismatch!.map((row) => (
+                    <Typography key={row.sku} variant="body2">
+                      {row.sku}: quote {row.quote_qty} vs expected {row.expected_qty}
+                    </Typography>
+                  ))}
+                </>
+              )}
+              {(bomAudit.stale_on_quote?.length ?? 0) > 0 && (
+                <>
+                  <Typography variant="subtitle2" sx={{ mt: 2 }} gutterBottom>
+                    Stale lines on quote (rebuild will remove)
+                  </Typography>
+                  {bomAudit.stale_on_quote!.map((row) => (
+                    <Typography key={row.sku} variant="body2">
+                      {row.sku} (×{row.quote_qty})
+                    </Typography>
+                  ))}
+                </>
+              )}
+              {bomAudit.ok && (bomAudit.ready_skus?.length ?? 0) > 0 && (
+                <Typography variant="body2" color="text.secondary">
+                  {bomAudit.ready_skus!.length} catalog BOM line(s) match sizing.
+                </Typography>
+              )}
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setBomAuditOpen(false)}>Close</Button>
+          <Button variant="outlined" onClick={handleDownloadBomChecklist}>
+            Checklist PDF
+          </Button>
+          <Button variant="outlined" onClick={handleRebuildBom} disabled={rebuildingBom}>
+            Rebuild only
+          </Button>
+          <Button variant="contained" onClick={handleFixBom} disabled={fixingBom || rebuildingBom}>
+            Fix BOM
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={bomGuideOpen} onClose={() => setBomGuideOpen(false)} maxWidth="lg" fullWidth>
+        <DialogTitle>BOM catalog — what each line is for</DialogTitle>
+        <DialogContent dividers>
+          {bomGuideLoading && (
+            <Box display="flex" justifyContent="center" py={4}>
+              <CircularProgress />
+            </Box>
+          )}
+          {!bomGuideLoading && bomGuide && (
+            <Box>
+              {bomGuide.methodology?.map((line, i) => (
+                <Typography key={i} variant="body2" paragraph>
+                  • {line}
+                </Typography>
+              ))}
+              {bomGuide.overlap_notes?.map((line, i) => (
+                <Alert key={`ov-${i}`} severity="warning" sx={{ mb: 1 }}>
+                  {line}
+                </Alert>
+              ))}
+              {bomGuide.catalog?.categories?.map((cat) => {
+                const items = bomGuide.catalog?.items_by_category?.[cat] || [];
+                if (!items.length) return null;
+                return (
+                  <Box key={cat} sx={{ mb: 3 }}>
+                    <Typography variant="subtitle1" sx={{ textTransform: 'capitalize', mb: 1 }}>
+                      {cat.replace(/_/g, ' ')}
+                    </Typography>
+                    <TableContainer component={Paper} variant="outlined">
+                      <Table size="small">
+                        <TableHead>
+                          <TableRow>
+                            <TableCell>SKU</TableCell>
+                            <TableCell>Item</TableCell>
+                            <TableCell>Usage</TableCell>
+                            <TableCell>Qty rule</TableCell>
+                          </TableRow>
+                        </TableHead>
+                        <TableBody>
+                          {items.map((row) => (
+                            <TableRow key={row.sku}>
+                              <TableCell sx={{ fontFamily: 'monospace', fontSize: '0.75rem' }}>{row.sku}</TableCell>
+                              <TableCell>
+                                {row.name}
+                                {row.proforma && (
+                                  <Typography component="span" variant="caption" color="primary" sx={{ ml: 0.5 }}>
+                                    (proforma)
+                                  </Typography>
+                                )}
+                              </TableCell>
+                              <TableCell>{row.usage}</TableCell>
+                              <TableCell>{row.qty_rule}</TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </TableContainer>
+                  </Box>
+                );
+              })}
+              {bomGuide.recommended_manual_lines && bomGuide.recommended_manual_lines.length > 0 && (
+                <Box sx={{ mt: 2 }}>
+                  <Typography variant="subtitle1" gutterBottom>
+                    Add manually when needed (not auto-quoted)
+                  </Typography>
+                  {bomGuide.recommended_manual_lines.map((row, i) => (
+                    <Typography key={i} variant="body2" sx={{ mb: 0.5 }}>
+                      <strong>{row.item}</strong> — {row.reason}
+                    </Typography>
+                  ))}
+                </Box>
+              )}
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setBomGuideOpen(false)}>Close</Button>
         </DialogActions>
       </Dialog>
 
