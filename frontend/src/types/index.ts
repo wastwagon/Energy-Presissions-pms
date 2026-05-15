@@ -274,6 +274,8 @@ export interface SizingResult {
   system_size_kw?: number;
   number_of_panels?: number;
   roof_area_m2?: number;
+  mounting_rail_linear_m_estimate?: number | null;
+  mounting_rails_estimate?: number | null;
   min_inverter_kw?: number;  // Minimum required inverter capacity (calculated)
   inverter_size_kw?: number;  // Total inverter capacity (selected product size)
   inverter_count?: number;  // Number of parallel inverters

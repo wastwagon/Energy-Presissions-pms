@@ -53,6 +53,30 @@ def init_settings():
                 "category": "sizing"
             },
             {
+                "key": "mounting_rail_length_m",
+                "value": "5.4864",
+                "description": "Standard rail stick length in metres (18 ft × 0.3048) for mounting rail quantity estimates",
+                "category": "sizing"
+            },
+            {
+                "key": "panel_module_aspect_ratio",
+                "value": "1.93",
+                "description": "Module length/width ratio (long ÷ short) used with panel_area_m2 to infer short edge for rail-span estimates (portrait layout)",
+                "category": "sizing"
+            },
+            {
+                "key": "mounting_rails_per_panel_rank",
+                "value": "2.0",
+                "description": "Parallel rail runs per horizontal panel rank (typically 2 for twin-rail systems)",
+                "category": "sizing"
+            },
+            {
+                "key": "mounting_rail_waste_factor",
+                "value": "1.08",
+                "description": "Multiplier on estimated linear rail metres for offcuts, stagger, and hardware margins (≥ 1.0)",
+                "category": "sizing"
+            },
+            {
                 "key": "battery_dod",
                 "value": "0.85",
                 "description": "Battery depth of discharge for modern lithium batteries in Ghana (85% for LiFePO4 batteries)",

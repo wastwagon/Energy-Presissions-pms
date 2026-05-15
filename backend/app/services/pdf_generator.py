@@ -592,6 +592,18 @@ QUOTATION_TEMPLATE = """
                         <span>m²</span>
                     </div>
                 </div>
+                {% if sizing_result.mounting_rails_estimate %}
+                <div class="spec-item">
+                    <div class="spec-label">Mounting rails (est.)</div>
+                    <div class="spec-value-container">
+                        <div class="spec-value">{{ sizing_result.mounting_rails_estimate }}</div>
+                        <span>sticks (18 ft)</span>
+                    </div>
+                    {% if sizing_result.mounting_rail_linear_m_estimate %}
+                    <div class="spec-subtext">≈ {{ sizing_result.mounting_rail_linear_m_estimate|round(1) }} m linear</div>
+                    {% endif %}
+                </div>
+                {% endif %}
                 <div class="spec-item">
                     <div class="spec-label">System Efficiency</div>
                     <div class="spec-value-container">
@@ -602,6 +614,9 @@ QUOTATION_TEMPLATE = """
             </div>
             <div class="specs-note">
                 <strong>Engineering Notes:</strong> This system is designed using industry-standard engineering factors, including system efficiency (accounting for inverter, wiring, and temperature), an optimized DC/AC ratio to prevent inverter clipping, and location-specific peak sun hours for accurate energy‑generation calculations. All calculations include appropriate safety margins for reliable performance.
+                {% if sizing_result.mounting_rails_estimate %}
+                <div style="margin-top: 8px;">Mounting rail stick count is a <strong>planning estimate</strong> (18 ft segments, portrait grid); confirm with site layout and structural design.</div>
+                {% endif %}
             </div>
         </div>
         {% endif %}

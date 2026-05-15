@@ -9,12 +9,14 @@ References:
 - DC/AC ratio: 1.2-1.3 maximum (prevents inverter clipping)
 - Panel area: ~2.6 m² per panel (typical for 500-600W panels)
 - Spacing factor: 1.1-1.2 (accounts for mounting structure spacing)
+- Mounting rail sticks: planning estimate from panel count + module area (see mounting_rail_estimate)
 - Battery DoD: 80% for lithium batteries
 """
 from typing import Optional, Dict, List
 from sqlalchemy.orm import Session
 from app.models import Setting, PeakSunHours, Product, ProductType
 from app.schemas import SizingInput, SizingResult
+from app.services.mounting_rail_estimate import estimate_mounting_rail_inventory_with_params
 import math
 
 
@@ -57,6 +59,43 @@ def get_panel_wattage(panel_brand: str) -> int:
         "JA": 560
     }
     return panel_map.get(panel_brand, 580)
+
+
+def estimate_mounting_rail_inventory(
+    db: Session,
+    number_of_panels: int,
+    module_area_m2: float,
+) -> tuple:
+    """
+    Estimate total linear metres of rail and count of discrete rail sticks (e.g. 18 ft).
+
+    **Roof area alone is not sufficient** to know rail count: the same footprint can be one
+    long row or many short rows. This helper uses a standard **planning** assumption:
+
+    - Modules in **portrait** on the roof (short edge horizontal along the rail run).
+    - Array approximated as a near-rectangular grid: ``cols = ceil(sqrt(N))``,
+      ``rows = ceil(N / cols)`` (max panels wide, fewest ranks).
+    - ``module_area_m2`` is treated as the module **face** L×W (same as ``panel_area_m2`` setting).
+    - Module width (short side): ``W = sqrt(area / aspect)`` with aspect = long/short (from settings).
+    - Each horizontal **rank** of panels uses ``mounting_rails_per_panel_rank`` parallel rail runs
+      (typically 2 for a standard twin-rail row).
+    - ``mounting_rail_waste_factor`` scales linear metres for offcuts / stagger (default > 1).
+
+    Tune via Settings: ``mounting_rail_length_m``, ``panel_module_aspect_ratio``,
+    ``mounting_rails_per_panel_rank``, ``mounting_rail_waste_factor``.
+    """
+    rail_length_m = get_setting_value(db, "mounting_rail_length_m", 18.0 * 0.3048)
+    aspect = get_setting_value(db, "panel_module_aspect_ratio", 1.93)
+    rails_per_rank = get_setting_value(db, "mounting_rails_per_panel_rank", 2.0)
+    waste = get_setting_value(db, "mounting_rail_waste_factor", 1.08)
+    return estimate_mounting_rail_inventory_with_params(
+        number_of_panels=number_of_panels,
+        module_area_m2=module_area_m2,
+        rail_length_m=rail_length_m,
+        panel_aspect_ratio=aspect,
+        rails_per_panel_rank=rails_per_rank,
+        waste_factor=waste,
+    )
 
 
 def calculate_parallel_inverters(
@@ -183,6 +222,7 @@ def calculate_sizing(db: Session, sizing_input: SizingInput) -> SizingResult:
     3. Apply design factor (safety margin): system_size_kw *= design_factor
     4. Calculate panels: panels = ceil(system_size_kw * 1000 / panel_wattage)
     5. Calculate roof area: roof_area = panels * panel_area * spacing_factor
+    5b. Estimate mounting rail sticks (18 ft default): portrait grid model — see mounting_rail_estimate
     6. Calculate inverter: min_inverter_kw = system_size_kw / max_dc_ac_ratio
     7. Calculate battery (if needed): battery_kwh = (essential_load_kw * backup_hours) / dod
     """
@@ -223,7 +263,11 @@ def calculate_sizing(db: Session, sizing_input: SizingInput) -> SizingResult:
     
     # Step 5: Calculate roof area
     roof_area_m2 = number_of_panels * panel_area_m2 * spacing_factor
-    
+
+    rail_linear_m, rail_pieces = estimate_mounting_rail_inventory(
+        db, number_of_panels, panel_area_m2
+    )
+
     # Step 6: Calculate inverter size (with parallel inverter support)
     min_inverter_kw = system_size_kw / max_dc_ac_ratio
     
@@ -353,6 +397,8 @@ def calculate_sizing(db: Session, sizing_input: SizingInput) -> SizingResult:
         system_size_kw=round(system_size_kw, 2),
         number_of_panels=number_of_panels,
         roof_area_m2=round(roof_area_m2, 2),
+        mounting_rail_linear_m_estimate=rail_linear_m,
+        mounting_rails_estimate=rail_pieces,
         min_inverter_kw=round(min_inverter_kw, 1),  # Minimum required (calculated)
         inverter_size_kw=round(inverter_size_kw, 1),  # Selected product size
         inverter_count=inverter_config["count"],  # Number of parallel inverters

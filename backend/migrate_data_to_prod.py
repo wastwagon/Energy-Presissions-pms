@@ -268,6 +268,10 @@ try:
             system_size_kw=local_sizing.system_size_kw,
             number_of_panels=local_sizing.number_of_panels,
             roof_area_m2=local_sizing.roof_area_m2,
+            mounting_rail_linear_m_estimate=getattr(
+                local_sizing, "mounting_rail_linear_m_estimate", None
+            ),
+            mounting_rails_estimate=getattr(local_sizing, "mounting_rails_estimate", None),
             inverter_size_kw=local_sizing.inverter_size_kw,
             battery_capacity_kwh=local_sizing.battery_capacity_kwh,
             system_efficiency=local_sizing.system_efficiency,

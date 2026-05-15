@@ -50,6 +50,7 @@ import {
   WbSunny as SunIcon,
   Power as PowerIcon,
   Home as HomeIcon,
+  Straighten as StraightenIcon,
   TrendingUp as TrendingUpIcon,
   Info as InfoIcon,
   CheckCircle as CheckCircleIcon,
@@ -1368,6 +1369,41 @@ const ProjectDetail: React.FC = () => {
                           <HomeIcon sx={{ fontSize: 48, color: '#9c27b0', opacity: 0.3 }} />
                         </Box>
                       </Paper>
+
+                      {sizingResult.mounting_rails_estimate != null &&
+                        sizingResult.mounting_rails_estimate > 0 && (
+                        <Paper
+                          elevation={0}
+                          sx={{
+                            p: 2,
+                            bgcolor: 'rgba(121, 85, 72, 0.08)',
+                            borderRadius: 2,
+                            borderLeft: '4px solid',
+                            borderColor: '#795548',
+                          }}
+                        >
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <Box>
+                              <Typography variant="body1" color="text.secondary" fontWeight="600" sx={{ mb: 1 }}>
+                                Mounting rails (planning est.)
+                              </Typography>
+                              <Typography variant="h3" fontWeight="bold" color="#795548">
+                                {sizingResult.mounting_rails_estimate}{' '}
+                                <Typography component="span" variant="h5" color="text.secondary" fontWeight="500">
+                                  sticks
+                                </Typography>
+                              </Typography>
+                              {sizingResult.mounting_rail_linear_m_estimate != null && (
+                                <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                                  ≈ {sizingResult.mounting_rail_linear_m_estimate.toFixed(1)} m total rail length
+                                  {' '}(18 ft sticks; portrait grid model)
+                                </Typography>
+                              )}
+                            </Box>
+                            <StraightenIcon sx={{ fontSize: 48, color: '#795548', opacity: 0.3 }} />
+                          </Box>
+                        </Paper>
+                      )}
                     </Box>
                   </CardContent>
                 </Card>
@@ -1654,6 +1690,11 @@ const ProjectDetail: React.FC = () => {
                         <Typography component="li" variant="body1" sx={{ mb: 1.5, fontSize: '1rem', lineHeight: 1.6 }}>
                           Roof area requirement includes spacing for mounting structures and maintenance access.
                         </Typography>
+                        {sizingResult.mounting_rails_estimate != null && sizingResult.mounting_rails_estimate > 0 && (
+                          <Typography component="li" variant="body1" sx={{ mb: 1.5, fontSize: '1rem', lineHeight: 1.6 }}>
+                            Mounting rail stick count is a <strong>planning estimate</strong> (18 ft rails, portrait grid layout); field layout may differ.
+                          </Typography>
+                        )}
                         <Typography component="li" variant="body1" sx={{ mb: 1.5, fontSize: '1rem', lineHeight: 1.6 }}>
                           Inverter size is rounded up to the nearest 0.5 kW increment, minimum 6.5 kW.
                         </Typography>

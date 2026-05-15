@@ -246,6 +246,7 @@ async def create_quote(
                     project.system_type,
                     sizing_result.number_of_panels or 0,
                     start_sort_order=next_so,
+                    mounting_rails_estimate=sizing_result.mounting_rails_estimate,
                 )
                 if n_extra:
                     logger.info(f"Appended {n_extra} catalog BOM line(s) after sizing items")

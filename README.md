@@ -47,6 +47,7 @@ A comprehensive full-stack solar sizing, load analysis, and quotation system for
 - **JA**: 560W
 - **Panel Area**: ~2.6 m² per panel (configurable)
 - **Spacing Factor**: 1.1-1.2 (accounts for mounting structure spacing)
+- **Mounting rails (planning)**: Sizing stores an estimate of **18 ft rail sticks** and total linear metres using a portrait grid model (`estimate_mounting_rail_inventory` in `backend/app/services/sizing.py`). Roof footprint alone does not define rail count; tune via Settings `mounting_rail_length_m`, `panel_module_aspect_ratio`, `mounting_rails_per_panel_rank`, `mounting_rail_waste_factor`.
 
 ### Battery Sizing
 - **Depth of Discharge**: 80% (0.8) - standard for lithium batteries

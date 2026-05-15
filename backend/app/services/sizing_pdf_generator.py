@@ -326,6 +326,15 @@ SIZING_REPORT_TEMPLATE = """
                     <div class="spec-label">Roof Area</div>
                     <div class="spec-value">{{ "%.1f"|format(sizing_result.roof_area_m2) }}<span style="font-size: 12pt;"> m²</span></div>
                 </div>
+                {% if sizing_result.mounting_rails_estimate %}
+                <div class="spec-card">
+                    <div class="spec-label">Mounting rails (est.)</div>
+                    <div class="spec-value">{{ sizing_result.mounting_rails_estimate }}<span style="font-size: 12pt;"> sticks</span></div>
+                    {% if sizing_result.mounting_rail_linear_m_estimate %}
+                    <div class="spec-subvalue">≈ {{ "%.1f"|format(sizing_result.mounting_rail_linear_m_estimate) }} m linear (18 ft)</div>
+                    {% endif %}
+                </div>
+                {% endif %}
                 
                 <div class="spec-card">
                     <div class="spec-label">System Efficiency</div>
@@ -369,6 +378,9 @@ SIZING_REPORT_TEMPLATE = """
             <ul class="notes-list">
                 <li>The system is sized to meet your daily energy requirement of {{ "%.2f"|format(sizing_result.total_daily_kwh) }} kWh.</li>
                 <li>Roof area requirement includes spacing for mounting structures and maintenance access.</li>
+                {% if sizing_result.mounting_rails_estimate %}
+                <li>Mounting rail count is a planning estimate (18 ft sticks, portrait grid); verify on site layout.</li>
+                {% endif %}
                 <li>Inverter size is optimized to prevent clipping while maintaining cost efficiency (DC/AC ratio: {{ "%.2f"|format(sizing_result.dc_ac_ratio) }}).</li>
                 <li>All calculations use industry-standard derating factors for system reliability.</li>
                 <li>System efficiency of {{ "%.0f"|format(sizing_result.system_efficiency * 100) }}% accounts for inverter losses, wiring losses, temperature effects, and soiling.</li>

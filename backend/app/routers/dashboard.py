@@ -1,14 +1,24 @@
 from typing import Dict, Any
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session, joinedload
-from sqlalchemy import func, and_
-from sqlalchemy.sql import extract
+from sqlalchemy import func
 from datetime import datetime, timedelta
 from app.database import get_db
 from app.auth import get_current_active_user
 from app.models import User, Quote, Project, Customer, QuoteStatus, ProjectStatus
 
 router = APIRouter(prefix="/dashboard", tags=["dashboard"])
+
+
+def _role_value(user: User) -> str:
+    role = user.role
+    return role.value if hasattr(role, "value") else str(role)
+
+
+def _quote_status_key(status) -> str:
+    if status is None:
+        return "unknown"
+    return status.value if hasattr(status, "value") else str(status).lower()
 
 
 @router.get("/stats")
@@ -21,7 +31,7 @@ async def get_dashboard_stats(
     # For sales users, filter by their created records
     # For admin users, show all records
     
-    if current_user.role.value == "admin":
+    if _role_value(current_user) == "admin":
         # Admin sees all data
         total_customers = db.query(Customer).count()
         # Active projects are those not yet installed
@@ -36,7 +46,7 @@ async def get_dashboard_stats(
             func.count(Quote.id).label('count')
         ).group_by(Quote.status).all()
         
-        status_counts = {status.value: count for status, count in quotes_by_status}
+        status_counts = {_quote_status_key(status): count for status, count in quotes_by_status}
         accepted_quotes = status_counts.get("accepted", 0)
         conversion_rate = (accepted_quotes / total_quotes * 100) if total_quotes > 0 else 0
         
@@ -69,7 +79,7 @@ async def get_dashboard_stats(
             Quote.created_by == current_user.id
         ).group_by(Quote.status).all()
         
-        status_counts = {status.value: count for status, count in quotes_by_status}
+        status_counts = {_quote_status_key(status): count for status, count in quotes_by_status}
         accepted_quotes = status_counts.get("accepted", 0)
         conversion_rate = (accepted_quotes / total_quotes * 100) if total_quotes > 0 else 0
         
@@ -83,7 +93,7 @@ async def get_dashboard_stats(
     # Calculate totals for quotes
     this_month_start = datetime.utcnow().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
     
-    if current_user.role.value == "admin":
+    if _role_value(current_user) == "admin":
         total_quoted_value = db.query(func.sum(Quote.grand_total)).scalar() or 0
         accepted_value = db.query(func.sum(Quote.grand_total)).filter(
             Quote.status == QuoteStatus.ACCEPTED
@@ -120,12 +130,12 @@ async def get_dashboard_stats(
             "customer_name": quote.project.customer.name if quote.project and quote.project.customer else "N/A",
             "project_name": quote.project.name if quote.project else "N/A",
             "status": quote.status.value,
-            "grand_total": float(quote.grand_total),
+            "grand_total": float(quote.grand_total or 0),
             "created_at": quote.created_at.isoformat() if quote.created_at else None
         })
     
     return {
-        "role": current_user.role.value,
+        "role": _role_value(current_user),
         "total_customers": total_customers,
         "active_projects": active_projects,
         "total_quotes": total_quotes,

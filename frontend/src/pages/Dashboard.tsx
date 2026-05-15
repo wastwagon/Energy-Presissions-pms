@@ -15,6 +15,8 @@ import {
   Chip,
   Card,
   CardContent,
+  Alert,
+  Button,
 } from '@mui/material';
 import {
   People as PeopleIcon,
@@ -57,17 +59,40 @@ const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchDashboardStats();
   }, []);
 
   const fetchDashboardStats = async () => {
+    setLoadError(null);
     try {
       const response = await api.get('/dashboard/stats');
       setStats(response.data);
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error fetching dashboard stats:', error);
+      const err = error as {
+        response?: { status?: number; data?: { detail?: unknown } };
+        message?: string;
+      };
+      const status = err.response?.status;
+      if (status === 401) {
+        setLoadError('Session expired. Please sign in again at /pms/admin.');
+      } else if (status && status >= 500) {
+        setLoadError(
+          `Server error (${status}) loading dashboard stats. Check Render backend logs for /api/dashboard/stats.`
+        );
+      } else if (err.message === 'Network Error' || !status) {
+        setLoadError(
+          'Could not reach the API (network or server unavailable). If the browser mentions CORS, the backend may have returned an error without responding — check Render logs and try again.'
+        );
+      } else {
+        const detail = err.response?.data?.detail;
+        setLoadError(
+          typeof detail === 'string' ? detail : 'Failed to load dashboard statistics.'
+        );
+      }
     } finally {
       setLoading(false);
     }
@@ -106,7 +131,16 @@ const Dashboard: React.FC = () => {
         <Typography variant="h4" gutterBottom>
           Dashboard
         </Typography>
-        <Typography color="error">Failed to load dashboard statistics</Typography>
+        <Alert
+          severity="error"
+          action={
+            <Button color="inherit" size="small" onClick={() => { setLoading(true); fetchDashboardStats(); }}>
+              Retry
+            </Button>
+          }
+        >
+          {loadError || 'Failed to load dashboard statistics.'}
+        </Alert>
       </Box>
     );
   }

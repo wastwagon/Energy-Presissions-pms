@@ -332,6 +332,9 @@ class SizingResult(Base):
     system_size_kw = Column(Float)
     number_of_panels = Column(Integer)
     roof_area_m2 = Column(Float)
+    # Twin-rail layout heuristic (see app.services.sizing.estimate_mounting_rail_inventory)
+    mounting_rail_linear_m_estimate = Column(Float, nullable=True)
+    mounting_rails_estimate = Column(Integer, nullable=True)
     min_inverter_kw = Column(Float)  # Minimum required inverter capacity (calculated)
     inverter_size_kw = Column(Float)  # Total inverter capacity (selected product size)
     inverter_count = Column(Integer, default=1)  # Number of parallel inverters

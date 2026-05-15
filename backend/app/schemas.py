@@ -232,6 +232,8 @@ class SizingResult(BaseModel):
     system_size_kw: Optional[float] = None
     number_of_panels: Optional[int] = None
     roof_area_m2: Optional[float] = None
+    mounting_rail_linear_m_estimate: Optional[float] = None
+    mounting_rails_estimate: Optional[int] = None
     min_inverter_kw: Optional[float] = None  # Minimum required inverter capacity (calculated)
     inverter_size_kw: Optional[float] = None  # Total inverter capacity (selected product size)
     inverter_count: Optional[int] = None  # Number of parallel inverters

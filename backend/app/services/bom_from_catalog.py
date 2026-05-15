@@ -3,6 +3,9 @@ Append standard balance-of-system line items from the product catalog after sizi
 
 Uses SKUs aligned with `seed_proforma_catalog_items.py`. Missing SKUs are skipped (no error).
 Does not duplicate mounting / %-BOS / transport / installation — those remain from `generate_quote_items_from_sizing`.
+
+When ``mounting_rails_estimate`` is provided and catalog SKU ``MNT-RAIL-18FT`` exists, one BOM line is appended
+(quantity = estimate) for per-stick rail pricing.
 """
 from __future__ import annotations
 
@@ -43,6 +46,7 @@ def append_standard_bom_from_catalog(
     system_type: SystemType,
     number_of_panels: int,
     start_sort_order: int = 0,
+    mounting_rails_estimate: Optional[int] = None,
 ) -> int:
     """
     Insert catalog BOM lines for hybrid / off-grid quotes. Returns number of lines added.
@@ -86,5 +90,31 @@ def append_standard_bom_from_catalog(
         )
         sort_order += 1
         added += 1
+
+    if mounting_rails_estimate and mounting_rails_estimate > 0:
+        rail_product = (
+            db.query(Product)
+            .filter(Product.sku == "MNT-RAIL-18FT", Product.is_active.is_(True))
+            .first()
+        )
+        if rail_product:
+            qty = float(mounting_rails_estimate)
+            unit = float(rail_product.base_price or 0.0)
+            label = (rail_product.name or rail_product.model or "MNT-RAIL-18FT").strip()
+            db.add(
+                QuoteItem(
+                    quote_id=quote_id,
+                    quote_option_id=quote_option_id,
+                    product_id=rail_product.id,
+                    description=label,
+                    quantity=qty,
+                    unit_price=unit,
+                    total_price=round(qty * unit, 2),
+                    is_custom=False,
+                    sort_order=sort_order,
+                )
+            )
+            sort_order += 1
+            added += 1
 
     return added
