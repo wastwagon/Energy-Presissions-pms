@@ -189,11 +189,11 @@ const ProjectDetail: React.FC = () => {
       if (setting) {
         setDiversityFactor(parseFloat(setting.value));
       } else {
-        setDiversityFactor(0.65); // Default value
+        setDiversityFactor(1); // Default: 1.0 = full load when setting missing
       }
     } catch (error) {
-      console.warn('Could not fetch diversity factor, using default 0.65');
-      setDiversityFactor(0.65); // Default value
+      console.warn('Could not fetch diversity factor, using default 1');
+      setDiversityFactor(1); // Default: 1.0 = full load
     }
   };
 
@@ -1762,7 +1762,7 @@ const ProjectDetail: React.FC = () => {
                               Load Diversity Factor
                             </Typography>
                             <Typography variant="h3" fontWeight="bold" color="#9c27b0">
-                              {diversityFactor !== null ? (diversityFactor * 100).toFixed(0) : '65'}%
+                              {diversityFactor !== null ? (diversityFactor * 100).toFixed(0) : '100'}%
                             </Typography>
                           </Box>
                           <Box sx={{ color: '#9c27b0', fontSize: 36, opacity: 0.6, display: 'flex', alignItems: 'center' }}>

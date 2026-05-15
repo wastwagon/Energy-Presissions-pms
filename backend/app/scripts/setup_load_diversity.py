@@ -23,22 +23,21 @@ def setup_load_diversity():
             print(f"   Current value: {existing.value}")
             print(f"   This means {float(existing.value)*100:.0f}% of appliances are used simultaneously")
         else:
-            # Create new setting with default 65% (0.65)
-            # This means on average, only 65% of appliances are on at the same time
+            # Default 1.0 = 100% (full load / no diversity reduction until lowered in Settings)
             diversity_setting = Setting(
                 key="load_diversity_factor",
-                value="0.65",
-                description="Load diversity factor: percentage of appliances used simultaneously (0.65 = 65%)"
+                value="1",
+                description="Load diversity factor: fraction applied to daily load (1.0 = full load; lower e.g. 0.65 for staggered use)"
             )
             db.add(diversity_setting)
             db.commit()
-            print("✅ Created load_diversity_factor setting: 0.65 (65%)")
-            print("   This accounts for realistic usage - not all appliances run at once")
+            print("✅ Created load_diversity_factor setting: 1.0 (100% — full load)")
+            print("   Lower in Settings if you want simultaneous-use diversity applied to totals")
         
         print("\n📊 Load Diversity Factor Explanation:")
-        print("   - 0.65 (65%) = Default for residential/commercial")
-        print("   - Accounts for: staggered usage, load management, not all ACs on at once")
-        print("   - Adjustable in Settings if needed")
+        print("   - 1.0 (100%) = full daily load (default; no reduction)")
+        print("   - Lower values (e.g. 0.65) = fraction of load assumed on at once")
+        print("   - Adjust in Settings to match site usage")
         print("\n💡 To change the factor:")
         print("   - Go to Settings in the PMS")
         print("   - Or update directly in database: Setting where key='load_diversity_factor'")

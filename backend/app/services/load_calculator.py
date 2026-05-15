@@ -7,7 +7,6 @@ Handles unit conversions (HP to Watts) and duty cycles.
 from typing import List, Optional
 from sqlalchemy.orm import Session
 from app.models import Appliance, Setting
-from app.schemas import ApplianceCreate
 
 
 def get_setting_value(db: Session, key: str, default: float) -> float:
@@ -114,7 +113,7 @@ def preview_load_from_lines(
                 "daily_kwh": dk,
             }
         )
-    diversity = get_setting_value(db, "load_diversity_factor", 0.65)
+    diversity = get_setting_value(db, "load_diversity_factor", 1.0)
     total_div = total_raw * diversity if apply_diversity_factor else total_raw
     out = {
         "lines": enriched,
@@ -162,7 +161,7 @@ def calculate_total_daily_kwh(db: Session, project_id: int, apply_diversity_fact
     # Apply load diversity factor to account for realistic simultaneous usage
     # Not all appliances will be on at the same time - people manage their usage
     if apply_diversity_factor:
-        diversity_factor = get_setting_value(db, "load_diversity_factor", 0.65)  # Default 65% simultaneous usage
+        diversity_factor = get_setting_value(db, "load_diversity_factor", 1.0)  # Default 1.0 = full load (no diversity reduction)
         total_kwh = total_kwh * diversity_factor
     
     db.commit()
