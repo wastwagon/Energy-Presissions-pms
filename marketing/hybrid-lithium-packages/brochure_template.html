@@ -5,226 +5,288 @@
   <title>{{ brand.document_title }} — {{ brand.company_name }}</title>
   <style>
     @page {
-      size: A4 landscape;
-      margin: 10mm 12mm;
+      size: A4;
+      margin: 12mm 14mm;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: "Segoe UI", Helvetica, Arial, sans-serif;
-      font-size: 7.5pt;
-      color: #1a2a3a;
-      line-height: 1.35;
+      font-size: 8.5pt;
+      color: #1a237e;
+      line-height: 1.42;
+      background: #ffffff;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
     }
 
-    /* —— Page shell —— */
     .page {
       page-break-after: always;
-      min-height: 185mm;
       position: relative;
     }
     .page:last-child { page-break-after: auto; }
 
-    /* —— Header —— */
-    .top-bar {
+    /* —— Cover (page 1) —— */
+    .cover-top {
       display: flex;
-      justify-content: space-between;
+      flex-direction: row;
       align-items: flex-start;
-      margin-bottom: 6mm;
-      padding-bottom: 4mm;
+      justify-content: space-between;
+      gap: 8mm;
+      padding-bottom: 5mm;
+      margin-bottom: 5mm;
       border-bottom: 3px solid #00c853;
     }
-    .brand-block { max-width: 55%; }
-    .logo-text {
-      font-size: 22pt;
+    .cover-brand {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 5mm;
+      flex: 1;
+      min-width: 0;
+    }
+    .header-logo {
+      width: 28mm;
+      height: auto;
+      max-height: 22mm;
+      object-fit: contain;
+      flex-shrink: 0;
+    }
+    .cover-brand-text .logo-text {
+      font-size: 17pt;
       font-weight: 800;
       letter-spacing: -0.5px;
-      color: #0d3d6b;
+      color: #0d47a1;
       line-height: 1.1;
     }
-    .logo-text span { color: #00c853; }
-    .tagline {
-      font-size: 8.5pt;
-      color: #455a64;
-      margin-top: 3px;
+    .cover-brand-text .logo-text span { color: #008c4a; }
+    .cover-brand-text .tagline {
+      font-size: 8pt;
+      color: #37474f;
+      margin-top: 2mm;
       font-weight: 500;
     }
-    .hero-title {
-      margin-top: 8px;
-      font-size: 13pt;
+
+    .contact-panel {
+      flex: 0 0 74mm;
+      background: #f5f5f5;
+      border: 1px solid #bdbdbd;
+      border-left: 4px solid #00c853;
+      padding: 4mm 5mm;
+      text-align: left;
+      color: #212121;
+    }
+    .contact-panel .office-label {
+      font-weight: 800;
+      font-size: 8pt;
+      color: #008c4a;
+      letter-spacing: 0.06em;
+      margin-bottom: 2mm;
+    }
+    .contact-panel .office-lines div {
+      font-size: 8pt;
+      color: #212121;
+      line-height: 1.45;
+      margin: 1mm 0;
+      font-weight: 500;
+    }
+    .contact-panel .office-note {
+      margin-top: 2mm;
+      font-size: 7pt;
+      color: #424242;
+      line-height: 1.35;
+    }
+    .contact-panel .web {
+      margin-top: 2mm;
+      font-weight: 700;
+      color: #0d47a1;
+      font-size: 8pt;
+    }
+
+    .hero-band {
+      background: #0d47a1;
+      color: #ffffff;
+      padding: 5mm 6mm;
+      border-radius: 4px;
+      margin-bottom: 4mm;
+    }
+    .hero-band .hero-title {
+      font-size: 14pt;
       font-weight: 800;
       text-transform: uppercase;
-      letter-spacing: 1.2px;
-      color: #0d3d6b;
+      letter-spacing: 1px;
     }
-    .hero-sub {
-      font-size: 7.5pt;
-      color: #546e7a;
-      margin-top: 4px;
-      max-width: 420px;
-    }
-    .offices {
-      text-align: right;
-      font-size: 7pt;
-      color: #37474f;
-    }
-    .office-block {
-      margin-bottom: 6px;
-    }
-    .office-label {
-      font-weight: 800;
-      font-size: 7.5pt;
-      color: #00a85a;
-      letter-spacing: 0.8px;
-    }
-    .office-lines div { margin: 1px 0; }
-
-    /* —— Package grid —— */
-    .grid {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 3mm;
+    .hero-band .lithium-tag {
+      display: inline-block;
       margin-top: 2mm;
+      background: #00c853;
+      color: #000000;
+      font-size: 7.5pt;
+      font-weight: 800;
+      padding: 1.5mm 4mm;
+      border-radius: 3px;
+    }
+    .hero-band .hero-sub {
+      margin-top: 3mm;
+      font-size: 8.5pt;
+      color: #e3f2fd;
+      line-height: 1.5;
+      max-width: none;
+    }
+
+    /* Packages: 2-column, print-stable */
+    .grid-title {
+      font-size: 11pt;
+      font-weight: 800;
+      color: #0d47a1;
+      margin-bottom: 3mm;
+    }
+    .grid {
+      column-count: 2;
+      column-gap: 5mm;
     }
     .pkg {
-      width: calc(33.333% - 2mm);
-      background: linear-gradient(180deg, #f8fbff 0%, #ffffff 100%);
-      border: 1px solid #cfd8dc;
-      border-radius: 6px;
+      break-inside: avoid;
+      page-break-inside: avoid;
+      display: inline-block;
+      width: 100%;
+      margin-bottom: 4mm;
+      background: #ffffff;
+      border: 1px solid #9e9e9e;
+      border-radius: 4px;
       overflow: hidden;
       vertical-align: top;
+      box-shadow: 0 0 0 1px #eeeeee inset;
     }
     .pkg-head {
-      background: linear-gradient(135deg, #0d3d6b 0%, #1565a8 100%);
-      color: #fff;
-      padding: 5px 8px 6px;
+      background: #0d47a1;
+      color: #ffffff;
+      padding: 4px 7px 5px;
       position: relative;
     }
     .pkg-badge {
       position: absolute;
-      top: 5px;
-      right: 6px;
-      background: #c9a227;
-      color: #1a1a1a;
-      font-size: 6pt;
+      top: 4px;
+      right: 5px;
+      background: #ffd54f;
+      color: #1a237e;
+      font-size: 6.5pt;
       font-weight: 800;
-      padding: 2px 6px;
-      border-radius: 3px;
+      padding: 1px 5px;
+      border-radius: 2px;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
     }
     .pkg-kva {
-      font-size: 11pt;
+      font-size: 10pt;
       font-weight: 800;
-      letter-spacing: 0.5px;
+      padding-right: 36%;
     }
     .pkg-load {
-      font-size: 6.5pt;
-      opacity: 0.9;
-      margin-top: 2px;
+      font-size: 7pt;
+      color: #e3f2fd;
+      margin-top: 1px;
     }
     .pkg-price-row {
-      background: #00c853;
-      color: #003d16;
-      padding: 5px 8px;
+      background: #1b5e20;
+      color: #ffffff;
+      padding: 4px 7px;
       display: flex;
       justify-content: space-between;
       align-items: baseline;
     }
     .price-from {
-      font-size: 6.5pt;
+      font-size: 7pt;
       font-weight: 700;
       text-transform: uppercase;
+      opacity: 0.95;
     }
     .price-value {
-      font-size: 13pt;
+      font-size: 12pt;
       font-weight: 900;
-      letter-spacing: -0.3px;
     }
     .pkg-highlight {
-      font-size: 6pt;
-      font-style: italic;
-      color: #2e7d32;
-      padding: 3px 8px 0;
-      font-weight: 600;
+      font-size: 7pt;
+      color: #1b5e20;
+      background: #e8f5e9;
+      padding: 3px 7px;
+      font-weight: 700;
+      border-bottom: 1px solid #c8e6c9;
     }
-    .pkg-body { padding: 5px 8px 6px; }
+    .pkg-body { padding: 5px 7px 6px; }
     .pkg-components {
       list-style: none;
-      font-size: 6.3pt;
-      color: #263238;
+      font-size: 7.5pt;
+      color: #212121;
     }
     .pkg-components li {
-      padding: 1.5px 0 1.5px 10px;
+      padding: 2px 0 2px 11px;
       position: relative;
     }
     .pkg-components li::before {
       content: "✓";
       position: absolute;
       left: 0;
-      color: #00c853;
+      color: #008c4a;
       font-weight: bold;
-      font-size: 6pt;
+      font-size: 8pt;
     }
     .pkg-appliances {
       margin-top: 4px;
       padding-top: 4px;
-      border-top: 1px dashed #b0bec5;
-      font-size: 5.8pt;
-      color: #546e7a;
-      line-height: 1.3;
+      border-top: 1px solid #bdbdbd;
+      font-size: 7pt;
+      color: #37474f;
+      line-height: 1.35;
     }
     .pkg-appliances strong {
       display: block;
-      font-size: 6pt;
-      color: #0d3d6b;
+      font-size: 7pt;
+      color: #0d47a1;
       margin-bottom: 2px;
       text-transform: uppercase;
-      letter-spacing: 0.3px;
+      letter-spacing: 0.04em;
     }
 
-    /* —— Page 2 —— */
+    /* Page 3: editorial */
     .compare-banner {
-      background: #0d3d6b;
-      color: #fff;
-      padding: 8px 14px;
-      border-radius: 6px;
-      margin-bottom: 6mm;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      background: #0d47a1;
+      color: #ffffff;
+      padding: 6px 10px;
+      border-radius: 4px;
+      margin-bottom: 5mm;
     }
     .compare-banner h2 {
-      font-size: 11pt;
+      font-size: 12pt;
       font-weight: 800;
     }
     .compare-banner p {
-      font-size: 7pt;
-      opacity: 0.9;
-      max-width: 60%;
-      text-align: right;
+      font-size: 8.5pt;
+      color: #e3f2fd;
+      margin-top: 2mm;
+      line-height: 1.45;
     }
     .two-col {
       display: flex;
-      gap: 8mm;
+      flex-direction: row;
+      gap: 7mm;
     }
-    .col { flex: 1; }
+    .col { flex: 1; min-width: 0; }
     .section-title {
       font-size: 9pt;
       font-weight: 800;
-      color: #0d3d6b;
+      color: #0d47a1;
       border-bottom: 2px solid #00c853;
-      padding-bottom: 3px;
-      margin-bottom: 6px;
+      padding-bottom: 2px;
+      margin-bottom: 4mm;
       text-transform: uppercase;
-      letter-spacing: 0.6px;
+      letter-spacing: 0.05em;
     }
     .bullet-list {
       list-style: none;
-      font-size: 7.5pt;
-      color: #37474f;
+      font-size: 8pt;
+      color: #263238;
     }
     .bullet-list li {
-      padding: 4px 0 4px 14px;
+      padding: 3px 0 3px 12px;
       position: relative;
     }
     .bullet-list li::before {
@@ -232,107 +294,117 @@
       position: absolute;
       left: 0;
       color: #00c853;
-      font-size: 6pt;
-      top: 5px;
+      font-size: 7pt;
+      top: 4px;
     }
     .value-cards {
       display: flex;
       flex-wrap: wrap;
       gap: 3mm;
-      margin-top: 4mm;
+      margin-top: 3mm;
     }
     .value-card {
-      width: calc(50% - 1.5mm);
-      background: #e8f5e9;
-      border-left: 4px solid #00c853;
-      padding: 6px 8px;
-      border-radius: 0 4px 4px 0;
-      font-size: 7pt;
+      width: calc(50% - 1.8mm);
+      background: #ffffff;
+      border: 1px solid #90caf9;
+      border-left: 4px solid #0d47a1;
+      padding: 5px 7px;
+      font-size: 7.5pt;
+      color: #263238;
+      line-height: 1.4;
     }
     .value-card strong {
       display: block;
-      color: #0d3d6b;
-      font-size: 7.5pt;
+      color: #0d47a1;
+      font-size: 8pt;
       margin-bottom: 2px;
     }
+    .print-note {
+      margin-top: 4mm;
+      font-size: 8pt;
+      color: #37474f;
+      line-height: 1.45;
+    }
+    .print-muted {
+      margin-top: 2mm;
+      font-size: 7.5pt;
+      color: #546e7a;
+    }
+
     .cta-box {
-      margin-top: 6mm;
+      margin-top: 5mm;
       text-align: center;
-      padding: 10px;
-      background: linear-gradient(135deg, #00c853 0%, #00a85a 100%);
-      border-radius: 8px;
-      color: #003d16;
+      padding: 5mm 6mm;
+      background: #0d47a1;
+      border-radius: 4px;
+      color: #ffffff;
+      border: 2px solid #00c853;
     }
     .cta-box .cta-title {
       font-size: 12pt;
       font-weight: 900;
+      color: #ffffff;
     }
     .cta-box .cta-sub {
-      font-size: 8pt;
-      margin-top: 4px;
+      font-size: 8.5pt;
+      margin-top: 3mm;
       font-weight: 600;
+      color: #b3e5fc;
+      line-height: 1.5;
     }
     .footnote {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      font-size: 6pt;
-      color: #78909c;
-      text-align: center;
-      border-top: 1px solid #eceff1;
-      padding-top: 4px;
-    }
-    .lithium-ribbon {
-      display: inline-block;
-      background: #0d3d6b;
-      color: #fff;
+      margin-top: 8mm;
+      padding-top: 3mm;
+      border-top: 1px solid #bdbdbd;
       font-size: 7pt;
-      font-weight: 800;
-      padding: 3px 10px;
-      border-radius: 20px;
-      margin-top: 6px;
-      letter-spacing: 0.5px;
+      color: #616161;
+      text-align: center;
     }
-    .lithium-ribbon em {
-      color: #69f0ae;
-      font-style: normal;
-    }
+
+    /* Optional: omit logo gracefully */
+    .no-logo .cover-brand { align-items: flex-start; }
   </style>
 </head>
-<body>
+<body class="{% if not logo_data_uri %}no-logo{% endif %}">
 
-  <!-- PAGE 1: Packages -->
+  <!-- PAGE 1: Cover + contact + packages -->
   <div class="page">
-    <header class="top-bar">
-      <div class="brand-block">
-        <div class="logo-text">Energy <span>Precisions</span></div>
-        <div class="tagline">{{ brand.tagline }}</div>
-        <div class="hero-title">{{ brand.document_title }}</div>
-        <div class="lithium-ribbon">WITH <em>LiFePO₄</em> LITHIUM BATTERIES</div>
-        <p class="hero-sub">{{ brand.subtitle }}</p>
-      </div>
-      <div class="offices">
-        <div class="office-block">
-          <div class="office-label">{{ contact.heading }}</div>
-          <div class="office-lines">
-            <div>{{ contact.address }}</div>
-            <div>{{ contact.email }}</div>
-            <div>{{ contact.phone }}</div>
-            <div style="margin-top:4px;font-size:6.5pt;opacity:0.9;">{{ contact.note }}</div>
-          </div>
+    <header class="cover-top">
+      <div class="cover-brand">
+        {% if logo_data_uri %}
+        <img src="{{ logo_data_uri }}" alt="{{ brand.company_name }}" class="header-logo" />
+        {% endif %}
+        <div class="cover-brand-text">
+          <div class="logo-text">{{ brand.company_name }}</div>
+          <div class="tagline">{{ brand.tagline }}</div>
         </div>
-        <div style="margin-top:6px;font-weight:600;">{{ brand.website }}</div>
       </div>
+      <aside class="contact-panel">
+        <div class="office-label">{{ contact.heading }}</div>
+        <div class="office-lines">
+          <div><strong>Tel:</strong> {{ contact.phone }}</div>
+          <div><strong>Email:</strong> {{ contact.email }}</div>
+          <div><strong>Address:</strong> {{ contact.address }}</div>
+        </div>
+        <div class="office-note">{{ contact.note }}</div>
+        <div class="web">{{ brand.website }}</div>
+      </aside>
     </header>
 
+    <div class="hero-band">
+      <div class="hero-title">{{ brand.document_title }}</div>
+      <div class="lithium-tag">WITH LiFePO₄ LITHIUM STORAGE</div>
+      <div class="hero-sub">{{ brand.subtitle }}</div>
+    </div>
+
+    <div class="grid-title">Turnkey hybrid packages — six tiers</div>
     <div class="grid">
       {% for pkg in packages %}
       <article class="pkg">
         <header class="pkg-head">
           <span class="pkg-badge">{{ pkg.badge }}</span>
           <div class="pkg-kva">{{ pkg.kva_label }}</div>
-          <div class="pkg-load">Maximum connected load ~{{ pkg.max_watts }} watts</div>
+          <div class="pkg-load">Approx. connected load ceiling ~{{ pkg.max_watts }} watts</div>
         </header>
         <div class="pkg-price-row">
           <span class="price-from">{{ pkg.price_label }}</span>
@@ -348,7 +420,7 @@
             {% endfor %}
           </ul>
           <div class="pkg-appliances">
-            <strong>Typical loads covered</strong>
+            <strong>Typical loads</strong>
             {{ pkg.appliances }}
           </div>
         </div>
@@ -357,27 +429,30 @@
     </div>
   </div>
 
-  <!-- PAGE 2: Why Energy Precisions -->
+  <!-- PAGE 2: Details + CTAs -->
   <div class="page">
     <div class="compare-banner">
       <h2>Why Energy Precisions?</h2>
-      <p>Engineered packages — not guesswork. Every install includes professional commissioning, monitoring setup & Ghana-standard electrical protection.</p>
+      <p>
+        Turnkey engineered packages — not guesswork. Every installation includes commissioning,
+        monitoring setup where specified, and electrical protection suited to Ghana site conditions.
+      </p>
     </div>
 
     <div class="two-col">
       <div class="col">
         <h3 class="section-title">What every package includes</h3>
         <ul class="bullet-list">
-          <li>Hybrid inverter architecture (grid + battery backup)</li>
-          <li>LiFePO₄ lithium storage — safer chemistry, longer cycle life</li>
-          <li>Tier-1 solar modules (Jinko / Longi class)</li>
-          <li>Roof mounting, DC/AC cabling, earthing & labelling</li>
-          <li>Changeover / protection — client-ready distribution</li>
-          <li>Remote monitoring & battery management where specified</li>
-          <li>Installation, testing & handover checklist</li>
+          <li>Hybrid inverter (grid + battery backup topology)</li>
+          <li>LiFePO₄ lithium storage — daily cycling, longer service life</li>
+          <li>Tier‑1 PV modules (Jinko / Longi class)</li>
+          <li>Roof mounting, DC / AC cabling, earthing &amp; hazard labels</li>
+          <li>Changeover / protection — handover‑ready boards</li>
+          <li>Remote monitoring &amp; battery management as specified per tier</li>
+          <li>Installation testing &amp; client handover checklist</li>
         </ul>
 
-        <h3 class="section-title" style="margin-top:8mm;">Before you order</h3>
+        <h3 class="section-title" style="margin-top:6mm;">Before you order</h3>
         <ul class="bullet-list">
           {% for note in footer_bullets %}
           <li>{{ note }}</li>
@@ -390,33 +465,38 @@
         <div class="value-cards">
           <div class="value-card">
             <strong>Site survey first</strong>
-            We confirm roof area, cable routes & load before final BOM — no surprises on install day.
+            We confirm roof area, cable routes, and your real load before final bill of materials.
           </div>
           <div class="value-card">
             <strong>Transparent engineering</strong>
-            Larger projects receive load analysis, string design & itemized quotation from our PMS.
+            Larger jobs receive load analysis, string planning, and itemised quotations from our team.
           </div>
           <div class="value-card">
             <strong>Competitive turnkey pricing</strong>
-            Package prices bundle supply + install — compare fairly against piecemeal quotes.
+            One price for supply and professional install — easy to compare with piecemeal quotes.
           </div>
           <div class="value-card">
-            <strong>Local support</strong>
-            Accra-based team — maintenance, upgrades & nationwide projects by appointment.
+            <strong>Accra office, Ghana-wide</strong>
+            One Accra base; nationwide site surveys and installs scheduled by appointment.
           </div>
         </div>
 
-        <p style="margin-top:6mm;font-size:7pt;color:#546e7a;">{{ brand.warranty_note }}</p>
-        <p style="margin-top:3mm;font-size:6.5pt;color:#90a4ae;">{{ brand.validity_note }}</p>
+        <p class="print-note"><strong>Warranty &amp; service:</strong> {{ brand.warranty_note }}</p>
+        <p class="print-muted"><strong>Pricing validity:</strong> {{ brand.validity_note }}</p>
 
         <div class="cta-box">
           <div class="cta-title">Book a free site assessment</div>
-          <div class="cta-sub">{{ brand.email }} · {{ brand.website }}</div>
+          <div class="cta-sub">
+            {{ contact.phone }} · {{ contact.email }} · {{ brand.website }}<br/>
+            {{ contact.address }}
+          </div>
         </div>
+
+        <p class="footnote">
+          {{ brand.company_name }} — {{ brand.document_title }} · Printed {{ generated_date }}
+        </p>
       </div>
     </div>
-
-    <p class="footnote">{{ brand.company_name }} — {{ brand.document_title }} · Printed {{ generated_date }}</p>
   </div>
 
 </body>
