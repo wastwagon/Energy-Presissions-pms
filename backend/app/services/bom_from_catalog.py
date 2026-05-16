@@ -63,7 +63,8 @@ def append_standard_bom_from_catalog(
     Insert catalog BOM lines for hybrid, off-grid, and grid-tied quotes. Returns number of lines added.
 
     Prefer passing ``sizing`` (full SizingResult). Legacy kwargs ``number_of_panels`` /
-    ``mounting_rails_estimate`` are only used if sizing is incomplete.
+    ``mounting_rails_estimate`` fill missing fields; rail-stick BOM qty follows panel rail-span
+    math when ``bom_mounting_qty_model=rail_span`` (not only ``mounting_rails_estimate``).
     """
     if system_type not in (
         SystemType.HYBRID,

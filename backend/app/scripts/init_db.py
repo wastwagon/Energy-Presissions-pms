@@ -189,7 +189,43 @@ def init_settings():
             {
                 "key": "bom_clamps_per_panel",
                 "value": "3.5",
-                "description": "PV mid/end clamp count per panel when auto-building itemized BOM from sizing.",
+                "description": "PV mid/end clamp multiplier per panel when bom_mounting_qty_model=legacy_per_panel (rail_span model ignores this).",
+                "category": "pricing"
+            },
+            {
+                "key": "bom_mounting_qty_model",
+                "value": "rail_span",
+                "description": "Mounting BOM math: 'rail_span' (2 rails per N panels, mid/end clamps per span) or 'legacy_per_panel' (bom_clamps_per_panel + old rail set / sizing sticks).",
+                "category": "pricing"
+            },
+            {
+                "key": "bom_panels_per_rail_span",
+                "value": "5",
+                "description": "Panels covered by one twin-rail span (rail pairs and clamp blocks scale with ceil(panels / this)).",
+                "category": "pricing"
+            },
+            {
+                "key": "bom_mid_clamps_per_rail_span",
+                "value": "8",
+                "description": "Mid clamps per rail-span block (used with bom_end_clamps_per_rail_span for total BOS-PV-CLAMP-EA qty).",
+                "category": "pricing"
+            },
+            {
+                "key": "bom_end_clamps_per_rail_span",
+                "value": "4",
+                "description": "End clamps per rail-span block (with mid clamps drives BOS-PV-CLAMP-EA when bom_clamp_count_model=discrete_spans).",
+                "category": "pricing"
+            },
+            {
+                "key": "bom_clamp_count_model",
+                "value": "discrete_spans",
+                "description": "Clamp BOM: 'discrete_spans' (mid+end = spans×(8+4), matches rail set count) or 'linear_panel' (rounded panels×rates, can disagree with spans).",
+                "category": "pricing"
+            },
+            {
+                "key": "bom_rail_sticks_per_rail_span",
+                "value": "2",
+                "description": "Rail sticks per span (typically 2 parallel rails) when bom_rail_pricing_mode=sticks.",
                 "category": "pricing"
             },
             {
@@ -207,7 +243,7 @@ def init_settings():
             {
                 "key": "bom_rail_pricing_mode",
                 "value": "sets",
-                "description": "Rail BOM: 'sets' (MNT-RAIL-SET-350, proforma) or 'sticks' (MNT-RAIL-18FT from sizing). Never both.",
+                "description": "Rail BOM: 'sets' (MNT-RAIL-SET-350, one per rail span) or 'sticks' (MNT-RAIL-18FT count from panel rail-span model when bom_mounting_qty_model=rail_span; else from sizing). Never both.",
                 "category": "pricing"
             },
             {

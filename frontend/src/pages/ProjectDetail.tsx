@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -136,6 +136,13 @@ const ProjectDetail: React.FC = () => {
   const [statusDialogOpen, setStatusDialogOpen] = useState(false);
   const [statusMessages, setStatusMessages] = useState<Record<string, string[]>>({});
   const [statusUpdateForm, setStatusUpdateForm] = useState<{ status: ProjectStatus; message: string }>({ status: ProjectStatus.NEW, message: '' });
+
+  /** Prevents duplicate auto-sizing POSTs for the same (id, current vs stored kWh) mismatch */
+  const sizingAutoSyncAttemptRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    sizingAutoSyncAttemptRef.current = null;
+  }, [id]);
 
   useEffect(() => {
     if (id) {
@@ -583,6 +590,69 @@ const ProjectDetail: React.FC = () => {
   const totalDailyKwh = totalDailyKwhWithDiversity !== null 
     ? totalDailyKwhWithDiversity 
     : appliances.reduce((sum, app) => sum + (app.daily_kwh || 0), 0);
+
+  // Re-run sizing when the live daily kWh (current diversity + appliances) differs from the saved sizing row
+  useEffect(() => {
+    if (!id || !project || !sizingResult || totalDailyKwhWithDiversity === null) return;
+    if (calculating) return;
+    const diff = Math.abs(totalDailyKwhWithDiversity - sizingResult.total_daily_kwh);
+    if (diff <= 0.01) {
+      sizingAutoSyncAttemptRef.current = null;
+      return;
+    }
+    const attemptKey = `${id}:${totalDailyKwhWithDiversity.toFixed(4)}:${sizingResult.total_daily_kwh.toFixed(4)}`;
+    if (sizingAutoSyncAttemptRef.current === attemptKey) return;
+    sizingAutoSyncAttemptRef.current = attemptKey;
+
+    let cancelled = false;
+    (async () => {
+      setCalculating(true);
+      setSizingError('');
+      try {
+        const params: any = {
+          location: sizingResult.location?.trim() || null,
+          panel_brand: sizingResult.panel_brand || 'Jinko',
+        };
+        if (project.system_type !== SystemType.GRID_TIED) {
+          params.backup_hours = sizingResult.backup_hours ?? 0;
+          params.essential_load_percent =
+            sizingResult.essential_load_percent != null ? sizingResult.essential_load_percent : 0.5;
+        }
+        await api.post(`/sizing/from-appliances/${id}`, params, {
+          params: { sync_quote_bom: syncQuoteBomAfterSizing },
+        });
+        if (cancelled) return;
+        await fetchSizingResult();
+        await fetchAppliances();
+        setSizingSyncNotice(
+          'Sizing was updated to match the current daily load (including load diversity settings).'
+        );
+      } catch (err: any) {
+        if (!cancelled) {
+          console.error('Auto-sizing sync failed:', err);
+          setSizingError(
+            err.response?.data?.detail ||
+              'Daily energy no longer matches saved sizing (e.g. diversity factor changed). Use Calculate sizing to refresh.'
+          );
+        }
+      } finally {
+        if (!cancelled) {
+          setCalculating(false);
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    id,
+    project,
+    sizingResult,
+    totalDailyKwhWithDiversity,
+    calculating,
+    syncQuoteBomAfterSizing,
+  ]);
 
   const handlePrintAppliances = () => {
     const printWindow = window.open('', '_blank');
