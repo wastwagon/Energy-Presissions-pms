@@ -3,7 +3,9 @@
 Generate Energy Precisions hybrid lithium package brochure (PDF).
 
 Standalone marketing asset — not connected to PMS database.
-Edit packages.json for pricing, specs, and office contacts.
+Edit packages.json for specs and office contacts. Recompute list prices after catalog changes:
+
+  python package_pricing.py --write
 
 The logo is embedded from frontend/public (base64 data URI) so it always prints.
 
@@ -27,11 +29,12 @@ import argparse
 import base64
 import json
 import os
-from datetime import datetime
 from pathlib import Path
 
 from jinja2 import Environment
 from weasyprint import HTML
+
+from package_sizing import enrich_config
 
 DIR = Path(__file__).resolve().parent
 CONFIG_PATH = DIR / "packages.json"
@@ -91,12 +94,9 @@ def load_config(path: Path) -> dict:
 def render_html(config: dict, logo_data_uri: str | None) -> str:
     env = Environment(autoescape=True)
     template = env.from_string(TEMPLATE_PATH.read_text(encoding="utf-8"))
-    # Public folder as base resolves any relative asset paths in template
-    return template.render(
-        logo_data_uri=logo_data_uri,
-        **config,
-        generated_date=datetime.now().strftime("%d %B %Y"),
-    )
+    # Recompute panel/battery lines from inverter tier (no load diversity factor).
+    config = enrich_config(config)
+    return template.render(logo_data_uri=logo_data_uri, **config)
 
 
 def generate_pdf(html: str, output_path: Path, repo_root: Path) -> Path:

@@ -5,9 +5,9 @@
     "website": "www.energyprecisions.com",
     "email": "info@energyprecisions.com",
     "document_title": "Hybrid Lithium Solar Packages",
-    "subtitle": "Turnkey packages — sized for Ghana homes & businesses. All prices include supply, mounting, cables, commissioning & monitoring.",
+    "subtitle": "Hybrid solar with lithium backup (grid + generator ready). Turnkey supply, mounting, protection, commissioning & monitoring for Ghana homes and businesses.",
     "validity_note": "Prices valid until December 2026. Final design confirmed after site survey.",
-    "warranty_note": "Premium LiFePO₄ batteries · 5-year battery warranty (manufacturer) · 2-year workmanship on installation."
+    "warranty_note": "Premium 16 kWh LiFePO₄ batteries · 5-year battery warranty (manufacturer) · 2-year workmanship on installation."
   },
   "contact": {
     "heading": "ACCRA OFFICE",
@@ -22,119 +22,169 @@
       "badge": "Essential",
       "kva_label": "6.5 KVA SYSTEM",
       "max_watts": "5,500",
-      "price_ghs": 64900,
+      "price_ghs": 140900,
       "price_label": "From",
-      "highlights": ["Entry tier · flats & small homes"],
+      "highlights": [
+        "Entry tier · flats & small homes"
+      ],
       "components": [
         "6.5 kVA hybrid inverter (1)",
-        "5 kWh LiFePO₄ lithium battery (1)",
+        "16 kWh LiFePO₄ lithium battery (1)",
         "Battery management / monitoring (1)",
-        "570W tier-1 solar panels (6)",
+        "570W tier-1 solar panels (15)",
         "DC protection, changeover & AC distribution",
         "Mounting structure (roof)",
         "Cables, MC4, earthing & commissioning"
       ],
-      "appliances": "Typical: fridge, TV, fans, 15–20 LED lights, phone/laptop charging, small appliances."
+      "appliances": "Fridge, TV, standing fans, router, 15–20 LED lights, phone and laptop charging, blender or kettle (one at a time). No air conditioning — add a higher tier for AC.",
+      "inverter_kw": 6.5,
+      "target_storage_kwh": 16.0,
+      "panel_count": 15,
+      "panel_dc_kw": 8.55,
+      "battery_count": 1,
+      "battery_kwh": 16.0
     },
     {
       "id": "ep-8kva",
       "badge": "Home",
       "kva_label": "8 KVA SYSTEM",
-      "max_watts": "6,500",
-      "price_ghs": 94900,
+      "max_watts": "6,800",
+      "price_ghs": 190900,
       "price_label": "From",
-      "highlights": ["Popular family home package"],
+      "highlights": [
+        "Popular family home"
+      ],
       "components": [
         "8 kVA hybrid inverter (1)",
-        "5 kWh LiFePO₄ lithium batteries (2)",
+        "16 kWh LiFePO₄ lithium batteries (2)",
         "Battery management / monitoring (1)",
-        "570W tier-1 solar panels (8)",
+        "570W tier-1 solar panels (19)",
         "DC protection, changeover & AC distribution",
         "Mounting structure (roof)",
         "Cables, MC4, earthing & commissioning"
       ],
-      "appliances": "1 fridge, blender, sound system, iron, rice cooker, 1 AC (1–1.5 hp max), 25 bulbs, 5 fans, 2 TVs, 3 computers/laptops, printer."
+      "appliances": "Fridge, rice cooker, blender, iron (staggered), 1 split AC (1–1.5 hp), 25 LED bulbs, 4–5 fans, 2 TVs, home Wi‑Fi, 2–3 laptops or computers, printer.",
+      "inverter_kw": 8.0,
+      "target_storage_kwh": 32.0,
+      "panel_count": 19,
+      "panel_dc_kw": 10.83,
+      "battery_count": 2,
+      "battery_kwh": 32.0
     },
     {
       "id": "ep-10kva",
       "badge": "Plus",
       "kva_label": "10 KVA SYSTEM",
       "max_watts": "8,500",
-      "price_ghs": 159000,
+      "price_ghs": 229900,
       "price_label": "From",
-      "highlights": ["Large home or small office"],
+      "highlights": [
+        "Large home or small office"
+      ],
       "components": [
         "10 kVA hybrid inverter (1)",
-        "5 kWh LiFePO₄ lithium batteries (4)",
+        "16 kWh LiFePO₄ lithium batteries (3)",
         "Battery management / monitoring (1)",
-        "570W tier-1 solar panels (16)",
+        "570W tier-1 solar panels (23)",
         "DC protection, changeover & AC distribution",
         "Mounting structure (roof)",
         "Cables, MC4, earthing & commissioning"
       ],
-      "appliances": "2 fridges/freezers, blender, sound system, iron, rice cooker/microwave, 2 AC (1 / 1.5 / 2.5 hp), 30 bulbs, 4 fans, 2 TVs, 3 computers/laptops, printer."
+      "appliances": "2 fridges or fridge + freezer, rice cooker or microwave, blender, iron (staggered), up to 2 split AC (1–1.5 hp, not together on full cool), 30 LED bulbs, 4–5 fans, 2 TVs, small office (PCs, printer, router).",
+      "inverter_kw": 10.0,
+      "target_storage_kwh": 48.0,
+      "panel_count": 23,
+      "panel_dc_kw": 13.11,
+      "battery_count": 3,
+      "battery_kwh": 48.0
     },
     {
       "id": "ep-12kva",
       "badge": "Pro",
       "kva_label": "12 KVA SYSTEM",
-      "max_watts": "11,500",
-      "price_ghs": 209000,
+      "max_watts": "10,200",
+      "price_ghs": 280900,
       "price_label": "From",
-      "highlights": ["Executive home / boutique business"],
+      "highlights": [
+        "Executive home · boutique office"
+      ],
       "components": [
         "12 kVA hybrid inverter (1)",
-        "5 kWh LiFePO₄ lithium batteries (6)",
+        "16 kWh LiFePO₄ lithium batteries (4)",
         "Battery management / monitoring (1)",
-        "570W Jinko / Longi solar panels (20)",
+        "570W Jinko / Longi solar panels (28)",
         "DC protection, dual MPPT where required, changeover",
         "Mounting structure (roof)",
         "Cables, MC4, earthing & commissioning"
       ],
-      "appliances": "2 fridges/freezers, 2 blenders, sound system, iron, heater, rice cooker, 2 AC (1.5 / 2.5 hp), 30 bulbs, 4 fans, 2 TVs, 3 computers/laptops, printer."
+      "appliances": "2 fridges/freezers, kitchen blender, rice cooker, iron and heater (staggered), 2–3 split AC (1–1.5 hp — alternate with kitchen peaks, not all on full cool), 30+ LED bulbs, 4–5 fans, 2–3 TVs, home office or shop POS and computers.",
+      "inverter_kw": 12.0,
+      "target_storage_kwh": 64.0,
+      "panel_count": 28,
+      "panel_dc_kw": 15.96,
+      "battery_count": 4,
+      "battery_kwh": 64.0
     },
     {
       "id": "ep-15kva",
       "badge": "Commercial",
       "kva_label": "15 KVA SYSTEM",
-      "max_watts": "14,500",
-      "price_ghs": 279000,
+      "max_watts": "12,800",
+      "price_ghs": 344900,
       "price_label": "From",
-      "highlights": ["Guest house · shop · church hall"],
+      "highlights": [
+        "Guest house · shop · church hall"
+      ],
       "components": [
         "15 kVA hybrid inverter (1)",
-        "5 kWh LiFePO₄ lithium batteries (8)",
+        "16 kWh LiFePO₄ lithium batteries (5)",
         "Battery management / monitoring (1)",
-        "570W tier-1 solar panels (28)",
+        "570W tier-1 solar panels (35)",
         "AC/DC distribution boards & changeover",
         "Mounting structure (roof)",
         "Cables, MC4, earthing & commissioning"
       ],
-      "appliances": "2 fridges/freezers, 2 blenders, sound system, iron, heater, rice cooker, 4 AC (1 / 1.5 / 2.5 hp), 30 bulbs, 4 fans, 2 TVs, 3 computers/laptops, printer."
+      "appliances": "Several guest rooms, commercial fridge, kitchen appliances (staggered), up to 4 split AC (1–1.5 hp) with load management, sound system, reception PCs, security and corridor lighting, small water pump or booster (if within survey load).",
+      "inverter_kw": 15.0,
+      "target_storage_kwh": 80.0,
+      "panel_count": 35,
+      "panel_dc_kw": 19.95,
+      "battery_count": 5,
+      "battery_kwh": 80.0
     },
     {
       "id": "ep-20kva",
       "badge": "Power",
       "kva_label": "20 KVA SYSTEM",
-      "max_watts": "19,500",
-      "price_ghs": 369000,
+      "max_watts": "17,000",
+      "price_ghs": 447900,
       "price_label": "From",
-      "highlights": ["Hotel wing · office block · multi-tenant"],
+      "highlights": [
+        "Hotel wing · office block · multi-tenant"
+      ],
       "components": [
         "10 kVA hybrid inverters (2, synchronized)",
-        "5 kWh LiFePO₄ lithium batteries (10)",
+        "16 kWh LiFePO₄ lithium batteries (6)",
         "Battery management / monitoring (1)",
-        "570W tier-1 solar panels (36)",
+        "570W tier-1 solar panels (46)",
         "AC/DC distribution boards & changeover",
         "Mounting structure (roof)",
         "Cables, MC4, earthing & commissioning"
       ],
-      "appliances": "2 fridges/freezers, 2 blenders, sound system, iron, heater, rice cooker, 5 AC (1 / 1.5 / 2.5 hp), 30+ bulbs, 4 fans, 2 TVs, 3 computers/laptops, printer."
+      "appliances": "Multiple guest-room AC (1–1.5 hp, staggered across rooms), commercial kitchen peaks, laundry alternated with AC, fridges, IT/server room on dedicated circuit, event or hall lighting — engineered load schedule on survey.",
+      "inverter_kw": 20.0,
+      "target_storage_kwh": 96.0,
+      "panel_count": 46,
+      "panel_dc_kw": 26.22,
+      "battery_count": 6,
+      "battery_kwh": 96.0
     }
   ],
   "footer_bullets": [
-    "All packages use hybrid inverters from 6.5 kVA upward — sized to match our stocked equipment and Ghana loads.",
-    "Site survey may adjust panel count and battery blocks to match your actual load.",
+    "Hybrid systems — solar plus lithium backup with ECG/grid and generator; not standalone off-grid unless engineered on survey.",
+    "Connected load ceilings assume ~0.85 power factor; stagger AC, iron, and heater — do not run all heavy loads at once.",
+    "Panel counts sized to each inverter at max DC/AC ratio (1.3) with 570 W modules — full load, not load-diversity reduction.",
+    "Storage uses stocked 16 kWh LiFePO₄ modules; site survey confirms module count and backup hours.",
     "Larger projects receive engineered BOM, load analysis & formal quotation from Energy Precisions.",
     "Payment: typically 30% deposit · 40% on delivery · 30% on commissioning (negotiable)."
   ]
