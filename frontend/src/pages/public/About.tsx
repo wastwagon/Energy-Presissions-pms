@@ -31,6 +31,8 @@ import { colors } from '../../theme/colors';
 import { homePageImages } from '../../data/homePageMedia';
 import api from '../../services/api';
 import TrustStrip from '../../components/public/TrustStrip';
+import Link from '@mui/material/Link';
+import { COMPANY } from '../../data/companyContact';
 
 const About: React.FC = () => {
   const content = websiteContent;
@@ -716,7 +718,9 @@ const About: React.FC = () => {
                   </Box>
                   <Box display="flex" alignItems="center" gap={2}>
                     <EmailIcon sx={{ color: colors.green }} />
-                    <Typography variant="body1">energyprecisions@gmail.com</Typography>
+                    <Link href={`mailto:${COMPANY.emailPrimary}`} color="inherit" underline="hover">
+                      {COMPANY.emailPrimary}
+                    </Link>
                   </Box>
                 </Stack>
               </Card>

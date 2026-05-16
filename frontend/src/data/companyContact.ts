@@ -13,7 +13,8 @@ export const COMPANY = {
   phoneDisplay: '(+233) 533 611 611',
   phoneHref: 'tel:+233533611611',
   emailPrimary: 'info@energyprecisions.com',
-  emailSales: 'energyprecisions@gmail.com',
+  /** Public sales/support inbox (same as emailPrimary) */
+  emailSales: 'info@energyprecisions.com',
   addressLine1: 'Haatso, Ecomog',
   addressLine2: 'Accra, Ghana',
   addressFull: 'Haatso, Ecomog, Accra, Ghana',
