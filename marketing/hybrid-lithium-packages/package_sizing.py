@@ -1,10 +1,12 @@
 """
-Marketing package sizing — matches PMS PV logic for panels (no load diversity).
+Marketing package sizing.
 
-Panel count: ceil(inverter_kw × max_dc_ac_ratio × 1000 / panel_wattage)
-  Same DC/AC cap used in backend/app/services/sizing.py (default max_dc_ac_ratio 1.3).
+Panels: sized to the package **load tier** (load_kva), not inverter nameplate — avoids
+oversizing PV when the stocked inverter is larger than the tier (e.g. 10 kW inv on 8 KVA Home).
 
-Battery count: ceil(target_storage_kwh / 16) using stocked 16 kWh LiFePO₄ modules.
+  panel_count = ceil(load_kva × max_dc_ac_ratio × 1000 / panel_wattage)
+
+Inverter lines come from TIER_INVERTER_COMPONENT (stocked SKUs). Battery: 16 kWh modules.
 """
 from __future__ import annotations
 
@@ -28,12 +30,35 @@ TIER_TARGET_STORAGE_KWH: dict[str, float] = {
 
 TIER_INVERTER_KW: dict[str, float] = {
     "ep-6.5kva": 6.5,
-    "ep-8kva": 8.0,
+    "ep-8kva": 10.0,
     "ep-10kva": 10.0,
-    "ep-12kva": 12.0,
-    "ep-15kva": 15.0,
+    "ep-12kva": 13.0,
+    "ep-15kva": 20.0,
     "ep-20kva": 20.0,
 }
+
+# Stocked hybrid inverter lines (must match catalog — not always equal to load_kva label).
+TIER_INVERTER_COMPONENT: dict[str, str] = {
+    "ep-6.5kva": "6.5 kW hybrid inverter (1)",
+    "ep-8kva": "10 kW hybrid inverter (1)",
+    "ep-10kva": "10 kW hybrid inverter (1)",
+    "ep-12kva": "6.5 kW hybrid inverters (2, synchronized)",
+    "ep-15kva": "10 kW hybrid inverters (2, synchronized)",
+    "ep-20kva": "10 kW hybrid inverters (2, synchronized)",
+}
+
+
+def panel_count_for_load_tier(
+    load_kva: float,
+    *,
+    panel_wattage: int = PANEL_WATTAGE,
+    max_dc_ac_ratio: float = MAX_DC_AC_RATIO,
+) -> int:
+    """PV count sized to package load (kVA), not inverter nameplate."""
+    if load_kva <= 0 or panel_wattage <= 0:
+        return 0
+    dc_kw = load_kva * max_dc_ac_ratio
+    return math.ceil(dc_kw * 1000 / panel_wattage)
 
 
 def panel_count_for_inverter(
@@ -42,11 +67,8 @@ def panel_count_for_inverter(
     panel_wattage: int = PANEL_WATTAGE,
     max_dc_ac_ratio: float = MAX_DC_AC_RATIO,
 ) -> int:
-    """Panels needed so DC nameplate meets inverter at max DC/AC (no diversity factor)."""
-    if inverter_kw <= 0 or panel_wattage <= 0:
-        return 0
-    dc_kw = inverter_kw * max_dc_ac_ratio
-    return math.ceil(dc_kw * 1000 / panel_wattage)
+    """Legacy helper — prefer panel_count_for_load_tier for marketing packages."""
+    return panel_count_for_load_tier(inverter_kw, panel_wattage=panel_wattage, max_dc_ac_ratio=max_dc_ac_ratio)
 
 
 def battery_module_count(
@@ -65,11 +87,10 @@ def panel_dc_kw(panel_count: int, panel_wattage: int = PANEL_WATTAGE) -> float:
 
 def _inverter_line(pkg: dict[str, Any]) -> str:
     pkg_id = pkg.get("id", "")
-    if pkg_id == "ep-20kva":
-        return "10 kVA hybrid inverters (2, synchronized)"
+    if pkg_id in TIER_INVERTER_COMPONENT:
+        return TIER_INVERTER_COMPONENT[pkg_id]
     kw = pkg.get("inverter_kw") or TIER_INVERTER_KW.get(pkg_id, 0)
-    label = pkg.get("kva_label", f"{kw} KVA SYSTEM").replace(" SYSTEM", "")
-    return f"{label.replace('KVA', 'kVA')} hybrid inverter (1)"
+    return f"{kw} kW hybrid inverter (1)"
 
 
 def _battery_line(count: int) -> str:
@@ -85,24 +106,38 @@ def _panel_line(count: int, *, premium: bool = False) -> str:
 def enrich_package(pkg: dict[str, Any], *, auto_price: bool = False) -> dict[str, Any]:
     """Fill sizing, components, and tier copy from engineering + package_content rules."""
     from package_content import apply_tier_content
+    from package_copy import (
+        LOAD_CEILING_HELP,
+        tier_brochure_note,
+        tier_customer_note,
+        tier_inverter_headroom,
+    )
 
     pkg = apply_tier_content(pkg)
     pkg_id = pkg.get("id", "")
     inverter_kw = float(pkg.get("inverter_kw") or TIER_INVERTER_KW.get(pkg_id, 0))
+    load_kva = float(pkg.get("load_kva") or inverter_kw)
     target_kwh = float(
         pkg.get("target_storage_kwh") or TIER_TARGET_STORAGE_KWH.get(pkg_id, BATTERY_MODULE_KWH)
     )
 
-    panel_count = panel_count_for_inverter(inverter_kw)
+    panel_count = panel_count_for_load_tier(load_kva)
     battery_count = battery_module_count(target_kwh)
 
     pkg = dict(pkg)
     pkg["inverter_kw"] = inverter_kw
+    pkg["load_kva"] = load_kva
     pkg["target_storage_kwh"] = target_kwh
     pkg["panel_count"] = panel_count
     pkg["panel_dc_kw"] = panel_dc_kw(panel_count)
     pkg["battery_count"] = battery_count
     pkg["battery_kwh"] = battery_count * BATTERY_MODULE_KWH
+    pkg["load_ceiling_help"] = LOAD_CEILING_HELP
+    pkg["customer_note"] = tier_customer_note(pkg_id)
+    pkg["brochure_note"] = tier_brochure_note(pkg_id)
+    headroom = tier_inverter_headroom(pkg_id)
+    if headroom:
+        pkg["inverter_headroom"] = headroom
 
     premium_panels = pkg_id == "ep-12kva"
     tail = [
@@ -134,6 +169,10 @@ def enrich_package(pkg: dict[str, Any], *, auto_price: bool = False) -> dict[str
 
 
 def enrich_config(config: dict[str, Any], *, auto_price: bool = False) -> dict[str, Any]:
+    from package_copy import FOOTER_BULLETS, READING_GUIDE
+
     out = dict(config)
     out["packages"] = [enrich_package(p, auto_price=auto_price) for p in config.get("packages", [])]
+    out["reading_guide"] = config.get("reading_guide") or READING_GUIDE
+    out["footer_bullets"] = FOOTER_BULLETS
     return out

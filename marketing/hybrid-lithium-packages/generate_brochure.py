@@ -19,6 +19,10 @@ Or run with Docker (WeasyPrint in backend image):
   docker run --rm -v "$PWD:/repo" -w /repo/marketing/hybrid-lithium-packages \\
     energyprecisionpms-backend python generate_brochure.py --repo-root /repo
 
+  # Promotional PDF (20% off list — separate file, does not change packages.json):
+  docker run --rm -v "$PWD:/repo" -w /repo/marketing/hybrid-lithium-packages \\
+    energyprecisionpms-backend python generate_brochure.py --repo-root /repo --discount 20
+
 Logo files are read from frontend/public (see generate_brochure.py).
 If EP_REPO_ROOT is set, or --repo-root is passed, the logo embeds reliably when
 only copying the marketing folder into a container.
@@ -34,6 +38,7 @@ from pathlib import Path
 from jinja2 import Environment
 from weasyprint import HTML
 
+from brochure_discount import apply_package_discount, default_output_path
 from package_sizing import enrich_config
 
 DIR = Path(__file__).resolve().parent
@@ -91,11 +96,17 @@ def load_config(path: Path) -> dict:
         return json.load(f)
 
 
-def render_html(config: dict, logo_data_uri: str | None) -> str:
+def render_html(
+    config: dict,
+    logo_data_uri: str | None,
+    *,
+    discount_percent: float | None = None,
+) -> str:
     env = Environment(autoescape=True)
     template = env.from_string(TEMPLATE_PATH.read_text(encoding="utf-8"))
-    # Recompute panel/battery lines from inverter tier (no load diversity factor).
     config = enrich_config(config)
+    if discount_percent is not None:
+        config = apply_package_discount(config, discount_percent)
     return template.render(logo_data_uri=logo_data_uri, **config)
 
 
@@ -127,24 +138,34 @@ def main() -> None:
         default=None,
         help="Repo root containing frontend/public (default: auto-detect; or set EP_REPO_ROOT)",
     )
+    parser.add_argument(
+        "--discount",
+        type=float,
+        default=None,
+        metavar="PERCENT",
+        help="Apply promotional discount to all package prices (e.g. 20 for 20%% off list)",
+    )
 
     args = parser.parse_args()
 
     repo_root = resolve_repo_root(args.repo_root)
     config = load_config(args.config)
     logo_uri = load_logo_data_uri(repo_root)
-    html = render_html(config, logo_uri)
+    html = render_html(config, logo_uri, discount_percent=args.discount)
 
+    default_out = default_output_path(args.discount)
     if args.output is None:
-        out = DEFAULT_OUTPUT
+        out = default_out
     elif args.output.suffix.lower() == ".pdf":
         out = args.output
     else:
-        out = args.output / DEFAULT_OUTPUT.name
+        out = args.output / default_out.name
 
     path = generate_pdf(html, out, repo_root)
     print(f"Generated: {path}")
     print(f"Packages: {len(config.get('packages', []))} tiers")
+    if args.discount is not None:
+        print(f"Pricing: {args.discount:g}% discount applied (list prices shown struck through)")
     print(f"Logo embedded: {'yes' if logo_uri else 'no (add logo under frontend/public/website_images/)'}")
     print("Edit packages.json to update pricing and contact details.")
 

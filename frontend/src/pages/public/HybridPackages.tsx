@@ -35,6 +35,8 @@ import {
   HYBRID_PACKAGES,
   HYBRID_PACKAGE_BRAND,
   HYBRID_PACKAGE_FOOTER_POINTS,
+  HYBRID_PACKAGE_READING_GUIDE,
+  LOAD_CEILING_HELP,
   formatGhs,
 } from '../../data/hybridPackages';
 
@@ -154,18 +156,50 @@ const HybridPackages: React.FC = () => {
           </Typography>
           <Typography
             variant="body2"
-            sx={{ textAlign: 'center', color: colors.gray600, mb: 4, maxWidth: 640, mx: 'auto' }}
+            sx={{ textAlign: 'center', color: colors.gray600, mb: 3, maxWidth: 640, mx: 'auto' }}
           >
-            Six turnkey tiers from essential homes to commercial blocks. All include hybrid inverter,
-            lithium storage, panels, mounting, and professional installation.
+            Six turnkey tiers from essential homes to commercial blocks. KVA is your planned load tier;
+            inverter and panel lines follow what we stock and engineer — see notes on each card.
           </Typography>
 
-          <Grid container spacing={2}>
+          <Box
+            sx={{
+              maxWidth: 720,
+              mx: 'auto',
+              mb: 4,
+              p: 2,
+              borderRadius: 2,
+              bgcolor: 'white',
+              border: '1px solid',
+              borderColor: colors.gray200,
+              borderLeft: `4px solid ${colors.blueBlack}`,
+            }}
+          >
+            <Typography variant="subtitle2" sx={{ fontWeight: 800, color: colors.blueBlack, mb: 1 }}>
+              {HYBRID_PACKAGE_READING_GUIDE.title}
+            </Typography>
+            <List dense disablePadding>
+              {HYBRID_PACKAGE_READING_GUIDE.points.map((point) => (
+                <ListItem key={point} disableGutters sx={{ py: 0.25, alignItems: 'flex-start' }}>
+                  <ListItemIcon sx={{ minWidth: 28, mt: 0.25 }}>
+                    <CheckIcon sx={{ fontSize: 16, color: colors.green }} />
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={point}
+                    primaryTypographyProps={{ variant: 'body2', color: colors.gray600 }}
+                  />
+                </ListItem>
+              ))}
+            </List>
+          </Box>
+
+          <Grid container spacing={2} alignItems="stretch">
             {HYBRID_PACKAGES.map((pkg) => (
               <Grid item xs={12} sm={6} lg={4} key={pkg.id}>
                 <Card
                   sx={{
                     height: '100%',
+                    minHeight: { xs: 'auto', lg: 520 },
                     display: 'flex',
                     flexDirection: 'column',
                     borderRadius: 2,
@@ -197,8 +231,26 @@ const HybridPackages: React.FC = () => {
                       <Typography variant="h6" sx={{ fontWeight: 800, lineHeight: 1.2 }}>
                         {pkg.kvaLabel}
                       </Typography>
-                      <Typography variant="caption" sx={{ opacity: 0.85 }}>
-                        Up to ~{pkg.maxWatts} W connected load
+                      {pkg.inverterHeadroom ? (
+                        <Chip
+                          label={pkg.inverterHeadroom}
+                          size="small"
+                          sx={{
+                            mt: 0.5,
+                            height: 20,
+                            fontSize: '0.62rem',
+                            fontWeight: 800,
+                            bgcolor: '#ffd54f',
+                            color: colors.blueBlack,
+                            '& .MuiChip-label': { px: 0.75 },
+                          }}
+                        />
+                      ) : null}
+                      <Typography variant="caption" sx={{ opacity: 0.9, display: 'block', mt: 0.5 }}>
+                        Planned continuous load ~{pkg.maxWatts} W
+                      </Typography>
+                      <Typography variant="caption" sx={{ opacity: 0.75, fontSize: '0.65rem', lineHeight: 1.3 }}>
+                        {LOAD_CEILING_HELP}
                       </Typography>
                     </Box>
                     <BoltIcon sx={{ color: colors.green, fontSize: 28, opacity: 0.9 }} />
@@ -212,6 +264,21 @@ const HybridPackages: React.FC = () => {
                     </Typography>
                   </Box>
                   <CardContent sx={{ flexGrow: 1, py: 2 }}>
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        fontSize: '0.78rem',
+                        lineHeight: 1.45,
+                        color: colors.gray600,
+                        bgcolor: 'rgba(0,230,118,0.08)',
+                        borderLeft: `3px solid ${colors.green}`,
+                        pl: 1.25,
+                        py: 1,
+                        mb: 1.5,
+                      }}
+                    >
+                      {pkg.customerNote}
+                    </Typography>
                     {pkg.highlights.map((h) => (
                       <Chip
                         key={h}
@@ -250,7 +317,7 @@ const HybridPackages: React.FC = () => {
                           ))}
                         </List>
                         <Typography variant="caption" sx={{ color: colors.gray600, display: 'block', mt: 1 }}>
-                          <strong>Typical loads:</strong> {pkg.appliances}
+                          <strong>Typical loads (stagger heavy items):</strong> {pkg.appliances}
                         </Typography>
                       </AccordionDetails>
                     </Accordion>

@@ -14,6 +14,7 @@ TIER_META: dict[str, dict[str, Any]] = {
     "ep-6.5kva": {
         "badge": "Essential",
         "kva_label": "6.5 KVA SYSTEM",
+        "load_kva": 6.5,
         "inverter_kw": 6.5,
         "target_storage_kwh": 16.0,
         "highlights": ["Entry tier · flats & small homes"],
@@ -25,7 +26,9 @@ TIER_META: dict[str, dict[str, Any]] = {
     "ep-8kva": {
         "badge": "Home",
         "kva_label": "8 KVA SYSTEM",
-        "inverter_kw": 8.0,
+        "load_kva": 8.0,
+        "inverter_kw": 10.0,
+        "inverter_cost_ghs": 11000.0,
         "target_storage_kwh": 32.0,
         "highlights": ["Popular family home"],
         "appliances": (
@@ -36,6 +39,7 @@ TIER_META: dict[str, dict[str, Any]] = {
     "ep-10kva": {
         "badge": "Plus",
         "kva_label": "10 KVA SYSTEM",
+        "load_kva": 10.0,
         "inverter_kw": 10.0,
         "target_storage_kwh": 48.0,
         "highlights": ["Large home or small office"],
@@ -48,7 +52,9 @@ TIER_META: dict[str, dict[str, Any]] = {
     "ep-12kva": {
         "badge": "Pro",
         "kva_label": "12 KVA SYSTEM",
-        "inverter_kw": 12.0,
+        "load_kva": 12.0,
+        "inverter_kw": 13.0,
+        "inverter_cost_ghs": 13000.0,
         "target_storage_kwh": 64.0,
         "highlights": ["Executive home · boutique office"],
         "appliances": (
@@ -60,7 +66,9 @@ TIER_META: dict[str, dict[str, Any]] = {
     "ep-15kva": {
         "badge": "Commercial",
         "kva_label": "15 KVA SYSTEM",
-        "inverter_kw": 15.0,
+        "load_kva": 15.0,
+        "inverter_kw": 20.0,
+        "inverter_cost_ghs": 22000.0,
         "target_storage_kwh": 80.0,
         "highlights": ["Guest house · shop · church hall"],
         "appliances": (
@@ -72,6 +80,7 @@ TIER_META: dict[str, dict[str, Any]] = {
     "ep-20kva": {
         "badge": "Power",
         "kva_label": "20 KVA SYSTEM",
+        "load_kva": 20.0,
         "inverter_kw": 20.0,
         "target_storage_kwh": 96.0,
         "highlights": ["Hotel wing · office block · multi-tenant"],
@@ -96,8 +105,18 @@ def apply_tier_content(pkg: dict[str, Any]) -> dict[str, Any]:
     if not meta:
         return pkg
     pkg = dict(pkg)
-    pkg.update({k: v for k, v in meta.items() if k not in ("inverter_kw",)})
-    pkg["inverter_kw"] = meta["inverter_kw"]
+    pkg.update(
+        {
+            k: v
+            for k, v in meta.items()
+            if k not in ("inverter_kw", "load_kva", "inverter_cost_ghs")
+        }
+    )
+    load_kva = float(meta.get("load_kva", meta["inverter_kw"]))
+    pkg["load_kva"] = load_kva
+    pkg["inverter_kw"] = float(meta["inverter_kw"])
     pkg["target_storage_kwh"] = meta["target_storage_kwh"]
-    pkg["max_watts"] = max_watts_label(meta["inverter_kw"])
+    pkg["max_watts"] = max_watts_label(load_kva)
+    if "inverter_cost_ghs" in meta:
+        pkg["inverter_cost_ghs"] = float(meta["inverter_cost_ghs"])
     return pkg

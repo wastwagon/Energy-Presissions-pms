@@ -64,14 +64,24 @@ def _battery_unit_price(module_kwh: float) -> float:
     return 13000.0  # legacy 5 kWh module reference
 
 
+def inverter_cost_ghs(pkg: dict[str, Any]) -> float:
+    if pkg.get("inverter_cost_ghs") is not None:
+        return float(pkg["inverter_cost_ghs"])
+    inverter_kw = float(pkg.get("inverter_kw") or 0)
+    return INVERTER_UNIT_GHS.get(inverter_kw, inverter_kw * 1000.0)
+
+
 def equipment_subtotal(
     *,
     panel_count: int,
     battery_count: int,
     inverter_kw: float,
     battery_module_kwh: float = 16.0,
+    inverter_cost: float | None = None,
 ) -> float:
-    inv = INVERTER_UNIT_GHS.get(inverter_kw, inverter_kw * 1000.0)
+    inv = inverter_cost if inverter_cost is not None else INVERTER_UNIT_GHS.get(
+        inverter_kw, inverter_kw * 1000.0
+    )
     bat_unit = _battery_unit_price(battery_module_kwh)
     return (
         panel_count * PANEL_UNIT_GHS
@@ -108,6 +118,7 @@ def compute_list_price_ghs(pkg: dict[str, Any]) -> int:
         panel_count=panel_count,
         battery_count=battery_count,
         inverter_kw=inverter_kw,
+        inverter_cost=inverter_cost_ghs(pkg),
     )
     new_turnkey = turnkey_subtotal(new_eq) * PACKAGE_MARGIN
 

@@ -1,18 +1,37 @@
 /**
  * Turnkey hybrid lithium package tiers (marketing / Solar Packages page).
- * Source of truth for copy: marketing/hybrid-lithium-packages/package_content.py
- * Run enrich on packages.json after tier changes (see package_sizing.py).
+ * Copy source: marketing/hybrid-lithium-packages/package_copy.py + package_content.py
+ * After tier changes: python3 sync_packages.py in marketing/hybrid-lithium-packages
  */
 export type HybridPackage = {
   id: string;
   badge: string;
   kvaLabel: string;
   maxWatts: string;
+  /** Shown on cards — explains kVA vs inverter vs panels without a sales call */
+  customerNote: string;
+  /** When stocked inverter exceeds load-tier badge (see package_copy.py) */
+  inverterHeadroom?: string;
   priceGhs: number;
   highlights: string[];
   components: string[];
   appliances: string;
 };
+
+export const HYBRID_PACKAGE_READING_GUIDE = {
+  title: 'How to read these packages',
+  points: [
+    'KVA on the badge = your load tier (how much you plan to run at once), not the inverter brand size.',
+    'Watts shown (~0.85 × kVA) = continuous planning ceiling — stagger AC, iron, and heaters.',
+    'Inverter line = equipment we stock; it may be larger than the kVA badge for AC starts and reliability.',
+    'Panel count = sized to the kVA load tier, not to fill a larger inverter — survey may adjust.',
+    'Hybrid = solar + lithium + grid (generator-ready); backup hours depend on battery size and night load.',
+    'Turnkey price is from our Accra office; final BOM and price are confirmed after a free site survey.',
+  ],
+} as const;
+
+export const LOAD_CEILING_HELP =
+  'Continuous planning figure (~0.85 power factor). Stagger heavy loads — do not exceed this together.';
 
 export const HYBRID_PACKAGE_BRAND = {
   documentTitle: 'Hybrid Lithium Solar Packages',
@@ -29,6 +48,8 @@ export const HYBRID_PACKAGES: HybridPackage[] = [
     badge: 'Essential',
     kvaLabel: '6.5 KVA',
     maxWatts: '5,500',
+    customerNote:
+      '6.5 KVA tier with a matching 6.5 kW inverter. Fifteen panels are sized for this load — no air conditioning in this tier; upgrade if you need AC.',
     priceGhs: 140900,
     highlights: ['Entry tier · flats & small homes'],
     components: [
@@ -48,10 +69,13 @@ export const HYBRID_PACKAGES: HybridPackage[] = [
     badge: 'Home',
     kvaLabel: '8 KVA',
     maxWatts: '6,800',
-    priceGhs: 190900,
+    inverterHeadroom: '+25% inverter headroom · AC motor starts',
+    customerNote:
+      'Badge is 8 KVA (~6,800 W planned use). We install one 10 kW inverter (stocked) for AC starts — still plan within ~6,800 W continuous. Nineteen panels match the 8 KVA tier, not 10 kW maximum.',
+    priceGhs: 194900,
     highlights: ['Popular family home'],
     components: [
-      '8 kVA hybrid inverter',
+      '10 kW hybrid inverter',
       '16 kWh LiFePO₄ batteries (2)',
       'Battery management & monitoring',
       '570W tier-1 solar panels (19)',
@@ -67,6 +91,8 @@ export const HYBRID_PACKAGES: HybridPackage[] = [
     badge: 'Plus',
     kvaLabel: '10 KVA',
     maxWatts: '8,500',
+    customerNote:
+      '10 KVA tier with one 10 kW inverter — aligned. Run up to ~8,500 W continuous; do not run two split AC units on full cool at the same time.',
     priceGhs: 229900,
     highlights: ['Large home or small office'],
     components: [
@@ -86,10 +112,13 @@ export const HYBRID_PACKAGES: HybridPackage[] = [
     badge: 'Pro',
     kvaLabel: '12 KVA',
     maxWatts: '10,200',
-    priceGhs: 280900,
+    inverterHeadroom: '+8% inverter headroom · dual 6.5 kW sync',
+    customerNote:
+      '12 KVA tier (~10,200 W planned use). Two 6.5 kW inverters work together (~13 kW available). Twenty-eight panels are sized for 12 KVA load, not 13 kW inverter maximum.',
+    priceGhs: 286900,
     highlights: ['Executive home · boutique office'],
     components: [
-      '12 kVA hybrid inverter',
+      '6.5 kW hybrid inverters (2, synchronized)',
       '16 kWh LiFePO₄ batteries (4)',
       'Battery management & monitoring',
       '570W Jinko / Longi panels (28)',
@@ -105,10 +134,13 @@ export const HYBRID_PACKAGES: HybridPackage[] = [
     badge: 'Commercial',
     kvaLabel: '15 KVA',
     maxWatts: '12,800',
-    priceGhs: 344900,
+    inverterHeadroom: '+33% inverter headroom · dual 10 kW sync',
+    customerNote:
+      '15 KVA tier (~12,800 W planned use). Two 10 kW inverters (synchronized, stocked) handle peaks; thirty-five panels are sized for 15 KVA — less solar than the 20 KVA tier on the same inverter pair.',
+    priceGhs: 353900,
     highlights: ['Guest house · shop · church hall'],
     components: [
-      '15 kVA hybrid inverter',
+      '10 kW hybrid inverters (2, synchronized)',
       '16 kWh LiFePO₄ batteries (5)',
       'Battery management & monitoring',
       '570W tier-1 panels (35)',
@@ -124,6 +156,8 @@ export const HYBRID_PACKAGES: HybridPackage[] = [
     badge: 'Power',
     kvaLabel: '20 KVA',
     maxWatts: '17,000',
+    customerNote:
+      '20 KVA tier (~17,000 W planned use) with two 10 kW inverters. Forty-six panels match this load; guest-house and hotel loads need a written load schedule on survey.',
     priceGhs: 447900,
     highlights: ['Hotel wing · office block · multi-tenant'],
     components: [
@@ -141,12 +175,13 @@ export const HYBRID_PACKAGES: HybridPackage[] = [
 ];
 
 export const HYBRID_PACKAGE_FOOTER_POINTS = [
-  'Hybrid systems — solar plus lithium backup with ECG/grid and generator; off-grid only when engineered on survey.',
-  'Load ceilings use ~0.85 power factor — stagger AC, iron, and heater; do not run all heavy loads at once.',
-  'Panel counts match each inverter at max DC/AC ratio (1.3) with 570 W modules.',
-  'Storage uses 16 kWh LiFePO₄ modules; site survey confirms module count and backup hours.',
-  'Quoted from our Accra office (Haatso, Ecomog) — installs across Ghana by appointment.',
-  'Larger projects receive engineered load analysis, itemized quotations, and formal handover.',
+  'Hybrid systems combine solar, lithium storage, and ECG/grid (generator-ready where fitted). Full off-grid only when engineered on survey.',
+  'Connected load ceilings use ~0.85 power factor. Stagger split AC, iron, kettle, and water heater — never assume all peaks run together.',
+  'A larger inverter than the kVA badge is normal: it covers motor starts and growth while you still plan within the stated watt ceiling.',
+  'Solar panel counts follow the package load tier (kVA), not the inverter nameplate — avoids paying for PV you cannot use on that load.',
+  'Storage uses stocked 16 kWh LiFePO₄ modules; night backup hours depend on your load — survey confirms module count.',
+  'Commercial and Power tiers need a load schedule on survey; brochure lists are typical examples, not unlimited simultaneous use.',
+  'Larger projects receive engineered BOM, load analysis, and itemised quotation from Energy Precisions.',
   'Typical payment: 30% deposit · 40% on delivery · 30% on commissioning (negotiable for commercial clients).',
 ];
 
