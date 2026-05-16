@@ -45,7 +45,7 @@ const HybridPackages: React.FC = () => {
     <Box>
       <Seo
         title="Hybrid Lithium Solar Packages Ghana | Energy Precisions"
-        description="Turnkey 3–20 kVA hybrid lithium solar packages from our Accra office — panels, installation, monitoring and competitive GHS pricing across Ghana."
+        description="Turnkey 6.5–20 kVA hybrid lithium solar packages from our Accra office — panels, installation, monitoring and competitive GHS pricing across Ghana."
         path="/solar-packages"
       />
 

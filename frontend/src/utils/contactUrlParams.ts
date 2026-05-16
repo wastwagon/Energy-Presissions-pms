@@ -40,6 +40,6 @@ export const CONTACT_TOPIC_BANNERS: Record<
   },
   package: {
     title: 'Hybrid solar package enquiry',
-    body: 'You selected a turnkey package tier on our website. Tell us your location, preferred package (3–20 kVA), and any special loads (AC, business equipment).',
+    body: 'You selected a turnkey package tier on our website. Tell us your location, preferred package (6.5–20 kVA), and any special loads (AC, business equipment).',
   },
 };

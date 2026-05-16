@@ -12,24 +12,24 @@
   "contact": {
     "heading": "ACCRA OFFICE",
     "address": "Haatso, Ecomog, Accra, Ghana",
-    "email": "energyprecisions@gmail.com",
+    "email": "info@energyprecisions.com",
     "phone": "(+233) 533 611 611",
     "note": "Our only office. Site surveys and installs across Ghana are booked from Accra."
   },
   "packages": [
     {
-      "id": "ep-3kva",
+      "id": "ep-6.5kva",
       "badge": "Essential",
-      "kva_label": "3 KVA SYSTEM",
-      "max_watts": "2,500",
-      "price_ghs": 54900,
+      "kva_label": "6.5 KVA SYSTEM",
+      "max_watts": "5,500",
+      "price_ghs": 64900,
       "price_label": "From",
-      "highlights": ["Best for flats & small homes"],
+      "highlights": ["Entry tier · flats & small homes"],
       "components": [
-        "3 kVA hybrid inverter (1)",
+        "6.5 kVA hybrid inverter (1)",
         "5 kWh LiFePO₄ lithium battery (1)",
         "Battery management / monitoring (1)",
-        "570W tier-1 solar panels (5)",
+        "570W tier-1 solar panels (6)",
         "DC protection, changeover & AC distribution",
         "Mounting structure (roof)",
         "Cables, MC4, earthing & commissioning"
@@ -37,15 +37,15 @@
       "appliances": "Typical: fridge, TV, fans, 15–20 LED lights, phone/laptop charging, small appliances."
     },
     {
-      "id": "ep-5kva",
+      "id": "ep-8kva",
       "badge": "Home",
-      "kva_label": "5 KVA SYSTEM",
-      "max_watts": "3,500",
-      "price_ghs": 89500,
+      "kva_label": "8 KVA SYSTEM",
+      "max_watts": "6,500",
+      "price_ghs": 94900,
       "price_label": "From",
       "highlights": ["Popular family home package"],
       "components": [
-        "5 kVA hybrid inverter (1)",
+        "8 kVA hybrid inverter (1)",
         "5 kWh LiFePO₄ lithium batteries (2)",
         "Battery management / monitoring (1)",
         "570W tier-1 solar panels (8)",
@@ -56,15 +56,15 @@
       "appliances": "1 fridge, blender, sound system, iron, rice cooker, 1 AC (1–1.5 hp max), 25 bulbs, 5 fans, 2 TVs, 3 computers/laptops, printer."
     },
     {
-      "id": "ep-8kva",
+      "id": "ep-10kva",
       "badge": "Plus",
-      "kva_label": "8 KVA SYSTEM",
-      "max_watts": "7,500",
-      "price_ghs": 149000,
+      "kva_label": "10 KVA SYSTEM",
+      "max_watts": "8,500",
+      "price_ghs": 159000,
       "price_label": "From",
       "highlights": ["Large home or small office"],
       "components": [
-        "8 kVA hybrid inverter (1)",
+        "10 kVA hybrid inverter (1)",
         "5 kWh LiFePO₄ lithium batteries (4)",
         "Battery management / monitoring (1)",
         "570W tier-1 solar panels (16)",
@@ -75,15 +75,15 @@
       "appliances": "2 fridges/freezers, blender, sound system, iron, rice cooker/microwave, 2 AC (1 / 1.5 / 2.5 hp), 30 bulbs, 4 fans, 2 TVs, 3 computers/laptops, printer."
     },
     {
-      "id": "ep-10kva",
+      "id": "ep-12kva",
       "badge": "Pro",
-      "kva_label": "10 KVA SYSTEM",
-      "max_watts": "9,500",
-      "price_ghs": 199000,
+      "kva_label": "12 KVA SYSTEM",
+      "max_watts": "11,500",
+      "price_ghs": 209000,
       "price_label": "From",
       "highlights": ["Executive home / boutique business"],
       "components": [
-        "10 kVA hybrid inverter (1)",
+        "12 kVA hybrid inverter (1)",
         "5 kWh LiFePO₄ lithium batteries (6)",
         "Battery management / monitoring (1)",
         "570W Jinko / Longi solar panels (20)",
@@ -133,6 +133,7 @@
     }
   ],
   "footer_bullets": [
+    "All packages use hybrid inverters from 6.5 kVA upward — sized to match our stocked equipment and Ghana loads.",
     "Site survey may adjust panel count and battery blocks to match your actual load.",
     "Larger projects receive engineered BOM, load analysis & formal quotation from Energy Precisions.",
     "Payment: typically 30% deposit · 40% on delivery · 30% on commissioning (negotiable)."

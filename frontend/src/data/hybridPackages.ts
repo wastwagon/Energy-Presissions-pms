@@ -1,6 +1,7 @@
 /**
  * Turnkey hybrid lithium package tiers (marketing / Solar Packages page).
  * Update prices here and in marketing/hybrid-lithium-packages/packages.json for PDF export.
+ * Smallest hybrid inverter tier: 6.5 kVA (matches catalog & sizing minimum).
  */
 export type HybridPackage = {
   id: string;
@@ -24,17 +25,17 @@ export const HYBRID_PACKAGE_BRAND = {
 
 export const HYBRID_PACKAGES: HybridPackage[] = [
   {
-    id: 'ep-3kva',
+    id: 'ep-6.5kva',
     badge: 'Essential',
-    kvaLabel: '3 KVA',
-    maxWatts: '2,500',
-    priceGhs: 54900,
-    highlights: ['Flats & small homes'],
+    kvaLabel: '6.5 KVA',
+    maxWatts: '5,500',
+    priceGhs: 64900,
+    highlights: ['Entry tier · flats & small homes'],
     components: [
-      '3 kVA hybrid inverter',
+      '6.5 kVA hybrid inverter',
       '5 kWh LiFePO₄ battery',
       'Battery management & monitoring',
-      '570W tier-1 solar panels (5)',
+      '570W tier-1 solar panels (6)',
       'DC/AC protection & changeover',
       'Roof mounting structure',
       'Cables, MC4, earthing & commissioning',
@@ -42,14 +43,14 @@ export const HYBRID_PACKAGES: HybridPackage[] = [
     appliances: 'Fridge, TV, fans, 15–20 LED lights, phone/laptop charging, small appliances.',
   },
   {
-    id: 'ep-5kva',
+    id: 'ep-8kva',
     badge: 'Home',
-    kvaLabel: '5 KVA',
-    maxWatts: '3,500',
-    priceGhs: 89500,
+    kvaLabel: '8 KVA',
+    maxWatts: '6,500',
+    priceGhs: 94900,
     highlights: ['Popular family home'],
     components: [
-      '5 kVA hybrid inverter',
+      '8 kVA hybrid inverter',
       '5 kWh LiFePO₄ batteries (2)',
       'Battery management & monitoring',
       '570W tier-1 solar panels (8)',
@@ -61,14 +62,14 @@ export const HYBRID_PACKAGES: HybridPackage[] = [
       'Fridge, blender, sound system, iron, rice cooker, 1 AC (1–1.5 hp), 25 bulbs, 5 fans, 2 TVs, computers, printer.',
   },
   {
-    id: 'ep-8kva',
+    id: 'ep-10kva',
     badge: 'Plus',
-    kvaLabel: '8 KVA',
-    maxWatts: '7,500',
-    priceGhs: 149000,
+    kvaLabel: '10 KVA',
+    maxWatts: '8,500',
+    priceGhs: 159000,
     highlights: ['Large home or small office'],
     components: [
-      '8 kVA hybrid inverter',
+      '10 kVA hybrid inverter',
       '5 kWh LiFePO₄ batteries (4)',
       'Battery management & monitoring',
       '570W tier-1 solar panels (16)',
@@ -80,14 +81,14 @@ export const HYBRID_PACKAGES: HybridPackage[] = [
       '2 fridges/freezers, blender, sound system, iron, microwave, 2 AC units, 30 bulbs, 4 fans, 2 TVs, office equipment.',
   },
   {
-    id: 'ep-10kva',
+    id: 'ep-12kva',
     badge: 'Pro',
-    kvaLabel: '10 KVA',
-    maxWatts: '9,500',
-    priceGhs: 199000,
+    kvaLabel: '12 KVA',
+    maxWatts: '11,500',
+    priceGhs: 209000,
     highlights: ['Executive home / boutique business'],
     components: [
-      '10 kVA hybrid inverter',
+      '12 kVA hybrid inverter',
       '5 kWh LiFePO₄ batteries (6)',
       'Battery management & monitoring',
       '570W Jinko / Longi panels (20)',
@@ -139,6 +140,7 @@ export const HYBRID_PACKAGES: HybridPackage[] = [
 ];
 
 export const HYBRID_PACKAGE_FOOTER_POINTS = [
+  'Every package uses hybrid inverters from 6.5 kVA upward — aligned with our catalog and professional sizing.',
   'Every package starts with a site survey — we confirm roof area, cable routes, and your real load before final BOM.',
   'Quoted and supported from our Accra office (Haatso, Ecomog) — projects across Ghana scheduled by appointment.',
   'Larger projects receive engineered load analysis, itemized quotations, and formal handover documentation.',
