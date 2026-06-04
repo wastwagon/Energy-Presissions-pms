@@ -276,11 +276,20 @@
       padding: 4px 7px;
       overflow: hidden;
     }
+    .pkg-price-row--promo {
+      padding-top: 3px;
+      padding-bottom: 5px;
+    }
     .pkg-price-row .price-from {
       float: left;
     }
     .pkg-price-row .price-value {
       float: right;
+    }
+    .pkg-price-promo-stack {
+      float: right;
+      text-align: right;
+      line-height: 1.2;
     }
     .price-from {
       font-size: 7pt;
@@ -293,15 +302,19 @@
       font-weight: 900;
     }
     .price-list {
-      float: right;
-      clear: right;
-      font-size: 7pt;
+      display: block;
+      font-size: 6.5pt;
       font-weight: 600;
+      color: #ffffff;
       text-decoration: line-through;
-      opacity: 0.75;
-      margin-bottom: 1px;
+      opacity: 0.95;
+      margin: 0 0 1px 0;
+      padding: 0;
+      position: relative;
+      top: -2px;
     }
     .price-value--promo {
+      display: block;
       color: #ffd54f;
     }
     .price-save {
@@ -311,7 +324,7 @@
       margin-top: 2px;
       font-size: 6.5pt;
       font-weight: 800;
-      color: #c8e6c9;
+      color: #ffffff;
       letter-spacing: 0.02em;
     }
     .pkg-highlight {
@@ -501,12 +514,14 @@
       {% endif %}
       <div class="pkg-load">Planned load ~{{ pkg.max_watts }} W · stagger heavy items</div>
     </header>
-    <div class="pkg-price-row">
+    <div class="pkg-price-row{% if pkg.list_price_ghs %} pkg-price-row--promo{% endif %}">
       <span class="price-from">{{ pkg.price_label }}</span>
       {% if pkg.list_price_ghs %}
       <span class="price-save">Save GHS {{ "{:,.0f}".format(pkg.savings_ghs) }}</span>
-      <span class="price-list">Was GHS {{ "{:,.0f}".format(pkg.list_price_ghs) }}</span>
-      <span class="price-value price-value--promo">GHS {{ "{:,.0f}".format(pkg.price_ghs) }}</span>
+      <div class="pkg-price-promo-stack">
+        <span class="price-list">Was GHS {{ "{:,.0f}".format(pkg.list_price_ghs) }}</span>
+        <span class="price-value price-value--promo">GHS {{ "{:,.0f}".format(pkg.price_ghs) }}</span>
+      </div>
       {% else %}
       <span class="price-value">GHS {{ "{:,.0f}".format(pkg.price_ghs) }}</span>
       {% endif %}
