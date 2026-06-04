@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import {
   Box,
   Container,
@@ -38,8 +38,8 @@ import { Link } from 'react-router-dom';
 import { Seo } from '../../components/Seo';
 import { colors } from '../../theme/colors';
 import { homePageImages, homePortfolioPreview } from '../../data/homePageMedia';
-import api from '../../services/api';
 import TrustStrip from '../../components/public/TrustStrip';
+import HomeHero from '../../components/public/HomeHero';
 
 const whyChooseFeatures = [
   { icon: <PremiumIcon sx={{ fontSize: '2.25rem' }} />, title: 'Premium Quality Equipment', description: 'We source only the finest solar panels, inverters, and batteries from leading global manufacturers. Every product is tested and certified for Ghana\'s climate.', color: colors.green },
@@ -51,280 +51,16 @@ const whyChooseFeatures = [
 ];
 
 const Home: React.FC = () => {
-  const [heroSrc, setHeroSrc] = useState<string>(homePageImages.hero);
   const whyScrollRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    api
-      .get<Record<string, string>>('/content/settings/public')
-      .then((res) => {
-        const u = res.data?.home_hero_image?.trim();
-        if (u && !cancelled) setHeroSrc(u);
-      })
-      .catch(() => {});
-    return () => {
-      cancelled = true;
-    };
-  }, []);
 
   return (
     <Box>
       <Seo
-        title="Energy Precisions | Solar Panels Ghana · Solar Installation Accra"
-        description="Turnkey solar in Ghana: design, installation, premium equipment and maintenance. Residential, commercial, industrial and agricultural solar. Request a quote."
+        title="Energy Precisions | Ghana Energy Transition · Solar & Hybrid Power"
+        description="Partner in Ghana's energy transition: hybrid solar, lithium storage, turnkey installation and lifecycle support for homes, business and industry. Accra-based, nationwide."
         path="/"
       />
-      {/* Hero - Premium */}
-      <Box
-        sx={{
-          background: `linear-gradient(135deg, ${colors.blueBlack} 0%, ${colors.blueBlackLight} 50%, ${colors.blueNavy} 100%)`,
-          color: 'white',
-          py: { xs: 5, md: 6 },
-          position: 'relative',
-          overflow: 'hidden',
-          display: 'flex',
-          alignItems: 'center',
-          '&::before': {
-            content: '""',
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'radial-gradient(ellipse at 30% 50%, rgba(0, 230, 118, 0.12) 0%, transparent 50%)',
-            pointerEvents: 'none',
-          },
-          '&::after': {
-            content: '""',
-            position: 'absolute',
-            bottom: 0,
-            right: 0,
-            width: '60%',
-            height: '60%',
-            background: 'radial-gradient(circle at 100% 100%, rgba(0, 230, 118, 0.08) 0%, transparent 50%)',
-            pointerEvents: 'none',
-          },
-        }}
-      >
-        <Container maxWidth="xl" sx={{ position: 'relative', zIndex: 1 }}>
-          <Grid container spacing={{ xs: 3, md: 4 }} alignItems="center">
-            <Grid item xs={12} md={7}>
-              <Chip
-                label="Ghana's Premier Solar Energy Brand"
-                sx={{
-                  bgcolor: colors.green,
-                  color: 'white',
-                  fontWeight: 700,
-                  mb: { xs: 1.5, md: 2 },
-                  px: 1.75,
-                  py: 0.25,
-                  height: 'auto',
-                  fontSize: { xs: '0.7rem', sm: '0.75rem' },
-                  letterSpacing: 0.4,
-                }}
-              />
-              <Typography
-                variant="h1"
-                sx={{
-                  fontSize: { xs: '1.45rem', sm: '1.7rem', md: '1.95rem', lg: '2.2rem' },
-                  fontWeight: 800,
-                  mb: { xs: 1.5, md: 2 },
-                  lineHeight: { xs: 1.22, md: 1.16 },
-                  letterSpacing: '-0.025em',
-                }}
-              >
-                Powering Ghana's Future with{' '}
-                <Box
-                  component="span"
-                  sx={{
-                    color: colors.green,
-                    textShadow: '0 0 32px rgba(0, 230, 118, 0.45)',
-                  }}
-                >
-                  Clean Energy
-                </Box>
-              </Typography>
-              <Typography
-                variant="subtitle1"
-                component="p"
-                sx={{
-                  mb: { xs: 2, md: 2.5 },
-                  color: 'rgba(255,255,255,0.88)',
-                  lineHeight: 1.65,
-                  fontWeight: 400,
-                  fontSize: { xs: '0.95rem', md: '1.02rem' },
-                  maxWidth: { xs: '100%', md: '95%' },
-                }}
-              >
-                Turnkey solar from engineering and premium equipment to installation and ongoing
-                maintenance — for homes, businesses, industry, and agricultural & productive-use
-                projects across Ghana. Built for a market growing 20%+ year on year, with the
-                service depth local installers rarely match.
-              </Typography>
-
-              <Stack
-                direction="row"
-                spacing={{ xs: 2, sm: 4 }}
-                sx={{ mb: { xs: 2, md: 2.5 }, flexWrap: 'wrap', rowGap: 1.5 }}
-              >
-                <Box>
-                  <Typography variant="h5" sx={{ fontWeight: 800, color: colors.green, lineHeight: 1.1 }}>
-                    500+
-                  </Typography>
-                  <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.78)', fontSize: '0.75rem' }}>
-                    Installations
-                  </Typography>
-                </Box>
-                <Box>
-                  <Typography variant="h5" sx={{ fontWeight: 800, color: colors.green, lineHeight: 1.1 }}>
-                    10+
-                  </Typography>
-                  <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.78)', fontSize: '0.75rem' }}>
-                    Years Experience
-                  </Typography>
-                </Box>
-                <Box>
-                  <Typography variant="h5" sx={{ fontWeight: 800, color: colors.green, lineHeight: 1.1 }}>
-                    98%
-                  </Typography>
-                  <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.78)', fontSize: '0.75rem' }}>
-                    Customer Satisfaction
-                  </Typography>
-                </Box>
-              </Stack>
-
-              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} flexWrap="wrap" useFlexGap>
-                <Button
-                  variant="contained"
-                  size="medium"
-                  component={Link}
-                  to="/contact?action=quote"
-                  endIcon={<ArrowForwardIcon sx={{ fontSize: 18 }} />}
-                  sx={{
-                    bgcolor: colors.green,
-                    color: 'white',
-                    px: 3,
-                    py: 1.25,
-                    fontSize: '0.95rem',
-                    fontWeight: 600,
-                    textTransform: 'none',
-                    borderRadius: 2,
-                    boxShadow: `0 4px 16px ${colors.green}35`,
-                    '&:hover': {
-                      bgcolor: colors.greenDark,
-                      transform: 'translateY(-1px)',
-                      boxShadow: `0 8px 24px ${colors.green}45`,
-                    },
-                    transition: 'all 0.22s ease',
-                  }}
-                >
-                  Get Free Quote
-                </Button>
-                <Button
-                  variant="outlined"
-                  size="medium"
-                  component={Link}
-                  to="/shop"
-                  sx={{
-                    borderColor: 'rgba(255,255,255,0.55)',
-                    borderWidth: 1.5,
-                    color: 'white',
-                    px: 3,
-                    py: 1.25,
-                    fontSize: '0.95rem',
-                    fontWeight: 600,
-                    textTransform: 'none',
-                    borderRadius: 2,
-                    '&:hover': {
-                      borderColor: colors.green,
-                      bgcolor: 'rgba(0, 230, 118, 0.08)',
-                      borderWidth: 1.5,
-                    },
-                    transition: 'all 0.22s ease',
-                  }}
-                >
-                  Browse Products
-                </Button>
-              </Stack>
-              <Stack
-                direction="row"
-                component="nav"
-                aria-label="Planning tools"
-                spacing={2}
-                flexWrap="wrap"
-                useFlexGap
-                sx={{ mt: 2, rowGap: 0.75 }}
-              >
-                <Typography
-                  component={Link}
-                  to="/solar-estimate"
-                  variant="body2"
-                  sx={{
-                    color: colors.green,
-                    fontWeight: 700,
-                    textDecoration: 'none',
-                    '&:hover': { textDecoration: 'underline' },
-                  }}
-                >
-                  Solar size estimator
-                </Typography>
-                <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.45)' }}>
-                  ·
-                </Typography>
-                <Typography
-                  component={Link}
-                  to="/load-calculator"
-                  variant="body2"
-                  sx={{
-                    color: colors.green,
-                    fontWeight: 700,
-                    textDecoration: 'none',
-                    '&:hover': { textDecoration: 'underline' },
-                  }}
-                >
-                  Appliance load calculator
-                </Typography>
-              </Stack>
-            </Grid>
-            <Grid item xs={12} md={5}>
-              <Box
-                sx={{
-                  position: 'relative',
-                  borderRadius: 3,
-                  overflow: 'hidden',
-                  boxShadow: '0 16px 48px rgba(0,0,0,0.35)',
-                  maxHeight: { xs: 280, sm: 320, md: 380, lg: 420 },
-                  mx: { xs: 0, md: 'auto' },
-                }}
-              >
-                <Box
-                  component="img"
-                  src={heroSrc}
-                  alt="Energy Precisions Solar Installation"
-                  loading="lazy"
-                  sx={{
-                    width: '100%',
-                    height: '100%',
-                    maxHeight: { xs: 280, sm: 320, md: 380, lg: 420 },
-                    objectFit: 'cover',
-                    objectPosition: 'center top',
-                    display: 'block',
-                  }}
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement;
-                    if (!target.src.includes('/website_images/')) {
-                      target.src = '/website_images/remove-bg3.png';
-                    } else {
-                      target.style.display = 'none';
-                    }
-                  }}
-                />
-              </Box>
-            </Grid>
-          </Grid>
-        </Container>
-      </Box>
+      <HomeHero />
 
       <TrustStrip variant="light" />
 

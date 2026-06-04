@@ -14,8 +14,8 @@ const portfolioImage = (id: number): string => {
  * process steps → testimonials → closing CTA.
  */
 export const homePageImages = {
-  /** Hero visual (installers / array). Replace with `/website_images/your-hero.webp` from CMS. */
-  hero: 'https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=1400&q=85',
+  /** Hero visual — real install preferred; override via CMS `home_hero_image`. */
+  hero: '/portfolio/ep-install-01.jpg',
   services: {
     residential:
       'https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=800&q=80',
