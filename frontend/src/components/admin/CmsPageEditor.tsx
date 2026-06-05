@@ -371,6 +371,32 @@ const CmsPageEditor: React.FC = () => {
     }
   };
 
+  const resetToDefaults = async () => {
+    if (
+      !window.confirm(
+        `Reset "${CMS_PAGE_LABELS[page]}" to bundled defaults? Custom saved content for this page will be removed.`,
+      )
+    ) {
+      return;
+    }
+    setSaving(true);
+    setMessage(null);
+    setError(null);
+    try {
+      const res = await api.post<{ sections: SectionsState; stored_sections: SectionsState }>(
+        `/content/admin/pages/${page}/reset`,
+      );
+      setSections(res.data.sections);
+      setStoredSections(res.data.stored_sections || {});
+      setMessage('Page reset to defaults. The public site now uses bundled content for this page.');
+    } catch (e) {
+      console.error(e);
+      setError('Reset failed. Deploy the latest backend or check your connection.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const hero = (sections.hero || {}) as CmsHero;
   const homeHeroSlides = resolveHeroSlides(hero);
   const whyChoose = (sections.why_choose || {}) as { badge: string; title: string; subtitle: string; features: { title: string; description: string }[] };
@@ -489,6 +515,9 @@ const CmsPageEditor: React.FC = () => {
         >
           Save page
         </Button>
+        <Button variant="outlined" onClick={resetToDefaults} disabled={saving}>
+          Reset to defaults
+        </Button>
       </Stack>
 
       {message && <Alert severity="success" sx={{ mb: 2 }}>{message}</Alert>}
@@ -528,8 +557,8 @@ const CmsPageEditor: React.FC = () => {
             </>
           ) : page === 'home' ? (
             <>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                Home uses a hero slider. Edit each slide below; stats, feature chips, and tool links stay visible on every slide.
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                The homepage hero shows one slide at a time — badge, headline, short text, one button, and image. Edit slides below.
               </Typography>
               <TextField
                 size="small"
@@ -538,31 +567,8 @@ const CmsPageEditor: React.FC = () => {
                 value={hero.slider?.autoplay_seconds ?? 7}
                 onChange={(e) => setHeroSlider('autoplay_seconds', Number(e.target.value) || 0)}
                 inputProps={{ min: 0, max: 60 }}
-                sx={{ maxWidth: 220, mb: 2 }}
+                sx={{ maxWidth: 220 }}
               />
-              <Divider sx={{ mb: 2 }} />
-              <Typography variant="body2" sx={{ fontWeight: 700 }}>Stats (shared)</Typography>
-              {(hero.stats || []).map((stat, i) => (
-                <Stack key={i} direction="row" spacing={1} sx={{ mb: 1 }}>
-                  <TextField size="small" label="Value" value={stat.value} onChange={(e) => setHeroStat(i, 'value', e.target.value)} sx={{ flex: 1 }} />
-                  <TextField size="small" label="Label" value={stat.label} onChange={(e) => setHeroStat(i, 'label', e.target.value)} sx={{ flex: 2 }} />
-                </Stack>
-              ))}
-              <Divider sx={{ my: 2 }} />
-              <Typography variant="body2" sx={{ fontWeight: 700 }}>Feature chips (shared)</Typography>
-              {(hero.pillars || []).map((pillar, i) => (
-                <TextField key={i} size="small" label={`Chip ${i + 1}`} value={pillar} onChange={(e) => setHeroPillar(i, e.target.value)} sx={{ mb: 1 }} />
-              ))}
-              <Divider sx={{ my: 2 }} />
-              <Typography variant="body2" sx={{ fontWeight: 700 }}>Footer tool links (shared)</Typography>
-              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} sx={{ mb: 1 }}>
-                <TextField size="small" label="Link 1 text" value={hero.link1_text || ''} onChange={(e) => setHeroField('link1_text', e.target.value)} sx={{ flex: 1 }} />
-                <TextField size="small" label="Link 1 URL" value={hero.link1_url || ''} onChange={(e) => setHeroField('link1_url', e.target.value)} sx={{ flex: 1 }} />
-              </Stack>
-              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1}>
-                <TextField size="small" label="Link 2 text" value={hero.link2_text || ''} onChange={(e) => setHeroField('link2_text', e.target.value)} sx={{ flex: 1 }} />
-                <TextField size="small" label="Link 2 URL" value={hero.link2_url || ''} onChange={(e) => setHeroField('link2_url', e.target.value)} sx={{ flex: 1 }} />
-              </Stack>
             </>
           ) : (
             <>

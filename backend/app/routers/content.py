@@ -362,3 +362,23 @@ async def admin_put_page(
         "sections": merge_page_sections(page, stored),
         "stored_sections": stored,
     }
+
+
+@router.post("/admin/pages/{page}/reset", response_model=PageContentAdminOut)
+async def admin_reset_page(
+    page: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role(WEB_OR_ADMIN)),
+):
+    """Remove stored CMS overrides so bundled defaults apply."""
+    if page not in CMS_PAGES:
+        raise HTTPException(status_code=404, detail="Unknown page")
+    row = db.query(CmsPageContent).filter(CmsPageContent.page == page).first()
+    if row:
+        db.delete(row)
+        db.commit()
+    return {
+        "page": page,
+        "sections": merge_page_sections(page, None),
+        "stored_sections": {},
+    }

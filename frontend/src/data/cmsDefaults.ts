@@ -33,7 +33,7 @@ const DEFAULTS: PageDefaultsMap = {
       headline: "Powering Ghana's Future with",
       headline_highlight: 'Clean Energy',
       description:
-        'Turnkey solar from engineering and premium equipment to installation and ongoing maintenance — for homes, businesses, industry, and agricultural & productive-use projects across Ghana. Built for a market growing 20%+ year on year, with the service depth local installers rarely match.',
+        'Turnkey solar for homes and businesses across Ghana — engineering, equipment, installation and maintenance.',
       hero_image: '/portfolio/ep-install-01.jpg',
       image_overlay: 'Turnkey · Grid & generator ready',
       pillars: ['Solar generation', 'Lithium storage', 'Hybrid backup', 'Monitoring'],
@@ -57,7 +57,7 @@ const DEFAULTS: PageDefaultsMap = {
           headline: "Powering Ghana's Future with",
           headline_highlight: 'Clean Energy',
           description:
-            'Turnkey solar from engineering and premium equipment to installation and ongoing maintenance — for homes, businesses, industry, and agricultural & productive-use projects across Ghana. Built for a market growing 20%+ year on year, with the service depth local installers rarely match.',
+            'Turnkey solar for homes and businesses across Ghana — engineering, equipment, installation and maintenance.',
           hero_image: '/portfolio/ep-install-01.jpg',
           image_overlay: 'Turnkey · Grid & generator ready',
           primary_cta_text: 'Get Free Quote',
@@ -70,7 +70,7 @@ const DEFAULTS: PageDefaultsMap = {
           headline: 'Backup that works when the grid',
           headline_highlight: "doesn't",
           description:
-            'Hybrid solar with lithium storage — grid and generator ready. Six turnkey package tiers from essential homes to commercial blocks, engineered and installed by our Accra team.',
+            'Hybrid solar with lithium backup. Turnkey package tiers engineered and installed from our Accra office.',
           hero_image: '/portfolio/ep-install-02.jpg',
           image_overlay: 'Hybrid · Lithium · Monitoring',
           primary_cta_text: 'View hybrid packages',
@@ -83,7 +83,7 @@ const DEFAULTS: PageDefaultsMap = {
           headline: 'Solar engineered for',
           headline_highlight: 'Ghanaian business',
           description:
-            'From office blocks and factories to farms and productive-use sites — load-led sizing, premium equipment, and maintenance plans that keep generation on track year after year.',
+            'Load-led sizing and premium equipment for offices, factories, and farms — with maintenance that keeps you generating.',
           hero_image: '/portfolio/ep-install-05.jpg',
           image_overlay: 'Engineering-led · Nationwide',
           primary_cta_text: 'Request a consultation',
