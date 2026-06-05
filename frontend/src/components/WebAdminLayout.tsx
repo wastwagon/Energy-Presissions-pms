@@ -47,7 +47,7 @@ const menuItems: MenuItemT[] = [
   { text: 'Promo codes', icon: <PromoIcon />, path: '/web/app/promo-codes' },
   { text: 'Contact leads', icon: <LeadsIcon />, path: '/web/app/contact-leads' },
   { text: 'Newsletter', icon: <NewsletterIcon />, path: '/web/app/newsletter' },
-  { text: 'Blog & FAQs', icon: <ContentIcon />, path: '/web/app/content' },
+  { text: 'Website content', icon: <ContentIcon />, path: '/web/app/content' },
 ];
 
 const WebAdminLayout: React.FC = () => {

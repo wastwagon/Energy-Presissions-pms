@@ -17,9 +17,10 @@ import {
 } from '@mui/material';
 import { Phone as PhoneIcon, Email as EmailIcon, LocationOn as LocationIcon } from '@mui/icons-material';
 import { useLocation, useSearchParams } from 'react-router-dom';
-import websiteContent from '../../data/extracted_content.json';
 import { COMPANY } from '../../data/companyContact';
 import { Seo } from '../../components/Seo';
+import { useCmsPage } from '../../hooks/useCmsPage';
+import { resolveCmsSeo } from '../../hooks/useCmsSeo';
 import { trackGenerateLead } from '../../utils/analytics';
 import {
   CONTACT_TOPIC_BANNERS,
@@ -28,15 +29,24 @@ import {
 } from '../../utils/contactUrlParams';
 
 const Contact: React.FC = () => {
+  const { sections } = useCmsPage('contact');
   const [searchParams] = useSearchParams();
   const { search } = useLocation();
   const isQuoteRequest = searchParams.get('action') === 'quote';
+  const seo = resolveCmsSeo(
+    sections,
+    {
+      title: 'Contact Energy Precisions | Solar Ghana',
+      quoteTitle: 'Request a Solar Quote | Energy Precisions',
+      description:
+        'Contact Energy Precisions for solar quotes, site assessments and support. Haatso, Accra — serving homes and businesses across Ghana.',
+    },
+    { isQuoteRequest },
+  );
   const contactTopic = useMemo(() => {
     const params = new URLSearchParams(search);
     return normalizeContactTopic(params.get('topic'));
   }, [search]);
-  const content = websiteContent;
-
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -117,18 +127,14 @@ const Contact: React.FC = () => {
 
   return (
     <Box sx={{ py: { xs: 3, md: 6 } }}>
-      <Seo
-        title={isQuoteRequest ? 'Request a Solar Quote | Energy Precisions' : 'Contact Energy Precisions | Solar Ghana'}
-        description="Contact Energy Precisions for solar quotes, site assessments and support. Haatso, Accra — serving homes and businesses across Ghana."
-        path="/contact"
-      />
+      <Seo title={seo.title} description={seo.description} path="/contact" />
       <Container maxWidth="lg">
         <Box textAlign="center" mb={{ xs: 3, md: 4 }}>
           <Typography variant="h2" sx={{ mb: 1, fontWeight: 800, color: '#1a4d7a', fontSize: { xs: '1.5rem', md: '1.85rem' } }}>
-            {isQuoteRequest ? 'Request a Quote' : "Let's discuss a project"}
+            {isQuoteRequest ? sections.hero?.quote_title : sections.hero?.title}
           </Typography>
           <Typography variant="body2" sx={{ color: '#666' }}>
-            Get in touch with us for expert solar solutions
+            {sections.hero?.subtitle}
           </Typography>
         </Box>
 
@@ -138,7 +144,7 @@ const Contact: React.FC = () => {
               <CardContent sx={{ p: { xs: 2.5, md: 3 }, position: 'relative' }}>
                 {submitOk && (
                   <Typography sx={{ mb: 3, color: '#00E676', fontWeight: 600 }}>
-                    Thank you for your message. We will contact you soon.
+                    {sections.form?.success_message}
                   </Typography>
                 )}
                 {submitError && (
@@ -233,7 +239,7 @@ const Contact: React.FC = () => {
                           px: 4,
                         }}
                       >
-                        {submitting ? 'Sending…' : 'Send Us Mail'}
+                        {submitting ? 'Sending…' : sections.form?.submit_text}
                       </Button>
                     </Grid>
                   </Grid>
@@ -250,7 +256,7 @@ const Contact: React.FC = () => {
                     <PhoneIcon sx={{ color: '#00E676', fontSize: '2rem' }} />
                     <Box>
                       <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                        Call For Services
+                        {sections.sidebar?.phone_label}
                       </Typography>
                       <Typography
                         component="a"
@@ -271,7 +277,7 @@ const Contact: React.FC = () => {
                     <EmailIcon sx={{ color: '#00E676', fontSize: '2rem' }} />
                     <Box>
                       <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                        Send Us Email
+                        {sections.sidebar?.email_label}
                       </Typography>
                       <Typography
                         component="a"
@@ -292,7 +298,7 @@ const Contact: React.FC = () => {
                     <LocationIcon sx={{ color: '#00E676', fontSize: '2rem' }} />
                     <Box>
                       <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                        Visit Our Location
+                        {sections.sidebar?.location_label}
                       </Typography>
                       <Typography variant="body2" sx={{ color: '#666' }}>
                         {COMPANY.addressFull}

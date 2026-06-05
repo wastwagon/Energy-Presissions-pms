@@ -37,29 +37,39 @@ import {
 import { Link } from 'react-router-dom';
 import { Seo } from '../../components/Seo';
 import { colors } from '../../theme/colors';
-import { homePageImages, homePortfolioPreview } from '../../data/homePageMedia';
+import { homePageImages } from '../../data/homePageMedia';
+import { resolveMediaUrl } from '../../utils/mediaUrl';
 import TrustStrip from '../../components/public/TrustStrip';
 import HomeHero from '../../components/public/HomeHero';
+import { useCmsPage } from '../../hooks/useCmsPage';
+import { resolveCmsSeo } from '../../hooks/useCmsSeo';
 
-const whyChooseFeatures = [
-  { icon: <PremiumIcon sx={{ fontSize: '2.25rem' }} />, title: 'Premium Quality Equipment', description: 'We source only the finest solar panels, inverters, and batteries from leading global manufacturers. Every product is tested and certified for Ghana\'s climate.', color: colors.green },
-  { icon: <SpeedIcon sx={{ fontSize: '2.25rem' }} />, title: 'Expert Installation Team', description: 'Our certified technicians have installed over 500 solar systems across Ghana. Professional installation ensures maximum efficiency and longevity.', color: colors.blueBlack },
-  { icon: <SecurityIcon sx={{ fontSize: '2.25rem' }} />, title: 'Comprehensive Warranty', description: '10-year warranty on installations, 25-year panel warranty, and lifetime support. Your investment is protected with our comprehensive coverage.', color: colors.green },
-  { icon: <SupportIcon sx={{ fontSize: '2.25rem' }} />, title: 'Local Partner, Full Lifecycle', description: 'Accra-based team with national reach: responsive support, maintenance, and after-sales service — closing the gap many installers leave open after commissioning.', color: colors.blueBlack },
-  { icon: <TrendingUpIcon sx={{ fontSize: '2.25rem' }} />, title: 'Proven Track Record', description: 'Trusted by residential, commercial, and industrial clients across Ghana. See our case studies and customer testimonials.', color: colors.green },
-  { icon: <EcoIcon sx={{ fontSize: '2.25rem' }} />, title: 'Sustainable Future', description: 'Join thousands of Ghanaians reducing electricity costs and carbon footprint. Make a positive impact on Ghana\'s energy future.', color: colors.blueBlack },
+const whyChooseIcons = [
+  <PremiumIcon sx={{ fontSize: '2.25rem' }} />,
+  <SpeedIcon sx={{ fontSize: '2.25rem' }} />,
+  <SecurityIcon sx={{ fontSize: '2.25rem' }} />,
+  <SupportIcon sx={{ fontSize: '2.25rem' }} />,
+  <TrendingUpIcon sx={{ fontSize: '2.25rem' }} />,
+  <EcoIcon sx={{ fontSize: '2.25rem' }} />,
 ];
 
+const whyChooseColors = [colors.green, colors.blueBlack, colors.green, colors.blueBlack, colors.green, colors.blueBlack];
+
+const trustBarIcons = [<VerifiedIcon />, <SecurityIcon />, <ShippingIcon />, <SupportIcon />];
+const homeServiceIcons = [<HomeIcon />, <BusinessIcon />, <FactoryIcon />, <AgricultureIcon />];
+
 const Home: React.FC = () => {
+  const { sections } = useCmsPage('home');
+  const seo = resolveCmsSeo(sections, {
+    title: 'Energy Precisions | Ghana Energy Transition · Solar & Hybrid Power',
+    description:
+      "Partner in Ghana's energy transition: hybrid solar, lithium storage, turnkey installation and lifecycle support for homes, business and industry. Accra-based, nationwide.",
+  });
   const whyScrollRef = useRef<HTMLDivElement | null>(null);
 
   return (
     <Box>
-      <Seo
-        title="Energy Precisions | Ghana Energy Transition · Solar & Hybrid Power"
-        description="Partner in Ghana's energy transition: hybrid solar, lithium storage, turnkey installation and lifecycle support for homes, business and industry. Accra-based, nationwide."
-        path="/"
-      />
+      <Seo title={seo.title} description={seo.description} path="/" />
       <HomeHero />
 
       <TrustStrip variant="light" />
@@ -68,16 +78,11 @@ const Home: React.FC = () => {
       <Box sx={{ bgcolor: colors.gray100, py: { xs: 2.5, md: 3 }, borderBottom: `1px solid ${colors.gray200}` }}>
         <Container maxWidth="xl">
           <Grid container spacing={{ xs: 2, md: 3 }} alignItems="center" justifyContent="center">
-            {[
-              { icon: <VerifiedIcon />, text: 'Certified Installers' },
-              { icon: <SecurityIcon />, text: '10-Year Warranty' },
-              { icon: <ShippingIcon />, text: 'Free Delivery in Ghana' },
-              { icon: <SupportIcon />, text: 'Maintenance & After-Sales' },
-            ].map((item, index) => (
+            {(sections.trust_bar?.items || []).map((item, index) => (
               <Grid item xs={6} sm={3} key={index}>
                 <Stack direction="row" spacing={1.25} alignItems="center" justifyContent="center">
                   <Box sx={{ color: colors.green, fontSize: { xs: '1.65rem', md: '1.85rem' }, flexShrink: 0 }}>
-                    {item.icon}
+                    {trustBarIcons[index]}
                   </Box>
                   <Typography variant="body2" sx={{ fontWeight: 600, color: colors.blueBlack, fontSize: { xs: '0.8rem', sm: '0.875rem' } }}>
                     {item.text}
@@ -94,7 +99,7 @@ const Home: React.FC = () => {
         <Container maxWidth="xl">
           <Box textAlign="center" mb={{ xs: 4, md: 5 }}>
             <Chip
-              label="WHY CHOOSE ENERGY PRECISIONS"
+              label={sections.why_choose?.badge}
               sx={{
                 bgcolor: colors.green,
                 color: 'white',
@@ -119,15 +124,13 @@ const Home: React.FC = () => {
                 lineHeight: 1.2,
               }}
             >
-              Ghana's Most Trusted Solar Partner
+              {sections.why_choose?.title}
             </Typography>
             <Typography
               variant="body1"
               sx={{ color: colors.gray600, maxWidth: 640, mx: 'auto', fontWeight: 400, lineHeight: 1.65, fontSize: { xs: '0.95rem', md: '1rem' } }}
             >
-              Deep Accra roots, Ghana-wide ambition: we combine local market knowledge with
-              turnkey delivery — so you get one accountable partner from design through
-              maintenance, not a one-off installation.
+              {sections.why_choose?.subtitle}
             </Typography>
           </Box>
 
@@ -195,7 +198,7 @@ const Home: React.FC = () => {
                 },
               }}
             >
-              {whyChooseFeatures.map((feature, index) => (
+              {(sections.why_choose?.features || []).map((feature, index) => (
                 <Card
                   key={index}
                   sx={{
@@ -214,7 +217,7 @@ const Home: React.FC = () => {
                     },
                   }}
                 >
-                  <Box sx={{ color: feature.color, mb: 1.5 }}>{feature.icon}</Box>
+                  <Box sx={{ color: whyChooseColors[index] ?? colors.green, mb: 1.5 }}>{whyChooseIcons[index]}</Box>
                   <Typography variant="h6" sx={{ mb: 1.25, fontWeight: 700, color: colors.blueBlack, fontSize: '1.05rem' }}>
                     {feature.title}
                   </Typography>
@@ -233,7 +236,7 @@ const Home: React.FC = () => {
         <Container maxWidth="xl">
           <Box textAlign="center" mb={{ xs: 4, md: 5 }}>
             <Chip
-              label="OUR SERVICES"
+              label={sections.services_section?.badge}
               sx={{
                 bgcolor: colors.green,
                 color: 'white',
@@ -256,24 +259,18 @@ const Home: React.FC = () => {
                 lineHeight: 1.2,
               }}
             >
-              Complete Solar Solutions for Ghana
+              {sections.services_section?.title}
             </Typography>
             <Typography
               variant="body1"
               sx={{ color: colors.gray600, maxWidth: 640, mx: 'auto', fontWeight: 400, fontSize: { xs: '0.95rem', md: '1rem' }, lineHeight: 1.65 }}
             >
-              Residential, commercial, industrial — plus agricultural and productive-use solar.
-              One partner for equipment, engineering, installation, and long-term performance.
+              {sections.services_section?.subtitle}
             </Typography>
           </Box>
 
           <Grid container spacing={{ xs: 2, md: 3 }}>
-            {[
-              { icon: <HomeIcon />, title: 'Residential Solar', description: 'Complete home solar systems with battery backup. Reduce your electricity bills by up to 90% with our premium residential solutions.', features: ['Grid-tied & Off-grid Systems', 'Battery Storage Options', 'Smart Monitoring', 'Maintenance Support'], image: homePageImages.services.residential, link: '/services/residential' },
-              { icon: <BusinessIcon />, title: 'Commercial Solar', description: 'Large-scale solar installations for businesses, offices, and commercial buildings. Maximize ROI with our commercial solar solutions.', features: ['Custom System Design', 'ROI Analysis', 'Minimal Business Disruption', 'Long-term Savings'], image: homePageImages.services.commercial, link: '/services/commercial' },
-              { icon: <FactoryIcon />, title: 'Industrial Solar', description: 'Heavy-duty solar systems for factories and industrial facilities. Power your operations with reliable, cost-effective solar energy.', features: ['High-Capacity Systems', 'Industrial-Grade Equipment', 'Custom Engineering', '24/7 Monitoring'], image: homePageImages.services.industrial, link: '/services/industrial' },
-              { icon: <AgricultureIcon />, title: 'Agricultural & Productive Use', description: 'Solar for irrigation, cold chain, and processing — cutting diesel costs and unlocking reliable power where the grid is weak or absent.', features: ['Irrigation & Pumping', 'Processing & Storage', 'Off-grid & Hybrid Designs', 'Scalable for Cooperatives'], image: homePageImages.services.agricultural, link: '/contact?action=quote' },
-            ].map((service, index) => (
+            {(sections.service_cards?.items || []).map((service, index) => (
               <Grid item xs={12} sm={6} lg={3} key={index}>
                 <Card
                   sx={{
@@ -294,7 +291,7 @@ const Home: React.FC = () => {
                   <Box sx={{ height: { xs: 160, sm: 180 }, overflow: 'hidden', bgcolor: colors.gray200 }}>
                     <CardMedia
                       component="img"
-                      image={service.image}
+                      image={resolveMediaUrl(service.image) || homePageImages.services.residential}
                       alt={service.title}
                       loading="lazy"
                       sx={{
@@ -306,7 +303,7 @@ const Home: React.FC = () => {
                     />
                   </Box>
                   <CardContent sx={{ flexGrow: 1, p: { xs: 2, md: 2.5 } }}>
-                    <Box sx={{ color: colors.green, fontSize: '2rem', mb: 1.25 }}>{service.icon}</Box>
+                    <Box sx={{ color: colors.green, fontSize: '2rem', mb: 1.25 }}>{homeServiceIcons[index]}</Box>
                     <Typography variant="h6" sx={{ mb: 1.25, fontWeight: 700, color: colors.blueBlack, fontSize: '1.05rem' }}>
                       {service.title}
                     </Typography>
@@ -314,7 +311,7 @@ const Home: React.FC = () => {
                       {service.description}
                     </Typography>
                     <Box sx={{ mb: 2 }}>
-                      {service.features.map((feature, idx) => (
+                      {(service.features || []).map((feature, idx) => (
                         <Box key={idx} display="flex" alignItems="center" gap={1} mb={1}>
                           <CheckCircleIcon sx={{ color: colors.green, fontSize: '1rem', flexShrink: 0 }} />
                           <Typography variant="body2" sx={{ color: colors.gray600, fontSize: '0.8rem' }}>{feature}</Typography>
@@ -338,7 +335,7 @@ const Home: React.FC = () => {
                         '&:hover': { bgcolor: colors.greenDark },
                       }}
                     >
-                      Learn More
+                      {service.button_text || 'Learn More'}
                     </Button>
                   </CardContent>
                 </Card>
@@ -349,7 +346,7 @@ const Home: React.FC = () => {
             <Button
               variant="outlined"
               component={Link}
-              to="/services"
+              to={sections.service_cards?.view_all_link || '/services'}
               endIcon={<ArrowForwardIcon />}
               size="medium"
               sx={{
@@ -362,7 +359,7 @@ const Home: React.FC = () => {
                 '&:hover': { borderColor: colors.green, color: colors.green },
               }}
             >
-              View All Services
+              {sections.service_cards?.view_all_text || 'View All Services'}
             </Button>
           </Box>
         </Container>
@@ -373,7 +370,7 @@ const Home: React.FC = () => {
         <Container maxWidth="xl">
           <Box textAlign="center" mb={{ xs: 4, md: 5 }}>
             <Chip
-              label="OUR PORTFOLIO"
+              label={sections.portfolio?.badge}
               sx={{
                 bgcolor: colors.green,
                 color: 'white',
@@ -396,14 +393,14 @@ const Home: React.FC = () => {
                 lineHeight: 1.2,
               }}
             >
-              Projects That Power Ghana
+              {sections.portfolio?.title}
             </Typography>
             <Typography variant="body1" sx={{ color: colors.gray600, maxWidth: 560, mx: 'auto', fontWeight: 400, fontSize: { xs: '0.95rem', md: '1rem' }, lineHeight: 1.65 }}>
-              Explore our completed installations across residential, commercial, and industrial sectors.
+              {sections.portfolio?.subtitle}
             </Typography>
           </Box>
           <Grid container spacing={{ xs: 2, md: 2.5 }} sx={{ mb: 3 }}>
-            {homePortfolioPreview.map((project) => (
+            {(sections.portfolio?.items || []).map((project) => (
               <Grid item xs={12} sm={4} key={project.title}>
                 <Card
                   sx={{
@@ -415,11 +412,11 @@ const Home: React.FC = () => {
                     '&:hover': { transform: 'translateY(-3px)', boxShadow: '0 10px 28px rgba(0,0,0,0.1)' },
                   }}
                 >
-                  <CardActionArea component={Link} to="/portfolio" sx={{ alignItems: 'stretch', height: '100%', flexDirection: 'column' }}>
+                  <CardActionArea component={Link} to={project.link || '/portfolio'} sx={{ alignItems: 'stretch', height: '100%', flexDirection: 'column' }}>
                     <CardMedia
                       component="img"
                       height="200"
-                      image={project.image}
+                      image={resolveMediaUrl(project.image)}
                       alt={project.alt}
                       loading="lazy"
                       sx={{ objectFit: 'cover' }}
@@ -439,7 +436,7 @@ const Home: React.FC = () => {
               variant="contained"
               size="medium"
               component={Link}
-              to="/portfolio"
+              to={sections.portfolio?.cta_link || '/portfolio'}
               endIcon={<ArrowForwardIcon />}
               sx={{
                 bgcolor: colors.blueBlack,
@@ -452,7 +449,7 @@ const Home: React.FC = () => {
                 '&:hover': { bgcolor: colors.blueBlackLight },
               }}
             >
-              View Portfolio
+              {sections.portfolio?.cta_text || 'View Portfolio'}
             </Button>
           </Box>
         </Container>
@@ -463,7 +460,7 @@ const Home: React.FC = () => {
         <Container maxWidth="xl">
           <Box textAlign="center" mb={{ xs: 4, md: 5 }}>
             <Chip
-              label="OUR PROCESS"
+              label={sections.process?.badge}
               sx={{
                 bgcolor: colors.green,
                 color: 'white',
@@ -486,7 +483,7 @@ const Home: React.FC = () => {
                 lineHeight: 1.2,
               }}
             >
-              Simple 5-Step Installation Process
+              {sections.process?.title}
             </Typography>
           </Box>
 
@@ -498,13 +495,7 @@ const Home: React.FC = () => {
               justifyContent: 'center',
             }}
           >
-            {[
-              { step: '01', title: 'Free Consultation', desc: 'Site assessment and energy needs analysis' },
-              { step: '02', title: 'Custom Design', desc: 'Tailored system design for your property' },
-              { step: '03', title: 'Equipment Selection', desc: 'Choose from premium solar equipment' },
-              { step: '04', title: 'Professional Installation', desc: 'Expert installation by certified technicians' },
-              { step: '05', title: 'Activation & Support', desc: 'System activation and ongoing maintenance' },
-            ].map((item, index) => (
+            {(sections.process?.steps || []).map((item, index) => (
               <Box
                 key={index}
                 textAlign="center"
@@ -549,7 +540,7 @@ const Home: React.FC = () => {
         <Container maxWidth="xl">
           <Box textAlign="center" mb={{ xs: 4, md: 5 }}>
             <Chip
-              label="CLIENT TESTIMONIALS"
+              label={sections.testimonials?.badge}
               sx={{
                 bgcolor: colors.green,
                 color: 'white',
@@ -572,16 +563,12 @@ const Home: React.FC = () => {
                 lineHeight: 1.2,
               }}
             >
-              Trusted by Ghanaians Across the Country
+              {sections.testimonials?.title}
             </Typography>
           </Box>
 
           <Grid container spacing={{ xs: 2, md: 3 }}>
-            {[
-              { name: 'Kwame Asante', location: 'Accra, Ghana', rating: 5, text: 'Energy Precisions transformed our home with a complete solar system. Our electricity bills dropped by 85% and we have reliable power 24/7. The installation was professional and the team was excellent.', role: 'Homeowner' },
-              { name: 'Ama Osei', location: 'Kumasi, Ghana', rating: 5, text: 'As a business owner, switching to solar was the best decision. Energy Precisions provided a custom commercial system that pays for itself. Their after-sales support is outstanding.', role: 'Business Owner' },
-              { name: 'David Mensah', location: 'Tamale, Ghana', rating: 5, text: 'The quality of equipment and installation exceeded our expectations. We\'ve had zero issues in 2 years. Highly recommend Energy Precisions for anyone considering solar in Ghana.', role: 'Factory Manager' },
-            ].map((testimonial, index) => (
+            {(sections.testimonials?.items || []).map((testimonial, index) => (
               <Grid item xs={12} md={4} key={index}>
                 <Card
                   sx={{
@@ -682,7 +669,7 @@ const Home: React.FC = () => {
                 lineHeight: 1.2,
               }}
             >
-              Ready to Go Solar in Ghana?
+              {sections.closing_cta?.title}
             </Typography>
             <Typography
               variant="body1"
@@ -696,15 +683,14 @@ const Home: React.FC = () => {
                 fontSize: { xs: '0.95rem', md: '1rem' },
               }}
             >
-              Join thousands of satisfied customers across Ghana who have made the switch to clean,
-              affordable solar energy. Get your free quote today.
+              {sections.closing_cta?.subtitle}
             </Typography>
             <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} justifyContent="center" alignItems="center">
               <Button
                 variant="contained"
                 size="medium"
                 component={Link}
-                to="/contact?action=quote"
+                to={sections.closing_cta?.primary_cta_link || '/contact?action=quote'}
                 endIcon={<ArrowForwardIcon sx={{ fontSize: 18 }} />}
                 sx={{
                   bgcolor: colors.green,
@@ -718,13 +704,13 @@ const Home: React.FC = () => {
                   '&:hover': { bgcolor: colors.greenDark },
                 }}
               >
-                Get Free Consultation
+                {sections.closing_cta?.primary_cta_text}
               </Button>
               <Button
                 variant="outlined"
                 size="medium"
                 component={Link}
-                to="/shop"
+                to={sections.closing_cta?.secondary_cta_link || '/shop'}
                 sx={{
                   borderColor: 'rgba(255,255,255,0.55)',
                   borderWidth: 1.5,
@@ -738,7 +724,7 @@ const Home: React.FC = () => {
                   '&:hover': { borderColor: colors.green, bgcolor: 'rgba(0, 230, 118, 0.08)' },
                 }}
               >
-                Browse Products
+                {sections.closing_cta?.secondary_cta_text}
               </Button>
             </Stack>
           </Box>

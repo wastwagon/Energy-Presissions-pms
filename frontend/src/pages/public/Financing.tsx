@@ -23,15 +23,23 @@ import {
 } from '@mui/icons-material';
 import { Seo } from '../../components/Seo';
 import { colors } from '../../theme/colors';
+import { useCmsPage } from '../../hooks/useCmsPage';
+import { resolveCmsSeo } from '../../hooks/useCmsSeo';
+
+const HERO_CARD_ICONS = [HandshakeIcon, AccountBalanceIcon];
 
 const Financing: React.FC = () => {
+  const { sections } = useCmsPage('financing');
+  const seo = resolveCmsSeo(sections, {
+    title: 'Solar Financing Ghana | Payment Options | Energy Precisions',
+    description:
+      'Financing and staged payment paths for solar projects in Ghana. Transparent quotes, engineering-led sizing and maintenance — Energy Precisions.',
+  });
+  const { hero, hero_cards: heroCards, content } = sections;
+
   return (
     <Box>
-      <Seo
-        title="Solar Financing Ghana | Payment Options | Energy Precisions"
-        description="Financing and staged payment paths for solar projects in Ghana. Transparent quotes, engineering-led sizing and maintenance — Energy Precisions."
-        path="/financing"
-      />
+      <Seo title={seo.title} description={seo.description} path="/financing" />
       <Box
         sx={{
           bgcolor: colors.blueBlack,
@@ -45,7 +53,7 @@ const Financing: React.FC = () => {
           <Grid container spacing={{ xs: 3, md: 4 }} alignItems="center">
             <Grid item xs={12} md={7}>
               <Chip
-                label="SOLAR FOR EVERYONE"
+                label={hero.badge}
                 sx={{
                   bgcolor: colors.green,
                   color: 'white',
@@ -65,7 +73,7 @@ const Financing: React.FC = () => {
                   lineHeight: 1.15,
                 }}
               >
-                Financing &amp; payment paths that fit your project
+                {hero.headline}
               </Typography>
               <Typography
                 variant="body1"
@@ -77,14 +85,12 @@ const Financing: React.FC = () => {
                   fontSize: { xs: '0.95rem', md: '1rem' },
                 }}
               >
-                We are rolling out structured financing and staged-payment options alongside our turnkey
-                design, installation, and maintenance. Tell us about your site and load profile—we will map
-                the clearest path forward and only recommend what we can actually deliver.
+                {hero.description}
               </Typography>
               <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5}>
                 <Button
                   component={RouterLink}
-                  to="/contact?action=quote"
+                  to={hero.primary_cta_link}
                   variant="contained"
                   size="medium"
                   sx={{
@@ -96,11 +102,11 @@ const Financing: React.FC = () => {
                     '&:hover': { bgcolor: colors.greenDark },
                   }}
                 >
-                  Request a financing conversation
+                  {hero.primary_cta_text}
                 </Button>
                 <Button
                   component={RouterLink}
-                  to="/contact"
+                  to={hero.secondary_cta_link}
                   variant="outlined"
                   size="medium"
                   sx={{
@@ -109,40 +115,33 @@ const Financing: React.FC = () => {
                     '&:hover': { borderColor: 'white', bgcolor: 'rgba(255,255,255,0.06)' },
                   }}
                 >
-                  General contact
+                  {hero.secondary_cta_text}
                 </Button>
               </Stack>
             </Grid>
             <Grid item xs={12} md={5}>
               <Stack spacing={2}>
-                <Card sx={{ bgcolor: 'rgba(255,255,255,0.06)', color: 'white', border: '1px solid rgba(255,255,255,0.12)' }}>
-                  <CardContent>
-                    <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
-                      <HandshakeIcon sx={{ color: colors.green }} />
-                      <Typography variant="h6" fontWeight={700}>
-                        How we work with you
-                      </Typography>
-                    </Stack>
-                    <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.85)', lineHeight: 1.7 }}>
-                      Clear proposal, transparent line items, and a maintenance story after commissioning—so
-                      lenders and finance partners (when engaged) see a serious, documented project.
-                    </Typography>
-                  </CardContent>
-                </Card>
-                <Card sx={{ bgcolor: 'rgba(255,255,255,0.06)', color: 'white', border: '1px solid rgba(255,255,255,0.12)' }}>
-                  <CardContent>
-                    <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
-                      <AccountBalanceIcon sx={{ color: colors.green }} />
-                      <Typography variant="h6" fontWeight={700}>
-                        What we are building toward
-                      </Typography>
-                    </Stack>
-                    <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.85)', lineHeight: 1.7 }}>
-                      Partnerships with banks and asset financiers are part of our roadmap. Until each
-                      program is live, we will not advertise rates or products we cannot honour.
-                    </Typography>
-                  </CardContent>
-                </Card>
+                {(heroCards || []).map((card, index) => {
+                  const Icon = HERO_CARD_ICONS[index] || HandshakeIcon;
+                  return (
+                    <Card
+                      key={card.title}
+                      sx={{ bgcolor: 'rgba(255,255,255,0.06)', color: 'white', border: '1px solid rgba(255,255,255,0.12)' }}
+                    >
+                      <CardContent>
+                        <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
+                          <Icon sx={{ color: colors.green }} />
+                          <Typography variant="h6" fontWeight={700}>
+                            {card.title}
+                          </Typography>
+                        </Stack>
+                        <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.85)', lineHeight: 1.7 }}>
+                          {card.body}
+                        </Typography>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
               </Stack>
             </Grid>
           </Grid>
@@ -151,12 +150,10 @@ const Financing: React.FC = () => {
 
       <Container maxWidth="lg" sx={{ py: { xs: 5, md: 7 } }}>
         <Typography variant="h2" fontWeight={800} sx={{ mb: 1.5, fontSize: { xs: '1.5rem', md: '1.75rem' } }}>
-          Today: practical ways to move your project forward
+          {content.title}
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 3, maxWidth: '48rem', lineHeight: 1.65 }}>
-          Many customers combine equipment purchases from our shop with a custom engineered install. We can
-          discuss milestones, retainers, and documentation you need for your own financing—without promising
-          third-party approval we do not control.
+          {content.subtitle}
         </Typography>
 
         <Grid container spacing={3}>
@@ -164,15 +161,10 @@ const Financing: React.FC = () => {
             <Card variant="outlined" sx={{ height: '100%' }}>
               <CardContent>
                 <Typography variant="h6" fontWeight={700} sx={{ mb: 2 }}>
-                  Typical next steps
+                  {content.steps_title}
                 </Typography>
                 <List dense disablePadding>
-                  {[
-                    'Site assessment and load / tariff review',
-                    'Engineering-led system sizing and bill-of-materials',
-                    'Formal quote with clear phases (equipment, install, commissioning)',
-                    'Optional maintenance and monitoring plan after handover',
-                  ].map((text) => (
+                  {(content.steps || []).map((text) => (
                     <ListItem key={text} disableGutters sx={{ alignItems: 'flex-start', py: 0.5 }}>
                       <ListItemIcon sx={{ minWidth: 36, mt: 0.25 }}>
                         <CheckIcon color="primary" fontSize="small" />
@@ -190,15 +182,21 @@ const Financing: React.FC = () => {
                 <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 2 }}>
                   <PhoneIcon color="primary" />
                   <Typography variant="h6" fontWeight={700}>
-                    Talk to the team
+                    {content.talk_title}
                   </Typography>
                 </Stack>
                 <Typography variant="body2" color="text.secondary" sx={{ mb: 3, lineHeight: 1.8 }}>
-                  For residential, commercial, agricultural, or hybrid sites, we start with your goals and
-                  constraints—then align equipment and installation scope before any financing discussion.
+                  {content.talk_body}
                 </Typography>
-                <Button component={RouterLink} to="/contact?action=quote" variant="contained" color="primary" size="medium" sx={{ textTransform: 'none' }}>
-                  Start with a quote request
+                <Button
+                  component={RouterLink}
+                  to={content.talk_cta_link}
+                  variant="contained"
+                  color="primary"
+                  size="medium"
+                  sx={{ textTransform: 'none' }}
+                >
+                  {content.talk_cta_text}
                 </Button>
               </CardContent>
             </Card>
@@ -208,16 +206,13 @@ const Financing: React.FC = () => {
         <Card variant="outlined" sx={{ mt: 4, borderColor: colors.green, bgcolor: 'rgba(0, 230, 118, 0.04)' }}>
           <CardContent>
             <Typography variant="h6" fontWeight={800} sx={{ mb: 1.5 }}>
-              PAYG-style &amp; staged payment options
+              {content.payg_title}
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.7, mb: 1.5 }}>
-              For customers comparing plans like pay-as-you-go solar or bank-backed asset finance, we map your
-              site load, equipment, and installation phases first—then align with partner programmes where they
-              are live and documented. We do not publish rates here because products and eligibility change.
+              {content.payg_body}
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.7 }}>
-              Mention <strong>financing</strong> or <strong>PAYG</strong> in your quote request so we route you to
-              the right conversation.
+              {content.payg_footer}
             </Typography>
           </CardContent>
         </Card>

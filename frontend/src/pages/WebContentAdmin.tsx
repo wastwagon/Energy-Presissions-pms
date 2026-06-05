@@ -24,6 +24,7 @@ import {
 } from '@mui/material';
 import { Edit as EditIcon, Delete as DeleteIcon, Add as AddIcon } from '@mui/icons-material';
 import api from '../services/api';
+import CmsPageEditor from '../components/admin/CmsPageEditor';
 
 const SITE_IMAGE_KEYS = [
   { key: 'home_hero_image', label: 'Home hero image URL' },
@@ -163,17 +164,20 @@ const WebContentAdmin: React.FC = () => {
   return (
     <Box>
       <Typography variant="h5" sx={{ fontWeight: 800, mb: 2 }}>
-        Blog, FAQs & site images
+        Website content
       </Typography>
       <Paper variant="outlined" sx={{ mb: 2 }}>
         <Tabs value={tab} onChange={(_, v) => setTab(v)}>
+          <Tab label="Page content" />
           <Tab label="Blog" />
           <Tab label="FAQs" />
           <Tab label="Hero images" />
         </Tabs>
       </Paper>
 
-      {tab === 0 && (
+      {tab === 0 && <CmsPageEditor />}
+
+      {tab === 1 && (
         <Box>
           <Button startIcon={<AddIcon />} variant="contained" sx={{ mb: 2 }} onClick={() => { setBlogForm(emptyBlog); setBlogDialog({ open: true }); }}>
             New post
@@ -210,7 +214,7 @@ const WebContentAdmin: React.FC = () => {
         </Box>
       )}
 
-      {tab === 1 && (
+      {tab === 2 && (
         <Box>
           <Button startIcon={<AddIcon />} variant="contained" sx={{ mb: 2 }} onClick={() => { setFaqForm({ question: '', answer: '', sort_order: 0, published: true }); setFaqDialog({ open: true }); }}>
             New FAQ
@@ -245,10 +249,10 @@ const WebContentAdmin: React.FC = () => {
         </Box>
       )}
 
-      {tab === 2 && (
+      {tab === 3 && (
         <Paper variant="outlined" sx={{ p: 2 }}>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-            Public site reads these keys when present (falls back to bundled defaults if empty).
+            Legacy hero image overrides. Prefer editing hero image URLs under Page content → Hero section.
           </Typography>
           {SITE_IMAGE_KEYS.map(({ key, label }) => (
             <Box key={key} sx={{ mb: 2 }}>

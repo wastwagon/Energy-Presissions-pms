@@ -25,61 +25,39 @@ import {
   ArrowBackIosNew as ArrowBackIcon,
   ArrowForwardIos as ArrowForwardIcon,
 } from '@mui/icons-material';
-import websiteContent from '../../data/extracted_content.json';
 import { Seo } from '../../components/Seo';
 import { colors } from '../../theme/colors';
 import { homePageImages } from '../../data/homePageMedia';
 import api from '../../services/api';
+import { useCmsPage } from '../../hooks/useCmsPage';
+import { resolveCmsSeo } from '../../hooks/useCmsSeo';
 import TrustStrip from '../../components/public/TrustStrip';
 import Link from '@mui/material/Link';
 import { COMPANY } from '../../data/companyContact';
 
 const About: React.FC = () => {
-  const content = websiteContent;
-  const [aboutHero, setAboutHero] = useState<string>(homePageImages.hero);
+  const { sections } = useCmsPage('about');
+  const seo = resolveCmsSeo(sections, {
+    title: 'About Energy Precisions | Ghana Solar Company',
+    description:
+      "Ghana's premier solar energy company — turnkey solutions from design and installation to equipment and maintenance. Learn our story and values.",
+  });
+  const hero = sections.hero;
+  const [aboutHero, setAboutHero] = useState<string>(hero.hero_image || homePageImages.hero);
   const whyScrollRef = React.useRef<HTMLDivElement | null>(null);
   const theme = useTheme();
   const isMdDown = useMediaQuery(theme.breakpoints.down('md'));
   const isSmDown = useMediaQuery(theme.breakpoints.down('sm'));
 
-  const whyChooseFeatures = [
-    {
-      icon: <LocationIcon sx={{ fontSize: '2.25rem' }} />,
-      title: 'Based in Ghana, For Ghana',
-      description: 'We understand Ghana\'s unique energy challenges and climate. Our solutions are specifically designed for Ghanaian homes and businesses.',
-      color: colors.green,
-    },
-    {
-      icon: <BusinessIcon sx={{ fontSize: '2.25rem' }} />,
-      title: 'Complete Solutions Provider',
-      description: 'From equipment sales to installation, maintenance, and support - we provide end-to-end solar solutions under one roof.',
-      color: colors.blueNavy,
-    },
-    {
-      icon: <PeopleIcon sx={{ fontSize: '2.25rem' }} />,
-      title: 'Expert Team',
-      description: 'Our certified technicians have years of experience installing solar systems across Ghana. Continuous training ensures we stay ahead.',
-      color: colors.green,
-    },
-    {
-      icon: <SecurityIcon sx={{ fontSize: '2.25rem' }} />,
-      title: 'Trusted & Reliable',
-      description: '10+ years in business, 500+ successful installations, and 98% customer satisfaction. Your trust is our greatest asset.',
-      color: colors.blueNavy,
-    },
-    {
-      icon: <TrendingUpIcon sx={{ fontSize: '2.25rem' }} />,
-      title: 'Proven Track Record',
-      description: 'Trusted by residential, commercial, and industrial clients across Accra, Kumasi, Tamale, and beyond.',
-      color: colors.green,
-    },
-    {
-      icon: <EcoIcon sx={{ fontSize: '2.25rem' }} />,
-      title: 'Sustainable Future',
-      description: 'Join thousands of Ghanaians reducing electricity costs and carbon footprint. Together, we build a greener Ghana.',
-      color: colors.blueNavy,
-    },
+  const whyChooseIcons = [
+    <LocationIcon sx={{ fontSize: '2.25rem' }} />,
+    <BusinessIcon sx={{ fontSize: '2.25rem' }} />,
+    <PeopleIcon sx={{ fontSize: '2.25rem' }} />,
+    <SecurityIcon sx={{ fontSize: '2.25rem' }} />,
+    <TrendingUpIcon sx={{ fontSize: '2.25rem' }} />,
+    <EcoIcon sx={{ fontSize: '2.25rem' }} />,
   ];
+  const whyChooseColors = [colors.green, colors.blueNavy, colors.green, colors.blueNavy, colors.green, colors.blueNavy];
 
   const goFeaturePrev = () => {
     const el = whyScrollRef.current;
@@ -93,6 +71,11 @@ const About: React.FC = () => {
   };
 
   useEffect(() => {
+    const cmsImage = hero.hero_image?.trim();
+    if (cmsImage) {
+      setAboutHero(cmsImage);
+      return;
+    }
     let cancelled = false;
     api
       .get<Record<string, string>>('/content/settings/public')
@@ -104,15 +87,11 @@ const About: React.FC = () => {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [hero.hero_image]);
 
   return (
     <Box>
-      <Seo
-        title="About Energy Precisions | Ghana Solar Company"
-        description="Ghana's premier solar energy company — turnkey solutions from design and installation to equipment and maintenance. Learn our story and values."
-        path="/about"
-      />
+      <Seo title={seo.title} description={seo.description} path="/about" />
       {/* Hero Section */}
       <Box
         sx={{
@@ -127,7 +106,7 @@ const About: React.FC = () => {
           <Grid container spacing={{ xs: 3, md: 4 }} alignItems="center">
             <Grid item xs={12} md={6}>
               <Chip
-                label="ABOUT ENERGY PRECISIONS"
+                label={hero.badge}
                 sx={{
                   bgcolor: colors.green,
                   color: 'white',
@@ -147,7 +126,12 @@ const About: React.FC = () => {
                   lineHeight: 1.15,
                 }}
               >
-                Ghana's Premier Solar Energy Company
+                {hero.headline}{' '}
+                {hero.headline_highlight && (
+                  <Box component="span" sx={{ color: colors.green }}>
+                    {hero.headline_highlight}
+                  </Box>
+                )}
               </Typography>
               <Typography
                 variant="body1"
@@ -159,34 +143,22 @@ const About: React.FC = () => {
                   fontSize: { xs: '0.95rem', md: '1rem' },
                 }}
               >
-                {content.about.content}
+                {hero.description}
               </Typography>
-              <Stack direction="row" spacing={{ xs: 2, sm: 3 }} flexWrap="wrap" useFlexGap>
-                <Box>
-                  <Typography variant="h5" sx={{ fontWeight: 800, color: colors.green, lineHeight: 1.1 }}>
-                    500+
-                  </Typography>
-                  <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.78)' }}>
-                    Installations
-                  </Typography>
-                </Box>
-                <Box>
-                  <Typography variant="h5" sx={{ fontWeight: 800, color: colors.green, lineHeight: 1.1 }}>
-                    10+
-                  </Typography>
-                  <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.78)' }}>
-                    Years Experience
-                  </Typography>
-                </Box>
-                <Box>
-                  <Typography variant="h5" sx={{ fontWeight: 800, color: colors.green, lineHeight: 1.1 }}>
-                    98%
-                  </Typography>
-                  <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.78)' }}>
-                    Satisfaction Rate
-                  </Typography>
-                </Box>
-              </Stack>
+              {hero.stats?.length > 0 && (
+                <Stack direction="row" spacing={{ xs: 2, sm: 3 }} flexWrap="wrap" useFlexGap>
+                  {hero.stats.map((s) => (
+                    <Box key={s.label}>
+                      <Typography variant="h5" sx={{ fontWeight: 800, color: colors.green, lineHeight: 1.1 }}>
+                        {s.value}
+                      </Typography>
+                      <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.78)' }}>
+                        {s.label}
+                      </Typography>
+                    </Box>
+                  ))}
+                </Stack>
+              )}
             </Grid>
             <Grid item xs={12} md={6}>
               <Box
@@ -253,12 +225,10 @@ const About: React.FC = () => {
                     color: colors.blueBlack,
                   }}
                 >
-                  Our Mission
+                  {sections.mission_vision?.mission_title}
                 </Typography>
                 <Typography variant="body1" sx={{ color: '#666', lineHeight: 1.8, fontSize: '1.1rem' }}>
-                  To empower every Ghanaian home and business with reliable, affordable solar energy solutions. 
-                  We believe in sustainable energy practices that preserve our planet while reducing energy costs 
-                  and increasing energy independence across Ghana.
+                  {sections.mission_vision?.mission_text}
                 </Typography>
               </Card>
             </Grid>
@@ -282,12 +252,10 @@ const About: React.FC = () => {
                     color: 'white',
                   }}
                 >
-                  Our Vision
+                  {sections.mission_vision?.vision_title}
                 </Typography>
                 <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.9)', lineHeight: 1.8, fontSize: '1.1rem' }}>
-                  To become Ghana's most trusted and recognized solar energy company, leading the transition 
-                  to clean energy. We envision a future where every Ghanaian has access to reliable, 
-                  sustainable solar power that powers their dreams and ambitions.
+                  {sections.mission_vision?.vision_text}
                 </Typography>
               </Card>
             </Grid>
@@ -316,7 +284,7 @@ const About: React.FC = () => {
                 lineHeight: 1.15,
               }}
             >
-              What Makes Us Ghana's Best
+              {sections.why_choose?.title}
             </Typography>
             <Box display="flex" justifyContent="center" gap={1.5} mt={2}>
               <IconButton
@@ -363,7 +331,7 @@ const About: React.FC = () => {
               },
             }}
           >
-            {whyChooseFeatures.map((feature, index) => (
+            {(sections.why_choose?.features || []).map((feature, index) => (
             <Box
               key={index}
               sx={{
@@ -391,7 +359,7 @@ const About: React.FC = () => {
                 >
                   <Box
                     sx={{
-                      color: colors.blueNavy,
+                      color: whyChooseColors[index] ?? colors.blueNavy,
                       mb: 1.75,
                       width: 56,
                       height: 56,
@@ -402,7 +370,7 @@ const About: React.FC = () => {
                       bgcolor: 'rgba(26, 77, 122, 0.1)',
                     }}
                   >
-                    {feature.icon}
+                    {whyChooseIcons[index]}
                   </Box>
                   <Typography
                     variant="h5"
@@ -439,7 +407,7 @@ const About: React.FC = () => {
         <Container maxWidth="xl">
           <Box textAlign="center" mb={{ xs: 5, md: 6 }}>
             <Chip
-              label="OUR VALUES"
+              label={sections.specialties?.badge}
               sx={{
                 bgcolor: colors.green,
                 color: 'white',
@@ -459,7 +427,7 @@ const About: React.FC = () => {
                 lineHeight: 1.16,
               }}
             >
-              What We Stand For
+              {sections.specialties?.title}
             </Typography>
             <Typography
               variant="body1"
@@ -471,13 +439,12 @@ const About: React.FC = () => {
                 lineHeight: 1.75,
               }}
             >
-              Our values define how we design systems, serve clients, and deliver long-term solar
-              performance across Ghana.
+              {sections.specialties?.subtitle}
             </Typography>
           </Box>
 
           <Grid container spacing={{ xs: 2, md: 3 }}>
-            {content.about.specialties.map((specialty, index) => (
+            {(sections.specialties?.items || []).map((specialty, index) => (
               <Grid item xs={12} sm={6} md={3} key={index}>
                 <Card
                   sx={{
@@ -575,12 +542,12 @@ const About: React.FC = () => {
                 fontSize: { xs: '2.5rem', md: '3.5rem' },
               }}
             >
-              Our Impact in Numbers
+              {sections.impact_stats?.title}
             </Typography>
           </Box>
 
           <Grid container spacing={4}>
-            {content.about.stats.map((stat, index) => (
+            {(sections.impact_stats?.items || []).map((stat, index) => (
               <Grid item xs={12} md={4} key={index}>
                 <Card
                   sx={{
@@ -641,7 +608,7 @@ const About: React.FC = () => {
         <Container maxWidth="xl">
           <Box textAlign="center" mb={6}>
             <Chip
-              label="VISIT US"
+              label={sections.visit_us?.badge}
               sx={{
                 bgcolor: colors.green,
                 color: 'white',
@@ -660,10 +627,10 @@ const About: React.FC = () => {
                 fontSize: { xs: '2.5rem', md: '3.5rem' },
               }}
             >
-              Located in the Heart of Accra
+              {sections.visit_us?.title}
             </Typography>
             <Typography variant="h6" sx={{ color: '#666', fontWeight: 400 }}>
-              Serving all of Ghana with expert solar solutions
+              {sections.visit_us?.subtitle}
             </Typography>
           </Box>
 
@@ -675,19 +642,17 @@ const About: React.FC = () => {
                     <LocationIcon sx={{ fontSize: '2.5rem', color: colors.green }} />
                     <Box>
                       <Typography variant="h6" sx={{ fontWeight: 700, color: colors.blueNavy, mb: 0.5 }}>
-                        Our Location
+                        {sections.visit_us?.location_title}
                       </Typography>
                       <Typography variant="body1" sx={{ color: '#666' }}>
-                        Haatso, Ecomog, Accra, Ghana
+                        {sections.visit_us?.location_address || COMPANY.addressFull}
                       </Typography>
                     </Box>
                   </Box>
                   <Divider />
                   <Box>
                     <Typography variant="body1" sx={{ color: '#666', lineHeight: 1.8 }}>
-                      Visit our showroom to see our products in person, meet our team, and get expert 
-                      advice on the best solar solution for your needs. We're open Monday to Saturday, 
-                      8:00 AM to 6:00 PM.
+                      {sections.visit_us?.location_body}
                     </Typography>
                   </Box>
                 </Stack>
@@ -705,21 +670,20 @@ const About: React.FC = () => {
                 }}
               >
                 <Typography variant="h5" sx={{ mb: 3, fontWeight: 700 }}>
-                  Ready to Go Solar?
+                  {sections.visit_us?.cta_title}
                 </Typography>
                 <Typography variant="body1" sx={{ mb: 4, color: 'rgba(255,255,255,0.9)', lineHeight: 1.8 }}>
-                  Contact us today for a free consultation. Our team will assess your energy needs 
-                  and provide a customized solar solution for your home or business.
+                  {sections.visit_us?.cta_body}
                 </Typography>
                 <Stack spacing={2}>
                   <Box display="flex" alignItems="center" gap={2}>
                     <PhoneIcon sx={{ color: colors.green }} />
-                    <Typography variant="body1">(+233) 533 611 611</Typography>
+                    <Typography variant="body1">{sections.visit_us?.phone || COMPANY.phoneDisplay}</Typography>
                   </Box>
                   <Box display="flex" alignItems="center" gap={2}>
                     <EmailIcon sx={{ color: colors.green }} />
-                    <Link href={`mailto:${COMPANY.emailPrimary}`} color="inherit" underline="hover">
-                      {COMPANY.emailPrimary}
+                    <Link href={`mailto:${sections.visit_us?.email || COMPANY.emailPrimary}`} color="inherit" underline="hover">
+                      {sections.visit_us?.email || COMPANY.emailPrimary}
                     </Link>
                   </Box>
                 </Stack>

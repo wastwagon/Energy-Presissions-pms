@@ -38,3 +38,13 @@ class CmsFaqItem(Base):
     sort_order = Column(Integer, nullable=False, default=0)
     published = Column(Boolean, nullable=False, default=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+
+class CmsPageContent(Base):
+    """Per-page marketing sections stored as JSON (hero, stats, CTAs, etc.)."""
+
+    __tablename__ = "cms_page_content"
+
+    page = Column(String(64), primary_key=True, index=True)
+    sections = Column(Text, nullable=False, default="{}")
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())

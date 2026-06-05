@@ -26,15 +26,29 @@ import {
 import { Link, useLocation } from 'react-router-dom';
 import { Seo } from '../../components/Seo';
 import { colors } from '../../theme/colors';
-import { servicesPageImages } from '../../data/homePageMedia';
 import api from '../../services/api';
+import { useCmsPage } from '../../hooks/useCmsPage';
+import { resolveCmsSeo } from '../../hooks/useCmsSeo';
+import { resolveMediaUrl } from '../../utils/mediaUrl';
 
 const Services: React.FC = () => {
   const { pathname } = useLocation();
+  const { sections } = useCmsPage('services');
+  const seo = resolveCmsSeo(sections, {
+    title: 'Solar Services Ghana | Residential, Commercial & Industrial',
+    description:
+      'Residential, commercial, industrial and agricultural solar in Ghana — design, installation, battery storage, monitoring and maintenance from Energy Precisions.',
+  });
+  const hero = sections.hero;
   const [servicesHeroBg, setServicesHeroBg] = useState<string | null>(null);
   const processScrollRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
+    const cmsImage = hero.hero_image?.trim();
+    if (cmsImage) {
+      setServicesHeroBg(cmsImage);
+      return;
+    }
     let cancelled = false;
     api
       .get<Record<string, string>>('/content/settings/public')
@@ -46,102 +60,15 @@ const Services: React.FC = () => {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [hero.hero_image]);
 
-  const premiumServices = [
-    {
-      title: 'Residential Solar Installation',
-      description: 'Complete home solar systems designed for Ghanaian families. Reduce electricity bills by up to 90% with reliable, grid-tied or off-grid solutions.',
-      features: [
-        'Grid-tied & Off-grid Systems',
-        'Battery Backup Solutions',
-        'Smart Energy Monitoring',
-        'Professional Installation',
-        '10-Year Warranty',
-        'Maintenance Support',
-      ],
-      image: servicesPageImages.residential,
-      color: colors.green,
-    },
-    {
-      title: 'Commercial Solar Installation',
-      description: 'Large-scale solar solutions for businesses, offices, and commercial buildings. Maximize ROI with custom-designed systems.',
-      features: [
-        'Custom System Design',
-        'ROI Analysis & Planning',
-        'Minimal Business Disruption',
-        'Long-term Cost Savings',
-        'Scalable Solutions',
-        '24/7 Monitoring',
-      ],
-      image: servicesPageImages.commercial,
-      color: colors.blueBlack,
-    },
-    {
-      title: 'Industrial Solar Solutions',
-      description: 'Heavy-duty solar systems for factories and industrial facilities. Power your operations with reliable, cost-effective solar energy.',
-      features: [
-        'High-Capacity Systems',
-        'Industrial-Grade Equipment',
-        'Custom Engineering',
-        '24/7 System Monitoring',
-        'Dedicated Support Team',
-        'Energy Management',
-      ],
-      image: servicesPageImages.industrial,
-      color: colors.green,
-    },
-    {
-      title: 'Battery Storage Solutions',
-      description: 'Advanced battery storage systems for energy independence. Store solar energy for use during power outages and peak hours.',
-      features: [
-        'LiFePO4 Battery Technology',
-        'Long Lifespan (10+ years)',
-        'Fast Charging',
-        'Smart Management Systems',
-        'Backup Power Solutions',
-        'Grid Independence',
-      ],
-      image: servicesPageImages.battery,
-      color: colors.blueBlack,
-    },
-    {
-      title: 'Solar Energy Consultation',
-      description: 'Expert consultation to help you choose the right solar solution. Free site assessments and energy audits for your property.',
-      features: [
-        'Free Site Assessment',
-        'Energy Needs Analysis',
-        'Custom System Design',
-        'ROI Calculations',
-        'Financing Options',
-        'Government Incentive Guidance',
-      ],
-      image: servicesPageImages.consultation,
-      color: colors.green,
-    },
-    {
-      title: 'System Maintenance & Monitoring',
-      description: 'Ongoing maintenance and monitoring services to ensure your solar system operates at peak efficiency for years to come.',
-      features: [
-        'Regular Maintenance Checks',
-        'Performance Monitoring',
-        'Remote System Monitoring',
-        'Quick Response Repairs',
-        'Cleaning Services',
-        'Annual System Inspections',
-      ],
-      image: servicesPageImages.maintenance,
-      color: colors.blueBlack,
-    },
-  ];
+  const serviceCardColors = [colors.green, colors.blueBlack];
+  const guaranteeIcons = [<CheckCircleIcon />, <SolarPowerIcon />, <SupportIcon />, <BatteryIcon />];
+  const processStepIcons = [<SupportIcon />, <EngineeringIcon />, <SolarPowerIcon />, <CheckCircleIcon />, <BatteryIcon />];
 
   return (
     <Box>
-      <Seo
-        title="Solar Services Ghana | Residential, Commercial & Industrial"
-        description="Residential, commercial, industrial and agricultural solar in Ghana — design, installation, battery storage, monitoring and maintenance from Energy Precisions."
-        path={pathname}
-      />
+      <Seo title={seo.title} description={seo.description} path={pathname} />
       {/* Hero Section */}
       <Box
         sx={{
@@ -168,7 +95,7 @@ const Services: React.FC = () => {
         <Container maxWidth="xl" sx={{ position: 'relative', zIndex: 1 }}>
           <Box textAlign="center" maxWidth={720} mx="auto">
             <Chip
-              label="OUR SERVICES"
+              label={hero.badge}
               sx={{
                 bgcolor: colors.green,
                 color: 'white',
@@ -188,7 +115,12 @@ const Services: React.FC = () => {
                 lineHeight: 1.15,
               }}
             >
-              Complete Solar Solutions for Ghana
+              {hero.headline}{' '}
+              {hero.headline_highlight && (
+                <Box component="span" sx={{ color: colors.green }}>
+                  {hero.headline_highlight}
+                </Box>
+              )}
             </Typography>
             <Typography
               variant="body1"
@@ -199,8 +131,7 @@ const Services: React.FC = () => {
                 fontSize: { xs: '0.95rem', md: '1rem' },
               }}
             >
-              From premium equipment sales to expert installation and ongoing maintenance, 
-              we provide end-to-end solar energy solutions tailored for Ghana's unique energy needs.
+              {hero.description}
             </Typography>
           </Box>
         </Container>
@@ -210,7 +141,9 @@ const Services: React.FC = () => {
       <Box sx={{ py: { xs: 6, md: 8 }, bgcolor: 'white' }}>
         <Container maxWidth="xl">
           <Grid container spacing={{ xs: 2, md: 3 }}>
-            {premiumServices.map((service, index) => (
+            {(sections.service_cards?.items || []).map((service, index) => {
+              const cardColor = serviceCardColors[index % 2];
+              return (
               <Grid item xs={12} md={6} key={index}>
                 <Card
                   sx={{
@@ -238,7 +171,7 @@ const Services: React.FC = () => {
                   >
                     <CardMedia
                       component="img"
-                      image={service.image}
+                      image={resolveMediaUrl(service.image)}
                       alt={service.title}
                       sx={{
                         height: '100%',
@@ -277,10 +210,10 @@ const Services: React.FC = () => {
                         What's Included:
                       </Typography>
                       <Grid container spacing={1}>
-                        {service.features.map((feature, idx) => (
+                        {(service.features || []).map((feature, idx) => (
                           <Grid item xs={12} sm={6} key={idx}>
                             <Box display="flex" alignItems="center" gap={1}>
-                              <CheckCircleIcon sx={{ color: service.color, fontSize: '1.2rem' }} />
+                              <CheckCircleIcon sx={{ color: cardColor, fontSize: '1.2rem' }} />
                               <Typography variant="body2" sx={{ color: '#666' }}>
                                 {feature}
                               </Typography>
@@ -292,29 +225,30 @@ const Services: React.FC = () => {
                     <Button
                       variant="contained"
                       component={Link}
-                      to="/contact?action=quote"
+                      to={service.link || '/contact?action=quote'}
                       fullWidth
                       size="small"
                       endIcon={<ArrowForwardIcon sx={{ fontSize: 18 }} />}
                       sx={{
-                        bgcolor: service.color as string,
+                        bgcolor: cardColor,
                         color: 'white',
                         py: 1,
                         fontWeight: 600,
                         textTransform: 'none',
                         fontSize: '0.9rem',
                         '&:hover': {
-                          bgcolor: service.color === colors.green ? colors.greenDark : colors.blueBlackLight,
+                          bgcolor: cardColor === colors.green ? colors.greenDark : colors.blueBlackLight,
                         },
                         transition: 'background-color 0.2s ease',
                       }}
                     >
-                      Request Quote
+                      {service.button_text || 'Get a Quote'}
                     </Button>
                   </CardContent>
                 </Card>
               </Grid>
-            ))}
+              );
+            })}
           </Grid>
         </Container>
       </Box>
@@ -324,7 +258,7 @@ const Services: React.FC = () => {
         <Container maxWidth="xl">
           <Box textAlign="center" mb={{ xs: 4, md: 5 }}>
             <Chip
-              label="OUR PROCESS"
+              label={sections.process?.badge}
               sx={{
                 bgcolor: colors.green,
                 color: 'white',
@@ -346,10 +280,10 @@ const Services: React.FC = () => {
                 lineHeight: 1.2,
               }}
             >
-              Simple 5-Step Installation Process
+              {sections.process?.title}
             </Typography>
             <Typography variant="body1" sx={{ color: colors.gray600, fontWeight: 400, maxWidth: 560, mx: 'auto', fontSize: '0.95rem' }}>
-              From consultation to activation, we make going solar simple and stress-free
+              {sections.process?.subtitle}
             </Typography>
           </Box>
 
@@ -417,38 +351,7 @@ const Services: React.FC = () => {
                 },
               }}
             >
-              {[
-                {
-                  step: '01',
-                  title: 'Free Consultation',
-                  desc: 'Site assessment and energy needs analysis. We visit your property to understand your requirements.',
-                  icon: <SupportIcon />,
-                },
-                {
-                  step: '02',
-                  title: 'Custom Design',
-                  desc: 'Our engineers create a tailored system design optimized for your property and energy needs.',
-                  icon: <EngineeringIcon />,
-                },
-                {
-                  step: '03',
-                  title: 'Equipment Selection',
-                  desc: 'Choose from our premium selection of solar panels, inverters, and batteries with expert guidance.',
-                  icon: <SolarPowerIcon />,
-                },
-                {
-                  step: '04',
-                  title: 'Professional Installation',
-                  desc: 'Certified technicians install your system with minimal disruption to your daily activities.',
-                  icon: <CheckCircleIcon />,
-                },
-                {
-                  step: '05',
-                  title: 'Activation & Support',
-                  desc: 'System activation, training, and ongoing maintenance support to ensure optimal performance.',
-                  icon: <BatteryIcon />,
-                },
-              ].map((item, index) => (
+              {(sections.process?.steps || []).map((item, index) => (
                 <Box
                   key={index}
                   sx={{
@@ -489,7 +392,7 @@ const Services: React.FC = () => {
                     >
                       {item.step}
                     </Box>
-                    <Box sx={{ color: colors.blueNavy, mb: 1.25, fontSize: '1.85rem', display: 'flex', justifyContent: 'center' }}>{item.icon}</Box>
+                    <Box sx={{ color: colors.blueNavy, mb: 1.25, fontSize: '1.85rem', display: 'flex', justifyContent: 'center' }}>{processStepIcons[index]}</Box>
                     <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 700, color: colors.blueNavy, fontSize: '0.95rem' }}>
                       {item.title}
                     </Typography>
@@ -509,7 +412,7 @@ const Services: React.FC = () => {
         <Container maxWidth="xl">
           <Box textAlign="center" mb={{ xs: 4, md: 5 }}>
             <Chip
-              label="OUR GUARANTEES"
+              label={sections.guarantees?.badge}
               sx={{
                 bgcolor: colors.green,
                 color: 'white',
@@ -531,33 +434,12 @@ const Services: React.FC = () => {
                 lineHeight: 1.2,
               }}
             >
-              Your Investment is Protected
+              {sections.guarantees?.title}
             </Typography>
           </Box>
 
           <Grid container spacing={{ xs: 2, md: 2.5 }}>
-            {[
-              {
-                title: '10-Year Installation Warranty',
-                desc: 'Comprehensive warranty covering all installation work and system performance.',
-                icon: <CheckCircleIcon />,
-              },
-              {
-                title: '25-Year Panel Warranty',
-                desc: 'Manufacturer warranty on all solar panels, ensuring long-term performance.',
-                icon: <SolarPowerIcon />,
-              },
-              {
-                title: 'Free Maintenance (First Year)',
-                desc: 'Complimentary maintenance and system checks for the first year after installation.',
-                icon: <SupportIcon />,
-              },
-              {
-                title: 'Performance Guarantee',
-                desc: 'We guarantee your system will meet or exceed projected energy generation.',
-                icon: <BatteryIcon />,
-              },
-            ].map((guarantee, index) => (
+            {(sections.guarantees?.items || []).map((guarantee, index) => (
               <Grid item xs={12} sm={6} md={3} key={index}>
                 <Card
                   sx={{
@@ -573,7 +455,7 @@ const Services: React.FC = () => {
                     },
                   }}
                 >
-                  <Box sx={{ color: colors.green, fontSize: '2.25rem', mb: 1.5 }}>{guarantee.icon}</Box>
+                  <Box sx={{ color: colors.green, fontSize: '2.25rem', mb: 1.5 }}>{guaranteeIcons[index]}</Box>
                   <Typography variant="subtitle1" sx={{ mb: 1.25, fontWeight: 700, color: colors.blueNavy, fontSize: '0.95rem' }}>
                     {guarantee.title}
                   </Typography>
@@ -606,7 +488,7 @@ const Services: React.FC = () => {
                 lineHeight: 1.2,
               }}
             >
-              Ready to Start Your Solar Journey?
+              {sections.closing_cta?.title}
             </Typography>
             <Typography
               variant="body1"
@@ -620,14 +502,13 @@ const Services: React.FC = () => {
                 fontSize: '0.95rem',
               }}
             >
-              Get a free consultation and quote today. Our team will assess your needs 
-              and design the perfect solar solution for your home or business.
+              {sections.closing_cta?.subtitle}
             </Typography>
             <Button
               variant="contained"
               size="medium"
               component={Link}
-              to="/contact?action=quote"
+              to={sections.closing_cta?.primary_cta_link || '/contact?action=quote'}
               endIcon={<ArrowForwardIcon sx={{ fontSize: 18 }} />}
               sx={{
                 bgcolor: colors.green,
@@ -641,8 +522,9 @@ const Services: React.FC = () => {
                 '&:hover': { bgcolor: colors.greenDark },
               }}
             >
-              Get Free Consultation
+              {sections.closing_cta?.primary_cta_text}
             </Button>
+            {(sections.closing_cta?.link1_text || sections.closing_cta?.link2_text) && (
             <Stack
               direction={{ xs: 'column', sm: 'row' }}
               spacing={1}
@@ -650,9 +532,10 @@ const Services: React.FC = () => {
               alignItems="center"
               sx={{ mt: 2.5 }}
             >
+              {sections.closing_cta?.link1_text && sections.closing_cta?.link1_url && (
               <Button
                 component={Link}
-                to="/solar-estimate"
+                to={sections.closing_cta.link1_url}
                 variant="text"
                 sx={{
                   color: 'rgba(255,255,255,0.92)',
@@ -661,14 +544,18 @@ const Services: React.FC = () => {
                   '&:hover': { color: colors.green, bgcolor: 'rgba(255,255,255,0.06)' },
                 }}
               >
-                Solar size estimator
+                {sections.closing_cta.link1_text}
               </Button>
+              )}
+              {sections.closing_cta?.link1_text && sections.closing_cta?.link2_text && (
               <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.4)', display: { xs: 'none', sm: 'block' } }}>
                 ·
               </Typography>
+              )}
+              {sections.closing_cta?.link2_text && sections.closing_cta?.link2_url && (
               <Button
                 component={Link}
-                to="/load-calculator"
+                to={sections.closing_cta.link2_url}
                 variant="text"
                 sx={{
                   color: 'rgba(255,255,255,0.92)',
@@ -677,9 +564,11 @@ const Services: React.FC = () => {
                   '&:hover': { color: colors.green, bgcolor: 'rgba(255,255,255,0.06)' },
                 }}
               >
-                Appliance load calculator
+                {sections.closing_cta.link2_text}
               </Button>
+              )}
             </Stack>
+            )}
           </Box>
         </Container>
       </Box>

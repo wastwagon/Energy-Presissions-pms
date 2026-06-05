@@ -25,31 +25,37 @@ import {
   Email as EmailIcon,
   LocationOn as LocationIcon,
   Bolt as BoltIcon,
-  BatteryChargingFull as BatteryIcon,
   SolarPower as SolarIcon,
 } from '@mui/icons-material';
 import { Seo } from '../../components/Seo';
 import { colors } from '../../theme/colors';
 import { COMPANY } from '../../data/companyContact';
+import { useCmsPage } from '../../hooks/useCmsPage';
+import { resolveCmsSeo } from '../../hooks/useCmsSeo';
 import {
   HYBRID_PACKAGES,
-  HYBRID_PACKAGE_BRAND,
-  HYBRID_PACKAGE_FOOTER_POINTS,
-  HYBRID_PACKAGE_READING_GUIDE,
   LOAD_CEILING_HELP,
   formatGhs,
 } from '../../data/hybridPackages';
 
+const isExternalLink = (path: string) =>
+  path.startsWith('http') || path.startsWith('tel:') || path.startsWith('mailto:');
+
 const HybridPackages: React.FC = () => {
+  const { sections } = useCmsPage('packages');
+  const seo = resolveCmsSeo(sections, {
+    title: 'Hybrid Lithium Solar Packages Ghana | Energy Precisions',
+    description:
+      'Turnkey 6.5–20 kVA hybrid lithium solar packages from our Accra office — panels, installation, monitoring and competitive GHS pricing across Ghana.',
+  });
+  const { hero, packages_section: packagesSection, reading_guide: readingGuide, why_section: whySection } = sections;
   const [expanded, setExpanded] = useState<string | false>(HYBRID_PACKAGES[0]?.id ?? false);
+
+  const secondaryCtaExternal = isExternalLink(hero.secondary_cta_link);
 
   return (
     <Box>
-      <Seo
-        title="Hybrid Lithium Solar Packages Ghana | Energy Precisions"
-        description="Turnkey 6.5–20 kVA hybrid lithium solar packages from our Accra office — panels, installation, monitoring and competitive GHS pricing across Ghana."
-        path="/solar-packages"
-      />
+      <Seo title={seo.title} description={seo.description} path="/solar-packages" />
 
       {/* Hero */}
       <Box
@@ -65,7 +71,7 @@ const HybridPackages: React.FC = () => {
           <Grid container spacing={4} alignItems="center">
             <Grid item xs={12} md={7}>
               <Chip
-                label="LiFePO₄ LITHIUM STORAGE"
+                label={hero.badge}
                 sx={{
                   bgcolor: colors.green,
                   color: 'white',
@@ -83,19 +89,19 @@ const HybridPackages: React.FC = () => {
                   lineHeight: 1.12,
                 }}
               >
-                {HYBRID_PACKAGE_BRAND.documentTitle}
+                {hero.headline}
               </Typography>
               <Typography
                 variant="body1"
                 sx={{ color: 'rgba(255,255,255,0.9)', lineHeight: 1.7, maxWidth: 560, mb: 3 }}
               >
-                {HYBRID_PACKAGE_BRAND.subtitle}
+                {hero.description}
               </Typography>
               <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5}>
                 <Button
                   variant="contained"
                   component={RouterLink}
-                  to="/contact?action=quote&topic=package"
+                  to={hero.primary_cta_link}
                   sx={{
                     bgcolor: colors.green,
                     color: 'white',
@@ -105,12 +111,14 @@ const HybridPackages: React.FC = () => {
                     '&:hover': { bgcolor: colors.greenDark },
                   }}
                 >
-                  Book free site survey
+                  {hero.primary_cta_text}
                 </Button>
                 <Button
                   variant="outlined"
-                  component="a"
-                  href={COMPANY.phoneHref}
+                  component={secondaryCtaExternal ? 'a' : RouterLink}
+                  {...(secondaryCtaExternal
+                    ? { href: hero.secondary_cta_link }
+                    : { to: hero.secondary_cta_link })}
                   sx={{
                     borderColor: 'rgba(255,255,255,0.5)',
                     color: 'white',
@@ -118,7 +126,7 @@ const HybridPackages: React.FC = () => {
                     '&:hover': { borderColor: colors.green, bgcolor: 'rgba(255,255,255,0.06)' },
                   }}
                 >
-                  Call {COMPANY.phoneDisplay}
+                  {hero.secondary_cta_text}
                 </Button>
               </Stack>
             </Grid>
@@ -152,14 +160,13 @@ const HybridPackages: React.FC = () => {
               fontSize: { xs: '1.5rem', md: '1.85rem' },
             }}
           >
-            Choose your package
+            {packagesSection.title}
           </Typography>
           <Typography
             variant="body2"
             sx={{ textAlign: 'center', color: colors.gray600, mb: 3, maxWidth: 640, mx: 'auto' }}
           >
-            Six turnkey tiers from essential homes to commercial blocks. KVA is your planned load tier;
-            inverter and panel lines follow what we stock and engineer — see notes on each card.
+            {packagesSection.subtitle}
           </Typography>
 
           <Box
@@ -176,10 +183,10 @@ const HybridPackages: React.FC = () => {
             }}
           >
             <Typography variant="subtitle2" sx={{ fontWeight: 800, color: colors.blueBlack, mb: 1 }}>
-              {HYBRID_PACKAGE_READING_GUIDE.title}
+              {readingGuide.title}
             </Typography>
             <List dense disablePadding>
-              {HYBRID_PACKAGE_READING_GUIDE.points.map((point) => (
+              {(readingGuide.points || []).map((point) => (
                 <ListItem key={point} disableGutters sx={{ py: 0.25, alignItems: 'flex-start' }}>
                   <ListItemIcon sx={{ minWidth: 28, mt: 0.25 }}>
                     <CheckIcon sx={{ fontSize: 16, color: colors.green }} />
@@ -354,38 +361,27 @@ const HybridPackages: React.FC = () => {
           <Grid container spacing={4}>
             <Grid item xs={12} md={6}>
               <Typography variant="h2" sx={{ fontWeight: 800, color: colors.blueBlack, mb: 2, fontSize: '1.5rem' }}>
-                Why Energy Precisions
+                {whySection.title}
               </Typography>
               <Grid container spacing={2}>
-                <Grid item xs={12} sm={6}>
-                  <Box display="flex" gap={1.5}>
-                    <SolarIcon sx={{ color: colors.green }} />
-                    <Box>
-                      <Typography variant="subtitle2" fontWeight={700}>
-                        Engineered, not guessed
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        Site survey and load confirmation before final BOM.
-                      </Typography>
+                {(whySection.features || []).map((feature) => (
+                  <Grid item xs={12} sm={6} key={feature.title}>
+                    <Box display="flex" gap={1.5}>
+                      <SolarIcon sx={{ color: colors.green }} />
+                      <Box>
+                        <Typography variant="subtitle2" fontWeight={700}>
+                          {feature.title}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          {feature.description}
+                        </Typography>
+                      </Box>
                     </Box>
-                  </Box>
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <Box display="flex" gap={1.5}>
-                    <BatteryIcon sx={{ color: colors.green }} />
-                    <Box>
-                      <Typography variant="subtitle2" fontWeight={700}>
-                        LiFePO₄ lithium
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        Safer chemistry and long cycle life for daily cycling.
-                      </Typography>
-                    </Box>
-                  </Box>
-                </Grid>
+                  </Grid>
+                ))}
               </Grid>
               <List sx={{ mt: 2 }}>
-                {HYBRID_PACKAGE_FOOTER_POINTS.map((point) => (
+                {(whySection.footer_points || []).map((point) => (
                   <ListItem key={point} disableGutters>
                     <ListItemIcon sx={{ minWidth: 32 }}>
                       <CheckIcon sx={{ color: colors.green, fontSize: 20 }} />
@@ -395,10 +391,10 @@ const HybridPackages: React.FC = () => {
                 ))}
               </List>
               <Typography variant="caption" sx={{ color: colors.gray600, display: 'block', mt: 2 }}>
-                {HYBRID_PACKAGE_BRAND.warrantyNote}
+                {whySection.warranty_note}
               </Typography>
               <Typography variant="caption" sx={{ color: colors.gray600, display: 'block', mt: 0.5 }}>
-                {HYBRID_PACKAGE_BRAND.validityNote}
+                {whySection.validity_note}
               </Typography>
             </Grid>
 
@@ -475,7 +471,7 @@ const HybridPackages: React.FC = () => {
                     '&:hover': { bgcolor: colors.greenDark },
                   }}
                 >
-                  Request a formal quotation
+                  {whySection.contact_cta_text}
                 </Button>
               </Card>
             </Grid>

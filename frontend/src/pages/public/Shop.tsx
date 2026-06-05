@@ -38,8 +38,18 @@ import { useCart } from '../../contexts/CartContext';
 import { catalogLineUnitPrice } from '../../utils/catalogPrice';
 import { trackAddToCart } from '../../utils/analytics';
 import { resolveMediaUrl } from '../../utils/mediaUrl';
+import { useCmsPage } from '../../hooks/useCmsPage';
+import { resolveCmsSeo } from '../../hooks/useCmsSeo';
+import { colors } from '../../theme/colors';
 
 const Shop: React.FC = () => {
+  const { sections } = useCmsPage('shop');
+  const seo = resolveCmsSeo(sections, {
+    title: 'Shop Solar Equipment Ghana | Panels, Inverters & Batteries',
+    description:
+      'Browse solar panels, inverters, batteries and accessories from Energy Precisions. Website pricing in GHS with delivery and support across Ghana.',
+  });
+  const shopHero = sections.hero;
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const { addToCart } = useCart();
@@ -126,21 +136,42 @@ const Shop: React.FC = () => {
 
   return (
     <Box sx={{ py: { xs: 2, md: 3 }, minHeight: '70vh', bgcolor: '#f8f9fa' }}>
-      <Seo
-        title="Shop Solar Equipment Ghana | Panels, Inverters & Batteries"
-        description="Browse solar panels, inverters, batteries and accessories from Energy Precisions. Website pricing in GHS with delivery and support across Ghana."
-        path={pathname}
-      />
+      <Seo title={seo.title} description={seo.description} path={pathname} />
       {/* Hero Header */}
       <Box
         sx={{
-          bgcolor: '#1a4d7a',
+          background: `linear-gradient(135deg, ${colors.blueBlack} 0%, ${colors.blueBlackLight} 100%)`,
           color: 'white',
           py: { xs: 4, md: 5 },
           mb: { xs: 3, md: 4 },
+          position: 'relative',
+          overflow: 'hidden',
+          '&::after': {
+            content: '""',
+            position: 'absolute',
+            top: '-30%',
+            right: '-15%',
+            width: '50%',
+            height: '120%',
+            background: `radial-gradient(ellipse at center, ${colors.green}18 0%, transparent 70%)`,
+            pointerEvents: 'none',
+          },
         }}
       >
-      <Container maxWidth="xl">
+        <Container maxWidth="xl" sx={{ position: 'relative', zIndex: 1 }}>
+          {shopHero.badge && (
+            <Chip
+              label={shopHero.badge}
+              sx={{
+                bgcolor: colors.green,
+                color: colors.blueBlack,
+                fontWeight: 700,
+                mb: 1.5,
+                height: 28,
+                fontSize: '0.72rem',
+              }}
+            />
+          )}
           <Typography
             variant="h1"
             sx={{
@@ -150,7 +181,7 @@ const Shop: React.FC = () => {
               lineHeight: 1.15,
             }}
           >
-            Premium Solar Equipment
+            {shopHero.headline}
           </Typography>
           <Typography
             variant="body1"
@@ -162,11 +193,10 @@ const Shop: React.FC = () => {
               fontSize: { xs: '0.95rem', md: '1rem' },
             }}
           >
-            Shop Ghana's finest selection of solar panels, inverters, batteries, and accessories. 
-            All products come with warranty and expert installation support.
+            {shopHero.description}
           </Typography>
         </Container>
-        </Box>
+      </Box>
 
       <Container maxWidth="xl">
         {/* Filters and Search Bar */}

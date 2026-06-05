@@ -32,6 +32,7 @@ import {
   Logout as LogoutIcon,
   MailOutline as MailOutlineIcon,
   LocalOffer as LocalOfferIcon,
+  Article as ContentIcon,
 } from '@mui/icons-material';
 import { Helmet } from 'react-helmet-async';
 import { useAuth } from '../contexts/AuthContext';
@@ -53,6 +54,7 @@ const menuItems: MenuItem[] = [
   { text: 'Products', icon: <InventoryIcon />, path: '/pms/products' },
   { text: 'Appliances', icon: <AppliancesIcon />, path: '/pms/appliances' },
   { text: 'Orders', icon: <OrdersIcon />, path: '/pms/orders' },
+  { text: 'Website content', icon: <ContentIcon />, path: '/pms/website-content', adminOnly: true },
   { text: 'Promo codes', icon: <LocalOfferIcon />, path: '/pms/promo-codes', adminOnly: true },
   { text: 'Contact leads', icon: <MailOutlineIcon />, path: '/pms/contact-leads', adminOnly: true },
   { text: 'Media Library', icon: <MediaIcon />, path: '/pms/media' },

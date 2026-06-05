@@ -1,13 +1,15 @@
-"""Public website content (blog, FAQ, whitelisted settings) + admin CRUD."""
-from typing import Dict, List
+"""Public website content (blog, FAQ, whitelisted settings, page CMS) + admin CRUD."""
+import json
+from typing import Any, Dict, List
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
+from app.cms_defaults import CMS_PAGES, merge_page_sections
 from app.database import get_db
 from app.models import User, UserRole
-from app.models_content import SiteSetting, CmsBlogPost, CmsFaqItem
+from app.models_content import SiteSetting, CmsBlogPost, CmsFaqItem, CmsPageContent
 from app.auth import require_role
 
 router = APIRouter(prefix="/api/content", tags=["content"])
@@ -89,6 +91,34 @@ async def get_public_settings(db: Session = Depends(get_db)) -> Dict[str, str]:
         .all()
     )
     return {r.key: r.value or "" for r in rows}
+
+
+def _parse_sections(raw: str | None) -> Dict[str, Any]:
+    if not raw or not raw.strip():
+        return {}
+    try:
+        data = json.loads(raw)
+        return data if isinstance(data, dict) else {}
+    except json.JSONDecodeError:
+        return {}
+
+
+def _load_page_sections(db: Session, page: str) -> Dict[str, Any]:
+    row = db.query(CmsPageContent).filter(CmsPageContent.page == page).first()
+    stored = _parse_sections(row.sections if row else None)
+    return merge_page_sections(page, stored)
+
+
+class PageContentPublic(BaseModel):
+    page: str
+    sections: Dict[str, Any]
+
+
+@router.get("/pages/{page}", response_model=PageContentPublic)
+async def get_page_content_public(page: str, db: Session = Depends(get_db)):
+    if page not in CMS_PAGES:
+        raise HTTPException(status_code=404, detail="Unknown page")
+    return {"page": page, "sections": _load_page_sections(db, page)}
 
 
 # --- Admin ---
@@ -270,3 +300,65 @@ async def admin_delete_faq(
     db.delete(row)
     db.commit()
     return {"ok": True}
+
+
+class PageContentWrite(BaseModel):
+    sections: Dict[str, Any] = Field(default_factory=dict)
+
+
+class PageContentAdminOut(BaseModel):
+    page: str
+    sections: Dict[str, Any]
+    stored_sections: Dict[str, Any]
+
+
+@router.get("/admin/pages", response_model=List[str])
+async def admin_list_pages(
+    current_user: User = Depends(require_role(WEB_OR_ADMIN)),
+):
+    return list(CMS_PAGES)
+
+
+@router.get("/admin/pages/{page}", response_model=PageContentAdminOut)
+async def admin_get_page(
+    page: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role(WEB_OR_ADMIN)),
+):
+    if page not in CMS_PAGES:
+        raise HTTPException(status_code=404, detail="Unknown page")
+    row = db.query(CmsPageContent).filter(CmsPageContent.page == page).first()
+    stored = _parse_sections(row.sections if row else None)
+    return {
+        "page": page,
+        "sections": merge_page_sections(page, stored),
+        "stored_sections": stored,
+    }
+
+
+@router.put("/admin/pages/{page}", response_model=PageContentAdminOut)
+async def admin_put_page(
+    page: str,
+    body: PageContentWrite,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role(WEB_OR_ADMIN)),
+):
+    if page not in CMS_PAGES:
+        raise HTTPException(status_code=404, detail="Unknown page")
+    if not isinstance(body.sections, dict):
+        raise HTTPException(status_code=400, detail="sections must be an object")
+    payload = json.dumps(body.sections)
+    row = db.query(CmsPageContent).filter(CmsPageContent.page == page).first()
+    if row:
+        row.sections = payload
+    else:
+        row = CmsPageContent(page=page, sections=payload)
+        db.add(row)
+    db.commit()
+    db.refresh(row)
+    stored = _parse_sections(row.sections)
+    return {
+        "page": page,
+        "sections": merge_page_sections(page, stored),
+        "stored_sections": stored,
+    }

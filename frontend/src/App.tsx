@@ -147,6 +147,7 @@ function App() {
               <Route path="products" element={<Suspense fallback={<PageLoader />}><Products /></Suspense>} />
               <Route path="appliances" element={<Suspense fallback={<PageLoader />}><AppliancesCatalog /></Suspense>} />
               <Route path="orders" element={<Suspense fallback={<PageLoader />}><Orders /></Suspense>} />
+              <Route path="website-content" element={<Suspense fallback={<PageLoader />}><WebContentAdmin /></Suspense>} />
               <Route path="media" element={<Suspense fallback={<PageLoader />}><MediaLibrary /></Suspense>} />
               <Route path="settings" element={<Suspense fallback={<PageLoader />}><Settings /></Suspense>} />
               <Route path="reports" element={<Suspense fallback={<PageLoader />}><Reports /></Suspense>} />

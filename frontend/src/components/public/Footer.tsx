@@ -25,11 +25,44 @@ import {
 import api from '../../services/api';
 import { SOCIAL_LINKS } from '../../data/socialLinks';
 import { COMPANY } from '../../data/companyContact';
+import { useCmsPage } from '../../hooks/useCmsPage';
+import type { CmsLink } from '../../types/cms';
+
+const FooterLink: React.FC<{ link: CmsLink }> = ({ link }) => {
+  const isExternal = link.path.startsWith('http') || link.path.startsWith('tel:') || link.path.startsWith('mailto:');
+  const isHash = link.path.includes('#');
+
+  if (isExternal) {
+    return (
+      <Link href={link.path} underline="none" color="inherit" sx={{ '&:hover': { color: colors.green } }}>
+        {link.label}
+      </Link>
+    );
+  }
+
+  if (isHash) {
+    return (
+      <Link href={link.path} underline="none" color="inherit" sx={{ '&:hover': { color: colors.green } }}>
+        {link.label}
+      </Link>
+    );
+  }
+
+  return (
+    <Link component={RouterLink} to={link.path} underline="none" color="inherit" sx={{ '&:hover': { color: colors.green } }}>
+      {link.label}
+    </Link>
+  );
+};
 
 const Footer: React.FC = () => {
+  const { sections } = useCmsPage('global');
+  const footer = sections.footer;
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  const copyright = (footer.copyright || '').replace('{year}', String(new Date().getFullYear()));
 
   const handleSubscribe = async () => {
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
@@ -56,20 +89,17 @@ const Footer: React.FC = () => {
         bgcolor: colors.blueBlack,
         color: 'white',
         pt: { xs: 4, md: 5 },
-        /* Extra space on small screens so content clears the fixed mobile bottom nav */
         pb: { xs: 'calc(5rem + env(safe-area-inset-bottom, 0px))', md: 2.5 },
       }}
     >
       <Container maxWidth="xl">
         <Grid container spacing={{ xs: 3, md: 3 }}>
-          {/* Company Info */}
           <Grid item xs={12} md={3}>
             <Typography variant="subtitle1" sx={{ mb: 1.25, fontWeight: 700, color: colors.green }}>
-              ENERGY PRECISIONS
+              {footer.company_name}
             </Typography>
             <Typography variant="body2" sx={{ mb: 1.5, color: 'rgba(255,255,255,0.8)', lineHeight: 1.6 }}>
-              We provide turnkey solar solutions, from design, installation, and commissioning to
-              monitoring and maintenance.
+              {footer.tagline}
             </Typography>
             <Box display="flex" gap={0.75} mt={1.5}>
               <IconButton component="a" href={SOCIAL_LINKS.facebook} target="_blank" rel="noopener noreferrer" sx={{ color: 'white' }} size="small" aria-label="Facebook">
@@ -87,109 +117,49 @@ const Footer: React.FC = () => {
             </Box>
           </Grid>
 
-          {/* Quick Links */}
           <Grid item xs={12} sm={6} md={3}>
             <Typography variant="subtitle1" sx={{ mb: 1.25, fontWeight: 700 }}>
-              Quick Links
+              {footer.quick_links_title}
             </Typography>
             <Box component="ul" sx={{ listStyle: 'none', p: 0, m: 0 }}>
-              <Box component="li" sx={{ mb: 0.5 }}>
-                <Link component={RouterLink} to="/about" underline="none" color="inherit" sx={{ '&:hover': { color: colors.green } }}>
-                  About Us
-                </Link>
-              </Box>
-              <Box component="li" sx={{ mb: 0.5 }}>
-                <Link component={RouterLink} to="/contact?action=quote" underline="none" color="inherit" sx={{ '&:hover': { color: colors.green } }}>
-                  Get a Quote
-                </Link>
-              </Box>
-              <Box component="li" sx={{ mb: 0.5 }}>
-                <Link component={RouterLink} to="/shop" underline="none" color="inherit" sx={{ '&:hover': { color: colors.green } }}>
-                  Shop
-                </Link>
-              </Box>
-              <Box component="li" sx={{ mb: 0.5 }}>
-                <Link component={RouterLink} to="/financing" underline="none" color="inherit" sx={{ '&:hover': { color: colors.green } }}>
-                  Financing
-                </Link>
-              </Box>
-              <Box component="li" sx={{ mb: 0.5 }}>
-                <Link component={RouterLink} to="/solar-estimate" underline="none" color="inherit" sx={{ '&:hover': { color: colors.green } }}>
-                  Solar estimate
-                </Link>
-              </Box>
-              <Box component="li" sx={{ mb: 0.5 }}>
-                <Link component={RouterLink} to="/load-calculator" underline="none" color="inherit" sx={{ '&:hover': { color: colors.green } }}>
-                  Load calculator
-                </Link>
-              </Box>
-              <Box component="li" sx={{ mb: 0.5 }}>
-                <Link component={RouterLink} to="/referral" underline="none" color="inherit" sx={{ '&:hover': { color: colors.green } }}>
-                  Referral program
-                </Link>
-              </Box>
-              <Box component="li" sx={{ mb: 0.5 }}>
-                <Link component={RouterLink} to="/blog" underline="none" color="inherit" sx={{ '&:hover': { color: colors.green } }}>
-                  Blog
-                </Link>
-              </Box>
-              <Box component="li" sx={{ mb: 0.5 }}>
-                <Link component={RouterLink} to="/services" underline="none" color="inherit" sx={{ '&:hover': { color: colors.green } }}>
-                  Our Services
-                </Link>
-              </Box>
+              {(footer.quick_links || []).map((link) => (
+                <Box component="li" key={`${link.path}-${link.label}`} sx={{ mb: 0.5 }}>
+                  <FooterLink link={link} />
+                </Box>
+              ))}
             </Box>
           </Grid>
 
-          {/* Other Links */}
           <Grid item xs={12} sm={6} md={3}>
             <Typography variant="subtitle1" sx={{ mb: 1.25, fontWeight: 700 }}>
-              Other Links
+              {footer.other_links_title}
             </Typography>
             <Box component="ul" sx={{ listStyle: 'none', p: 0, m: 0 }}>
-              <Box component="li" sx={{ mb: 0.5 }}>
-                <Link component={RouterLink} to="/contact" underline="none" color="inherit" sx={{ '&:hover': { color: colors.green } }}>
-                  Contact Us
-                </Link>
-              </Box>
-              <Box component="li" sx={{ mb: 0.5 }}>
-                <Link component={RouterLink} to="/portfolio" underline="none" color="inherit" sx={{ '&:hover': { color: colors.green } }}>
-                  Our Portfolio
-                </Link>
-              </Box>
-              <Box component="li" sx={{ mb: 0.5 }}>
-                <Link component={RouterLink} to="/#testimonials" underline="none" color="inherit" sx={{ '&:hover': { color: colors.green } }}>
-                  Client Reviews
-                </Link>
-              </Box>
+              {(footer.other_links || []).map((link) => (
+                <Box component="li" key={`${link.path}-${link.label}`} sx={{ mb: 0.5 }}>
+                  <FooterLink link={link} />
+                </Box>
+              ))}
             </Box>
           </Grid>
 
-          {/* Services & Newsletter */}
           <Grid item xs={12} md={3}>
             <Typography variant="subtitle1" sx={{ mb: 1.25, fontWeight: 700 }}>
-              Service List
+              {footer.service_list_title}
             </Typography>
             <Box component="ul" sx={{ listStyle: 'none', p: 0, m: 0, mb: 2 }}>
-              <Box component="li" sx={{ mb: 0.5, fontSize: '0.875rem' }}>
-                Residential Solar Installation
-              </Box>
-              <Box component="li" sx={{ mb: 0.5, fontSize: '0.875rem' }}>
-                Commercial Solar Installation
-              </Box>
-              <Box component="li" sx={{ mb: 0.5, fontSize: '0.875rem' }}>
-                Energy Storage Solutions
-              </Box>
-              <Box component="li" sx={{ mb: 0.5, fontSize: '0.875rem' }}>
-                System Maintenance and Monitoring
-              </Box>
+              {(footer.service_list || []).map((item) => (
+                <Box component="li" key={item} sx={{ mb: 0.5, fontSize: '0.875rem' }}>
+                  {item}
+                </Box>
+              ))}
             </Box>
 
             <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700, letterSpacing: 0.02 }}>
-              SUBSCRIBE TO NEWSLETTER
+              {footer.newsletter_title}
             </Typography>
             <Typography variant="body2" sx={{ mb: 1.5, color: 'rgba(255,255,255,0.8)', lineHeight: 1.55 }}>
-              Get exclusive news & offers through our Energy Precision newsletter
+              {footer.newsletter_text}
             </Typography>
             <Box display="flex" flexDirection="column" gap={1}>
               <Box display="flex" gap={1}>
@@ -222,7 +192,7 @@ const Footer: React.FC = () => {
                     minWidth: 88,
                   }}
                 >
-                  {loading ? <CircularProgress size={24} color="inherit" /> : 'Subscribe'}
+                  {loading ? <CircularProgress size={24} color="inherit" /> : footer.subscribe_button}
                 </Button>
               </Box>
               {message && (
@@ -234,7 +204,6 @@ const Footer: React.FC = () => {
           </Grid>
         </Grid>
 
-        {/* Contact Info */}
         <Box
           sx={{
             borderTop: '1px solid rgba(255,255,255,0.2)',
@@ -274,10 +243,9 @@ const Footer: React.FC = () => {
           </Box>
         </Box>
 
-        {/* Copyright */}
         <Box sx={{ textAlign: 'center', mt: 2, pt: 2, borderTop: '1px solid rgba(255,255,255,0.2)' }}>
-            <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>
-            © Copyright {new Date().getFullYear()} Energy Precisions. All rights reserved.
+          <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>
+            {copyright}
           </Typography>
         </Box>
       </Container>
@@ -286,6 +254,3 @@ const Footer: React.FC = () => {
 };
 
 export default Footer;
-
-
-
