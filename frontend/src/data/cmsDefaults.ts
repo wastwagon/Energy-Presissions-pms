@@ -50,6 +50,48 @@ const DEFAULTS: PageDefaultsMap = {
       link1_url: '/solar-estimate',
       link2_text: 'Appliance load calculator',
       link2_url: '/load-calculator',
+      slider: { autoplay_seconds: 7 },
+      slides: [
+        {
+          badge: "Ghana's Premier Solar Energy Brand",
+          headline: "Powering Ghana's Future with",
+          headline_highlight: 'Clean Energy',
+          description:
+            'Turnkey solar from engineering and premium equipment to installation and ongoing maintenance — for homes, businesses, industry, and agricultural & productive-use projects across Ghana. Built for a market growing 20%+ year on year, with the service depth local installers rarely match.',
+          hero_image: '/portfolio/ep-install-01.jpg',
+          image_overlay: 'Turnkey · Grid & generator ready',
+          primary_cta_text: 'Get Free Quote',
+          primary_cta_link: '/contact?action=quote',
+          secondary_cta_text: 'Browse Products',
+          secondary_cta_link: '/shop',
+        },
+        {
+          badge: 'LiFePO₄ HYBRID BACKUP',
+          headline: 'Backup that works when the grid',
+          headline_highlight: "doesn't",
+          description:
+            'Hybrid solar with lithium storage — grid and generator ready. Six turnkey package tiers from essential homes to commercial blocks, engineered and installed by our Accra team.',
+          hero_image: '/portfolio/ep-install-02.jpg',
+          image_overlay: 'Hybrid · Lithium · Monitoring',
+          primary_cta_text: 'View hybrid packages',
+          primary_cta_link: '/solar-packages',
+          secondary_cta_text: 'Book site survey',
+          secondary_cta_link: '/contact?action=quote&topic=package',
+        },
+        {
+          badge: 'COMMERCIAL & INDUSTRIAL',
+          headline: 'Solar engineered for',
+          headline_highlight: 'Ghanaian business',
+          description:
+            'From office blocks and factories to farms and productive-use sites — load-led sizing, premium equipment, and maintenance plans that keep generation on track year after year.',
+          hero_image: '/portfolio/ep-install-05.jpg',
+          image_overlay: 'Engineering-led · Nationwide',
+          primary_cta_text: 'Request a consultation',
+          primary_cta_link: '/contact?action=quote',
+          secondary_cta_text: 'See our services',
+          secondary_cta_link: '/services',
+        },
+      ],
     },
     trust_bar: {
       items: [

@@ -3,6 +3,23 @@ export interface CmsStat {
   label: string;
 }
 
+export interface CmsHeroSlide {
+  badge: string;
+  headline: string;
+  headline_highlight: string;
+  description: string;
+  hero_image: string;
+  image_overlay: string;
+  primary_cta_text: string;
+  primary_cta_link: string;
+  secondary_cta_text: string;
+  secondary_cta_link: string;
+}
+
+export interface CmsHeroSliderSettings {
+  autoplay_seconds: number;
+}
+
 export interface CmsHero {
   badge: string;
   headline: string;
@@ -20,6 +37,8 @@ export interface CmsHero {
   link1_url: string;
   link2_text: string;
   link2_url: string;
+  slides?: CmsHeroSlide[];
+  slider?: CmsHeroSliderSettings;
 }
 
 export interface CmsSectionHeader {

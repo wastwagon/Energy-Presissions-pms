@@ -17,7 +17,8 @@ import {
 import { Save as SaveIcon } from '@mui/icons-material';
 import api from '../../services/api';
 import { CMS_PAGE_LABELS, getCmsDefaults } from '../../data/cmsDefaults';
-import type { CmsHero, CmsLink, CmsPageSlug, CmsServiceCard, CmsSeo } from '../../types/cms';
+import type { CmsHero, CmsHeroSlide, CmsLink, CmsPageSlug, CmsServiceCard, CmsSeo } from '../../types/cms';
+import { resolveHeroSlides } from '../../utils/heroSlides';
 import CmsImageField from './CmsImageField';
 
 const PAGES: CmsPageSlug[] = ['home', 'about', 'services', 'shop', 'contact', 'global', 'packages', 'financing'];
@@ -83,6 +84,32 @@ const CmsPageEditor: React.FC = () => {
       const pillars = [...(hero.pillars || [])];
       pillars[index] = value;
       return { ...s, hero: { ...hero, pillars } };
+    });
+  };
+
+  const setHeroSlide = (
+    index: number,
+    field: keyof CmsHeroSlide,
+    value: string,
+  ) => {
+    setSections((s) => {
+      const hero = { ...(s.hero as CmsHero) };
+      const slides = [...resolveHeroSlides(hero)];
+      slides[index] = { ...slides[index], [field]: value };
+      return { ...s, hero: { ...hero, slides } };
+    });
+  };
+
+  const setHeroSlider = (field: 'autoplay_seconds', value: number) => {
+    setSections((s) => {
+      const hero = { ...(s.hero as CmsHero) };
+      return {
+        ...s,
+        hero: {
+          ...hero,
+          slider: { ...(hero.slider || { autoplay_seconds: 7 }), [field]: value },
+        },
+      };
     });
   };
 
@@ -345,6 +372,7 @@ const CmsPageEditor: React.FC = () => {
   };
 
   const hero = (sections.hero || {}) as CmsHero;
+  const homeHeroSlides = resolveHeroSlides(hero);
   const whyChoose = (sections.why_choose || {}) as { badge: string; title: string; subtitle: string; features: { title: string; description: string }[] };
   const trustBar = (sections.trust_bar || { items: [] }) as { items: { text: string }[] };
   const testimonials = (sections.testimonials || { items: [] }) as {
@@ -498,6 +526,44 @@ const CmsPageEditor: React.FC = () => {
                 <TextField size="small" label="Secondary link" value={simpleHero.secondary_cta_link || ''} onChange={(e) => setSimpleHeroField('secondary_cta_link', e.target.value)} sx={{ flex: 1 }} />
               </Stack>
             </>
+          ) : page === 'home' ? (
+            <>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                Home uses a hero slider. Edit each slide below; stats, feature chips, and tool links stay visible on every slide.
+              </Typography>
+              <TextField
+                size="small"
+                type="number"
+                label="Autoplay seconds (0 = off)"
+                value={hero.slider?.autoplay_seconds ?? 7}
+                onChange={(e) => setHeroSlider('autoplay_seconds', Number(e.target.value) || 0)}
+                inputProps={{ min: 0, max: 60 }}
+                sx={{ maxWidth: 220, mb: 2 }}
+              />
+              <Divider sx={{ mb: 2 }} />
+              <Typography variant="body2" sx={{ fontWeight: 700 }}>Stats (shared)</Typography>
+              {(hero.stats || []).map((stat, i) => (
+                <Stack key={i} direction="row" spacing={1} sx={{ mb: 1 }}>
+                  <TextField size="small" label="Value" value={stat.value} onChange={(e) => setHeroStat(i, 'value', e.target.value)} sx={{ flex: 1 }} />
+                  <TextField size="small" label="Label" value={stat.label} onChange={(e) => setHeroStat(i, 'label', e.target.value)} sx={{ flex: 2 }} />
+                </Stack>
+              ))}
+              <Divider sx={{ my: 2 }} />
+              <Typography variant="body2" sx={{ fontWeight: 700 }}>Feature chips (shared)</Typography>
+              {(hero.pillars || []).map((pillar, i) => (
+                <TextField key={i} size="small" label={`Chip ${i + 1}`} value={pillar} onChange={(e) => setHeroPillar(i, e.target.value)} sx={{ mb: 1 }} />
+              ))}
+              <Divider sx={{ my: 2 }} />
+              <Typography variant="body2" sx={{ fontWeight: 700 }}>Footer tool links (shared)</Typography>
+              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} sx={{ mb: 1 }}>
+                <TextField size="small" label="Link 1 text" value={hero.link1_text || ''} onChange={(e) => setHeroField('link1_text', e.target.value)} sx={{ flex: 1 }} />
+                <TextField size="small" label="Link 1 URL" value={hero.link1_url || ''} onChange={(e) => setHeroField('link1_url', e.target.value)} sx={{ flex: 1 }} />
+              </Stack>
+              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1}>
+                <TextField size="small" label="Link 2 text" value={hero.link2_text || ''} onChange={(e) => setHeroField('link2_text', e.target.value)} sx={{ flex: 1 }} />
+                <TextField size="small" label="Link 2 URL" value={hero.link2_url || ''} onChange={(e) => setHeroField('link2_url', e.target.value)} sx={{ flex: 1 }} />
+              </Stack>
+            </>
           ) : (
             <>
               <TextField size="small" label="Badge" value={hero.badge || ''} onChange={(e) => setHeroField('badge', e.target.value)} />
@@ -524,27 +590,39 @@ const CmsPageEditor: React.FC = () => {
                 <TextField size="small" label="Secondary button text" value={hero.secondary_cta_text || ''} onChange={(e) => setHeroField('secondary_cta_text', e.target.value)} sx={{ flex: 1 }} />
                 <TextField size="small" label="Secondary link" value={hero.secondary_cta_link || ''} onChange={(e) => setHeroField('secondary_cta_link', e.target.value)} sx={{ flex: 1 }} />
               </Stack>
-              {page === 'home' && (
-                <>
-                  <Typography variant="body2" sx={{ fontWeight: 700 }}>Footer tool links</Typography>
-                  <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1}>
-                    <TextField size="small" label="Link 1 text" value={hero.link1_text || ''} onChange={(e) => setHeroField('link1_text', e.target.value)} sx={{ flex: 1 }} />
-                    <TextField size="small" label="Link 1 URL" value={hero.link1_url || ''} onChange={(e) => setHeroField('link1_url', e.target.value)} sx={{ flex: 1 }} />
-                  </Stack>
-                  <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1}>
-                    <TextField size="small" label="Link 2 text" value={hero.link2_text || ''} onChange={(e) => setHeroField('link2_text', e.target.value)} sx={{ flex: 1 }} />
-                    <TextField size="small" label="Link 2 URL" value={hero.link2_url || ''} onChange={(e) => setHeroField('link2_url', e.target.value)} sx={{ flex: 1 }} />
-                  </Stack>
-                  <Typography variant="body2" sx={{ fontWeight: 700 }}>Feature chips</Typography>
-                  {(hero.pillars || []).map((pillar, i) => (
-                    <TextField key={i} size="small" label={`Chip ${i + 1}`} value={pillar} onChange={(e) => setHeroPillar(i, e.target.value)} />
-                  ))}
-                </>
-              )}
             </>
           )}
         </Box>
       </Paper>
+      )}
+
+      {page === 'home' && (
+        <Paper variant="outlined" sx={{ p: 2.5, mb: 2 }}>
+          <Typography variant="subtitle1" sx={{ fontWeight: 800, mb: 2 }}>
+            Hero slides
+          </Typography>
+          {homeHeroSlides.map((slide, i) => (
+            <Box key={i} sx={{ mb: 2.5, p: 1.5, bgcolor: 'grey.50', borderRadius: 1 }}>
+              <Typography variant="caption" sx={{ fontWeight: 700 }}>Slide {i + 1}</Typography>
+              <TextField size="small" fullWidth sx={{ mt: 1, mb: 1 }} label="Badge" value={slide.badge} onChange={(e) => setHeroSlide(i, 'badge', e.target.value)} />
+              <TextField size="small" fullWidth sx={{ mb: 1 }} label="Headline" value={slide.headline} onChange={(e) => setHeroSlide(i, 'headline', e.target.value)} />
+              <TextField size="small" fullWidth sx={{ mb: 1 }} label="Headline highlight (green text)" value={slide.headline_highlight} onChange={(e) => setHeroSlide(i, 'headline_highlight', e.target.value)} />
+              <TextField size="small" fullWidth sx={{ mb: 1 }} label="Description" value={slide.description} onChange={(e) => setHeroSlide(i, 'description', e.target.value)} multiline minRows={3} />
+              <Box sx={{ mb: 1 }}>
+                <CmsImageField label="Slide image" value={slide.hero_image} onChange={(v) => setHeroSlide(i, 'hero_image', v)} />
+              </Box>
+              <TextField size="small" fullWidth sx={{ mb: 1 }} label="Image overlay chip" value={slide.image_overlay} onChange={(e) => setHeroSlide(i, 'image_overlay', e.target.value)} />
+              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} sx={{ mb: 1 }}>
+                <TextField size="small" label="Primary button" value={slide.primary_cta_text} onChange={(e) => setHeroSlide(i, 'primary_cta_text', e.target.value)} sx={{ flex: 1 }} />
+                <TextField size="small" label="Primary link" value={slide.primary_cta_link} onChange={(e) => setHeroSlide(i, 'primary_cta_link', e.target.value)} sx={{ flex: 1 }} />
+              </Stack>
+              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1}>
+                <TextField size="small" label="Secondary button" value={slide.secondary_cta_text} onChange={(e) => setHeroSlide(i, 'secondary_cta_text', e.target.value)} sx={{ flex: 1 }} />
+                <TextField size="small" label="Secondary link" value={slide.secondary_cta_link} onChange={(e) => setHeroSlide(i, 'secondary_cta_link', e.target.value)} sx={{ flex: 1 }} />
+              </Stack>
+            </Box>
+          ))}
+        </Paper>
       )}
 
       {page === 'global' && (
