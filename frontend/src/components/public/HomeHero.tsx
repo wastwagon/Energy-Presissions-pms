@@ -4,7 +4,6 @@ import {
   Container,
   Typography,
   Button,
-  Grid,
   Chip,
   Stack,
   Fade,
@@ -17,6 +16,7 @@ import { useCmsPage } from '../../hooks/useCmsPage';
 import api from '../../services/api';
 import { heroAutoplayMs, resolveHeroSlides } from '../../utils/heroSlides';
 import type { CmsHeroSlide } from '../../types/cms';
+import { resolveMediaUrl } from '../../utils/mediaUrl';
 
 function useSlideImage(slide: CmsHeroSlide, slideIndex: number) {
   const fallback = slide.hero_image || homePageImages.hero;
@@ -48,49 +48,72 @@ function useSlideImage(slide: CmsHeroSlide, slideIndex: number) {
     };
   }, [slide.hero_image, slideIndex]);
 
-  return src;
+  return resolveMediaUrl(src);
 }
 
-const SlideImage: React.FC<{ slide: CmsHeroSlide; slideIndex: number; active: boolean }> = ({
-  slide,
-  slideIndex,
-  active,
-}) => {
+const SlideBackground: React.FC<{
+  slide: CmsHeroSlide;
+  slideIndex: number;
+  active: boolean;
+}> = ({ slide, slideIndex, active }) => {
   const src = useSlideImage(slide, slideIndex);
 
   return (
-    <Fade in={active} timeout={450}>
+    <Box
+      aria-hidden={!active}
+      sx={{
+        position: 'absolute',
+        inset: 0,
+        opacity: active ? 1 : 0,
+        transition: 'opacity 0.9s ease-in-out',
+        pointerEvents: 'none',
+      }}
+    >
       <Box
         component="img"
         src={src}
-        alt={slide.headline || 'Energy Precisions — solar installation in Ghana'}
+        alt=""
         loading={slideIndex === 0 ? 'eager' : 'lazy'}
         fetchPriority={slideIndex === 0 ? 'high' : 'auto'}
         sx={{
-          position: active ? 'relative' : 'absolute',
-          inset: active ? undefined : 0,
-          visibility: active ? 'visible' : 'hidden',
+          position: 'absolute',
+          inset: 0,
           width: '100%',
           height: '100%',
-          minHeight: { xs: 240, md: 360 },
-          maxHeight: { xs: 280, md: 420 },
           objectFit: 'cover',
           objectPosition: 'center center',
-          display: 'block',
-          borderRadius: 3,
+          transform: active ? 'scale(1.06)' : 'scale(1)',
+          transition: active ? 'transform 8s ease-out' : 'transform 0.4s ease-out',
         }}
         onError={(e) => {
           const target = e.target as HTMLImageElement;
           if (!target.src.includes('/portfolio/')) {
-            target.src = '/portfolio/ep-install-01.jpg';
-          } else if (!target.src.includes('/website_images/')) {
-            target.src = '/website_images/remove-bg3.png';
-          } else {
-            target.style.display = 'none';
+            target.src = resolveMediaUrl('/portfolio/ep-install-01.jpg');
           }
         }}
       />
-    </Fade>
+      <Box
+        sx={{
+          position: 'absolute',
+          inset: 0,
+          background: `
+            linear-gradient(105deg,
+              rgba(10, 14, 23, 0.92) 0%,
+              rgba(10, 14, 23, 0.78) 38%,
+              rgba(10, 14, 23, 0.45) 62%,
+              rgba(10, 14, 23, 0.25) 100%
+            )
+          `,
+        }}
+      />
+      <Box
+        sx={{
+          position: 'absolute',
+          inset: 0,
+          background: 'linear-gradient(to top, rgba(10,14,23,0.85) 0%, transparent 45%)',
+        }}
+      />
+    </Box>
   );
 };
 
@@ -104,6 +127,7 @@ const HomeHero: React.FC = () => {
   const touchStartX = useRef<number | null>(null);
 
   const slideCount = slides.length;
+  const activeSlide = slides[activeIndex] ?? slides[0];
   const showControls = slideCount > 1;
 
   const goTo = useCallback(
@@ -153,160 +177,197 @@ const HomeHero: React.FC = () => {
         position: 'relative',
         overflow: 'hidden',
         color: 'white',
-        py: { xs: 4, md: 5 },
-        background: `linear-gradient(135deg, ${colors.blueBlack} 0%, #0c1524 55%, ${colors.blueBlackLight} 100%)`,
+        minHeight: { xs: '72vh', sm: '68vh', md: 620 },
+        maxHeight: { md: 760 },
+        bgcolor: colors.blueBlack,
       }}
     >
-      <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 1 }}>
-        <Grid container spacing={{ xs: 3, md: 4 }} alignItems="center">
-          <Grid item xs={12} md={6}>
-            <Box aria-live="polite" sx={{ minHeight: { xs: 200, md: 240 } }}>
-              {slides.map((slide, index) => (
-                <Fade in={index === activeIndex} timeout={450} key={`slide-copy-${index}`}>
-                  <Box sx={{ display: index === activeIndex ? 'block' : 'none' }}>
-                    {slide.badge && (
-                      <Chip
-                        label={slide.badge}
-                        size="small"
-                        sx={{
-                          bgcolor: colors.green,
-                          color: colors.blueBlack,
-                          fontWeight: 700,
-                          mb: 1.5,
-                          height: 28,
-                          fontSize: '0.7rem',
-                        }}
-                      />
-                    )}
+      {slides.map((slide, index) => (
+        <SlideBackground
+          key={`bg-${index}`}
+          slide={slide}
+          slideIndex={index}
+          active={index === activeIndex}
+        />
+      ))}
 
-                    <Typography
-                      variant="h1"
-                      sx={{
-                        fontSize: { xs: '1.75rem', sm: '2rem', md: '2.35rem' },
-                        fontWeight: 800,
-                        mb: 1.5,
-                        lineHeight: 1.15,
-                        letterSpacing: '-0.02em',
-                      }}
-                    >
-                      {slide.headline}{' '}
-                      {slide.headline_highlight && (
-                        <Box component="span" sx={{ color: colors.green }}>
-                          {slide.headline_highlight}
-                        </Box>
-                      )}
-                    </Typography>
-
-                    {slide.description && (
-                      <Typography
-                        component="p"
-                        sx={{
-                          mb: 2.5,
-                          color: 'rgba(255,255,255,0.82)',
-                          lineHeight: 1.6,
-                          fontSize: { xs: '0.95rem', md: '1rem' },
-                          maxWidth: 480,
-                          display: '-webkit-box',
-                          WebkitLineClamp: 3,
-                          WebkitBoxOrient: 'vertical',
-                          overflow: 'hidden',
-                        }}
-                      >
-                        {slide.description}
-                      </Typography>
-                    )}
-
-                    {slide.primary_cta_text && (
-                      <Button
-                        variant="contained"
-                        size="medium"
-                        component={Link}
-                        to={slide.primary_cta_link || '/contact?action=quote'}
-                        endIcon={<ArrowForwardIcon />}
-                        sx={{
-                          bgcolor: colors.green,
-                          color: colors.blueBlack,
-                          px: 2.75,
-                          py: 1.25,
-                          fontWeight: 700,
-                          textTransform: 'none',
-                          borderRadius: 2,
-                          boxShadow: 'none',
-                          '&:hover': { bgcolor: colors.greenDark, boxShadow: 'none' },
-                        }}
-                      >
-                        {slide.primary_cta_text}
-                      </Button>
-                    )}
-
-                    {slide.secondary_cta_text && slide.secondary_cta_link && (
-                      <Typography
-                        component={Link}
-                        to={slide.secondary_cta_link}
-                        variant="body2"
-                        sx={{
-                          display: 'block',
-                          mt: 1.5,
-                          color: 'rgba(255,255,255,0.75)',
-                          textDecoration: 'none',
-                          '&:hover': { color: colors.green },
-                        }}
-                      >
-                        {slide.secondary_cta_text} →
-                      </Typography>
-                    )}
-                  </Box>
-                </Fade>
-              ))}
-            </Box>
-          </Grid>
-
-          <Grid item xs={12} md={6}>
-            <Box
-              sx={{
-                position: 'relative',
-                borderRadius: 3,
-                overflow: 'hidden',
-                bgcolor: colors.blueBlack,
-                minHeight: { xs: 240, md: 360 },
-                maxHeight: { xs: 280, md: 420 },
-              }}
-            >
-              {slides.map((slide, index) => (
-                <SlideImage
-                  key={`slide-image-${index}`}
-                  slide={slide}
-                  slideIndex={index}
-                  active={index === activeIndex}
+      <Container
+        maxWidth="lg"
+        sx={{
+          position: 'relative',
+          zIndex: 2,
+          minHeight: { xs: '72vh', sm: '68vh', md: 620 },
+          maxHeight: { md: 760 },
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          py: { xs: 6, md: 8 },
+          px: { xs: 2.5, sm: 3 },
+        }}
+      >
+        <Box aria-live="polite" sx={{ maxWidth: 620 }}>
+          <Fade in key={`content-${activeIndex}`} timeout={600}>
+            <Box>
+              {activeSlide?.badge && (
+                <Chip
+                  label={activeSlide.badge}
+                  size="small"
+                  sx={{
+                    bgcolor: 'rgba(0, 230, 118, 0.15)',
+                    color: colors.green,
+                    border: `1px solid rgba(0, 230, 118, 0.45)`,
+                    fontWeight: 700,
+                    mb: 2,
+                    height: 30,
+                    fontSize: '0.68rem',
+                    letterSpacing: '0.12em',
+                    backdropFilter: 'blur(8px)',
+                  }}
                 />
-              ))}
+              )}
+
+              <Typography
+                variant="h1"
+                sx={{
+                  fontSize: { xs: '2rem', sm: '2.5rem', md: '3.25rem', lg: '3.5rem' },
+                  fontWeight: 800,
+                  mb: 2,
+                  lineHeight: 1.08,
+                  letterSpacing: '-0.03em',
+                  textShadow: '0 2px 24px rgba(0,0,0,0.35)',
+                }}
+              >
+                {activeSlide?.headline}{' '}
+                {activeSlide?.headline_highlight && (
+                  <Box
+                    component="span"
+                    sx={{
+                      color: colors.green,
+                      display: 'inline',
+                    }}
+                  >
+                    {activeSlide.headline_highlight}
+                  </Box>
+                )}
+              </Typography>
+
+              {activeSlide?.description && (
+                <Typography
+                  component="p"
+                  sx={{
+                    mb: 3,
+                    color: 'rgba(255,255,255,0.88)',
+                    lineHeight: 1.65,
+                    fontSize: { xs: '1rem', md: '1.125rem' },
+                    maxWidth: 520,
+                    textShadow: '0 1px 12px rgba(0,0,0,0.4)',
+                  }}
+                >
+                  {activeSlide.description}
+                </Typography>
+              )}
+
+              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} alignItems={{ xs: 'stretch', sm: 'center' }}>
+                {activeSlide?.primary_cta_text && (
+                  <Button
+                    variant="contained"
+                    size="large"
+                    component={Link}
+                    to={activeSlide.primary_cta_link || '/contact?action=quote'}
+                    endIcon={<ArrowForwardIcon />}
+                    sx={{
+                      bgcolor: colors.green,
+                      color: colors.blueBlack,
+                      px: 3.5,
+                      py: 1.35,
+                      fontWeight: 700,
+                      fontSize: '0.95rem',
+                      textTransform: 'none',
+                      borderRadius: 2,
+                      boxShadow: `0 8px 32px rgba(0, 230, 118, 0.35)`,
+                      '&:hover': {
+                        bgcolor: colors.greenDark,
+                        boxShadow: `0 12px 40px rgba(0, 230, 118, 0.45)`,
+                      },
+                    }}
+                  >
+                    {activeSlide.primary_cta_text}
+                  </Button>
+                )}
+                {activeSlide?.secondary_cta_text && activeSlide.secondary_cta_link && (
+                  <Button
+                    variant="outlined"
+                    size="large"
+                    component={Link}
+                    to={activeSlide.secondary_cta_link}
+                    sx={{
+                      borderColor: 'rgba(255,255,255,0.45)',
+                      color: 'white',
+                      px: 3,
+                      py: 1.35,
+                      fontWeight: 600,
+                      fontSize: '0.95rem',
+                      textTransform: 'none',
+                      borderRadius: 2,
+                      backdropFilter: 'blur(6px)',
+                      bgcolor: 'rgba(255,255,255,0.04)',
+                      '&:hover': {
+                        borderColor: colors.green,
+                        bgcolor: 'rgba(0, 230, 118, 0.08)',
+                      },
+                    }}
+                  >
+                    {activeSlide.secondary_cta_text}
+                  </Button>
+                )}
+              </Stack>
             </Box>
-          </Grid>
-        </Grid>
+          </Fade>
+        </Box>
 
         {showControls && (
-          <Stack direction="row" spacing={0.75} justifyContent="center" sx={{ mt: 2.5 }} role="tablist" aria-label="Hero slides">
-            {slides.map((slide, index) => (
-              <Box
-                key={`dot-${index}`}
-                component="button"
-                type="button"
-                role="tab"
-                aria-selected={index === activeIndex}
-                aria-label={`Slide ${index + 1}: ${slide.badge || slide.headline}`}
-                onClick={() => goTo(index)}
-                sx={{
-                  width: index === activeIndex ? 22 : 8,
-                  height: 8,
-                  borderRadius: 999,
-                  border: 'none',
-                  p: 0,
-                  cursor: 'pointer',
-                  bgcolor: index === activeIndex ? colors.green : 'rgba(255,255,255,0.3)',
-                  transition: 'width 0.2s ease, background-color 0.2s ease',
-                }}
-              />
-            ))}
+          <Stack
+            direction="row"
+            spacing={2}
+            alignItems="center"
+            sx={{ mt: { xs: 4, md: 5 } }}
+            role="tablist"
+            aria-label="Hero slides"
+          >
+            <Typography
+              variant="caption"
+              sx={{
+                color: 'rgba(255,255,255,0.5)',
+                fontWeight: 600,
+                letterSpacing: '0.08em',
+                minWidth: 48,
+              }}
+            >
+              {String(activeIndex + 1).padStart(2, '0')} / {String(slideCount).padStart(2, '0')}
+            </Typography>
+            <Stack direction="row" spacing={0.75}>
+              {slides.map((slide, index) => (
+                <Box
+                  key={`dot-${index}`}
+                  component="button"
+                  type="button"
+                  role="tab"
+                  aria-selected={index === activeIndex}
+                  aria-label={`Slide ${index + 1}: ${slide.badge || slide.headline}`}
+                  onClick={() => goTo(index)}
+                  sx={{
+                    width: index === activeIndex ? 32 : 8,
+                    height: 3,
+                    borderRadius: 999,
+                    border: 'none',
+                    p: 0,
+                    cursor: 'pointer',
+                    bgcolor: index === activeIndex ? colors.green : 'rgba(255,255,255,0.35)',
+                    transition: 'width 0.25s ease, background-color 0.25s ease',
+                  }}
+                />
+              ))}
+            </Stack>
           </Stack>
         )}
       </Container>
