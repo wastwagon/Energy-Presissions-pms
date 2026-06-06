@@ -93,19 +93,32 @@ const DEFAULTS: PageDefaultsMap = {
         },
       ],
     },
-    trust_bar: {
-      items: [
-        { text: 'Certified Installers' },
-        { text: '10-Year Warranty' },
-        { text: 'Free Delivery in Ghana' },
-        { text: 'Maintenance & After-Sales' },
+    credibility: {
+      eyebrow: 'Why Energy Precisions',
+      headline: 'Engineered solar for Ghana — one partner from survey to support',
+      proofs: [
+        {
+          title: 'Engineering-first sizing',
+          description:
+            'Load profiles and bill-of-materials before we quote — capacity matched to how you use power.',
+        },
+        {
+          title: 'Tier-one equipment',
+          description:
+            "Panels, inverters and lithium storage specified for Ghana's climate — not generic kit lists.",
+        },
+        {
+          title: 'Full lifecycle support',
+          description:
+            'Commissioning, registration guidance, monitoring and maintenance from the same Accra-based team.',
+        },
       ],
     },
     why_choose: {
-      badge: 'WHY CHOOSE ENERGY PRECISIONS',
-      title: "Ghana's Most Trusted Solar Partner",
+      badge: 'WHY ENERGY PRECISIONS',
+      title: 'One accountable partner',
       subtitle:
-        'Deep Accra roots, Ghana-wide ambition: we combine local market knowledge with turnkey delivery — so you get one accountable partner from design through maintenance, not a one-off installation.',
+        'Accra-based, Ghana-wide — turnkey delivery from design through maintenance, not a one-off install.',
       features: [
         {
           title: 'Premium Quality Equipment',
@@ -140,10 +153,10 @@ const DEFAULTS: PageDefaultsMap = {
       ],
     },
     services_section: {
-      badge: 'OUR SERVICES',
-      title: 'Complete Solar Solutions for Ghana',
+      badge: 'Solutions',
+      title: 'Solar for every site in Ghana',
       subtitle:
-        'Residential, commercial, industrial — plus agricultural and productive-use solar. One partner for equipment, engineering, installation, and long-term performance.',
+        'Residential, commercial, industrial and agricultural — engineered, installed and supported by one team.',
     },
     service_cards: {
       view_all_text: 'View All Services',
@@ -152,64 +165,64 @@ const DEFAULTS: PageDefaultsMap = {
         {
           title: 'Residential Solar',
           description:
-            'Complete home solar systems with battery backup. Reduce your electricity bills by up to 90% with our premium residential solutions.',
-          features: ['Grid-tied & Off-grid Systems', 'Battery Storage Options', 'Smart Monitoring', 'Maintenance Support'],
-          image: 'https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=800&q=80',
+            'Home systems with optional battery backup — cut ECG bills and keep essentials running when the grid drops.',
+          features: ['Grid-tied & off-grid', 'Battery storage', 'Smart monitoring', 'Maintenance'],
+          image: '/portfolio/ep-install-01.jpg',
           link: '/services/residential',
-          button_text: 'Learn More',
+          button_text: 'Learn more',
         },
         {
           title: 'Commercial Solar',
           description:
-            'Large-scale solar installations for businesses, offices, and commercial buildings. Maximize ROI with our commercial solar solutions.',
-          features: ['Custom System Design', 'ROI Analysis', 'Minimal Business Disruption', 'Long-term Savings'],
-          image: '/website_images/services-commercial-solar.png',
+            'Office and retail arrays sized to your load — lower operating costs with minimal business disruption.',
+          features: ['Custom design', 'ROI analysis', 'Phased install', 'Long-term savings'],
+          image: '/portfolio/ep-install-02.jpg',
           link: '/services/commercial',
-          button_text: 'Learn More',
+          button_text: 'Learn more',
         },
         {
           title: 'Industrial Solar',
           description:
-            'Heavy-duty solar systems for factories and industrial facilities. Power your operations with reliable, cost-effective solar energy.',
-          features: ['High-Capacity Systems', 'Industrial-Grade Equipment', 'Custom Engineering', '24/7 Monitoring'],
-          image: '/website_images/services-industrial-solar.png',
+            'High-capacity systems for factories and plants — reliable power where uptime matters.',
+          features: ['Heavy-duty equipment', 'Custom engineering', 'Hybrid backup', 'Monitoring'],
+          image: '/portfolio/ep-install-05.jpg',
           link: '/services/industrial',
-          button_text: 'Learn More',
+          button_text: 'Learn more',
         },
         {
           title: 'Agricultural & Productive Use',
           description:
-            'Solar for irrigation, cold chain, and processing — cutting diesel costs and unlocking reliable power where the grid is weak or absent.',
-          features: ['Irrigation & Pumping', 'Processing & Storage', 'Off-grid & Hybrid Designs', 'Scalable for Cooperatives'],
-          image: '/website_images/services-agricultural-productive-use.png',
+            'Solar for irrigation, cold chain and processing — cut diesel spend where the grid is weak.',
+          features: ['Irrigation & pumping', 'Off-grid hybrid', 'Cooperative scale', 'Site survey'],
+          image: '/portfolio/ep-install-03.jpg',
           link: '/contact?action=quote',
-          button_text: 'Learn More',
+          button_text: 'Learn more',
         },
       ],
     },
     portfolio: {
-      badge: 'OUR PORTFOLIO',
-      title: 'Projects That Power Ghana',
-      subtitle: 'Explore our completed installations across residential, commercial, and industrial sectors.',
-      cta_text: 'View Portfolio',
+      badge: 'Our work',
+      title: 'Installations across Ghana',
+      subtitle: 'Real projects — residential rooftops, commercial arrays and industrial sites.',
+      cta_text: 'View all projects',
       cta_link: '/portfolio',
       items: [
         {
           title: 'Residential rooftop — Greater Accra',
           image: '/portfolio/ep-install-01.jpg',
-          alt: 'Solar panels installed on a residential roof',
+          alt: 'Solar panels on a residential roof in Accra',
           link: '/portfolio',
         },
         {
           title: 'Commercial office array',
           image: '/portfolio/ep-install-02.jpg',
-          alt: 'Solar installation on a commercial building',
+          alt: 'Commercial solar installation',
           link: '/portfolio',
         },
         {
-          title: 'Industrial canopy project',
-          image: '/website_images/services-industrial-solar.png',
-          alt: 'Large-scale solar array at an industrial site',
+          title: 'Industrial site project',
+          image: '/portfolio/ep-install-05.jpg',
+          alt: 'Industrial solar array',
           link: '/portfolio',
         },
       ],
@@ -217,7 +230,7 @@ const DEFAULTS: PageDefaultsMap = {
     process: {
       badge: 'OUR PROCESS',
       title: 'Simple 5-Step Installation Process',
-      subtitle: '',
+      subtitle: 'From first conversation to commissioning — a clear path with no surprises.',
       steps: [
         { step: '01', title: 'Free Consultation', desc: 'Site assessment and energy needs analysis' },
         { step: '02', title: 'Custom Design', desc: 'Tailored system design for your property' },
@@ -229,7 +242,7 @@ const DEFAULTS: PageDefaultsMap = {
     testimonials: {
       badge: 'CLIENT TESTIMONIALS',
       title: 'Trusted by Ghanaians Across the Country',
-      subtitle: '',
+      subtitle: 'Real feedback from residential, commercial and industrial clients across Ghana.',
       items: [
         {
           name: 'Kwame Asante',
@@ -255,9 +268,9 @@ const DEFAULTS: PageDefaultsMap = {
       ],
     },
     closing_cta: {
-      title: 'Ready to Go Solar in Ghana?',
+      title: 'Ready for a free site assessment?',
       subtitle:
-        'Join thousands of satisfied customers across Ghana who have made the switch to clean, affordable solar energy. Get your free quote today.',
+        'Tell us about your property and load — we will respond with a clear next step, not a hard sell.',
       primary_cta_text: 'Get Free Consultation',
       primary_cta_link: '/contact?action=quote',
       secondary_cta_text: 'Browse Products',

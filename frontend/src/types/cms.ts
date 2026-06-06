@@ -182,10 +182,23 @@ export interface PackagesPageSections {
   };
 }
 
+export interface CmsCredibilityProof {
+  title: string;
+  description: string;
+}
+
+export interface CmsCredibility {
+  eyebrow: string;
+  headline: string;
+  proofs: CmsCredibilityProof[];
+}
+
 export interface HomePageSections {
   seo?: CmsSeo;
   hero: CmsHero;
-  trust_bar: { items: { text: string }[] };
+  /** @deprecated use credibility */
+  trust_bar?: { items: { text: string }[] };
+  credibility: CmsCredibility;
   why_choose: CmsSectionHeader & { features: CmsFeature[] };
   services_section: CmsSectionHeader;
   service_cards: {

@@ -120,12 +120,19 @@ const CmsPageEditor: React.FC = () => {
     }));
   };
 
-  const setTrustItem = (index: number, value: string) => {
+  const setCredibilityField = (field: 'eyebrow' | 'headline', value: string) => {
+    setSections((s) => ({
+      ...s,
+      credibility: { ...(s.credibility as Record<string, unknown>), [field]: value },
+    }));
+  };
+
+  const setCredibilityProof = (index: number, field: 'title' | 'description', value: string) => {
     setSections((s) => {
-      const trust = s.trust_bar as { items: { text: string }[] };
-      const items = [...(trust?.items || [])];
-      items[index] = { text: value };
-      return { ...s, trust_bar: { items } };
+      const cred = s.credibility as { proofs: { title: string; description: string }[] } & Record<string, unknown>;
+      const proofs = [...(cred?.proofs || [])];
+      proofs[index] = { ...proofs[index], [field]: value };
+      return { ...s, credibility: { ...cred, proofs } };
     });
   };
 
@@ -399,8 +406,12 @@ const CmsPageEditor: React.FC = () => {
 
   const hero = (sections.hero || {}) as CmsHero;
   const homeHeroSlides = resolveHeroSlides(hero);
+  const credibility = (sections.credibility || { proofs: [] }) as {
+    eyebrow: string;
+    headline: string;
+    proofs: { title: string; description: string }[];
+  };
   const whyChoose = (sections.why_choose || {}) as { badge: string; title: string; subtitle: string; features: { title: string; description: string }[] };
-  const trustBar = (sections.trust_bar || { items: [] }) as { items: { text: string }[] };
   const testimonials = (sections.testimonials || { items: [] }) as {
     badge: string;
     title: string;
@@ -727,9 +738,16 @@ const CmsPageEditor: React.FC = () => {
       {page === 'home' && (
         <>
           <Paper variant="outlined" sx={{ p: 2.5, mb: 2 }}>
-            <Typography variant="subtitle1" sx={{ fontWeight: 800, mb: 2 }}>Trust bar</Typography>
-            {(trustBar.items || []).map((item, i) => (
-              <TextField key={i} size="small" fullWidth sx={{ mb: 1.5 }} label={`Item ${i + 1}`} value={item.text} onChange={(e) => setTrustItem(i, e.target.value)} />
+            <Typography variant="subtitle1" sx={{ fontWeight: 800, mb: 2 }}>Credibility section</Typography>
+            <TextField size="small" fullWidth sx={{ mb: 1.5 }} label="Eyebrow" value={credibility.eyebrow || ''} onChange={(e) => setCredibilityField('eyebrow', e.target.value)} />
+            <TextField size="small" fullWidth sx={{ mb: 2 }} label="Headline" value={credibility.headline || ''} onChange={(e) => setCredibilityField('headline', e.target.value)} multiline minRows={2} />
+            <Typography variant="caption" sx={{ fontWeight: 700, display: 'block', mb: 1 }}>Proof points</Typography>
+            {(credibility.proofs || []).map((proof, i) => (
+              <Box key={i} sx={{ mb: 2, p: 1.5, bgcolor: 'grey.50', borderRadius: 1 }}>
+                <Typography variant="caption" sx={{ fontWeight: 700 }}>Proof {i + 1}</Typography>
+                <TextField size="small" fullWidth sx={{ mt: 1, mb: 1 }} label="Title" value={proof.title} onChange={(e) => setCredibilityProof(i, 'title', e.target.value)} />
+                <TextField size="small" fullWidth label="Description" value={proof.description} onChange={(e) => setCredibilityProof(i, 'description', e.target.value)} multiline minRows={2} />
+              </Box>
             ))}
           </Paper>
 

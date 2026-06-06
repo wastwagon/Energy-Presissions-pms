@@ -94,21 +94,39 @@ _DEFAULTS: Dict[str, Dict[str, Any]] = {
                 },
             ],
         },
-        "trust_bar": {
-            "items": [
-                {"text": "Certified Installers"},
-                {"text": "10-Year Warranty"},
-                {"text": "Free Delivery in Ghana"},
-                {"text": "Maintenance & After-Sales"},
+        "credibility": {
+            "eyebrow": "Why Energy Precisions",
+            "headline": "Engineered solar for Ghana — one partner from survey to support",
+            "proofs": [
+                {
+                    "title": "Engineering-first sizing",
+                    "description": (
+                        "Load profiles and bill-of-materials before we quote — capacity matched "
+                        "to how you use power."
+                    ),
+                },
+                {
+                    "title": "Tier-one equipment",
+                    "description": (
+                        "Panels, inverters and lithium storage specified for Ghana's climate — "
+                        "not generic kit lists."
+                    ),
+                },
+                {
+                    "title": "Full lifecycle support",
+                    "description": (
+                        "Commissioning, registration guidance, monitoring and maintenance from "
+                        "the same Accra-based team."
+                    ),
+                },
             ],
         },
         "why_choose": {
-            "badge": "WHY CHOOSE ENERGY PRECISIONS",
-            "title": "Ghana's Most Trusted Solar Partner",
+            "badge": "WHY ENERGY PRECISIONS",
+            "title": "One accountable partner",
             "subtitle": (
-                "Deep Accra roots, Ghana-wide ambition: we combine local market knowledge "
-                "with turnkey delivery — so you get one accountable partner from design "
-                "through maintenance, not a one-off installation."
+                "Accra-based, Ghana-wide — turnkey delivery from design through maintenance, "
+                "not a one-off install."
             ),
             "features": [
                 {
@@ -267,7 +285,7 @@ _DEFAULTS: Dict[str, Dict[str, Any]] = {
         "process": {
             "badge": "OUR PROCESS",
             "title": "Simple 5-Step Installation Process",
-            "subtitle": "",
+            "subtitle": "From first conversation to commissioning — a clear path with no surprises.",
             "steps": [
                 {"step": "01", "title": "Free Consultation", "desc": "Site assessment and energy needs analysis"},
                 {"step": "02", "title": "Custom Design", "desc": "Tailored system design for your property"},
@@ -279,7 +297,7 @@ _DEFAULTS: Dict[str, Dict[str, Any]] = {
         "testimonials": {
             "badge": "CLIENT TESTIMONIALS",
             "title": "Trusted by Ghanaians Across the Country",
-            "subtitle": "",
+            "subtitle": "Real feedback from residential, commercial and industrial clients across Ghana.",
             "items": [
                 {
                     "name": "Kwame Asante",

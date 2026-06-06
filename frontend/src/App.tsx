@@ -69,7 +69,8 @@ const theme = createTheme({
     },
   },
   typography: {
-    fontFamily: '"Plus Jakarta Sans", "Roboto", "Helvetica", "Arial", sans-serif',
+    fontFamily:
+      '-apple-system, BlinkMacSystemFont, "Plus Jakarta Sans", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
     h1: { fontWeight: 800, letterSpacing: '-0.02em' },
     h2: { fontWeight: 700, letterSpacing: '-0.02em' },
     h3: { fontWeight: 700 },
