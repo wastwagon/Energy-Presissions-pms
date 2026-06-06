@@ -85,7 +85,7 @@ const Home: React.FC = () => {
             variant="h2"
             sx={{
               ...homeUi.title,
-              fontSize: { xs: '1.625rem', md: '2rem' },
+              fontSize: homeUi.sectionTitle.fontSize,
               mb: 2,
               color: 'white',
             }}

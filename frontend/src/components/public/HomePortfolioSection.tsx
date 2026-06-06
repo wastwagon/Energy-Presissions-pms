@@ -38,18 +38,23 @@ const HomePortfolioSection: React.FC<Props> = ({
   ctaText = 'View all projects',
   ctaLink = '/portfolio',
 }) => {
+  const sectionRef = useRef<HTMLElement | null>(null);
   const trackRef = useRef<HTMLDivElement | null>(null);
   const slideRefs = useRef<(HTMLAnchorElement | null)[]>([]);
   const [activeIndex, setActiveIndex] = useState(0);
   const [paused, setPaused] = useState(false);
+  const [inView, setInView] = useState(false);
   const count = items.length;
 
   const goTo = useCallback(
     (index: number) => {
       if (count <= 0) return;
       const next = ((index % count) + count) % count;
+      const track = trackRef.current;
       const slide = slideRefs.current[next];
-      slide?.scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
+      if (track && slide) {
+        track.scrollTo({ left: slide.offsetLeft, behavior: 'smooth' });
+      }
       setActiveIndex(next);
     },
     [count],
@@ -60,13 +65,25 @@ const HomePortfolioSection: React.FC<Props> = ({
 
   useEffect(() => {
     setActiveIndex(0);
+    trackRef.current?.scrollTo({ left: 0, behavior: 'auto' });
   }, [count]);
 
   useEffect(() => {
-    if (count <= 1 || paused) return undefined;
+    const el = sectionRef.current;
+    if (!el) return undefined;
+    const observer = new IntersectionObserver(
+      ([entry]) => setInView(entry.isIntersecting),
+      { threshold: 0.2 },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (count <= 1 || paused || !inView) return undefined;
     const timer = window.setInterval(goNext, AUTOPLAY_MS);
     return () => window.clearInterval(timer);
-  }, [count, goNext, paused]);
+  }, [count, goNext, paused, inView]);
 
   const syncIndexFromScroll = useCallback(() => {
     const track = trackRef.current;
@@ -90,6 +107,7 @@ const HomePortfolioSection: React.FC<Props> = ({
 
   return (
     <Box
+      ref={sectionRef}
       component="section"
       aria-roledescription="carousel"
       aria-label="Project portfolio"

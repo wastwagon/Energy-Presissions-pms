@@ -15,6 +15,12 @@ export const homeUi = {
     letterSpacing: '-0.028em',
     lineHeight: 1.15,
   },
+  /** Section & page headings — smaller on mobile to avoid dominating the viewport */
+  sectionTitle: {
+    fontSize: { xs: '1.375rem', sm: '1.5625rem', md: '2rem' },
+    lineHeight: 1.2,
+  },
+  sectionHeaderMb: { xs: 2.5, md: 4.5 } as const,
   body: {
     lineHeight: 1.55,
     fontSize: { xs: '0.9375rem', md: '1rem' },

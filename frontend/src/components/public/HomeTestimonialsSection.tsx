@@ -23,7 +23,7 @@ type Props = {
 const HomeTestimonialsSection: React.FC<Props> = ({ badge, title, subtitle, items }) => (
   <Box id="testimonials" component="section" sx={{ bgcolor: homeUi.cardBg, py: homeUi.sectionPy }}>
     <Container maxWidth="lg" sx={{ px: homeUi.containerPx }}>
-      <HomeSectionHeader badge={badge} title={title} subtitle={subtitle} />
+      <HomeSectionHeader badge={badge} title={title} subtitle={subtitle} align="left" />
 
       <Grid container spacing={{ xs: 1.5, md: 2.5 }}>
         {items.map((testimonial, index) => (

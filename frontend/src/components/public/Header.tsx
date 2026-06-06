@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   AppBar,
   Toolbar,
@@ -35,9 +35,12 @@ import {
   Home as HomeIcon,
   Storefront as StorefrontIcon,
   SolarPower as SolarPowerIcon,
+  ContactMail as ContactIcon,
 } from '@mui/icons-material';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { colors } from '../../theme/colors';
+import { homeUi } from '../../theme/homeUi';
+import { publicUi } from '../../theme/publicUi';
 import { useAuth } from '../../contexts/AuthContext';
 import { useCart } from '../../contexts/CartContext';
 import { SOCIAL_LINKS } from '../../data/socialLinks';
@@ -49,7 +52,8 @@ const Header: React.FC = () => {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [navSubmenu, setNavSubmenu] = useState<{ key: string; anchor: HTMLElement } | null>(null);
+  const [hoverNav, setHoverNav] = useState<string | null>(null);
+  const hoverNavTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const navigate = useNavigate();
   const { isAuthenticated, user, logout } = useAuth();
   const { cartCount } = useCart();
@@ -85,6 +89,15 @@ const Header: React.FC = () => {
     { label: 'Contact', path: '/contact' },
   ];
 
+  const handleNavEnter = (key: string) => {
+    if (hoverNavTimer.current) clearTimeout(hoverNavTimer.current);
+    setHoverNav(key);
+  };
+
+  const handleNavLeave = () => {
+    hoverNavTimer.current = setTimeout(() => setHoverNav(null), 160);
+  };
+
   const isPathActive = (path: string) => {
     if (path === '/') return location.pathname === '/';
     return location.pathname === path || location.pathname.startsWith(`${path}/`);
@@ -102,10 +115,6 @@ const Header: React.FC = () => {
     setAnchorEl(null);
   };
 
-  const openNavSubmenu = (key: string, e: React.MouseEvent<HTMLElement>) => {
-    setNavSubmenu({ key, anchor: e.currentTarget });
-  };
-  const closeNavSubmenu = () => setNavSubmenu(null);
 
   const isSubmenuParentActive = (label: string) => {
     if (label === 'Services') return isPathActive('/services') || location.pathname.startsWith('/faqs');
@@ -121,12 +130,31 @@ const Header: React.FC = () => {
   };
 
   const socialIconSx = {
-    color: 'rgba(255,255,255,0.85)',
-    '&:hover': { color: colors.green, bgcolor: 'rgba(255,255,255,0.06)' },
+    color: publicUi.topBar.text,
+    '&:hover': { color: colors.green, bgcolor: 'rgba(255,255,255,0.08)' },
+  };
+
+  const quoteButtonSx = {
+    ...publicUi.topBarQuoteButton,
+    fontSize: '0.8125rem',
+    px: 2.5,
+    py: 0.55,
+    minHeight: 36,
+  };
+
+  const topBarLinkSx = {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 0.75,
+    color: publicUi.topBar.text,
+    textDecoration: 'none',
+    fontSize: '0.875rem',
+    transition: 'color 0.2s ease',
+    '&:hover': { color: colors.green },
   };
 
   const drawer = (
-    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', bgcolor: '#f8fafb' }}>
+    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', bgcolor: homeUi.pageBg }}>
       <Box
         sx={{
           px: 2,
@@ -134,25 +162,32 @@ const Header: React.FC = () => {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          background: `linear-gradient(135deg, ${colors.blueBlack} 0%, ${colors.blueBlackLight} 100%)`,
+          bgcolor: colors.blueBlack,
           color: 'white',
         }}
       >
         <Box>
-          <Typography variant="subtitle1" sx={{ fontWeight: 800, letterSpacing: '0.08em', fontSize: '0.8rem' }}>
-            ENERGY PRECISIONS
+          <Typography sx={{ fontWeight: 700, letterSpacing: '-0.02em', fontSize: '1rem' }}>
+            Energy Precisions
           </Typography>
-          <Typography variant="caption" sx={{ opacity: 0.85, display: 'block', mt: 0.25 }}>
-            Navigate
+          <Typography sx={{ color: 'rgba(255,255,255,0.62)', fontSize: '0.8125rem', mt: 0.25 }}>
+            Menu
           </Typography>
         </Box>
         <IconButton
           onClick={handleDrawerToggle}
           aria-label="Close menu"
           edge="end"
-          sx={{ color: 'white', '&:hover': { bgcolor: 'rgba(255,255,255,0.1)' } }}
+          sx={{
+            width: 40,
+            height: 40,
+            borderRadius: 2,
+            border: '1px solid rgba(255,255,255,0.12)',
+            color: 'white',
+            '&:hover': { bgcolor: 'rgba(255,255,255,0.08)' },
+          }}
         >
-          <CloseIcon />
+          <CloseIcon sx={{ fontSize: 22 }} />
         </IconButton>
       </Box>
       <Divider />
@@ -240,19 +275,57 @@ const Header: React.FC = () => {
     textTransform: 'none' as const,
     fontWeight: 600,
     fontSize: '0.8125rem',
-    px: 1.35,
-    py: 0.65,
+    px: 1.65,
+    py: 0.85,
     borderRadius: 2,
-    minHeight: 36,
-    letterSpacing: '0.01em',
+    minHeight: 40,
+    letterSpacing: '-0.01em',
+    transition: 'color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease',
     '&:hover': {
-      color: colors.green,
-      bgcolor: 'rgba(0, 230, 118, 0.08)',
+      color: colors.blueBlack,
+      bgcolor: 'rgba(0, 230, 118, 0.1)',
     },
-    transition: 'color 0.2s ease, background-color 0.2s ease',
   };
 
-  const mobileBottomActive = (key: 'home' | 'shop' | 'services' | 'cart' | 'more') => {
+  const navActiveSx = {
+    color: colors.blueBlack,
+    fontWeight: 700,
+    bgcolor: 'rgba(0, 230, 118, 0.16)',
+    boxShadow: `inset 0 -2px 0 ${colors.green}`,
+    '&:hover': {
+      bgcolor: 'rgba(0, 230, 118, 0.2)',
+    },
+  };
+
+  const navItemSx = (active: boolean, open = false) => ({
+    ...navButtonSx,
+    ...((active || open) ? navActiveSx : {}),
+  });
+
+  const dropdownLinkSx = (active: boolean) => ({
+    display: 'block',
+    px: 1.5,
+    py: 1,
+    borderRadius: 1.5,
+    fontSize: '0.875rem',
+    fontWeight: active ? 600 : 500,
+    color: active ? colors.blueBlack : colors.gray600,
+    textDecoration: 'none',
+    transition: 'background-color 0.15s ease, color 0.15s ease',
+    '&:hover': {
+      bgcolor: 'rgba(0, 230, 118, 0.12)',
+      color: colors.blueBlack,
+    },
+    ...(active
+      ? {
+          bgcolor: 'rgba(0, 230, 118, 0.1)',
+          borderLeft: `3px solid ${colors.green}`,
+          pl: 1.35,
+        }
+      : {}),
+  });
+
+  const mobileBottomActive = (key: 'home' | 'shop' | 'services' | 'cart' | 'contact') => {
     const p = location.pathname;
     switch (key) {
       case 'home':
@@ -263,19 +336,21 @@ const Header: React.FC = () => {
         return p.startsWith('/services');
       case 'cart':
         return p === '/cart';
+      case 'contact':
+        return p.startsWith('/contact');
       default:
         return false;
     }
   };
 
   const bottomNavItem = (
-    key: 'home' | 'shop' | 'services' | 'cart' | 'more',
+    key: 'home' | 'shop' | 'services' | 'cart' | 'contact',
     icon: React.ReactNode,
     label: string,
     to?: string,
     onPress?: () => void
   ) => {
-    const active = key === 'more' ? mobileOpen : mobileBottomActive(key);
+    const active = mobileBottomActive(key);
     const content = (
       <>
         <Box sx={{ position: 'relative', display: 'flex', justifyContent: 'center' }}>
@@ -308,10 +383,10 @@ const Header: React.FC = () => {
           variant="caption"
           sx={{
             mt: 0.35,
-            fontSize: '0.65rem',
-            fontWeight: active ? 700 : 500,
-            color: active ? colors.green : 'text.secondary',
-            letterSpacing: 0.2,
+            fontSize: '0.6875rem',
+            fontWeight: active ? 600 : 500,
+            color: active ? publicUi.bottomNav.active : publicUi.bottomNav.inactive,
+            letterSpacing: 0.1,
             maxWidth: '100%',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
@@ -335,7 +410,7 @@ const Header: React.FC = () => {
             py: 0.5,
             px: 0.25,
             borderRadius: 2,
-            color: active ? colors.green : 'text.secondary',
+            color: active ? publicUi.bottomNav.active : publicUi.bottomNav.inactive,
             '&:active': { transform: 'scale(0.97)' },
             transition: 'transform 0.12s ease, color 0.2s ease',
           }}
@@ -355,7 +430,7 @@ const Header: React.FC = () => {
           py: 0.5,
           px: 0.25,
           borderRadius: 2,
-          color: active ? colors.green : 'text.secondary',
+          color: active ? publicUi.bottomNav.active : publicUi.bottomNav.inactive,
           '&:active': { transform: 'scale(0.97)' },
           transition: 'transform 0.12s ease, color 0.2s ease',
         }}
@@ -367,123 +442,48 @@ const Header: React.FC = () => {
 
   return (
     <>
-      {/* Top Bar */}
+      {/* Top bar — desktop only */}
       <Box
         sx={{
-          bgcolor: colors.blueBlack,
-          color: 'white',
-          py: 0.75,
+          display: { xs: 'none', md: 'block' },
+          background: publicUi.topBar.bgGradient,
+          color: publicUi.topBar.text,
+          borderBottom: `1px solid ${publicUi.topBar.accentLine}`,
         }}
       >
-        <Container maxWidth="xl">
-          <Box
-            display="flex"
-            flexDirection={{ xs: 'column', sm: 'row' }}
-            justifyContent="space-between"
-            alignItems="center"
-            gap={{ xs: 1.25, sm: 1 }}
-          >
-            <Box
-              display="flex"
-              flexWrap="wrap"
-              gap={{ xs: 1, sm: 2, md: 3 }}
-              justifyContent={{ xs: 'center', sm: 'flex-start' }}
-              alignItems="center"
-            >
-              <Box
-                component="a"
-                href="tel:+233533611611"
-                display="flex"
-                alignItems="center"
-                gap={1}
-                sx={{ color: 'inherit', textDecoration: 'none' }}
-              >
-                <PhoneIcon sx={{ fontSize: 18 }} />
-                <Typography variant="body2" sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem' } }}>
+        <Box sx={{ py: 0.85 }}>
+          <Container maxWidth="lg" sx={{ px: publicUi.containerPx }}>
+            <Box display="flex" justifyContent="space-between" alignItems="center" gap={2}>
+              <Box display="flex" flexWrap="wrap" gap={2.5} alignItems="center">
+                <Box component="a" href="tel:+233533611611" sx={topBarLinkSx}>
+                  <PhoneIcon sx={{ fontSize: 17, color: colors.green }} />
                   +233 533 611 611
-                </Typography>
-              </Box>
-              <Box
-                component="a"
-                href="mailto:info@energyprecisions.com"
-                display="flex"
-                alignItems="center"
-                gap={1}
-                sx={{ color: 'inherit', textDecoration: 'none' }}
-              >
-                <EmailIcon sx={{ fontSize: 18 }} />
-                <Typography variant="body2" sx={{ display: { xs: 'none', sm: 'block' }, fontSize: '0.875rem' }}>
+                </Box>
+                <Box component="a" href="mailto:info@energyprecisions.com" sx={topBarLinkSx}>
+                  <EmailIcon sx={{ fontSize: 17 }} />
                   info@energyprecisions.com
-                </Typography>
+                </Box>
+                <Box display="flex" alignItems="center" gap={0.25}>
+                  <IconButton component="a" href={SOCIAL_LINKS.facebook} target="_blank" rel="noopener noreferrer" size="small" aria-label="Facebook" sx={socialIconSx}>
+                    <FacebookIcon sx={{ fontSize: 18 }} />
+                  </IconButton>
+                  <IconButton component="a" href={SOCIAL_LINKS.twitter} target="_blank" rel="noopener noreferrer" size="small" aria-label="X (Twitter)" sx={socialIconSx}>
+                    <TwitterIcon sx={{ fontSize: 18 }} />
+                  </IconButton>
+                  <IconButton component="a" href={SOCIAL_LINKS.linkedin} target="_blank" rel="noopener noreferrer" size="small" aria-label="LinkedIn" sx={socialIconSx}>
+                    <LinkedInIcon sx={{ fontSize: 18 }} />
+                  </IconButton>
+                  <IconButton component="a" href={SOCIAL_LINKS.instagram} target="_blank" rel="noopener noreferrer" size="small" aria-label="Instagram" sx={socialIconSx}>
+                    <InstagramIcon sx={{ fontSize: 18 }} />
+                  </IconButton>
+                </Box>
               </Box>
-              <Box display="flex" alignItems="center" gap={0.25} sx={{ ml: { sm: 0.5 } }}>
-                <IconButton
-                  component="a"
-                  href={SOCIAL_LINKS.facebook}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  size="small"
-                  aria-label="Facebook"
-                  sx={socialIconSx}
-                >
-                  <FacebookIcon sx={{ fontSize: 20 }} />
-                </IconButton>
-                <IconButton
-                  component="a"
-                  href={SOCIAL_LINKS.twitter}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  size="small"
-                  aria-label="X (Twitter)"
-                  sx={socialIconSx}
-                >
-                  <TwitterIcon sx={{ fontSize: 20 }} />
-                </IconButton>
-                <IconButton
-                  component="a"
-                  href={SOCIAL_LINKS.linkedin}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  size="small"
-                  aria-label="LinkedIn"
-                  sx={socialIconSx}
-                >
-                  <LinkedInIcon sx={{ fontSize: 20 }} />
-                </IconButton>
-                <IconButton
-                  component="a"
-                  href={SOCIAL_LINKS.instagram}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  size="small"
-                  aria-label="Instagram"
-                  sx={socialIconSx}
-                >
-                  <InstagramIcon sx={{ fontSize: 20 }} />
-                </IconButton>
-              </Box>
+              <Button size="small" disableElevation sx={quoteButtonSx} component={Link} to="/contact?action=quote">
+                Request a quote
+              </Button>
             </Box>
-            <Button
-              variant="contained"
-              size="small"
-              sx={{
-                bgcolor: colors.green,
-                color: 'white',
-                '&:hover': { bgcolor: colors.greenDark },
-                textTransform: 'none',
-                px: 2.25,
-                py: 0.65,
-                fontWeight: 600,
-                borderRadius: 3,
-                boxShadow: '0 2px 12px rgba(0, 230, 118, 0.35)',
-              }}
-              component={Link}
-              to="/contact?action=quote"
-            >
-              Request a Quote
-            </Button>
-          </Box>
-        </Container>
+          </Container>
+        </Box>
       </Box>
 
       {/* Main Navigation */}
@@ -491,28 +491,31 @@ const Header: React.FC = () => {
         position="sticky"
         elevation={0}
         sx={{
-          bgcolor: 'white',
-          color: '#333',
-          borderBottom: '1px solid #e8eaed',
-          boxShadow: '0 2px 12px rgba(10, 14, 23, 0.06)',
+          ...publicUi.appBar,
+          color: colors.blueBlack,
         }}
       >
-        <Container maxWidth="xl">
+        <Container maxWidth="xl" sx={{ px: publicUi.containerPx }}>
           <Toolbar
             disableGutters
             sx={{
-              py: { xs: 0.75, md: 1 },
-              minHeight: { xs: 52, md: 64 },
-              display: 'grid',
-              gridTemplateColumns: isMobile
-                ? '1fr auto 1fr'
-                : 'minmax(140px, auto) 1fr minmax(120px, auto)',
-              alignItems: 'center',
-              columnGap: 2,
+              py: { xs: 0.65, md: 0.85 },
+              minHeight: { xs: 48, md: 64 },
+              ...(isMobile
+                ? {
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    gap: 1,
+                  }
+                : {
+                    display: 'grid',
+                    gridTemplateColumns: 'minmax(160px, auto) 1fr minmax(88px, auto)',
+                    alignItems: 'center',
+                    columnGap: { md: 2.5, lg: 4 },
+                  }),
             }}
           >
-            {/* Mobile: spacer */}
-            {isMobile && <Box />}
             {/* Logo */}
             <Box
               component={Link}
@@ -521,16 +524,16 @@ const Header: React.FC = () => {
                 display: 'flex',
                 alignItems: 'center',
                 textDecoration: 'none',
-                justifySelf: isMobile ? 'center' : 'start',
-                gridColumn: isMobile ? 2 : 'auto',
+                flexShrink: 0,
+                justifySelf: 'start',
               }}
             >
               <img
                 src="/website_images/Logo1-1-scaled-e1752479241874.png"
                 alt="Energy Precisions"
                 style={{
-                  height: isMobile ? '38px' : '44px',
-                  maxWidth: '200px',
+                  height: isMobile ? '34px' : '42px',
+                  maxWidth: isMobile ? '160px' : '200px',
                   objectFit: 'contain',
                 }}
                 onError={(e) => {
@@ -547,75 +550,130 @@ const Header: React.FC = () => {
             {/* Desktop: centered nav */}
             {!isMobile && (
               <Box
+                component="nav"
+                aria-label="Main navigation"
                 sx={{
                   display: 'flex',
                   justifyContent: 'center',
                   alignItems: 'center',
                   flexWrap: 'wrap',
-                  gap: 0.15,
-                  py: 0.25,
+                  gap: { md: 0.65, lg: 1.15 },
+                  py: 0.35,
+                  px: { md: 0.5, lg: 1 },
                 }}
               >
-                {menuItems.map((item) =>
-                  item.submenu ? (
-                    <Box key={item.label}>
-                      <Button
-                        onClick={(e) => openNavSubmenu(item.label, e)}
-                        endIcon={<ArrowDownIcon sx={{ fontSize: 18 }} />}
-                        sx={{
-                          ...navButtonSx,
-                          ...(isSubmenuParentActive(item.label)
-                            ? { color: colors.green, bgcolor: 'rgba(0, 230, 118, 0.06)' }
-                            : {}),
-                        }}
+                {menuItems.map((item) => {
+                  const parentActive = item.submenu
+                    ? isSubmenuParentActive(item.label)
+                    : isPathActive(item.path);
+                  const dropdownOpen = hoverNav === item.label;
+
+                  if (item.submenu) {
+                    return (
+                      <Box
+                        key={item.label}
+                        onMouseEnter={() => handleNavEnter(item.label)}
+                        onMouseLeave={handleNavLeave}
+                        sx={{ position: 'relative' }}
                       >
-                        {item.label}
-                      </Button>
-                      <Menu
-                        anchorEl={navSubmenu?.key === item.label ? navSubmenu.anchor : null}
-                        open={navSubmenu?.key === item.label}
-                        onClose={closeNavSubmenu}
-                        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-                        transformOrigin={{ vertical: 'top', horizontal: 'center' }}
-                        slotProps={{
-                          paper: {
-                            sx: {
-                              mt: 1,
-                              borderRadius: 2,
-                              boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
-                              minWidth: 200,
-                            },
-                          },
-                        }}
-                      >
-                        <MenuItem component={Link} to={item.path} onClick={closeNavSubmenu}>
-                          {item.label === 'Services' ? 'All services' : 'Blog home'}
-                        </MenuItem>
-                        {item.submenu.map((sub) => (
-                          <MenuItem key={sub.label} component={Link} to={sub.path} onClick={closeNavSubmenu}>
-                            {sub.label}
-                          </MenuItem>
-                        ))}
-                      </Menu>
-                    </Box>
-                  ) : (
+                        <Button
+                          component={Link}
+                          to={item.path}
+                          endIcon={
+                            <ArrowDownIcon
+                              sx={{
+                                fontSize: 17,
+                                transition: 'transform 0.2s ease',
+                                transform: dropdownOpen ? 'rotate(180deg)' : 'none',
+                              }}
+                            />
+                          }
+                          sx={navItemSx(parentActive, dropdownOpen)}
+                        >
+                          {item.label}
+                        </Button>
+
+                        {dropdownOpen && (
+                          <Paper
+                            elevation={0}
+                            onMouseEnter={() => handleNavEnter(item.label)}
+                            onMouseLeave={handleNavLeave}
+                            sx={{
+                              position: 'absolute',
+                              top: 'calc(100% + 2px)',
+                              left: '50%',
+                              transform: 'translateX(-50%)',
+                              minWidth: 240,
+                              py: 1,
+                              px: 0.75,
+                              borderRadius: homeUi.innerRadius,
+                              border: homeUi.cardBorder,
+                              boxShadow: homeUi.cardShadowHover,
+                              zIndex: theme.zIndex.appBar + 2,
+                              '&::before': {
+                                content: '""',
+                                position: 'absolute',
+                                top: -10,
+                                left: 0,
+                                right: 0,
+                                height: 10,
+                              },
+                            }}
+                          >
+                            <Typography
+                              component="p"
+                              sx={{
+                                px: 1.5,
+                                pb: 0.75,
+                                mb: 0.5,
+                                fontSize: '0.6875rem',
+                                fontWeight: 600,
+                                letterSpacing: '0.08em',
+                                textTransform: 'uppercase',
+                                color: colors.gray400,
+                                borderBottom: homeUi.cardBorder,
+                              }}
+                            >
+                              {item.label === 'Services' ? 'All services' : 'Resources'}
+                            </Typography>
+                            <Box
+                              component={Link}
+                              to={item.path}
+                              sx={dropdownLinkSx(isPathActive(item.path))}
+                            >
+                              {item.label === 'Services' ? 'View all services' : 'Blog home'}
+                            </Box>
+                            {item.submenu.map((sub) => (
+                              <Box
+                                key={sub.label}
+                                component={Link}
+                                to={sub.path}
+                                sx={dropdownLinkSx(isPathActive(sub.path))}
+                              >
+                                {sub.label}
+                              </Box>
+                            ))}
+                          </Paper>
+                        )}
+                      </Box>
+                    );
+                  }
+
+                  return (
                     <Button
                       key={item.label}
                       component={Link}
                       to={item.path}
-                      sx={{
-                        ...navButtonSx,
-                        ...(isPathActive(item.path) ? { color: colors.green, bgcolor: 'rgba(0, 230, 118, 0.06)' } : {}),
-                      }}
+                      sx={navItemSx(parentActive)}
                     >
                       {item.label}
                     </Button>
-                  )
-                )}
+                  );
+                })}
               </Box>
             )}
 
-            {/* Right: desktop cart + account; mobile account only */}
+            {/* Right: mobile menu + cart; desktop cart + account */}
             <Box
               sx={{
                 display: 'flex',
@@ -623,36 +681,68 @@ const Header: React.FC = () => {
                 gap: 0.5,
                 justifyContent: 'flex-end',
                 justifySelf: 'end',
-                gridColumn: isMobile ? 3 : 'auto',
+                flexShrink: 0,
               }}
             >
-              {!isMobile && (
-                <IconButton component={Link} to="/cart" color="inherit" sx={{ position: 'relative', color: colors.blueBlack }}>
-                  <ShoppingCartIcon />
-                  {cartCount > 0 && (
-                    <Box
-                      sx={{
-                        position: 'absolute',
-                        top: 4,
-                        right: 4,
-                        bgcolor: colors.green,
-                        color: 'white',
-                        borderRadius: '50%',
-                        width: 20,
-                        height: 20,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: '0.75rem',
-                        fontWeight: 'bold',
-                      }}
-                    >
-                      {cartCount > 9 ? '9+' : cartCount}
-                    </Box>
-                  )}
+              {isMobile && (
+                <IconButton
+                  onClick={handleDrawerToggle}
+                  aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
+                  aria-expanded={mobileOpen}
+                  sx={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: 2,
+                    border: homeUi.cardBorder,
+                    color: colors.blueBlack,
+                    '&:hover': { bgcolor: 'rgba(0,0,0,0.04)' },
+                  }}
+                >
+                  {mobileOpen ? <CloseIcon sx={{ fontSize: 22 }} /> : <MenuIcon sx={{ fontSize: 22 }} />}
                 </IconButton>
               )}
-              {isAuthenticated ? (
+              <IconButton
+                component={Link}
+                to="/cart"
+                aria-label="Shopping cart"
+                sx={{
+                  position: 'relative',
+                  width: 40,
+                  height: 40,
+                  color: colors.blueBlack,
+                  ...(isMobile
+                    ? {
+                        borderRadius: 2,
+                        border: homeUi.cardBorder,
+                        '&:hover': { bgcolor: 'rgba(0,0,0,0.04)' },
+                      }
+                    : {}),
+                }}
+              >
+                <ShoppingCartIcon sx={{ fontSize: isMobile ? 22 : 24 }} />
+                {cartCount > 0 && (
+                  <Box
+                    sx={{
+                      position: 'absolute',
+                      top: isMobile ? 2 : 4,
+                      right: isMobile ? 2 : 4,
+                      bgcolor: colors.green,
+                      color: colors.blueBlack,
+                      borderRadius: '50%',
+                      width: 18,
+                      height: 18,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '0.6875rem',
+                      fontWeight: 800,
+                    }}
+                  >
+                    {cartCount > 9 ? '9+' : cartCount}
+                  </Box>
+                )}
+              </IconButton>
+              {!isMobile && isAuthenticated ? (
                 <>
                   <IconButton onClick={handleMenuClick} color="inherit" aria-label="Account menu" sx={{ color: colors.blueBlack }}>
                     <AccountCircleIcon />
@@ -691,7 +781,13 @@ const Header: React.FC = () => {
         ModalProps={{ keepMounted: true }}
         sx={{
           display: { xs: 'block', md: 'none' },
-          '& .MuiDrawer-paper': { boxSizing: 'border-box', width: 300, borderTopRightRadius: 16, borderBottomRightRadius: 16 },
+          '& .MuiDrawer-paper': {
+            boxSizing: 'border-box',
+            width: { xs: 'min(100vw - 48px, 320px)', sm: 320 },
+            borderTopRightRadius: 16,
+            borderBottomRightRadius: 16,
+            boxShadow: '0 8px 40px rgba(10, 14, 23, 0.18)',
+          },
         }}
       >
         {drawer}
@@ -708,48 +804,45 @@ const Header: React.FC = () => {
             left: 0,
             right: 0,
             zIndex: theme.zIndex.drawer + 2,
-            borderTopLeftRadius: 20,
-            borderTopRightRadius: 20,
             px: 0.5,
-            pt: 0.5,
-            pb: 'max(10px, env(safe-area-inset-bottom))',
-            borderTop: `1px solid rgba(10, 14, 23, 0.08)`,
-            background: 'linear-gradient(180deg, #ffffff 0%, #f8faf9 100%)',
-            boxShadow: '0 -6px 28px rgba(10, 14, 23, 0.12)',
+            pt: 0.35,
+            pb: 'max(8px, env(safe-area-inset-bottom))',
+            bgcolor: publicUi.bottomNav.bg,
+            borderTop: publicUi.bottomNav.border,
+            boxShadow: publicUi.bottomNav.shadow,
           }}
           aria-label="Primary mobile navigation"
         >
           <Box display="flex" alignItems="stretch" justifyContent="space-around">
             {bottomNavItem(
               'home',
-              <HomeIcon sx={{ fontSize: 26 }} />,
+              <HomeIcon sx={{ fontSize: 24 }} />,
               'Home',
               '/'
             )}
             {bottomNavItem(
               'shop',
-              <StorefrontIcon sx={{ fontSize: 26 }} />,
+              <StorefrontIcon sx={{ fontSize: 24 }} />,
               'Shop',
               '/shop'
             )}
             {bottomNavItem(
               'services',
-              <SolarPowerIcon sx={{ fontSize: 26 }} />,
+              <SolarPowerIcon sx={{ fontSize: 24 }} />,
               'Services',
               '/services'
             )}
             {bottomNavItem(
               'cart',
-              <ShoppingCartIcon sx={{ fontSize: 26 }} />,
+              <ShoppingCartIcon sx={{ fontSize: 24 }} />,
               'Cart',
               '/cart'
             )}
             {bottomNavItem(
-              'more',
-              <MenuIcon sx={{ fontSize: 26 }} />,
-              'More',
-              undefined,
-              () => setMobileOpen(true)
+              'contact',
+              <ContactIcon sx={{ fontSize: 24 }} />,
+              'Contact',
+              '/contact'
             )}
           </Box>
         </Paper>

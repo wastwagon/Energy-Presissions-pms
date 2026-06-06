@@ -49,7 +49,7 @@ const ServiceCard: React.FC<{ service: CmsServiceCard; eagerImage?: boolean }> =
     <Box
       sx={{
         position: 'relative',
-        aspectRatio: { xs: '16 / 10', md: '4 / 3' },
+        aspectRatio: { xs: '16 / 10', md: '16 / 10' },
         overflow: 'hidden',
         bgcolor: colors.gray100,
       }}
@@ -127,15 +127,18 @@ const HomeServicesSection: React.FC<Props> = ({
   items,
   viewAllText = 'View all services',
   viewAllLink = '/services',
-}) => (
+}) => {
+  const visible = items.slice(0, 6);
+
+  return (
   <Box component="section" sx={{ bgcolor: homeUi.pageBg, py: homeUi.sectionPy }}>
     <Container maxWidth="lg" sx={{ px: homeUi.containerPx }}>
       <HomeSectionHeader badge={badge} title={title} subtitle={subtitle} align="left" />
 
       <Grid container spacing={{ xs: 2, md: 2.5 }}>
-        {items.map((service, index) => (
-          <Grid item xs={12} sm={6} key={`${service.title}-${index}`} sx={{ display: 'flex' }}>
-            <ServiceCard service={service} eagerImage={index === 0} />
+        {visible.map((service, index) => (
+          <Grid item xs={12} sm={6} md={4} key={`${service.title}-${index}`} sx={{ display: 'flex' }}>
+            <ServiceCard service={service} eagerImage={index < 3} />
           </Grid>
         ))}
       </Grid>
@@ -164,6 +167,7 @@ const HomeServicesSection: React.FC<Props> = ({
       </Box>
     </Container>
   </Box>
-);
+  );
+};
 
 export default HomeServicesSection;

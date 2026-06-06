@@ -7,13 +7,14 @@ import {
   Card,
   CardMedia,
   CardContent,
-  Chip,
   Button,
 } from '@mui/material';
 import { ArrowForward as ArrowForwardIcon } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
 import { Seo } from '../../components/Seo';
 import { colors } from '../../theme/colors';
+import { homeUi } from '../../theme/homeUi';
+import PublicPageHero from '../../components/public/PublicPageHero';
 import { portfolioPageItems } from '../../data/portfolioPageItems';
 
 const Portfolio: React.FC = () => {
@@ -24,71 +25,15 @@ const Portfolio: React.FC = () => {
         description="Residential, commercial, industrial and community solar projects across Ghana — design, installation and support from Energy Precisions."
         path="/portfolio"
       />
-      {/* Hero */}
-      <Box
-        sx={{
-          background: `linear-gradient(135deg, ${colors.blueBlack} 0%, ${colors.blueBlackLight} 100%)`,
-          color: 'white',
-          py: { xs: 5, md: 6 },
-          position: 'relative',
-          overflow: 'hidden',
-          '&::before': {
-            content: '""',
-            position: 'absolute',
-            top: 0,
-            right: 0,
-            width: '50%',
-            height: '100%',
-            background: `radial-gradient(circle at 100% 50%, ${colors.green}15 0%, transparent 60%)`,
-            pointerEvents: 'none',
-          },
-        }}
-      >
-        <Container maxWidth="xl" sx={{ position: 'relative', zIndex: 1 }}>
-          <Box textAlign="center" maxWidth={720} mx="auto">
-            <Chip
-              label="OUR WORK"
-              sx={{
-                bgcolor: colors.green,
-                color: 'white',
-                fontWeight: 700,
-                mb: 1.5,
-                px: 1.75,
-                height: 'auto',
-                fontSize: '0.7rem',
-                letterSpacing: 0.5,
-              }}
-            />
-            <Typography
-              variant="h1"
-              sx={{
-                fontSize: { xs: '1.75rem', sm: '2rem', md: '2.35rem' },
-                fontWeight: 800,
-                mb: 1.5,
-                lineHeight: 1.15,
-                letterSpacing: '-0.02em',
-              }}
-            >
-              Projects That Power Ghana
-            </Typography>
-            <Typography
-              variant="body1"
-              sx={{
-                color: 'rgba(255,255,255,0.88)',
-                fontWeight: 400,
-                lineHeight: 1.65,
-                fontSize: { xs: '0.95rem', md: '1rem' },
-              }}
-            >
-              Explore our completed solar installations across residential, commercial, and industrial sectors.
-            </Typography>
-          </Box>
-        </Container>
-      </Box>
+      <PublicPageHero
+        badge="OUR WORK"
+        headline="Projects That Power Ghana"
+        description="Explore our completed solar installations across residential, commercial, and industrial sectors."
+      />
 
       {/* Portfolio Grid */}
-      <Box sx={{ py: { xs: 6, md: 8 }, bgcolor: colors.offWhite }}>
-        <Container maxWidth="xl">
+      <Box sx={{ py: { xs: 4, md: 7 }, bgcolor: homeUi.pageBg }}>
+        <Container maxWidth="lg" sx={{ px: homeUi.containerPx }}>
           <Grid container spacing={{ xs: 2, md: 3 }}>
             {portfolioPageItems.map((item) => (
               <Grid item xs={12} sm={6} md={4} key={item.id}>

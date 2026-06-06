@@ -34,6 +34,7 @@ const HomeCredibility: React.FC<Props> = ({ data }) => {
           badge={credibility.eyebrow}
           title={credibility.headline}
           subtitle={sections.why_choose?.subtitle}
+          align="left"
           maxSubtitleWidth={600}
         />
 

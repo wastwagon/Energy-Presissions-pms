@@ -8,7 +8,6 @@ import {
   CardContent,
   CardMedia,
   Button,
-  Chip,
   Divider,
   Stack,
   IconButton,
@@ -26,6 +25,10 @@ import {
 import { Link, useLocation } from 'react-router-dom';
 import { Seo } from '../../components/Seo';
 import { colors } from '../../theme/colors';
+import { homeUi } from '../../theme/homeUi';
+import { publicUi } from '../../theme/publicUi';
+import PublicPageHero from '../../components/public/PublicPageHero';
+import HomeSectionHeader from '../../components/public/HomeSectionHeader';
 import api from '../../services/api';
 import { useCmsPage } from '../../hooks/useCmsPage';
 import { resolveCmsSeo } from '../../hooks/useCmsSeo';
@@ -69,77 +72,17 @@ const Services: React.FC = () => {
   return (
     <Box>
       <Seo title={seo.title} description={seo.description} path={pathname} />
-      {/* Hero Section */}
-      <Box
-        sx={{
-          bgcolor: colors.blueBlack,
-          color: 'white',
-          py: { xs: 5, md: 6 },
-          position: 'relative',
-          overflow: 'hidden',
-          ...(servicesHeroBg
-            ? {
-                '&::before': {
-                  content: '""',
-                  position: 'absolute',
-                  inset: 0,
-                  backgroundImage: `linear-gradient(rgba(10, 14, 23, 0.85), rgba(10, 14, 23, 0.92)), url(${JSON.stringify(servicesHeroBg)})`,
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                  zIndex: 0,
-                },
-              }
-            : {}),
-        }}
-      >
-        <Container maxWidth="xl" sx={{ position: 'relative', zIndex: 1 }}>
-          <Box textAlign="center" maxWidth={720} mx="auto">
-            <Chip
-              label={hero.badge}
-              sx={{
-                bgcolor: colors.green,
-                color: 'white',
-                fontWeight: 700,
-                mb: 1.5,
-                px: 1.75,
-                height: 'auto',
-                fontSize: '0.7rem',
-              }}
-            />
-            <Typography
-              variant="h1"
-              sx={{
-                fontSize: { xs: '1.75rem', sm: '2rem', md: '2.35rem' },
-                fontWeight: 800,
-                mb: 2,
-                lineHeight: 1.15,
-              }}
-            >
-              {hero.headline}{' '}
-              {hero.headline_highlight && (
-                <Box component="span" sx={{ color: colors.green }}>
-                  {hero.headline_highlight}
-                </Box>
-              )}
-            </Typography>
-            <Typography
-              variant="body1"
-              sx={{
-                color: 'rgba(255,255,255,0.88)',
-                lineHeight: 1.65,
-                fontWeight: 400,
-                fontSize: { xs: '0.95rem', md: '1rem' },
-              }}
-            >
-              {hero.description}
-            </Typography>
-          </Box>
-        </Container>
-      </Box>
+      <PublicPageHero
+        badge={hero.badge}
+        headline={hero.headline}
+        headlineHighlight={hero.headline_highlight}
+        description={hero.description}
+        backgroundImage={servicesHeroBg}
+      />
 
       {/* Services Grid */}
-      <Box sx={{ py: { xs: 6, md: 8 }, bgcolor: 'white' }}>
-        <Container maxWidth="xl">
+      <Box sx={{ py: { xs: 4, md: 7 }, bgcolor: homeUi.pageBg }}>
+        <Container maxWidth="lg" sx={{ px: homeUi.containerPx }}>
           <Grid container spacing={{ xs: 2, md: 3 }}>
             {(sections.service_cards?.items || []).map((service, index) => {
               const cardColor = serviceCardColors[index % 2];
@@ -254,40 +197,17 @@ const Services: React.FC = () => {
       </Box>
 
       {/* Installation Process */}
-      <Box sx={{ py: { xs: 6, md: 8 }, bgcolor: colors.offWhite }}>
-        <Container maxWidth="xl">
-          <Box textAlign="center" mb={{ xs: 4, md: 5 }}>
-            <Chip
-              label={sections.process?.badge}
-              sx={{
-                bgcolor: colors.green,
-                color: 'white',
-                fontWeight: 700,
-                mb: 1.5,
-                px: 1.75,
-                height: 'auto',
-                fontSize: '0.7rem',
-              }}
-            />
-            <Typography
-              variant="h2"
-              sx={{
-                mt: 1.5,
-                mb: 1.5,
-                fontWeight: 800,
-                color: colors.blueNavy,
-                fontSize: { xs: '1.65rem', md: '2.1rem' },
-                lineHeight: 1.2,
-              }}
-            >
-              {sections.process?.title}
-            </Typography>
-            <Typography variant="body1" sx={{ color: colors.gray600, fontWeight: 400, maxWidth: 560, mx: 'auto', fontSize: '0.95rem' }}>
-              {sections.process?.subtitle}
-            </Typography>
-          </Box>
+      <Box sx={{ py: { xs: 4, md: 7 }, bgcolor: homeUi.cardBg }}>
+        <Container maxWidth="lg" sx={{ px: homeUi.containerPx }}>
+          <HomeSectionHeader
+            badge={sections.process?.badge}
+            title={sections.process?.title}
+            subtitle={sections.process?.subtitle}
+            align="left"
+            maxSubtitleWidth={520}
+          />
 
-          <Box sx={{ position: 'relative', mx: { xs: -1, sm: 0 } }}>
+          <Box sx={{ position: 'relative', mx: { xs: -0.5, sm: 0 } }}>
             <IconButton
               aria-label="Scroll installation steps left"
               onClick={() => {
@@ -408,35 +328,13 @@ const Services: React.FC = () => {
       </Box>
 
       {/* Guarantees Section */}
-      <Box sx={{ py: { xs: 6, md: 8 }, bgcolor: 'white' }}>
-        <Container maxWidth="xl">
-          <Box textAlign="center" mb={{ xs: 4, md: 5 }}>
-            <Chip
-              label={sections.guarantees?.badge}
-              sx={{
-                bgcolor: colors.green,
-                color: 'white',
-                fontWeight: 700,
-                mb: 1.5,
-                px: 1.75,
-                height: 'auto',
-                fontSize: '0.7rem',
-              }}
-            />
-            <Typography
-              variant="h2"
-              sx={{
-                mt: 1.5,
-                mb: 0,
-                fontWeight: 800,
-                color: colors.blueNavy,
-                fontSize: { xs: '1.65rem', md: '2.1rem' },
-                lineHeight: 1.2,
-              }}
-            >
-              {sections.guarantees?.title}
-            </Typography>
-          </Box>
+      <Box sx={{ py: { xs: 4, md: 7 }, bgcolor: homeUi.pageBg }}>
+        <Container maxWidth="lg" sx={{ px: homeUi.containerPx }}>
+          <HomeSectionHeader
+            badge={sections.guarantees?.badge}
+            title={sections.guarantees?.title}
+            align="left"
+          />
 
           <Grid container spacing={{ xs: 2, md: 2.5 }}>
             {(sections.guarantees?.items || []).map((guarantee, index) => (
@@ -472,54 +370,45 @@ const Services: React.FC = () => {
       {/* CTA Section */}
       <Box
         sx={{
-          py: { xs: 6, md: 8 },
-          background: `linear-gradient(135deg, ${colors.blueBlack} 0%, ${colors.blueBlackLight} 100%)`,
+          py: { xs: 4.5, md: 7 },
+          bgcolor: colors.blueBlack,
           color: 'white',
         }}
       >
-        <Container maxWidth="md">
-          <Box textAlign="center">
+        <Container maxWidth="lg" sx={{ px: homeUi.containerPx }}>
+          <Box sx={{ maxWidth: 520 }}>
             <Typography
               variant="h2"
               sx={{
-                mb: 2,
-                fontWeight: 800,
-                fontSize: { xs: '1.65rem', md: '2.1rem' },
+                ...homeUi.title,
+                mb: 1.5,
+                fontSize: { xs: '1.625rem', md: '2rem' },
                 lineHeight: 1.2,
               }}
             >
               {sections.closing_cta?.title}
             </Typography>
             <Typography
-              variant="body1"
               sx={{
-                mb: 3,
-                color: 'rgba(255,255,255,0.9)',
-                maxWidth: 520,
-                mx: 'auto',
-                fontWeight: 400,
-                lineHeight: 1.65,
-                fontSize: '0.95rem',
+                mb: 2.5,
+                color: publicUi.hero.subtitle,
+                maxWidth: 480,
+                lineHeight: 1.6,
+                fontSize: '0.9375rem',
               }}
             >
               {sections.closing_cta?.subtitle}
             </Typography>
             <Button
               variant="contained"
-              size="medium"
               component={Link}
               to={sections.closing_cta?.primary_cta_link || '/contact?action=quote'}
               endIcon={<ArrowForwardIcon sx={{ fontSize: 18 }} />}
               sx={{
-                bgcolor: colors.green,
-                color: 'white',
+                ...publicUi.primaryButton,
+                ...homeUi.touchTarget,
                 px: 3.5,
-                py: 1.25,
-                fontSize: '0.95rem',
-                fontWeight: 600,
-                textTransform: 'none',
-                borderRadius: 2,
-                '&:hover': { bgcolor: colors.greenDark },
+                fontSize: '0.9375rem',
               }}
             >
               {sections.closing_cta?.primary_cta_text}
@@ -528,9 +417,8 @@ const Services: React.FC = () => {
             <Stack
               direction={{ xs: 'column', sm: 'row' }}
               spacing={1}
-              justifyContent="center"
-              alignItems="center"
-              sx={{ mt: 2.5 }}
+              alignItems={{ xs: 'flex-start', sm: 'center' }}
+              sx={{ mt: 2 }}
             >
               {sections.closing_cta?.link1_text && sections.closing_cta?.link1_url && (
               <Button

@@ -251,6 +251,38 @@ _DEFAULTS: Dict[str, Dict[str, Any]] = {
                     "link": "/contact?action=quote",
                     "button_text": "Learn More",
                 },
+                {
+                    "title": "Battery Storage",
+                    "description": (
+                        "LiFePO₄ battery systems for backup and independence — store solar for outages "
+                        "and peak hours."
+                    ),
+                    "features": [
+                        "Hybrid Backup",
+                        "LiFePO₄ Modules",
+                        "Smart BMS",
+                        "Scalable Capacity",
+                    ],
+                    "image": "/website_images/services-battery-storage-solutions.png",
+                    "link": "/services/battery",
+                    "button_text": "Learn More",
+                },
+                {
+                    "title": "Maintenance & Monitoring",
+                    "description": (
+                        "Ongoing checks and remote monitoring so your system stays at peak performance "
+                        "year after year."
+                    ),
+                    "features": [
+                        "Performance Monitoring",
+                        "Preventive Maintenance",
+                        "Fast Response",
+                        "Annual Inspections",
+                    ],
+                    "image": "/website_images/services-maintenance-monitoring.png",
+                    "link": "/services",
+                    "button_text": "Learn More",
+                },
             ],
         },
         "portfolio": {
@@ -287,11 +319,11 @@ _DEFAULTS: Dict[str, Dict[str, Any]] = {
             "title": "Simple 5-Step Installation Process",
             "subtitle": "From first conversation to commissioning — a clear path with no surprises.",
             "steps": [
-                {"step": "01", "title": "Free Consultation", "desc": "Site assessment and energy needs analysis"},
-                {"step": "02", "title": "Custom Design", "desc": "Tailored system design for your property"},
-                {"step": "03", "title": "Equipment Selection", "desc": "Choose from premium solar equipment"},
-                {"step": "04", "title": "Professional Installation", "desc": "Expert installation by certified technicians"},
-                {"step": "05", "title": "Activation & Support", "desc": "System activation and ongoing maintenance"},
+                {"step": "01", "title": "Consultation", "desc": "Site assessment and energy needs analysis"},
+                {"step": "02", "title": "Design", "desc": "Tailored system design for your property"},
+                {"step": "03", "title": "Equipment", "desc": "Choose from premium solar equipment"},
+                {"step": "04", "title": "Installation", "desc": "Expert installation by certified technicians"},
+                {"step": "05", "title": "Support", "desc": "System activation and ongoing maintenance"},
             ],
         },
         "testimonials": {
@@ -760,42 +792,36 @@ _DEFAULTS: Dict[str, Dict[str, Any]] = {
     },
     "global": {
         "footer": {
-            "company_name": "ENERGY PRECISIONS",
+            "company_name": "Energy Precisions",
             "tagline": (
-                "We provide turnkey solar solutions, from design, installation, and commissioning "
-                "to monitoring and maintenance."
+                "Turnkey solar design, installation, and lifecycle support for homes and businesses across Ghana."
             ),
-            "quick_links_title": "Quick Links",
+            "quick_links_title": "Explore",
             "quick_links": [
-                {"label": "About Us", "path": "/about"},
-                {"label": "Get a Quote", "path": "/contact?action=quote"},
+                {"label": "About", "path": "/about"},
+                {"label": "Services", "path": "/services"},
+                {"label": "Portfolio", "path": "/portfolio"},
                 {"label": "Shop", "path": "/shop"},
                 {"label": "Financing", "path": "/financing"},
-                {"label": "Solar estimate", "path": "/solar-estimate"},
-                {"label": "Load calculator", "path": "/load-calculator"},
-                {"label": "Referral program", "path": "/referral"},
-                {"label": "Blog", "path": "/blog"},
-                {"label": "Our Services", "path": "/services"},
+                {"label": "Get a quote", "path": "/contact?action=quote"},
             ],
-            "other_links_title": "Other Links",
+            "other_links_title": "Company",
             "other_links": [
-                {"label": "Contact Us", "path": "/contact"},
-                {"label": "Our Portfolio", "path": "/portfolio"},
-                {"label": "Client Reviews", "path": "/#testimonials"},
+                {"label": "Contact", "path": "/contact"},
+                {"label": "Blog", "path": "/blog"},
+                {"label": "Client reviews", "path": "/#testimonials"},
             ],
-            "service_list_title": "Service List",
+            "service_list_title": "Services",
             "service_list": [
-                "Residential Solar Installation",
-                "Commercial Solar Installation",
-                "Energy Storage Solutions",
-                "System Maintenance and Monitoring",
+                "Residential solar",
+                "Commercial solar",
+                "Energy storage",
+                "Maintenance & monitoring",
             ],
-            "newsletter_title": "SUBSCRIBE TO NEWSLETTER",
-            "newsletter_text": (
-                "Get exclusive news & offers through our Energy Precision newsletter"
-            ),
+            "newsletter_title": "Newsletter",
+            "newsletter_text": "Occasional updates on solar, projects, and offers — no spam.",
             "subscribe_button": "Subscribe",
-            "copyright": "© Copyright {year} Energy Precisions. All rights reserved.",
+            "copyright": "© {year} Energy Precisions. All rights reserved.",
         },
     },
     "packages": {

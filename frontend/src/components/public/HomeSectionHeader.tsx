@@ -24,7 +24,7 @@ const HomeSectionHeader: React.FC<Props> = ({
 }) => (
   <Box
     textAlign={align}
-    mb={compact ? 0 : { xs: 3.5, md: 5 }}
+    mb={compact ? 0 : homeUi.sectionHeaderMb}
     sx={{ px: align === 'left' ? 0 : { xs: 0.5, md: 0 } }}
   >
     {badge && (
@@ -48,8 +48,9 @@ const HomeSectionHeader: React.FC<Props> = ({
         sx={{
           ...homeUi.title,
           color: dark ? 'white' : colors.blueBlack,
-          fontSize: { xs: '1.625rem', sm: '1.875rem', md: '2.125rem' },
-          mb: subtitle ? { xs: 1.5, md: 2 } : 0,
+          fontSize: homeUi.sectionTitle.fontSize,
+          lineHeight: homeUi.sectionTitle.lineHeight,
+          mb: subtitle ? { xs: 1, md: 1.5 } : 0,
           maxWidth: align === 'center' ? 720 : 'none',
           mx: align === 'center' ? 'auto' : 0,
         }}
@@ -61,7 +62,7 @@ const HomeSectionHeader: React.FC<Props> = ({
       <Typography
         sx={{
           ...homeUi.body,
-          color: dark ? 'rgba(255,255,255,0.72)' : colors.gray600,
+          color: dark ? 'rgba(255,255,255,0.78)' : colors.gray600,
           maxWidth: maxSubtitleWidth,
           mx: align === 'center' ? 'auto' : 0,
         }}
