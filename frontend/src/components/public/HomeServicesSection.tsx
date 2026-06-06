@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Container, Grid, Typography, Button, Card, CardMedia, CardContent } from '@mui/material';
+import { Box, Container, Grid, Typography, Button } from '@mui/material';
 import { ArrowForward as ArrowForwardIcon, ChevronRight as ChevronRightIcon } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
 import { colors } from '../../theme/colors';
@@ -18,6 +18,108 @@ type Props = {
   viewAllLink?: string;
 };
 
+const ServiceCard: React.FC<{ service: CmsServiceCard; eagerImage?: boolean }> = ({
+  service,
+  eagerImage,
+}) => (
+  <Box
+    component={Link}
+    to={service.link || '/contact?action=quote'}
+    sx={{
+      display: 'flex',
+      flexDirection: 'column',
+      height: '100%',
+      textDecoration: 'none',
+      borderRadius: homeUi.cardRadius,
+      overflow: 'hidden',
+      bgcolor: homeUi.cardBg,
+      border: homeUi.cardBorder,
+      boxShadow: homeUi.cardShadow,
+      transition: 'box-shadow 0.3s ease, transform 0.3s ease',
+      '@media (hover: hover)': {
+        '&:hover': {
+          boxShadow: homeUi.cardShadowHover,
+          transform: 'translateY(-3px)',
+          '& .service-photo': { transform: 'scale(1.04)' },
+          '& .service-link': { color: colors.greenDark },
+        },
+      },
+    }}
+  >
+    <Box
+      sx={{
+        position: 'relative',
+        aspectRatio: { xs: '16 / 10', md: '4 / 3' },
+        overflow: 'hidden',
+        bgcolor: colors.gray100,
+      }}
+    >
+      <Box
+        className="service-photo"
+        component="img"
+        src={resolveMediaUrl(service.image) || homePageImages.services.residential}
+        alt={service.title}
+        loading={eagerImage ? 'eager' : 'lazy'}
+        sx={{
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover',
+          transition: 'transform 0.55s ease',
+        }}
+      />
+    </Box>
+
+    <Box
+      sx={{
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'flex-start',
+        textAlign: 'left',
+        p: { xs: 2.25, md: 2.75 },
+      }}
+    >
+      <Typography
+        sx={{
+          fontWeight: 700,
+          color: colors.blueBlack,
+          fontSize: { xs: '1.125rem', md: '1.2rem' },
+          letterSpacing: '-0.022em',
+          lineHeight: 1.25,
+          mb: 1,
+        }}
+      >
+        {service.title}
+      </Typography>
+      <Typography
+        sx={{
+          ...homeUi.body,
+          color: colors.gray600,
+          mb: 2,
+          flex: 1,
+        }}
+      >
+        {service.description}
+      </Typography>
+      <Box
+        className="service-link"
+        sx={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 0.35,
+          color: colors.green,
+          fontWeight: 600,
+          fontSize: '0.9375rem',
+          transition: 'color 0.2s ease',
+        }}
+      >
+        {service.button_text || 'Learn more'}
+        <ChevronRightIcon sx={{ fontSize: 20 }} />
+      </Box>
+    </Box>
+  </Box>
+);
+
 const HomeServicesSection: React.FC<Props> = ({
   badge,
   title,
@@ -26,111 +128,19 @@ const HomeServicesSection: React.FC<Props> = ({
   viewAllText = 'View all services',
   viewAllLink = '/services',
 }) => (
-  <Box component="section" sx={{ bgcolor: homeUi.cardBg, py: homeUi.sectionPy }}>
+  <Box component="section" sx={{ bgcolor: homeUi.pageBg, py: homeUi.sectionPy }}>
     <Container maxWidth="lg" sx={{ px: homeUi.containerPx }}>
-      <HomeSectionHeader badge={badge} title={title} subtitle={subtitle} />
+      <HomeSectionHeader badge={badge} title={title} subtitle={subtitle} align="left" />
 
       <Grid container spacing={{ xs: 2, md: 2.5 }}>
         {items.map((service, index) => (
-          <Grid item xs={12} sm={6} key={`${service.title}-${index}`}>
-            <Card
-              component={Link}
-              to={service.link || '/contact?action=quote'}
-              elevation={0}
-              sx={{
-                display: 'flex',
-                flexDirection: { xs: 'column', sm: 'row' },
-                height: '100%',
-                textDecoration: 'none',
-                borderRadius: homeUi.cardRadius,
-                border: homeUi.cardBorder,
-                boxShadow: homeUi.cardShadow,
-                overflow: 'hidden',
-                bgcolor: homeUi.cardBg,
-                transition: 'box-shadow 0.25s ease, transform 0.25s ease',
-                '@media (hover: hover)': {
-                  '&:hover': {
-                    boxShadow: homeUi.cardShadowHover,
-                    transform: 'translateY(-2px)',
-                  },
-                },
-              }}
-            >
-              <Box
-                sx={{
-                  width: { xs: '100%', sm: '42%' },
-                  minHeight: { xs: 200, sm: 'auto' },
-                  flexShrink: 0,
-                  overflow: 'hidden',
-                  bgcolor: colors.gray100,
-                }}
-              >
-                <CardMedia
-                  component="img"
-                  image={resolveMediaUrl(service.image) || homePageImages.services.residential}
-                  alt={service.title}
-                  loading="lazy"
-                  sx={{
-                    height: '100%',
-                    minHeight: { xs: 200, sm: 220 },
-                    objectFit: 'cover',
-                  }}
-                />
-              </Box>
-              <CardContent
-                sx={{
-                  flex: 1,
-                  p: { xs: 2.5, md: 3 },
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'center',
-                }}
-              >
-                <Typography
-                  sx={{
-                    fontWeight: 700,
-                    color: colors.blueBlack,
-                    fontSize: { xs: '1.125rem', md: '1.2rem' },
-                    letterSpacing: '-0.02em',
-                    mb: 1,
-                  }}
-                >
-                  {service.title}
-                </Typography>
-                <Typography
-                  sx={{
-                    ...homeUi.body,
-                    color: colors.gray600,
-                    mb: 2,
-                    display: '-webkit-box',
-                    WebkitLineClamp: 2,
-                    WebkitBoxOrient: 'vertical',
-                    overflow: 'hidden',
-                  }}
-                >
-                  {service.description}
-                </Typography>
-                <Box
-                  sx={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 0.5,
-                    color: colors.green,
-                    fontWeight: 600,
-                    fontSize: '0.9375rem',
-                    mt: 'auto',
-                  }}
-                >
-                  {service.button_text || 'Learn more'}
-                  <ChevronRightIcon sx={{ fontSize: 20 }} />
-                </Box>
-              </CardContent>
-            </Card>
+          <Grid item xs={12} sm={6} key={`${service.title}-${index}`} sx={{ display: 'flex' }}>
+            <ServiceCard service={service} eagerImage={index === 0} />
           </Grid>
         ))}
       </Grid>
 
-      <Box textAlign="center" mt={{ xs: 3, md: 4 }}>
+      <Box mt={{ xs: 3, md: 4 }}>
         <Button
           component={Link}
           to={viewAllLink}
@@ -143,9 +153,10 @@ const HomeServicesSection: React.FC<Props> = ({
             fontWeight: 600,
             fontSize: '0.9375rem',
             color: colors.blueBlack,
+            bgcolor: homeUi.cardBg,
             border: homeUi.cardBorder,
-            bgcolor: homeUi.pageBg,
-            '&:hover': { bgcolor: colors.gray100, border: homeUi.cardBorder },
+            boxShadow: homeUi.cardShadow,
+            '&:hover': { bgcolor: homeUi.cardBg, boxShadow: homeUi.cardShadowHover },
           }}
         >
           {viewAllText}

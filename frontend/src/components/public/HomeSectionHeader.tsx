@@ -10,6 +10,7 @@ type Props = {
   dark?: boolean;
   align?: 'center' | 'left';
   maxSubtitleWidth?: number;
+  compact?: boolean;
 };
 
 const HomeSectionHeader: React.FC<Props> = ({
@@ -19,10 +20,11 @@ const HomeSectionHeader: React.FC<Props> = ({
   dark = false,
   align = 'center',
   maxSubtitleWidth = 560,
+  compact = false,
 }) => (
   <Box
     textAlign={align}
-    mb={{ xs: 3.5, md: 5 }}
+    mb={compact ? 0 : { xs: 3.5, md: 5 }}
     sx={{ px: align === 'left' ? 0 : { xs: 0.5, md: 0 } }}
   >
     {badge && (

@@ -220,6 +220,18 @@ const DEFAULTS: PageDefaultsMap = {
           link: '/portfolio',
         },
         {
+          title: 'Hybrid backup installation',
+          image: '/portfolio/ep-install-03.jpg',
+          alt: 'Hybrid solar and battery installation',
+          link: '/portfolio',
+        },
+        {
+          title: 'Rooftop array — Kumasi region',
+          image: '/portfolio/ep-install-04.jpg',
+          alt: 'Solar panels on a tiled rooftop',
+          link: '/portfolio',
+        },
+        {
           title: 'Industrial site project',
           image: '/portfolio/ep-install-05.jpg',
           alt: 'Industrial solar array',
