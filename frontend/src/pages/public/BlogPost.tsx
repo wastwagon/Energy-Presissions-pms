@@ -3,7 +3,10 @@ import { Link as RouterLink, useParams, Navigate } from 'react-router-dom';
 import { Box, Container, Typography, Button, Chip, Stack, CircularProgress } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { Seo } from '../../components/Seo';
+import PublicPageHero from '../../components/public/PublicPageHero';
 import { colors } from '../../theme/colors';
+import { homeUi } from '../../theme/homeUi';
+import { publicUi } from '../../theme/publicUi';
 import { getBlogPost, type BlogPost } from '../../data/blogPosts';
 import api from '../../services/api';
 
@@ -32,6 +35,7 @@ const BlogPostPage: React.FC = () => {
           slug: res.data.slug,
           title: res.data.title,
           excerpt: res.data.excerpt,
+          category: (res.data as { category?: string }).category || 'Ghana',
           date: res.data.display_date,
           readTime: res.data.read_time,
           paragraphs: paragraphs.length ? paragraphs : [body.trim() || res.data.excerpt],
@@ -63,9 +67,10 @@ const BlogPostPage: React.FC = () => {
   }
 
   return (
-    <Box sx={{ py: { xs: 3, md: 5 } }}>
+    <Box sx={{ bgcolor: homeUi.pageBg }}>
       <Seo title={post.title} description={post.excerpt} path={`/blog/${post.slug}`} />
-      <Container maxWidth="md">
+      <PublicPageHero badge={post.category} headline={post.title} description={post.excerpt} />
+      <Container maxWidth="md" sx={{ py: { xs: 4, md: 5 }, px: publicUi.containerPx }}>
         <Button
           component={RouterLink}
           to="/blog"
@@ -75,33 +80,24 @@ const BlogPostPage: React.FC = () => {
         >
           All articles
         </Button>
-        <Stack direction="row" spacing={1} sx={{ mb: 1.5 }} flexWrap="wrap" useFlexGap>
+        <Stack direction="row" spacing={1} sx={{ mb: 2 }} flexWrap="wrap" useFlexGap>
           <Chip label={post.date} size="small" variant="outlined" />
           <Chip label={post.readTime} size="small" variant="outlined" />
         </Stack>
-        <Typography variant="h1" sx={{ fontSize: { xs: '1.5rem', md: '1.85rem' }, fontWeight: 800, mb: 2, lineHeight: 1.2 }}>
-          {post.title}
-        </Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 3, lineHeight: 1.65 }}>
-          {post.excerpt}
-        </Typography>
-        <Box component="article" sx={{ '& p': { mb: 2, lineHeight: 1.7, color: 'text.primary' } }}>
+        <Box component="article" sx={{ '& p': { mb: 2, ...homeUi.body, ...publicUi.mutedText } }}>
           {post.paragraphs.map((p, i) => (
             <Typography key={i} component="p" variant="body2">
               {p}
             </Typography>
           ))}
         </Box>
-        <Box sx={{ mt: 3, pt: 3, borderTop: '1px solid', borderColor: 'divider' }}>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
-            Need a system sized for your site?
-          </Typography>
+        <Box sx={{ mt: 3, pt: 3, borderTop: homeUi.cardBorder }}>
+          <Typography sx={{ ...publicUi.mutedText, mb: 1.5 }}>Need a system sized for your site?</Typography>
           <Button
             component={RouterLink}
             to="/contact?action=quote"
             variant="contained"
-            size="medium"
-            sx={{ bgcolor: colors.green, '&:hover': { bgcolor: colors.greenDark }, textTransform: 'none' }}
+            sx={{ ...publicUi.primaryButton, ...homeUi.touchTarget }}
           >
             Request a quote
           </Button>

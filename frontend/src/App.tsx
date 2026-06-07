@@ -33,6 +33,11 @@ const Financing = lazy(() => import('./pages/public/Financing'));
 const SolarEstimate = lazy(() => import('./pages/public/SolarEstimate'));
 const LoadCalculator = lazy(() => import('./pages/public/LoadCalculator'));
 const ReferralProgram = lazy(() => import('./pages/public/ReferralProgram'));
+const Privacy = lazy(() => import('./pages/public/Privacy'));
+const Terms = lazy(() => import('./pages/public/Terms'));
+const Reviews = lazy(() => import('./pages/public/Reviews'));
+const Warranty = lazy(() => import('./pages/public/Warranty'));
+const PortfolioCaseStudy = lazy(() => import('./pages/public/PortfolioCaseStudy'));
 const Blog = lazy(() => import('./pages/public/Blog'));
 const BlogPost = lazy(() => import('./pages/public/BlogPost'));
 const Portfolio = lazy(() => import('./pages/public/Portfolio'));
@@ -119,8 +124,13 @@ function App() {
               <Route path="referral" element={<Suspense fallback={<PageLoader />}><ReferralProgram /></Suspense>} />
               <Route path="blog" element={<Suspense fallback={<PageLoader />}><Blog /></Suspense>} />
               <Route path="blog/:slug" element={<Suspense fallback={<PageLoader />}><BlogPost /></Suspense>} />
+              <Route path="portfolio/:id" element={<Suspense fallback={<PageLoader />}><PortfolioCaseStudy /></Suspense>} />
               <Route path="portfolio" element={<Suspense fallback={<PageLoader />}><Portfolio /></Suspense>} />
               <Route path="solar-packages" element={<Suspense fallback={<PageLoader />}><HybridPackages /></Suspense>} />
+              <Route path="privacy" element={<Suspense fallback={<PageLoader />}><Privacy /></Suspense>} />
+              <Route path="terms" element={<Suspense fallback={<PageLoader />}><Terms /></Suspense>} />
+              <Route path="reviews" element={<Suspense fallback={<PageLoader />}><Reviews /></Suspense>} />
+              <Route path="warranty" element={<Suspense fallback={<PageLoader />}><Warranty /></Suspense>} />
             </Route>
 
             {/* Website Admin Login */}

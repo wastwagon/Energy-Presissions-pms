@@ -12,6 +12,13 @@ export const COMPANY = {
   phone: '+233533611611',
   phoneDisplay: '(+233) 533 611 611',
   phoneHref: 'tel:+233533611611',
+  /** WhatsApp Business — wa.me link (no + or spaces) */
+  whatsapp: '233533611611',
+  whatsappHref: 'https://wa.me/233533611611',
+  whatsappDisplay: 'Chat on WhatsApp',
+  /** Google Maps search / reviews — update with direct Place URL when available */
+  googleMapsReviewUrl:
+    'https://www.google.com/maps/search/?api=1&query=Energy+Precisions+Haatso+Ecomog+Accra+Ghana',
   emailPrimary: 'info@energyprecisions.com',
   /** Public sales/support inbox (same as emailPrimary) */
   emailSales: 'info@energyprecisions.com',

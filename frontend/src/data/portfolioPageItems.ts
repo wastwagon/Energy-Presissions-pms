@@ -191,3 +191,9 @@ export const portfolioPageItems: PortfolioPageItem[] = [
     mediaType: 'image',
   },
 ];
+
+export function getPortfolioItemById(id: string | undefined): PortfolioPageItem | undefined {
+  const num = Number(id);
+  if (!Number.isFinite(num)) return undefined;
+  return portfolioPageItems.find((p) => p.id === num);
+}

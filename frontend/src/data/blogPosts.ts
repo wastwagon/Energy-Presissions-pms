@@ -6,11 +6,15 @@ export interface BlogPost {
   slug: string;
   title: string;
   excerpt: string;
+  category: string;
   /** ISO date YYYY-MM-DD */
   date: string;
   readTime: string;
   paragraphs: string[];
 }
+
+export const BLOG_CATEGORIES = ['All', 'Planning', 'Systems', 'Ghana'] as const;
+export type BlogCategory = (typeof BLOG_CATEGORIES)[number];
 
 export const blogPosts: BlogPost[] = [
   {
@@ -18,6 +22,7 @@ export const blogPosts: BlogPost[] = [
     title: 'Why a site assessment matters before solar sizing',
     excerpt:
       'Accurate bills, roof or ground space, and how you use power all change the right system size — not just panel count.',
+    category: 'Planning',
     date: '2026-04-01',
     readTime: '4 min read',
     paragraphs: [
@@ -32,6 +37,7 @@ export const blogPosts: BlogPost[] = [
     title: 'Grid-tied vs hybrid solar in Ghana: what to consider',
     excerpt:
       'Grid-tied systems maximise savings when the grid is stable; hybrid adds batteries for backup and smoother evening use.',
+    category: 'Systems',
     date: '2026-04-03',
     readTime: '5 min read',
     paragraphs: [

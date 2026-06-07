@@ -34,7 +34,10 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import { Seo, SITE_ORIGIN } from '../../components/Seo';
+import PublicPageHero from '../../components/public/PublicPageHero';
 import { colors } from '../../theme/colors';
+import { homeUi } from '../../theme/homeUi';
+import { publicUi } from '../../theme/publicUi';
 import { formatApiErrorDetail } from '../../utils/apiErrorMessage';
 import { ballparkSizingFromDailyKwh } from '../../utils/solarSizingApprox';
 
@@ -323,20 +326,14 @@ const LoadCalculator: React.FC = () => {
           },
         }}
       />
-      <Box sx={{ bgcolor: colors.blueBlack, color: 'white', py: { xs: 4, md: 5 } }}>
-        <Container maxWidth="lg">
-          <Typography variant="h1" sx={{ fontSize: { xs: '1.55rem', md: '1.9rem' }, fontWeight: 800, mb: 1.5 }}>
-            Appliance load calculator
-          </Typography>
-          <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.88)', lineHeight: 1.65, maxWidth: 720 }}>
-            Pick typical appliances from our catalog, adjust how many you run and for how long each day. We use the
-            same load rules as our internal project tool (including optional diversity). Results are{' '}
-            <strong>indicative</strong> — your engineer confirms everything on site.
-          </Typography>
-        </Container>
-      </Box>
+      <PublicPageHero
+        badge="Planning tool"
+        headline="Appliance load calculator"
+        description="Pick typical appliances from our catalog, adjust how many you run and for how long each day. Results are indicative — your engineer confirms everything on site."
+      />
 
-      <Container maxWidth="lg" sx={{ py: { xs: 3, md: 4 } }}>
+      <Box sx={{ bgcolor: homeUi.pageBg }}>
+      <Container maxWidth="lg" sx={{ py: { xs: 3, md: 4 }, px: publicUi.containerPx }}>
         <Alert severity="info" sx={{ mb: 2 }}>
           This page calls our API for calculations so totals stay aligned with Energy Precisions’ PMS. It is not a
           quotation or guarantee.
@@ -564,6 +561,7 @@ const LoadCalculator: React.FC = () => {
           .
         </Typography>
       </Container>
+      </Box>
 
       <Snackbar
         open={copySnackbar.open}

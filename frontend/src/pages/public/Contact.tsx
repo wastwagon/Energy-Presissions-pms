@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useState } from 'react';
 import api from '../../services/api';
 import {
   Box,
-  Container,
   Typography,
   Grid,
   TextField,
@@ -14,11 +13,18 @@ import {
   FormControl,
   InputLabel,
   Alert,
+  Link,
 } from '@mui/material';
-import { Phone as PhoneIcon, Email as EmailIcon, LocationOn as LocationIcon } from '@mui/icons-material';
+import {
+  Phone as PhoneIcon,
+  Email as EmailIcon,
+  LocationOn as LocationIcon,
+  Chat as ChatIcon,
+} from '@mui/icons-material';
 import { useLocation, useSearchParams } from 'react-router-dom';
 import { COMPANY } from '../../data/companyContact';
 import { Seo } from '../../components/Seo';
+import PublicPageShell from '../../components/public/PublicPageShell';
 import { useCmsPage } from '../../hooks/useCmsPage';
 import { resolveCmsSeo } from '../../hooks/useCmsSeo';
 import { trackGenerateLead } from '../../utils/analytics';
@@ -27,6 +33,9 @@ import {
   CONTACT_TOPIC_MESSAGE_HINTS,
   normalizeContactTopic,
 } from '../../utils/contactUrlParams';
+import { colors } from '../../theme/colors';
+import { publicUi } from '../../theme/publicUi';
+import { homeUi } from '../../theme/homeUi';
 
 const Contact: React.FC = () => {
   const { sections } = useCmsPage('contact');
@@ -126,24 +135,20 @@ const Contact: React.FC = () => {
   };
 
   return (
-    <Box sx={{ py: { xs: 3, md: 6 } }}>
+    <>
       <Seo title={seo.title} description={seo.description} path="/contact" />
-      <Container maxWidth="lg">
-        <Box textAlign="center" mb={{ xs: 3, md: 4 }}>
-          <Typography variant="h2" sx={{ mb: 1, fontWeight: 800, color: '#1a4d7a', fontSize: { xs: '1.5rem', md: '1.85rem' } }}>
-            {isQuoteRequest ? sections.hero?.quote_title : sections.hero?.title}
-          </Typography>
-          <Typography variant="body2" sx={{ color: '#666' }}>
-            {sections.hero?.subtitle}
-          </Typography>
-        </Box>
-
+      <PublicPageShell
+        badge={isQuoteRequest ? 'Free quote' : 'Contact'}
+        headline={isQuoteRequest ? sections.hero?.quote_title || 'Request a quote' : sections.hero?.title || 'Contact us'}
+        description={sections.hero?.subtitle}
+        heroAlign="center"
+      >
         <Grid container spacing={{ xs: 2, md: 3 }}>
           <Grid item xs={12} md={8}>
-            <Card>
+            <Card sx={publicUi.card}>
               <CardContent sx={{ p: { xs: 2.5, md: 3 }, position: 'relative' }}>
                 {submitOk && (
-                  <Typography sx={{ mb: 3, color: '#00E676', fontWeight: 600 }}>
+                  <Typography sx={{ mb: 3, color: colors.greenDark, fontWeight: 600 }}>
                     {sections.form?.success_message}
                   </Typography>
                 )}
@@ -232,12 +237,7 @@ const Contact: React.FC = () => {
                         variant="contained"
                         size="large"
                         disabled={submitting}
-                        sx={{
-                          bgcolor: '#00E676',
-                          '&:hover': { bgcolor: '#00C85F' },
-                          textTransform: 'none',
-                          px: 4,
-                        }}
+                        sx={{ ...publicUi.primaryButton, ...homeUi.touchTarget, px: 4 }}
                       >
                         {submitting ? 'Sending…' : sections.form?.submit_text}
                       </Button>
@@ -249,71 +249,72 @@ const Contact: React.FC = () => {
           </Grid>
 
           <Grid item xs={12} md={4}>
-            <Box>
-              <Card sx={{ mb: 2 }}>
-                <CardContent>
-                  <Box display="flex" alignItems="center" gap={2} mb={2}>
-                    <PhoneIcon sx={{ color: '#00E676', fontSize: '2rem' }} />
-                    <Box>
-                      <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                        {sections.sidebar?.phone_label}
-                      </Typography>
-                      <Typography
-                        component="a"
-                        href={COMPANY.phoneHref}
-                        variant="body2"
-                        sx={{ color: '#666', textDecoration: 'none' }}
-                      >
-                        {COMPANY.phoneDisplay}
-                      </Typography>
-                    </Box>
-                  </Box>
-                </CardContent>
-              </Card>
-
-              <Card sx={{ mb: 2 }}>
-                <CardContent>
-                  <Box display="flex" alignItems="center" gap={2} mb={2}>
-                    <EmailIcon sx={{ color: '#00E676', fontSize: '2rem' }} />
-                    <Box>
-                      <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                        {sections.sidebar?.email_label}
-                      </Typography>
-                      <Typography
-                        component="a"
-                        href={`mailto:${COMPANY.emailSales}`}
-                        variant="body2"
-                        sx={{ color: '#666', textDecoration: 'none' }}
-                      >
-                        {COMPANY.emailSales}
-                      </Typography>
-                    </Box>
-                  </Box>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardContent>
-                  <Box display="flex" alignItems="center" gap={2}>
-                    <LocationIcon sx={{ color: '#00E676', fontSize: '2rem' }} />
-                    <Box>
-                      <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                        {sections.sidebar?.location_label}
-                      </Typography>
-                      <Typography variant="body2" sx={{ color: '#666' }}>
-                        {COMPANY.addressFull}
-                      </Typography>
-                    </Box>
-                  </Box>
-                </CardContent>
-              </Card>
-            </Box>
+            <StackCards sections={sections} />
           </Grid>
         </Grid>
-      </Container>
-    </Box>
+      </PublicPageShell>
+    </>
   );
 };
 
-export default Contact;
+const sidebarCardSx = { ...publicUi.card, mb: 2 };
 
+const StackCards: React.FC<{ sections: any }> = ({ sections }) => (
+  <Box>
+    <Card sx={sidebarCardSx}>
+      <CardContent>
+        <Box display="flex" alignItems="center" gap={2}>
+          <PhoneIcon sx={{ color: colors.green, fontSize: '2rem' }} />
+          <Box>
+            <Typography sx={{ fontWeight: 700 }}>{sections.sidebar?.phone_label}</Typography>
+            <Link href={COMPANY.phoneHref} underline="none" sx={{ ...publicUi.mutedText, fontSize: '0.875rem' }}>
+              {COMPANY.phoneDisplay}
+            </Link>
+          </Box>
+        </Box>
+      </CardContent>
+    </Card>
+    <Card sx={sidebarCardSx}>
+      <CardContent>
+        <Box display="flex" alignItems="center" gap={2}>
+          <ChatIcon sx={{ color: colors.green, fontSize: '2rem' }} />
+          <Box>
+            <Typography sx={{ fontWeight: 700 }}>WhatsApp</Typography>
+            <Link href={COMPANY.whatsappHref} target="_blank" rel="noopener noreferrer" underline="none" sx={{ ...publicUi.mutedText, fontSize: '0.875rem' }}>
+              {COMPANY.whatsappDisplay}
+            </Link>
+          </Box>
+        </Box>
+      </CardContent>
+    </Card>
+    <Card sx={sidebarCardSx}>
+      <CardContent>
+        <Box display="flex" alignItems="center" gap={2}>
+          <EmailIcon sx={{ color: colors.green, fontSize: '2rem' }} />
+          <Box>
+            <Typography sx={{ fontWeight: 700 }}>{sections.sidebar?.email_label}</Typography>
+            <Link href={`mailto:${COMPANY.emailSales}`} underline="none" sx={{ ...publicUi.mutedText, fontSize: '0.875rem' }}>
+              {COMPANY.emailSales}
+            </Link>
+          </Box>
+        </Box>
+      </CardContent>
+    </Card>
+    <Card sx={publicUi.card}>
+      <CardContent>
+        <Box display="flex" alignItems="center" gap={2}>
+          <LocationIcon sx={{ color: colors.green, fontSize: '2rem' }} />
+          <Box>
+            <Typography sx={{ fontWeight: 700 }}>{sections.sidebar?.location_label}</Typography>
+            <Typography sx={{ ...publicUi.mutedText, fontSize: '0.875rem' }}>{COMPANY.addressFull}</Typography>
+            <Typography sx={{ ...publicUi.mutedText, fontSize: '0.8125rem', mt: 1 }}>
+              We typically respond within one business day.
+            </Typography>
+          </Box>
+        </Box>
+      </CardContent>
+    </Card>
+  </Box>
+);
+
+export default Contact;

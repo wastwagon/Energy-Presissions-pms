@@ -14,6 +14,7 @@ import HomeTestimonialsSection from '../../components/public/HomeTestimonialsSec
 import HomeToolsStrip from '../../components/public/HomeToolsStrip';
 import { useCmsPage } from '../../hooks/useCmsPage';
 import { resolveCmsSeo } from '../../hooks/useCmsSeo';
+import { localBusinessJsonLd } from '../../utils/jsonLd';
 
 const Home: React.FC = () => {
   const { sections } = useCmsPage('home');
@@ -27,7 +28,7 @@ const Home: React.FC = () => {
 
   return (
     <Box sx={{ bgcolor: homeUi.pageBg }}>
-      <Seo title={seo.title} description={seo.description} path="/" />
+      <Seo title={seo.title} description={seo.description} path="/" jsonLd={localBusinessJsonLd()} />
 
       <HomeHero />
 

@@ -17,7 +17,7 @@ import {
 import { Save as SaveIcon } from '@mui/icons-material';
 import api from '../../services/api';
 import { CMS_PAGE_LABELS, getCmsDefaults } from '../../data/cmsDefaults';
-import type { CmsHero, CmsHeroSlide, CmsLink, CmsPageSlug, CmsServiceCard, CmsSeo } from '../../types/cms';
+import type { CmsFooter, CmsHero, CmsHeroSlide, CmsLink, CmsPageSlug, CmsServiceCard, CmsSeo } from '../../types/cms';
 import { resolveHeroSlides } from '../../utils/heroSlides';
 import CmsImageField from './CmsImageField';
 
@@ -281,21 +281,17 @@ const CmsPageEditor: React.FC = () => {
     });
   };
 
-  const setFooterLink = (listKey: 'quick_links' | 'other_links', index: number, field: keyof CmsLink, value: string) => {
+  const setFooterLink = (
+    listKey: 'quick_links' | 'other_links' | 'service_links' | 'tools_links' | 'legal_links',
+    index: number,
+    field: keyof CmsLink,
+    value: string,
+  ) => {
     setSections((s) => {
-      const footer = { ...(s.footer as { quick_links: CmsLink[]; other_links: CmsLink[] }) };
-      const links = [...(footer[listKey] || [])];
+      const footer = { ...(s.footer as Record<string, unknown>) };
+      const links = [...((footer[listKey] as CmsLink[]) || [])];
       links[index] = { ...links[index], [field]: value };
       return { ...s, footer: { ...footer, [listKey]: links } };
-    });
-  };
-
-  const setFooterStringList = (field: 'service_list', index: number, value: string) => {
-    setSections((s) => {
-      const footer = { ...(s.footer as { service_list: string[] }) };
-      const items = [...(footer[field] || [])];
-      items[index] = value;
-      return { ...s, footer: { ...footer, [field]: items } };
     });
   };
 
@@ -469,20 +465,7 @@ const CmsPageEditor: React.FC = () => {
   };
   const servicesClosingCta = (sections.closing_cta || {}) as Record<string, string>;
   const seo = (sections.seo || {}) as CmsSeo;
-  const footer = (sections.footer || {}) as {
-    company_name: string;
-    tagline: string;
-    quick_links_title: string;
-    quick_links: CmsLink[];
-    other_links_title: string;
-    other_links: CmsLink[];
-    service_list_title: string;
-    service_list: string[];
-    newsletter_title: string;
-    newsletter_text: string;
-    subscribe_button: string;
-    copyright: string;
-  };
+  const footer = (sections.footer || {}) as Partial<CmsFooter>;
   const simpleHero = (sections.hero || {}) as Record<string, string>;
   const financingContent = (sections.content || {}) as Record<string, string | string[]>;
   const heroCards = (sections.hero_cards || []) as { title: string; body: string }[];
@@ -661,9 +644,26 @@ const CmsPageEditor: React.FC = () => {
               <TextField size="small" label="Path" value={link.path} onChange={(e) => setFooterLink('other_links', i, 'path', e.target.value)} sx={{ flex: 1 }} />
             </Stack>
           ))}
-          <TextField size="small" fullWidth sx={{ mb: 1.5, mt: 2 }} label="Service list heading" value={footer.service_list_title || ''} onChange={(e) => setFooterField('service_list_title', e.target.value)} />
-          {(footer.service_list || []).map((item, i) => (
-            <TextField key={`svc-${i}`} size="small" fullWidth sx={{ mb: 1 }} label={`Service ${i + 1}`} value={item} onChange={(e) => setFooterStringList('service_list', i, e.target.value)} />
+          <TextField size="small" fullWidth sx={{ mb: 1.5, mt: 2 }} label="Services heading" value={footer.service_links_title || footer.service_list_title || ''} onChange={(e) => setFooterField('service_links_title', e.target.value)} />
+          {(footer.service_links || []).map((link, i) => (
+            <Stack key={`svc-${i}`} direction="row" spacing={1} sx={{ mb: 1 }}>
+              <TextField size="small" label="Label" value={link.label} onChange={(e) => setFooterLink('service_links', i, 'label', e.target.value)} sx={{ flex: 1 }} />
+              <TextField size="small" label="Path" value={link.path} onChange={(e) => setFooterLink('service_links', i, 'path', e.target.value)} sx={{ flex: 1 }} />
+            </Stack>
+          ))}
+          <TextField size="small" fullWidth sx={{ mb: 1.5, mt: 2 }} label="Tools heading" value={footer.tools_links_title || ''} onChange={(e) => setFooterField('tools_links_title', e.target.value)} />
+          {(footer.tools_links || []).map((link, i) => (
+            <Stack key={`tools-${i}`} direction="row" spacing={1} sx={{ mb: 1 }}>
+              <TextField size="small" label="Label" value={link.label} onChange={(e) => setFooterLink('tools_links', i, 'label', e.target.value)} sx={{ flex: 1 }} />
+              <TextField size="small" label="Path" value={link.path} onChange={(e) => setFooterLink('tools_links', i, 'path', e.target.value)} sx={{ flex: 1 }} />
+            </Stack>
+          ))}
+          <TextField size="small" fullWidth sx={{ mb: 1.5, mt: 2 }} label="Legal links heading (optional)" value={footer.legal_links_title || ''} onChange={(e) => setFooterField('legal_links_title', e.target.value)} />
+          {(footer.legal_links || []).map((link, i) => (
+            <Stack key={`legal-${i}`} direction="row" spacing={1} sx={{ mb: 1 }}>
+              <TextField size="small" label="Label" value={link.label} onChange={(e) => setFooterLink('legal_links', i, 'label', e.target.value)} sx={{ flex: 1 }} />
+              <TextField size="small" label="Path" value={link.path} onChange={(e) => setFooterLink('legal_links', i, 'path', e.target.value)} sx={{ flex: 1 }} />
+            </Stack>
           ))}
           <TextField size="small" fullWidth sx={{ mb: 1.5, mt: 2 }} label="Newsletter heading" value={footer.newsletter_title || ''} onChange={(e) => setFooterField('newsletter_title', e.target.value)} />
           <TextField size="small" fullWidth sx={{ mb: 1.5 }} label="Newsletter text" value={footer.newsletter_text || ''} onChange={(e) => setFooterField('newsletter_text', e.target.value)} multiline minRows={2} />

@@ -36,6 +36,7 @@ import {
   Storefront as StorefrontIcon,
   SolarPower as SolarPowerIcon,
   ContactMail as ContactIcon,
+  Chat as ChatIcon,
 } from '@mui/icons-material';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { colors } from '../../theme/colors';
@@ -44,6 +45,7 @@ import { publicUi } from '../../theme/publicUi';
 import { useAuth } from '../../contexts/AuthContext';
 import { useCart } from '../../contexts/CartContext';
 import { SOCIAL_LINKS } from '../../data/socialLinks';
+import { COMPANY } from '../../data/companyContact';
 import { UserRole } from '../../types';
 
 const Header: React.FC = () => {
@@ -179,8 +181,8 @@ const Header: React.FC = () => {
           aria-label="Close menu"
           edge="end"
           sx={{
-            width: 40,
-            height: 40,
+            width: 44,
+            height: 44,
             borderRadius: 2,
             border: '1px solid rgba(255,255,255,0.12)',
             color: 'white',
@@ -463,6 +465,10 @@ const Header: React.FC = () => {
                   <EmailIcon sx={{ fontSize: 17 }} />
                   info@energyprecisions.com
                 </Box>
+                <Box component="a" href={COMPANY.whatsappHref} target="_blank" rel="noopener noreferrer" sx={topBarLinkSx}>
+                  <ChatIcon sx={{ fontSize: 17, color: colors.green }} />
+                  WhatsApp
+                </Box>
                 <Box display="flex" alignItems="center" gap={0.25}>
                   <IconButton component="a" href={SOCIAL_LINKS.facebook} target="_blank" rel="noopener noreferrer" size="small" aria-label="Facebook" sx={socialIconSx}>
                     <FacebookIcon sx={{ fontSize: 18 }} />
@@ -690,8 +696,8 @@ const Header: React.FC = () => {
                   aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
                   aria-expanded={mobileOpen}
                   sx={{
-                    width: 40,
-                    height: 40,
+                    width: 44,
+                    height: 44,
                     borderRadius: 2,
                     border: homeUi.cardBorder,
                     color: colors.blueBlack,
@@ -707,8 +713,8 @@ const Header: React.FC = () => {
                 aria-label="Shopping cart"
                 sx={{
                   position: 'relative',
-                  width: 40,
-                  height: 40,
+                  width: 44,
+                  height: 44,
                   color: colors.blueBlack,
                   ...(isMobile
                     ? {

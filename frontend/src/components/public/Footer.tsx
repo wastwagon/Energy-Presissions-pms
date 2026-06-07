@@ -9,10 +9,10 @@ import {
   CircularProgress,
   Stack,
   Divider,
+  Grid,
 } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
-import { colors } from '../../theme/colors';
-import { homeUi } from '../../theme/homeUi';
+import { ArrowForward as ArrowForwardIcon } from '@mui/icons-material';
 import {
   Facebook as FacebookIcon,
   Twitter as TwitterIcon,
@@ -22,15 +22,22 @@ import {
 import api from '../../services/api';
 import { SOCIAL_LINKS } from '../../data/socialLinks';
 import { COMPANY } from '../../data/companyContact';
+import {
+  DEFAULT_FOOTER_LEGAL_LINKS,
+  DEFAULT_FOOTER_TOOLS_LINKS,
+  resolveFooterServiceLinks,
+} from '../../data/footerLinks';
 import { useCmsPage } from '../../hooks/useCmsPage';
+import { colors } from '../../theme/colors';
+import { homeUi } from '../../theme/homeUi';
+import { publicUi } from '../../theme/publicUi';
 import type { CmsLink } from '../../types/cms';
 
-/** Dark-footer contrast tokens — tuned for readability on blueBlack */
 const ft = {
-  text: 'rgba(255,255,255,0.92)',
-  body: 'rgba(255,255,255,0.78)',
-  muted: 'rgba(255,255,255,0.58)',
-  faint: 'rgba(255,255,255,0.52)',
+  text: '#ffffff',
+  body: 'rgba(255,255,255,0.82)',
+  muted: 'rgba(255,255,255,0.55)',
+  faint: 'rgba(255,255,255,0.48)',
   border: 'rgba(255,255,255,0.1)',
   inputBg: 'rgba(255,255,255,0.08)',
   inputBorder: 'rgba(255,255,255,0.18)',
@@ -39,13 +46,12 @@ const ft = {
 };
 
 const linkSx = {
-  display: 'flex',
-  alignItems: 'center',
+  display: 'block',
   color: ft.body,
   fontSize: '0.875rem',
-  lineHeight: 1.45,
+  lineHeight: 1.5,
   textDecoration: 'none',
-  minHeight: { xs: 40, md: 32 },
+  py: 0.4,
   transition: 'color 0.2s ease',
   '&:hover': { color: ft.text },
 };
@@ -56,7 +62,7 @@ const columnLabelSx = {
   fontSize: '0.6875rem',
   letterSpacing: '0.08em',
   textTransform: 'uppercase',
-  mb: { xs: 1.25, md: 1.5 },
+  mb: 1.25,
 };
 
 const FooterLink: React.FC<{ link: CmsLink }> = ({ link }) => {
@@ -79,9 +85,26 @@ const FooterLink: React.FC<{ link: CmsLink }> = ({ link }) => {
   );
 };
 
+const FooterNavColumn: React.FC<{ title: string; links: CmsLink[]; ariaLabel: string }> = ({
+  title,
+  links,
+  ariaLabel,
+}) => (
+  <Box component="nav" aria-label={ariaLabel}>
+    <Typography component="p" sx={columnLabelSx}>
+      {title}
+    </Typography>
+    <Stack spacing={0.15}>
+      {links.map((link) => (
+        <FooterLink key={`${link.path}-${link.label}`} link={link} />
+      ))}
+    </Stack>
+  </Box>
+);
+
 const socialIconSx = {
-  width: 40,
-  height: 40,
+  width: 38,
+  height: 38,
   borderRadius: '50%',
   border: `1px solid ${ft.border}`,
   color: ft.body,
@@ -101,6 +124,9 @@ const Footer: React.FC = () => {
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   const copyright = (footer.copyright || '').replace('{year}', String(new Date().getFullYear()));
+  const serviceLinks = resolveFooterServiceLinks(footer.service_links, footer.service_list);
+  const toolsLinks = footer.tools_links?.length ? footer.tools_links : DEFAULT_FOOTER_TOOLS_LINKS;
+  const legalLinks = footer.legal_links?.length ? footer.legal_links : DEFAULT_FOOTER_LEGAL_LINKS;
 
   const handleSubscribe = async () => {
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
@@ -127,21 +153,23 @@ const Footer: React.FC = () => {
     <Box
       component="footer"
       sx={{
-        bgcolor: colors.blueBlack,
+        background: publicUi.topBar.bgGradient,
         color: ft.text,
-        pt: { xs: 4.5, md: 7 },
-        pb: { xs: 'calc(4.5rem + env(safe-area-inset-bottom, 0px))', md: 3.5 },
+        borderTop: `1px solid ${publicUi.topBar.accentLine}`,
+        pt: { xs: 5, md: 7 },
+        pb: { xs: 'calc(4.5rem + env(safe-area-inset-bottom, 0px))', md: 4 },
       }}
     >
-      <Container maxWidth="lg" sx={{ px: homeUi.containerPx }}>
-        {/* Newsletter */}
+      <Container maxWidth="xl" sx={{ px: homeUi.containerPx }}>
+        {/* Newsletter band */}
         <Box
           sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: { xs: 2, md: 3 },
-            pb: { xs: 3.5, md: 5 },
-            mb: { xs: 3.5, md: 4.5 },
+            display: 'grid',
+            gridTemplateColumns: { xs: '1fr', md: '1.2fr 1fr' },
+            gap: { xs: 2, md: 4 },
+            alignItems: { md: 'end' },
+            pb: { xs: 4, md: 5 },
+            mb: { xs: 4, md: 5 },
             borderBottom: `1px solid ${ft.border}`,
           }}
         >
@@ -149,19 +177,11 @@ const Footer: React.FC = () => {
             <Typography component="p" sx={{ ...columnLabelSx, mb: 0.75 }}>
               {footer.newsletter_title}
             </Typography>
-            <Typography
-              sx={{
-                color: ft.body,
-                fontSize: '0.9375rem',
-                lineHeight: 1.55,
-                maxWidth: 420,
-              }}
-            >
+            <Typography sx={{ color: ft.body, fontSize: '0.9375rem', lineHeight: 1.55, maxWidth: 440 }}>
               {footer.newsletter_text}
             </Typography>
           </Box>
-
-          <Box sx={{ width: '100%', maxWidth: { md: 460 } }}>
+          <Box>
             <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1}>
               <TextField
                 placeholder="Email address"
@@ -183,10 +203,7 @@ const Footer: React.FC = () => {
                     '&:hover fieldset': { borderColor: ft.inputBorderHover },
                     '&.Mui-focused fieldset': { borderColor: 'rgba(255,255,255,0.4)' },
                   },
-                  '& .MuiOutlinedInput-input::placeholder': {
-                    color: ft.placeholder,
-                    opacity: 1,
-                  },
+                  '& .MuiOutlinedInput-input::placeholder': { color: ft.placeholder, opacity: 1 },
                 }}
               />
               <Button
@@ -195,17 +212,10 @@ const Footer: React.FC = () => {
                 disabled={loading}
                 sx={{
                   ...homeUi.touchTarget,
-                  borderRadius: 999,
-                  px: 3,
-                  minWidth: { xs: '100%', sm: 120 },
+                  ...publicUi.topBarQuoteButton,
+                  minWidth: { xs: '100%', sm: 128 },
                   flexShrink: 0,
-                  textTransform: 'none',
-                  fontWeight: 600,
                   fontSize: '0.9375rem',
-                  bgcolor: colors.green,
-                  color: colors.blueBlack,
-                  boxShadow: 'none',
-                  '&:hover': { bgcolor: colors.greenDark, boxShadow: 'none' },
                 }}
               >
                 {loading ? <CircularProgress size={22} sx={{ color: colors.blueBlack }} /> : footer.subscribe_button}
@@ -225,108 +235,100 @@ const Footer: React.FC = () => {
           </Box>
         </Box>
 
-        {/* Main footer grid — single column on mobile, opens up on tablet+ */}
-        <Box
-          sx={{
-            display: 'grid',
-            gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: '1.6fr 1fr 1fr 1.2fr' },
-            gap: { xs: 3, sm: 3.5, md: 4 },
-            mb: { xs: 3.5, md: 4.5 },
-          }}
-        >
-          <Box sx={{ gridColumn: { xs: '1', sm: '1 / -1', md: 'auto' } }}>
+        {/* Link columns */}
+        <Grid container spacing={{ xs: 3.5, md: 4, lg: 5 }} sx={{ mb: { xs: 4, md: 5 } }}>
+          <Grid item xs={12} lg={3}>
             <Typography
               sx={{
                 fontWeight: 700,
-                fontSize: { xs: '1.0625rem', md: '1.125rem' },
+                fontSize: '1.125rem',
                 letterSpacing: '-0.022em',
-                color: ft.text,
                 mb: 1,
               }}
             >
               {footer.company_name}
             </Typography>
-            <Typography
-              sx={{
-                color: ft.body,
-                fontSize: '0.875rem',
-                lineHeight: 1.6,
-                maxWidth: 340,
-                mb: 2,
-              }}
-            >
+            <Typography sx={{ color: ft.body, fontSize: '0.875rem', lineHeight: 1.65, mb: 2.5, maxWidth: 320 }}>
               {footer.tagline}
             </Typography>
-
-            <Stack spacing={0.5}>
+            <Stack spacing={0.35} sx={{ mb: 2.5 }}>
               <Link href={COMPANY.phoneHref} underline="none" sx={linkSx}>
                 {COMPANY.phoneDisplay}
+              </Link>
+              <Link href={COMPANY.whatsappHref} target="_blank" rel="noopener noreferrer" underline="none" sx={linkSx}>
+                {COMPANY.whatsappDisplay}
               </Link>
               <Link href={`mailto:${COMPANY.emailSales}`} underline="none" sx={linkSx}>
                 {COMPANY.emailSales}
               </Link>
-              <Typography sx={{ color: ft.body, fontSize: '0.875rem', lineHeight: 1.55, pt: 0.25 }}>
+              <Typography sx={{ color: ft.body, fontSize: '0.875rem', lineHeight: 1.55, py: 0.4 }}>
                 {COMPANY.addressFull}
               </Typography>
             </Stack>
-          </Box>
-
-          <Box component="nav" aria-label={footer.quick_links_title}>
-            <Typography component="p" sx={columnLabelSx}>
-              {footer.quick_links_title}
-            </Typography>
-            <Stack spacing={0.25}>
-              {(footer.quick_links || []).map((link) => (
-                <FooterLink key={`${link.path}-${link.label}`} link={link} />
-              ))}
-            </Stack>
-          </Box>
-
-          <Box component="nav" aria-label={footer.other_links_title}>
-            <Typography component="p" sx={columnLabelSx}>
-              {footer.other_links_title}
-            </Typography>
-            <Stack spacing={0.25}>
-              {(footer.other_links || []).map((link) => (
-                <FooterLink key={`${link.path}-${link.label}`} link={link} />
-              ))}
-            </Stack>
-          </Box>
-
-          <Box sx={{ gridColumn: { xs: '1', sm: '1 / -1', md: 'auto' } }}>
-            <Typography component="p" sx={columnLabelSx}>
-              {footer.service_list_title}
-            </Typography>
-            <Box
+            <Button
+              component={RouterLink}
+              to="/contact?action=quote"
+              endIcon={<ArrowForwardIcon sx={{ fontSize: 18 }} />}
               sx={{
-                display: 'grid',
-                gridTemplateColumns: { xs: '1fr 1fr', sm: 'repeat(4, 1fr)', md: '1fr' },
-                gap: { xs: 1, sm: 2, md: 0.75 },
+                ...publicUi.topBarQuoteButton,
+                px: 2.5,
+                py: 0.85,
+                fontSize: '0.875rem',
               }}
             >
-              {(footer.service_list || []).map((item) => (
-                <Typography
-                  key={item}
-                  sx={{ color: ft.body, fontSize: '0.875rem', lineHeight: 1.45 }}
-                >
-                  {item}
-                </Typography>
-              ))}
-            </Box>
-          </Box>
-        </Box>
+              Get a quote
+            </Button>
+          </Grid>
+
+          <Grid item xs={6} sm={4} lg={2}>
+            <FooterNavColumn
+              title={footer.service_links_title || footer.service_list_title || 'Services'}
+              links={serviceLinks}
+              ariaLabel="Services"
+            />
+          </Grid>
+
+          <Grid item xs={6} sm={4} lg={2}>
+            <FooterNavColumn
+              title={footer.quick_links_title || 'Explore'}
+              links={footer.quick_links || []}
+              ariaLabel="Explore"
+            />
+          </Grid>
+
+          <Grid item xs={6} sm={4} lg={2}>
+            <FooterNavColumn
+              title={footer.tools_links_title || 'Tools & resources'}
+              links={toolsLinks}
+              ariaLabel="Tools and resources"
+            />
+          </Grid>
+
+          <Grid item xs={6} sm={4} lg={3}>
+            <FooterNavColumn
+              title={footer.other_links_title || 'Company'}
+              links={footer.other_links || []}
+              ariaLabel="Company"
+            />
+          </Grid>
+        </Grid>
 
         <Divider sx={{ borderColor: ft.border, mb: { xs: 2.5, md: 3 } }} />
 
+        {/* Bottom bar */}
         <Stack
-          direction={{ xs: 'column-reverse', sm: 'row' }}
-          alignItems={{ xs: 'flex-start', sm: 'center' }}
+          direction={{ xs: 'column', md: 'row' }}
+          alignItems={{ xs: 'flex-start', md: 'center' }}
           justifyContent="space-between"
-          spacing={{ xs: 2, sm: 2.5 }}
+          spacing={{ xs: 2, md: 2.5 }}
         >
-          <Typography sx={{ color: ft.faint, fontSize: '0.8125rem', lineHeight: 1.5 }}>
-            {copyright}
-          </Typography>
+          <Typography sx={{ color: ft.faint, fontSize: '0.8125rem' }}>{copyright}</Typography>
+
+          <Stack direction="row" flexWrap="wrap" gap={{ xs: 1.5, sm: 2 }} sx={{ py: 0.25 }}>
+            {legalLinks.map((link) => (
+              <FooterLink key={`legal-${link.path}`} link={link} />
+            ))}
+          </Stack>
 
           <Stack direction="row" spacing={0.75}>
             <Link

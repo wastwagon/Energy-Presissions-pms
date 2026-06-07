@@ -9,21 +9,40 @@ import {
   CircularProgress,
   Chip,
   Stack,
+  Table,
+  TableBody,
+  TableRow,
+  TableCell,
+  Divider,
+  useTheme,
+  useMediaQuery,
 } from '@mui/material';
-import { ShoppingCart as ShoppingCartIcon, ArrowBack as ArrowBackIcon } from '@mui/icons-material';
-import { useParams, useNavigate } from 'react-router-dom';
+import {
+  ShoppingCart as ShoppingCartIcon,
+  ArrowBack as ArrowBackIcon,
+  Engineering as EngineeringIcon,
+} from '@mui/icons-material';
+import { Link as RouterLink, useParams, useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import { useCart } from '../../contexts/CartContext';
 import { catalogLineUnitPrice } from '../../utils/catalogPrice';
 import { Seo } from '../../components/Seo';
+import PublicPageHero from '../../components/public/PublicPageHero';
 import { trackViewItem, trackAddToCart } from '../../utils/analytics';
 import { resolveMediaUrl } from '../../utils/mediaUrl';
+import { productJsonLd } from '../../utils/jsonLd';
+import { colors } from '../../theme/colors';
+import { homeUi } from '../../theme/homeUi';
+import { publicUi } from '../../theme/publicUi';
 
 const ProductDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const { addToCart } = useCart();
   const [product, setProduct] = useState<any | null>(null);
+  const [related, setRelated] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -39,6 +58,15 @@ const ProductDetail: React.FC = () => {
         const res = await api.get(`/ecommerce/products/${id}`);
         setProduct(res.data);
         setError(null);
+        if (res.data?.product_type) {
+          api
+            .get('/ecommerce/products', { params: { product_type: res.data.product_type } })
+            .then((r) => {
+              const list = (r.data || []).filter((p: any) => String(p.id) !== String(id)).slice(0, 3);
+              setRelated(list);
+            })
+            .catch(() => {});
+        }
       } catch {
         setProduct(null);
         setError('Product not found');
@@ -60,30 +88,18 @@ const ProductDetail: React.FC = () => {
 
   if (loading) {
     return (
-      <Box sx={{ py: 6, display: 'flex', justifyContent: 'center' }}>
-        <Seo
-          title="Product"
-          description="Solar equipment from Energy Precisions — panels, inverters, batteries and more."
-          path={productPath}
-          noIndex
-        />
-        <CircularProgress sx={{ color: '#00E676' }} />
+      <Box sx={{ py: 8, display: 'flex', justifyContent: 'center', bgcolor: homeUi.pageBg }}>
+        <Seo title="Product" description="Solar equipment." path={productPath} noIndex />
+        <CircularProgress sx={{ color: colors.green }} />
       </Box>
     );
   }
 
   if (error || !product) {
     return (
-      <Box sx={{ py: 5, textAlign: 'center' }}>
-        <Seo
-          title="Product not found"
-          description="This product is not available in our catalog."
-          path={productPath}
-          noIndex
-        />
-        <Typography variant="h6" sx={{ mb: 1.5 }}>
-          {error || 'Product not found'}
-        </Typography>
+      <Box sx={{ py: 8, textAlign: 'center', bgcolor: homeUi.pageBg }}>
+        <Seo title="Product not found" description="Not available." path={productPath} noIndex />
+        <Typography sx={{ mb: 2 }}>{error || 'Product not found'}</Typography>
         <Button startIcon={<ArrowBackIcon />} onClick={() => navigate('/shop')} sx={{ textTransform: 'none' }}>
           Back to shop
         </Button>
@@ -94,9 +110,19 @@ const ProductDetail: React.FC = () => {
   const title = product.name || `${product.brand || ''} ${product.model || ''}`.trim() || 'Product';
   const unit = catalogLineUnitPrice(product);
   const img = resolveMediaUrl(product.image_url);
-  const desc =
-    (product.description || product.short_description || 'Premium solar equipment from Energy Precisions catalog.').slice(0, 300);
+  const desc = product.description || product.short_description || 'Premium solar equipment from Energy Precisions catalog.';
   const ogImage = /^https?:\/\//i.test(img) ? img : undefined;
+  const inStock = product.in_stock !== false;
+
+  const specs: { label: string; value: string }[] = [];
+  if (product.sku) specs.push({ label: 'SKU', value: product.sku });
+  if (product.product_type) specs.push({ label: 'Type', value: String(product.product_type) });
+  if (product.brand) specs.push({ label: 'Brand', value: product.brand });
+  if (product.model) specs.push({ label: 'Model', value: product.model });
+  if (product.wattage) specs.push({ label: 'Wattage', value: `${product.wattage} W` });
+  if (product.capacity_kw) specs.push({ label: 'Capacity', value: `${product.capacity_kw} kW` });
+  if (product.capacity_kwh) specs.push({ label: 'Storage', value: `${product.capacity_kwh} kWh` });
+  if (product.category) specs.push({ label: 'Category', value: product.category });
 
   const handleAdd = async () => {
     try {
@@ -109,93 +135,181 @@ const ProductDetail: React.FC = () => {
   };
 
   return (
-    <Box sx={{ py: { xs: 3, md: 5 } }}>
-      <Seo title={title} description={desc} path={productPath} ogImage={ogImage} />
-      <Container maxWidth="lg">
-        <Button
-          startIcon={<ArrowBackIcon />}
-          size="small"
-          onClick={() => navigate('/shop')}
-          sx={{ mb: 2, textTransform: 'none', color: '#1a4d7a' }}
-        >
-          Back to shop
-        </Button>
-        <Grid container spacing={{ xs: 2, md: 3 }}>
-          <Grid item xs={12} md={6}>
-            <Card sx={{ overflow: 'hidden' }}>
-              <Box
-                sx={{
-                  minHeight: { xs: 280, md: 320 },
-                  bgcolor: '#f5f5f5',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  p: 1.5,
-                }}
-              >
-                {img ? (
-                  <Box
-                    component="img"
-                    src={img}
-                    alt={title}
-                    sx={{ maxWidth: '100%', maxHeight: { xs: 260, md: 300 }, objectFit: 'contain' }}
-                  />
-                ) : (
-                  <Typography variant="h6" sx={{ color: '#999' }}>
-                    {title}
-                  </Typography>
+    <Box sx={{ bgcolor: homeUi.pageBg, pb: isMobile ? 12 : 0 }}>
+      <Seo
+        title={title}
+        description={desc.slice(0, 160)}
+        path={productPath}
+        ogImage={ogImage}
+        jsonLd={productJsonLd({
+          id: product.id,
+          name: title,
+          description: desc,
+          image: img,
+          price: unit,
+          inStock,
+          brand: product.brand,
+        })}
+      />
+      <PublicPageHero badge="Shop" headline={title} description={product.short_description || desc.slice(0, 120)} />
+
+      <Box sx={{ py: { xs: 4, md: 5 } }}>
+        <Container maxWidth="lg" sx={{ px: publicUi.containerPx }}>
+          <Button
+            startIcon={<ArrowBackIcon />}
+            size="small"
+            onClick={() => navigate('/shop')}
+            sx={{ mb: 2, textTransform: 'none', color: colors.blueNavy }}
+          >
+            Back to shop
+          </Button>
+
+          <Grid container spacing={{ xs: 2, md: 4 }}>
+            <Grid item xs={12} md={6}>
+              <Card sx={{ ...publicUi.card, overflow: 'hidden' }}>
+                <Box
+                  sx={{
+                    minHeight: { xs: 280, md: 360 },
+                    bgcolor: colors.offWhite,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    p: 2,
+                  }}
+                >
+                  {img ? (
+                    <Box component="img" src={img} alt={title} sx={{ maxWidth: '100%', maxHeight: 340, objectFit: 'contain' }} />
+                  ) : (
+                    <Typography sx={{ color: colors.gray400 }}>{title}</Typography>
+                  )}
+                </Box>
+              </Card>
+            </Grid>
+
+            <Grid item xs={12} md={6}>
+              <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap sx={{ mb: 2 }}>
+                {product.product_type && (
+                  <Chip label={String(product.product_type)} size="small" sx={{ bgcolor: colors.blueBlack, color: '#fff' }} />
                 )}
-              </Box>
-            </Card>
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <Stack direction="row" spacing={1} sx={{ mb: 1.5 }} flexWrap="wrap" useFlexGap>
-              {product.product_type && (
-                <Chip label={String(product.product_type)} size="small" sx={{ bgcolor: '#1a4d7a', color: '#fff' }} />
-              )}
-              {product.in_stock === false ? (
-                <Chip label="Out of stock" size="small" color="error" />
-              ) : (
-                <Chip label="In stock" size="small" sx={{ bgcolor: '#00E676', color: '#fff' }} />
-              )}
-            </Stack>
-            <Typography variant="h5" sx={{ mb: 1.5, fontWeight: 800, color: '#1a4d7a', fontSize: { xs: '1.25rem', md: '1.4rem' } }}>
-              {title}
-            </Typography>
-            {product.brand && (
-              <Typography variant="body2" sx={{ color: '#666', mb: 1.5 }}>
-                {product.brand}
-                {product.model ? ` · ${product.model}` : ''}
+                <Chip
+                  label={inStock ? 'In stock · Accra warehouse' : 'Out of stock'}
+                  size="small"
+                  sx={inStock ? { bgcolor: colors.green, color: colors.blueBlack } : undefined}
+                  color={inStock ? undefined : 'error'}
+                />
+              </Stack>
+
+              <Typography sx={{ ...homeUi.title, fontSize: { xs: '1.5rem', md: '1.75rem' }, color: colors.blueBlack, mb: 1 }}>
+                GHS {unit.toLocaleString()}
               </Typography>
-            )}
-            <Typography variant="h6" sx={{ mb: 2, color: '#00E676', fontWeight: 700 }}>
-              GHS {unit.toLocaleString()}
               {product.price_type && product.price_type !== 'fixed' && (
-                <Typography component="span" variant="caption" sx={{ color: '#666', ml: 1, fontWeight: 400 }}>
-                  ({product.price_type.replace(/_/g, ' ')})
+                <Typography sx={{ ...publicUi.mutedText, fontSize: '0.8125rem', mb: 2 }}>
+                  Pricing: {product.price_type.replace(/_/g, ' ')}
                 </Typography>
               )}
-            </Typography>
-            <Typography variant="body2" sx={{ mb: 3, color: '#666', lineHeight: 1.65 }}>
-              {product.description || product.short_description || 'Premium solar equipment from our catalog.'}
-            </Typography>
-            <Button
-              variant="contained"
-              size="medium"
-              startIcon={<ShoppingCartIcon />}
-              onClick={handleAdd}
-              disabled={product.in_stock === false}
-              sx={{
-                bgcolor: '#00E676',
-                '&:hover': { bgcolor: '#00C85F' },
-                textTransform: 'none',
-              }}
-            >
-              Add to Cart
-            </Button>
+
+              <Typography sx={{ ...homeUi.body, ...publicUi.mutedText, mb: 3 }}>{desc}</Typography>
+
+              {!isMobile && (
+                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5}>
+                  <Button
+                    variant="contained"
+                    startIcon={<ShoppingCartIcon />}
+                    onClick={handleAdd}
+                    disabled={!inStock}
+                    sx={{ ...publicUi.primaryButton, ...homeUi.touchTarget, px: 3 }}
+                  >
+                    Add to cart
+                  </Button>
+                  <Button
+                    component={RouterLink}
+                    to="/contact?action=quote&topic=shop"
+                    variant="outlined"
+                    startIcon={<EngineeringIcon />}
+                    sx={{ ...publicUi.secondaryButton, ...homeUi.touchTarget, px: 3 }}
+                  >
+                    Add installation quote
+                  </Button>
+                </Stack>
+              )}
+
+              {specs.length > 0 && (
+                <Box sx={{ mt: 4 }}>
+                  <Typography sx={{ fontWeight: 700, mb: 1.5 }}>Specifications</Typography>
+                  <Card sx={publicUi.card}>
+                    <Table size="small">
+                      <TableBody>
+                        {specs.map((row) => (
+                          <TableRow key={row.label}>
+                            <TableCell sx={{ fontWeight: 600, width: '38%', borderColor: colors.gray200 }}>{row.label}</TableCell>
+                            <TableCell sx={{ ...publicUi.mutedText, borderColor: colors.gray200 }}>{row.value}</TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </Card>
+                </Box>
+              )}
+
+              <Typography sx={{ ...publicUi.mutedText, fontSize: '0.8125rem', mt: 2 }}>
+                <RouterLink to="/warranty" style={{ color: colors.greenDark, fontWeight: 600, textDecoration: 'none' }}>
+                  Warranty information
+                </RouterLink>
+              </Typography>
+            </Grid>
           </Grid>
-        </Grid>
-      </Container>
+
+          {related.length > 0 && (
+            <Box sx={{ mt: { xs: 5, md: 7 } }}>
+              <Typography sx={{ ...homeUi.title, fontSize: '1.125rem', mb: 2 }}>Related products</Typography>
+              <Grid container spacing={2}>
+                {related.map((p) => (
+                  <Grid item xs={12} sm={4} key={p.id}>
+                    <Button
+                      component={RouterLink}
+                      to={`/products/${p.id}`}
+                      fullWidth
+                      variant="outlined"
+                      sx={{ ...publicUi.secondaryButton, py: 1.5, justifyContent: 'flex-start' }}
+                    >
+                      {p.name || p.model || 'Product'}
+                    </Button>
+                  </Grid>
+                ))}
+              </Grid>
+            </Box>
+          )}
+        </Container>
+      </Box>
+
+      {isMobile && (
+        <Box
+          sx={{
+            position: 'fixed',
+            left: 0,
+            right: 0,
+            bottom: 'calc(56px + env(safe-area-inset-bottom, 0px))',
+            zIndex: theme.zIndex.appBar - 1,
+            px: 2,
+            py: 1,
+            bgcolor: 'rgba(251, 251, 253, 0.94)',
+            backdropFilter: 'blur(16px)',
+            borderTop: homeUi.cardBorder,
+          }}
+        >
+          <Stack direction="row" spacing={1}>
+            <Button
+              fullWidth
+              variant="contained"
+              onClick={handleAdd}
+              disabled={!inStock}
+              sx={{ ...publicUi.primaryButton, ...homeUi.touchTarget }}
+            >
+              Add to cart · GHS {unit.toLocaleString()}
+            </Button>
+          </Stack>
+        </Box>
+      )}
     </Box>
   );
 };

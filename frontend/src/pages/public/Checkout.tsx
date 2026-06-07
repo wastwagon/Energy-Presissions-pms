@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
   Box,
-  Container,
   Typography,
   Grid,
   Card,
@@ -18,13 +17,18 @@ import {
   RadioGroup,
   FormControl,
   Alert,
+  Link,
 } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { useCart } from '../../contexts/CartContext';
 import api from '../../services/api';
 import { catalogLineUnitPrice } from '../../utils/catalogPrice';
 import { Seo } from '../../components/Seo';
+import PublicPageShell from '../../components/public/PublicPageShell';
 import { trackBeginCheckout } from '../../utils/analytics';
+import { colors } from '../../theme/colors';
+import { publicUi } from '../../theme/publicUi';
+import { homeUi } from '../../theme/homeUi';
 
 const steps = ['Shipping Information', 'Payment', 'Confirmation'];
 
@@ -178,30 +182,27 @@ const Checkout: React.FC = () => {
 
   if (cartItems.length === 0) {
     return (
-      <Box sx={{ py: { xs: 5, md: 6 }, textAlign: 'center' }}>
+      <>
         <Seo
           title="Checkout"
           description="Complete your Energy Precisions order."
           path="/checkout"
           noIndex
         />
-        <Container maxWidth="md">
+        <PublicPageShell badge="Shop" headline="Checkout" description="Your cart is empty.">
           <Alert severity="warning" sx={{ mb: 2 }}>
-            Your cart is empty
+            Add products from our shop before checkout.
           </Alert>
           <Button
             variant="contained"
-            onClick={() => navigate('/shop')}
-            sx={{
-              bgcolor: '#00E676',
-              '&:hover': { bgcolor: '#00C85F' },
-              textTransform: 'none',
-            }}
+            component={RouterLink}
+            to="/shop"
+            sx={{ ...publicUi.primaryButton, ...homeUi.touchTarget }}
           >
-            Continue Shopping
+            Browse shop
           </Button>
-        </Container>
-      </Box>
+        </PublicPageShell>
+      </>
     );
   }
 
@@ -306,18 +307,19 @@ const Checkout: React.FC = () => {
   const total = subtotalAfterDiscount + shippingCost;
 
   return (
-    <Box sx={{ py: { xs: 3, md: 6 } }}>
+    <>
       <Seo
         title="Checkout"
         description="Shipping, payment and order confirmation for Energy Precisions."
         path="/checkout"
         noIndex
       />
-      <Container maxWidth="lg">
-        <Typography variant="h2" sx={{ mb: 3, fontWeight: 800, color: '#1a4d7a', fontSize: { xs: '1.5rem', md: '1.85rem' } }}>
-          Checkout
-        </Typography>
-
+      <PublicPageShell
+        badge="Shop"
+        headline="Checkout"
+        description="Secure payment via Paystack — card, mobile money, or bank transfer."
+        contentPy={{ xs: 3, md: 5 }}
+      >
         <Stepper activeStep={activeStep} sx={{ mb: 3 }}>
           {steps.map((label) => (
             <Step key={label}>
@@ -336,7 +338,7 @@ const Checkout: React.FC = () => {
           {/* Main Content */}
           <Grid item xs={12} md={8}>
             {activeStep === 0 && (
-              <Card>
+              <Card sx={publicUi.card}>
                 <CardContent sx={{ p: { xs: 2.5, md: 3 } }}>
                   <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 700 }}>
                     Shipping Information
@@ -432,7 +434,7 @@ const Checkout: React.FC = () => {
             )}
 
             {activeStep === 1 && (
-              <Card>
+              <Card sx={publicUi.card}>
                 <CardContent sx={{ p: { xs: 2.5, md: 3 } }}>
                   <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 700 }}>
                     Payment Method
@@ -483,7 +485,14 @@ const Checkout: React.FC = () => {
                       }
                       label={
                         <Typography variant="body2">
-                          I agree to the Terms & Conditions and Payment Terms
+                          I agree to the{' '}
+                          <Link component={RouterLink} to="/terms" sx={publicUi.inlineLink}>
+                            Terms of use
+                          </Link>{' '}
+                          and{' '}
+                          <Link component={RouterLink} to="/privacy" sx={publicUi.inlineLink}>
+                            Privacy policy
+                          </Link>
                         </Typography>
                       }
                     />
@@ -493,29 +502,24 @@ const Checkout: React.FC = () => {
             )}
 
             {activeStep === 2 && (
-              <Card>
+              <Card sx={publicUi.card}>
                 <CardContent sx={{ p: { xs: 2.5, md: 3 }, textAlign: 'center' }}>
-                  <Typography variant="h5" sx={{ mb: 1.5, color: '#00E676', fontWeight: 800 }}>
-                    Order Confirmed!
+                  <Typography sx={{ mb: 1.5, color: colors.greenDark, fontWeight: 800, fontSize: '1.25rem' }}>
+                    Order confirmed!
                   </Typography>
-                  <Typography variant="subtitle1" sx={{ mb: 2, color: '#666' }}>
-                    Order Number: {orderNumber}
+                  <Typography sx={{ mb: 2, ...publicUi.mutedText }}>
+                    Order number: {orderNumber}
                   </Typography>
-                  <Typography variant="body2" sx={{ mb: 3, color: '#666', lineHeight: 1.65 }}>
-                    Thank you for your order! We've sent a confirmation email to your inbox.
-                    You will receive updates about your order status.
+                  <Typography sx={{ mb: 3, ...publicUi.mutedText }}>
+                    Thank you for your order. A confirmation email is on its way.
                   </Typography>
                   <Button
                     variant="contained"
-                    size="medium"
-                    onClick={() => navigate('/shop')}
-                    sx={{
-                      bgcolor: '#00E676',
-                      '&:hover': { bgcolor: '#00C85F' },
-                      textTransform: 'none',
-                    }}
+                    component={RouterLink}
+                    to="/shop"
+                    sx={{ ...publicUi.primaryButton, ...homeUi.touchTarget }}
                   >
-                    Continue Shopping
+                    Continue shopping
                   </Button>
                 </CardContent>
               </Card>
@@ -524,7 +528,13 @@ const Checkout: React.FC = () => {
 
           {/* Order Summary */}
           <Grid item xs={12} md={4}>
-            <Card sx={{ position: 'sticky', top: 20 }}>
+            <Card
+              sx={{
+                ...publicUi.card,
+                position: { md: 'sticky' },
+                top: { md: 88 },
+              }}
+            >
               <CardContent sx={{ p: { xs: 2.5, md: 3 } }}>
                 <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 700 }}>
                   Order Summary
@@ -619,7 +629,7 @@ const Checkout: React.FC = () => {
                   <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
                     Total
                   </Typography>
-                  <Typography variant="subtitle1" sx={{ fontWeight: 700, color: '#00E676' }}>
+                  <Typography variant="subtitle1" sx={{ fontWeight: 700, color: colors.greenDark }}>
                     GHS {total.toLocaleString()}
                   </Typography>
                 </Box>
@@ -629,35 +639,23 @@ const Checkout: React.FC = () => {
                     <Button
                       fullWidth
                       variant="contained"
-                      size="medium"
                       onClick={handleNext}
                       disabled={loading || (activeStep === 1 && !termsAccepted)}
-                      sx={{
-                        bgcolor: '#00E676',
-                        '&:hover': { bgcolor: '#00C85F' },
-                        textTransform: 'none',
-                        mb: 1,
-                      }}
+                      sx={{ ...publicUi.primaryButton, ...homeUi.touchTarget, mb: 1 }}
                     >
                       {loading
                         ? 'Processing...'
                         : activeStep === 1
-                        ? 'Complete Order'
-                        : 'Continue to Payment'}
+                        ? 'Complete order'
+                        : 'Continue to payment'}
                     </Button>
                     {activeStep > 0 && (
                       <Button
                         fullWidth
                         variant="outlined"
-                        size="medium"
                         onClick={handleBack}
                         disabled={loading}
-                        sx={{
-                          borderColor: '#1a4d7a',
-                          color: '#1a4d7a',
-                          '&:hover': { borderColor: '#1a4d7a', bgcolor: 'rgba(26, 77, 122, 0.04)' },
-                          textTransform: 'none',
-                        }}
+                        sx={{ ...publicUi.secondaryButton, ...homeUi.touchTarget }}
                       >
                         Back
                       </Button>
@@ -668,8 +666,8 @@ const Checkout: React.FC = () => {
             </Card>
           </Grid>
         </Grid>
-      </Container>
-    </Box>
+      </PublicPageShell>
+    </>
   );
 };
 

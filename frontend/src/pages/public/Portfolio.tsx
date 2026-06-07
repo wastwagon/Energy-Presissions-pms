@@ -38,6 +38,8 @@ const Portfolio: React.FC = () => {
             {portfolioPageItems.map((item) => (
               <Grid item xs={12} sm={6} md={4} key={item.id}>
                 <Card
+                  component={Link}
+                  to={`/portfolio/${item.id}`}
                   sx={{
                     height: '100%',
                     display: 'flex',
@@ -46,6 +48,8 @@ const Portfolio: React.FC = () => {
                     overflow: 'hidden',
                     border: '1px solid',
                     borderColor: colors.gray200,
+                    textDecoration: 'none',
+                    color: 'inherit',
                     transition: 'transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease',
                     '&:hover': {
                       transform: 'translateY(-3px)',

@@ -1,100 +1,108 @@
 import React from 'react';
-import { Box, Container, Typography, Button, Grid, Card, CardContent, Stack, Chip } from '@mui/material';
+import { Box, Container, Typography, Button, Grid, Card, CardContent, Stack } from '@mui/material';
 import {
   CardGiftcard as GiftIcon,
   Groups as GroupsIcon,
   CheckCircle as CheckIcon,
+  Share as ShareIcon,
+  Chat as ChatIcon,
 } from '@mui/icons-material';
 import { Link as RouterLink } from 'react-router-dom';
 import { Seo } from '../../components/Seo';
+import PublicPageShell from '../../components/public/PublicPageShell';
 import { colors } from '../../theme/colors';
+import { publicUi } from '../../theme/publicUi';
+import { homeUi } from '../../theme/homeUi';
+import {
+  buildWhatsAppShareUrl,
+  REFERRAL_LEAD_WHATSAPP_TEMPLATE,
+  REFERRAL_WHATSAPP_MESSAGE,
+} from '../../utils/whatsappShare';
 
-const ReferralProgram: React.FC = () => {
-  return (
-    <Box>
-      <Seo
-        title="Solar Champions Referral Program | Energy Precisions"
-        description="Refer homes and businesses to Energy Precisions for solar in Ghana. Ask about our referral rewards for successful installations."
-        path="/referral"
-      />
-      <Box sx={{ bgcolor: colors.blueBlack, color: 'white', py: { xs: 5, md: 6 } }}>
-        <Container maxWidth="md">
-          <Chip label="SOLAR CHAMPIONS" sx={{ bgcolor: colors.green, color: 'white', fontWeight: 700, mb: 2 }} />
-          <Typography variant="h1" sx={{ fontSize: { xs: '1.65rem', md: '2rem' }, fontWeight: 800, mb: 2 }}>
-            Referral program
-          </Typography>
-          <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.88)', lineHeight: 1.65, mb: 2 }}>
-            Help friends, family, and businesses go solar with a team that engineers every system. We are
-            formalising referral rewards for successful projects — share a lead today and we will confirm
-            eligibility and terms with you directly.
-          </Typography>
-          <Button
-            component={RouterLink}
-            to="/contact?action=quote&topic=referral"
-            variant="contained"
-            size="large"
-            sx={{ bgcolor: colors.green, color: 'white', textTransform: 'none', fontWeight: 700, px: 3 }}
-          >
-            Submit a referral
-          </Button>
-        </Container>
-      </Box>
+const ReferralProgram: React.FC = () => (
+  <>
+    <Seo
+      title="Solar Champions Referral Program | Energy Precisions"
+      description="Refer homes and businesses to Energy Precisions for solar in Ghana. Ask about our referral rewards for successful installations."
+      path="/referral"
+    />
+    <PublicPageShell
+      badge="Solar champions"
+      headline="Referral program"
+      description="Help friends, family, and businesses go solar. Share a lead today — we confirm eligibility and reward terms with you directly."
+      heroAlign="center"
+      contentMaxWidth="lg"
+    >
+      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} justifyContent="center" sx={{ mb: 4 }}>
+        <Button
+          component={RouterLink}
+          to="/contact?action=quote&topic=referral"
+          variant="contained"
+          sx={{ ...publicUi.primaryButton, ...homeUi.touchTarget, px: 3 }}
+        >
+          Submit a referral
+        </Button>
+        <Button
+          component="a"
+          href={buildWhatsAppShareUrl(REFERRAL_WHATSAPP_MESSAGE)}
+          target="_blank"
+          rel="noopener noreferrer"
+          variant="outlined"
+          startIcon={<ChatIcon />}
+          sx={{ ...publicUi.secondaryButton, ...homeUi.touchTarget, px: 3 }}
+        >
+          Ask on WhatsApp
+        </Button>
+        <Button
+          component="a"
+          href={buildWhatsAppShareUrl(REFERRAL_LEAD_WHATSAPP_TEMPLATE)}
+          target="_blank"
+          rel="noopener noreferrer"
+          variant="outlined"
+          startIcon={<ShareIcon />}
+          sx={{ ...publicUi.secondaryButton, ...homeUi.touchTarget, px: 3 }}
+        >
+          Share lead template
+        </Button>
+      </Stack>
 
-      <Container maxWidth="lg" sx={{ py: { xs: 4, md: 6 } }}>
-        <Grid container spacing={3}>
-          <Grid item xs={12} md={4}>
-            <Card elevation={0} sx={{ height: '100%', border: `1px solid ${colors.gray200}`, borderRadius: 2 }}>
+      <Grid container spacing={3}>
+        {[
+          {
+            icon: <GiftIcon sx={{ fontSize: 40, color: colors.green, mb: 1 }} />,
+            title: 'How it works',
+            body: 'You introduce a serious prospect. We assess the site, issue a quote, and if they proceed to installation, your referral is logged for reward settlement.',
+          },
+          {
+            icon: <GroupsIcon sx={{ fontSize: 40, color: colors.green, mb: 1 }} />,
+            title: 'Who can refer',
+            body: 'Past customers, partners, and community advocates. Commercial introducers should mention company details for procurement or ESG alignment.',
+          },
+          {
+            icon: <CheckIcon sx={{ fontSize: 40, color: colors.green, mb: 1 }} />,
+            title: 'Fair & transparent',
+            body: 'Rewards depend on project size and margin — no fixed amount promised here. We reply with written terms after your first referral.',
+          },
+        ].map((item) => (
+          <Grid item xs={12} md={4} key={item.title}>
+            <Card sx={{ ...publicUi.card, height: '100%' }}>
               <CardContent>
-                <GiftIcon sx={{ fontSize: 40, color: colors.green, mb: 1 }} />
-                <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
-                  How it works
-                </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.65 }}>
-                  You introduce a serious prospect (home, farm, or business). We assess the site, issue a quote,
-                  and if they proceed to installation, your referral is logged for reward settlement under our
-                  current policy.
-                </Typography>
+                {item.icon}
+                <Typography sx={{ fontWeight: 700, mb: 1 }}>{item.title}</Typography>
+                <Typography sx={{ ...publicUi.mutedText, fontSize: '0.875rem' }}>{item.body}</Typography>
               </CardContent>
             </Card>
           </Grid>
-          <Grid item xs={12} md={4}>
-            <Card elevation={0} sx={{ height: '100%', border: `1px solid ${colors.gray200}`, borderRadius: 2 }}>
-              <CardContent>
-                <GroupsIcon sx={{ fontSize: 40, color: colors.green, mb: 1 }} />
-                <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
-                  Who can refer
-                </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.65 }}>
-                  Past customers, partners, and community advocates. Commercial introducers should mention
-                  company details so we can align with your procurement or ESG reporting if needed.
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <Card elevation={0} sx={{ height: '100%', border: `1px solid ${colors.gray200}`, borderRadius: 2 }}>
-              <CardContent>
-                <CheckIcon sx={{ fontSize: 40, color: colors.green, mb: 1 }} />
-                <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
-                  Fair & transparent
-                </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.65 }}>
-                  Rewards depend on project size and margin — no promise of a fixed amount on this page. We will
-                  reply with written terms after your first referral.
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-        </Grid>
+        ))}
+      </Grid>
 
-        <Stack alignItems="center" sx={{ mt: 5 }}>
-          <Button component={RouterLink} to="/contact?topic=referral" variant="outlined" size="large" sx={{ textTransform: 'none' }}>
-            Questions? Contact us
-          </Button>
-        </Stack>
-      </Container>
-    </Box>
-  );
-};
+      <Stack alignItems="center" sx={{ mt: 5 }}>
+        <Button component={RouterLink} to="/contact?topic=referral" variant="outlined" sx={{ ...publicUi.secondaryButton, px: 3 }}>
+          Questions? Contact us
+        </Button>
+      </Stack>
+    </PublicPageShell>
+  </>
+);
 
 export default ReferralProgram;

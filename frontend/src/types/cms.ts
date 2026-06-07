@@ -136,8 +136,16 @@ export interface CmsFooter {
   quick_links: CmsLink[];
   other_links_title: string;
   other_links: CmsLink[];
-  service_list_title: string;
-  service_list: string[];
+  /** @deprecated use service_links */
+  service_list_title?: string;
+  /** @deprecated use service_links */
+  service_list?: string[];
+  service_links_title?: string;
+  service_links?: CmsLink[];
+  tools_links_title?: string;
+  tools_links?: CmsLink[];
+  legal_links?: CmsLink[];
+  legal_links_title?: string;
   newsletter_title: string;
   newsletter_text: string;
   subscribe_button: string;

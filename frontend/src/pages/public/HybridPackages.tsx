@@ -32,6 +32,11 @@ import { colors } from '../../theme/colors';
 import { COMPANY } from '../../data/companyContact';
 import { useCmsPage } from '../../hooks/useCmsPage';
 import { resolveCmsSeo } from '../../hooks/useCmsSeo';
+import PublicStickyMobileCta from '../../components/public/PublicStickyMobileCta';
+import PublicPageHero from '../../components/public/PublicPageHero';
+import PackageComparisonTable from '../../components/public/PackageComparisonTable';
+import { homeUi } from '../../theme/homeUi';
+import { publicUi } from '../../theme/publicUi';
 import {
   HYBRID_PACKAGES,
   LOAD_CEILING_HELP,
@@ -57,95 +62,35 @@ const HybridPackages: React.FC = () => {
     <Box>
       <Seo title={seo.title} description={seo.description} path="/solar-packages" />
 
-      {/* Hero */}
-      <Box
-        sx={{
-          background: `linear-gradient(135deg, ${colors.blueBlack} 0%, ${colors.blueBlackLight} 100%)`,
-          color: 'white',
-          py: { xs: 5, md: 7 },
-          position: 'relative',
-          overflow: 'hidden',
-        }}
-      >
-        <Container maxWidth="xl" sx={{ position: 'relative', zIndex: 1 }}>
-          <Grid container spacing={4} alignItems="center">
-            <Grid item xs={12} md={7}>
-              <Chip
-                label={hero.badge}
-                sx={{
-                  bgcolor: colors.green,
-                  color: 'white',
-                  fontWeight: 700,
-                  mb: 2,
-                  fontSize: '0.7rem',
-                }}
-              />
-              <Typography
-                variant="h1"
-                sx={{
-                  fontSize: { xs: '1.85rem', md: '2.5rem' },
-                  fontWeight: 800,
-                  mb: 2,
-                  lineHeight: 1.12,
-                }}
-              >
-                {hero.headline}
-              </Typography>
-              <Typography
-                variant="body1"
-                sx={{ color: 'rgba(255,255,255,0.9)', lineHeight: 1.7, maxWidth: 560, mb: 3 }}
-              >
-                {hero.description}
-              </Typography>
-              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5}>
-                <Button
-                  variant="contained"
-                  component={RouterLink}
-                  to={hero.primary_cta_link}
-                  sx={{
-                    bgcolor: colors.green,
-                    color: 'white',
-                    fontWeight: 700,
-                    textTransform: 'none',
-                    px: 3,
-                    '&:hover': { bgcolor: colors.greenDark },
-                  }}
-                >
-                  {hero.primary_cta_text}
-                </Button>
-                <Button
-                  variant="outlined"
-                  component={secondaryCtaExternal ? 'a' : RouterLink}
-                  {...(secondaryCtaExternal
-                    ? { href: hero.secondary_cta_link }
-                    : { to: hero.secondary_cta_link })}
-                  sx={{
-                    borderColor: 'rgba(255,255,255,0.5)',
-                    color: 'white',
-                    textTransform: 'none',
-                    '&:hover': { borderColor: colors.green, bgcolor: 'rgba(255,255,255,0.06)' },
-                  }}
-                >
-                  {hero.secondary_cta_text}
-                </Button>
-              </Stack>
-            </Grid>
-            <Grid item xs={12} md={5} sx={{ textAlign: { xs: 'center', md: 'right' } }}>
-              <Box
-                component="img"
-                src={COMPANY.logoSrc}
-                alt={COMPANY.logoAlt}
-                sx={{
-                  maxWidth: { xs: 220, md: 280 },
-                  width: '100%',
-                  height: 'auto',
-                  filter: 'drop-shadow(0 8px 24px rgba(0,0,0,0.35))',
-                }}
-              />
-            </Grid>
-          </Grid>
-        </Container>
-      </Box>
+      <PublicPageHero badge={hero.badge} headline={hero.headline} description={hero.description}>
+        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5}>
+          <Button
+            variant="contained"
+            component={RouterLink}
+            to={hero.primary_cta_link}
+            sx={{ ...publicUi.primaryButton, ...homeUi.touchTarget, px: 3 }}
+          >
+            {hero.primary_cta_text}
+          </Button>
+          <Button
+            variant="outlined"
+            component={secondaryCtaExternal ? 'a' : RouterLink}
+            {...(secondaryCtaExternal ? { href: hero.secondary_cta_link } : { to: hero.secondary_cta_link })}
+            sx={{
+              borderColor: 'rgba(255,255,255,0.45)',
+              color: 'white',
+              borderRadius: 999,
+              textTransform: 'none',
+              fontWeight: 600,
+              px: 3,
+              ...homeUi.touchTarget,
+              '&:hover': { borderColor: 'white', bgcolor: 'rgba(255,255,255,0.06)' },
+            }}
+          >
+            {hero.secondary_cta_text}
+          </Button>
+        </Stack>
+      </PublicPageHero>
 
       {/* Package grid */}
       <Box sx={{ py: { xs: 5, md: 8 }, bgcolor: colors.offWhite }}>
@@ -199,6 +144,8 @@ const HybridPackages: React.FC = () => {
               ))}
             </List>
           </Box>
+
+          <PackageComparisonTable />
 
           <Grid container spacing={2} alignItems="stretch">
             {HYBRID_PACKAGES.map((pkg) => (
@@ -478,6 +425,7 @@ const HybridPackages: React.FC = () => {
           </Grid>
         </Container>
       </Box>
+      <PublicStickyMobileCta label="Book free site survey" to="/contact?action=quote&topic=package" />
     </Box>
   );
 };

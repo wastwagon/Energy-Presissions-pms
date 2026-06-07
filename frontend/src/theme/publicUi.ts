@@ -52,6 +52,39 @@ export const publicUi = {
     '&:hover': { bgcolor: colors.greenDark, boxShadow: 'none' },
   },
 
+  secondaryButton: {
+    borderColor: colors.blueNavy,
+    color: colors.blueNavy,
+    fontWeight: 600,
+    textTransform: 'none' as const,
+    borderRadius: 999,
+    '&:hover': {
+      borderColor: colors.blueNavy,
+      bgcolor: 'rgba(26, 77, 122, 0.04)',
+    },
+  },
+
+  inlineLink: {
+    color: colors.greenDark,
+    fontWeight: 600,
+    textDecoration: 'none',
+    '&:hover': { textDecoration: 'underline' },
+  },
+
+  mutedText: {
+    color: colors.gray600,
+    lineHeight: 1.65,
+  },
+
+  card: {
+    bgcolor: homeUi.cardBg,
+    borderRadius: homeUi.cardRadius,
+    border: homeUi.cardBorder,
+    boxShadow: homeUi.cardShadow,
+  },
+
+  contentPy: { xs: 4, md: 6 } as const,
+
   appBar: {
     bgcolor: homeUi.cardBg,
     borderBottom: homeUi.cardBorder,

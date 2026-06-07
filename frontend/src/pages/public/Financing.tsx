@@ -9,7 +9,6 @@ import {
   CardContent,
   Stack,
   Button,
-  Chip,
   List,
   ListItem,
   ListItemIcon,
@@ -22,7 +21,10 @@ import {
   Phone as PhoneIcon,
 } from '@mui/icons-material';
 import { Seo } from '../../components/Seo';
+import PublicPageHero from '../../components/public/PublicPageHero';
 import { colors } from '../../theme/colors';
+import { homeUi } from '../../theme/homeUi';
+import { publicUi } from '../../theme/publicUi';
 import { useCmsPage } from '../../hooks/useCmsPage';
 import { resolveCmsSeo } from '../../hooks/useCmsSeo';
 
@@ -38,117 +40,60 @@ const Financing: React.FC = () => {
   const { hero, hero_cards: heroCards, content } = sections;
 
   return (
-    <Box>
+    <Box sx={{ bgcolor: homeUi.pageBg }}>
       <Seo title={seo.title} description={seo.description} path="/financing" />
-      <Box
-        sx={{
-          bgcolor: colors.blueBlack,
-          color: 'white',
-          py: { xs: 5, md: 6 },
-          position: 'relative',
-          overflow: 'hidden',
-        }}
-      >
-        <Container maxWidth="xl">
-          <Grid container spacing={{ xs: 3, md: 4 }} alignItems="center">
-            <Grid item xs={12} md={7}>
-              <Chip
-                label={hero.badge}
-                sx={{
-                  bgcolor: colors.green,
-                  color: 'white',
-                  fontWeight: 700,
-                  mb: 1.5,
-                  px: 1.75,
-                  height: 'auto',
-                  fontSize: '0.7rem',
-                }}
-              />
-              <Typography
-                variant="h1"
-                sx={{
-                  fontSize: { xs: '1.75rem', sm: '2rem', md: '2.35rem' },
-                  fontWeight: 800,
-                  mb: 2,
-                  lineHeight: 1.15,
-                }}
-              >
-                {hero.headline}
-              </Typography>
-              <Typography
-                variant="body1"
-                sx={{
-                  color: 'rgba(255,255,255,0.88)',
-                  lineHeight: 1.65,
-                  fontWeight: 400,
-                  mb: 2.5,
-                  fontSize: { xs: '0.95rem', md: '1rem' },
-                }}
-              >
-                {hero.description}
-              </Typography>
-              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5}>
-                <Button
-                  component={RouterLink}
-                  to={hero.primary_cta_link}
-                  variant="contained"
-                  size="medium"
-                  sx={{
-                    bgcolor: colors.green,
-                    color: 'white',
-                    fontWeight: 700,
-                    textTransform: 'none',
-                    px: 2.5,
-                    '&:hover': { bgcolor: colors.greenDark },
-                  }}
-                >
-                  {hero.primary_cta_text}
-                </Button>
-                <Button
-                  component={RouterLink}
-                  to={hero.secondary_cta_link}
-                  variant="outlined"
-                  size="medium"
-                  sx={{
-                    borderColor: 'rgba(255,255,255,0.6)',
-                    color: 'white',
-                    '&:hover': { borderColor: 'white', bgcolor: 'rgba(255,255,255,0.06)' },
-                  }}
-                >
-                  {hero.secondary_cta_text}
-                </Button>
-              </Stack>
-            </Grid>
-            <Grid item xs={12} md={5}>
-              <Stack spacing={2}>
-                {(heroCards || []).map((card, index) => {
-                  const Icon = HERO_CARD_ICONS[index] || HandshakeIcon;
-                  return (
-                    <Card
-                      key={card.title}
-                      sx={{ bgcolor: 'rgba(255,255,255,0.06)', color: 'white', border: '1px solid rgba(255,255,255,0.12)' }}
-                    >
-                      <CardContent>
-                        <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
-                          <Icon sx={{ color: colors.green }} />
-                          <Typography variant="h6" fontWeight={700}>
-                            {card.title}
-                          </Typography>
-                        </Stack>
-                        <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.85)', lineHeight: 1.7 }}>
-                          {card.body}
-                        </Typography>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
-              </Stack>
-            </Grid>
+      <PublicPageHero badge={hero.badge} headline={hero.headline} description={hero.description}>
+        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5}>
+          <Button
+            component={RouterLink}
+            to={hero.primary_cta_link}
+            variant="contained"
+            sx={{ ...publicUi.primaryButton, ...homeUi.touchTarget, px: 2.5 }}
+          >
+            {hero.primary_cta_text}
+          </Button>
+          <Button
+            component={RouterLink}
+            to={hero.secondary_cta_link}
+            variant="outlined"
+            sx={{
+              borderColor: 'rgba(255,255,255,0.45)',
+              color: 'white',
+              borderRadius: 999,
+              textTransform: 'none',
+              fontWeight: 600,
+              '&:hover': { borderColor: 'white', bgcolor: 'rgba(255,255,255,0.06)' },
+            }}
+          >
+            {hero.secondary_cta_text}
+          </Button>
+        </Stack>
+      </PublicPageHero>
+
+      {(heroCards || []).length > 0 && (
+        <Container maxWidth="lg" sx={{ px: publicUi.containerPx, pt: { xs: 3, md: 4 }, pb: 0 }}>
+          <Grid container spacing={2}>
+            {(heroCards || []).map((card, index) => {
+              const Icon = HERO_CARD_ICONS[index] || HandshakeIcon;
+              return (
+                <Grid item xs={12} md={6} key={card.title}>
+                  <Card sx={{ ...publicUi.card, height: '100%' }}>
+                    <CardContent>
+                      <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
+                        <Icon sx={{ color: colors.green }} />
+                        <Typography sx={{ fontWeight: 700 }}>{card.title}</Typography>
+                      </Stack>
+                      <Typography sx={{ ...publicUi.mutedText, fontSize: '0.875rem' }}>{card.body}</Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              );
+            })}
           </Grid>
         </Container>
-      </Box>
+      )}
 
-      <Container maxWidth="lg" sx={{ py: { xs: 5, md: 7 } }}>
+      <Container maxWidth="lg" sx={{ py: { xs: 4, md: 6 }, px: publicUi.containerPx }}>
         <Typography variant="h2" fontWeight={800} sx={{ mb: 1.5, fontSize: { xs: '1.5rem', md: '1.75rem' } }}>
           {content.title}
         </Typography>
@@ -192,9 +137,7 @@ const Financing: React.FC = () => {
                   component={RouterLink}
                   to={content.talk_cta_link}
                   variant="contained"
-                  color="primary"
-                  size="medium"
-                  sx={{ textTransform: 'none' }}
+                  sx={{ ...publicUi.primaryButton, ...homeUi.touchTarget }}
                 >
                   {content.talk_cta_text}
                 </Button>

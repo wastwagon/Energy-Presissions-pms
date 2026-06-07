@@ -40,7 +40,10 @@ import { trackAddToCart } from '../../utils/analytics';
 import { resolveMediaUrl } from '../../utils/mediaUrl';
 import { useCmsPage } from '../../hooks/useCmsPage';
 import { resolveCmsSeo } from '../../hooks/useCmsSeo';
+import PublicPageHero from '../../components/public/PublicPageHero';
 import { colors } from '../../theme/colors';
+import { homeUi } from '../../theme/homeUi';
+import { publicUi } from '../../theme/publicUi';
 
 const Shop: React.FC = () => {
   const { sections } = useCmsPage('shop');
@@ -135,80 +138,17 @@ const Shop: React.FC = () => {
   };
 
   return (
-    <Box sx={{ py: { xs: 2, md: 3 }, minHeight: '70vh', bgcolor: '#f8f9fa' }}>
+    <Box sx={{ minHeight: '70vh', bgcolor: homeUi.pageBg }}>
       <Seo title={seo.title} description={seo.description} path={pathname} />
-      {/* Hero Header */}
-      <Box
-        sx={{
-          background: `linear-gradient(135deg, ${colors.blueBlack} 0%, ${colors.blueBlackLight} 100%)`,
-          color: 'white',
-          py: { xs: 4, md: 5 },
-          mb: { xs: 3, md: 4 },
-          position: 'relative',
-          overflow: 'hidden',
-          '&::after': {
-            content: '""',
-            position: 'absolute',
-            top: '-30%',
-            right: '-15%',
-            width: '50%',
-            height: '120%',
-            background: `radial-gradient(ellipse at center, ${colors.green}18 0%, transparent 70%)`,
-            pointerEvents: 'none',
-          },
-        }}
-      >
-        <Container maxWidth="xl" sx={{ position: 'relative', zIndex: 1 }}>
-          {shopHero.badge && (
-            <Chip
-              label={shopHero.badge}
-              sx={{
-                bgcolor: colors.green,
-                color: colors.blueBlack,
-                fontWeight: 700,
-                mb: 1.5,
-                height: 28,
-                fontSize: '0.72rem',
-              }}
-            />
-          )}
-          <Typography
-            variant="h1"
-            sx={{
-              fontSize: { xs: '1.65rem', sm: '1.9rem', md: '2.2rem' },
-              fontWeight: 800,
-              mb: 1.5,
-              lineHeight: 1.15,
-            }}
-          >
-            {shopHero.headline}
-          </Typography>
-          <Typography
-            variant="body1"
-            sx={{
-              color: 'rgba(255,255,255,0.9)',
-              maxWidth: 560,
-              fontWeight: 400,
-              lineHeight: 1.65,
-              fontSize: { xs: '0.95rem', md: '1rem' },
-            }}
-          >
-            {shopHero.description}
-          </Typography>
-        </Container>
-      </Box>
+      <PublicPageHero
+        badge={shopHero.badge}
+        headline={shopHero.headline}
+        description={shopHero.description}
+      />
 
-      <Container maxWidth="xl">
+      <Container maxWidth="xl" sx={{ px: publicUi.containerPx, pb: { xs: 4, md: 6 } }}>
         {/* Filters and Search Bar */}
-        <Box
-          sx={{
-            bgcolor: 'white',
-            p: 3,
-            borderRadius: 2,
-            mb: 4,
-            boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
-          }}
-        >
+        <Box sx={{ ...publicUi.card, p: 3, mb: 4 }}>
           <Grid container spacing={3} alignItems="center">
             <Grid item xs={12} md={6}>
           <TextField
@@ -219,7 +159,7 @@ const Shop: React.FC = () => {
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                      <SearchIcon sx={{ color: '#666' }} />
+                      <SearchIcon sx={{ color: colors.gray600 }} />
                 </InputAdornment>
               ),
             }}
@@ -252,7 +192,7 @@ const Shop: React.FC = () => {
                 <IconButton
                   onClick={() => setViewMode('grid')}
                   sx={{
-                    color: viewMode === 'grid' ? '#00E676' : '#999',
+                    color: viewMode === 'grid' ? colors.green : '#999',
                     border: viewMode === 'grid' ? '2px solid #00E676' : '2px solid #e0e0e0',
                   }}
                 >
@@ -261,7 +201,7 @@ const Shop: React.FC = () => {
                 <IconButton
                   onClick={() => setViewMode('list')}
                   sx={{
-                    color: viewMode === 'list' ? '#00E676' : '#999',
+                    color: viewMode === 'list' ? colors.green : '#999',
                     border: viewMode === 'list' ? '2px solid #00E676' : '2px solid #e0e0e0',
                   }}
                 >
@@ -273,14 +213,14 @@ const Shop: React.FC = () => {
 
           {/* Results Count */}
           <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', gap: 2 }}>
-            <Typography variant="body2" sx={{ color: '#666' }}>
+            <Typography variant="body2" sx={{ color: colors.gray600 }}>
               Showing {paginatedProducts.length} of {filteredProducts.length} products
             </Typography>
             {filteredProducts.length > 0 && (
               <Chip
                 label={`${filteredProducts.length} Products Found`}
                 size="small"
-                sx={{ bgcolor: '#00E676', color: 'white', fontWeight: 'bold' }}
+                sx={{ bgcolor: colors.green, color: 'white', fontWeight: 'bold' }}
               />
             )}
           </Box>
@@ -289,7 +229,7 @@ const Shop: React.FC = () => {
         {/* Products Grid */}
         {loading ? (
           <Box textAlign="center" py={8}>
-            <Typography variant="h6" sx={{ color: '#666' }}>
+            <Typography variant="h6" sx={{ color: colors.gray600 }}>
               Loading products...
             </Typography>
           </Box>
@@ -310,7 +250,7 @@ const Shop: React.FC = () => {
                       '&:hover': {
                         boxShadow: '0 12px 40px rgba(0,0,0,0.15)',
                         transform: 'translateY(-8px)',
-                        borderColor: '#00E676',
+                        borderColor: colors.green,
                       },
                     }}
                   >
@@ -353,7 +293,7 @@ const Shop: React.FC = () => {
                             position: 'absolute',
                             top: 12,
                             right: 12,
-                            bgcolor: '#00E676',
+                            bgcolor: colors.green,
                             color: 'white',
                             fontWeight: 'bold',
                           }}
@@ -367,7 +307,7 @@ const Shop: React.FC = () => {
                         label={getProductTypeLabel(product.product_type || product.category || 'Product')}
                         size="small"
                         sx={{
-                          bgcolor: '#1a4d7a',
+                          bgcolor: colors.blueNavy,
                           color: 'white',
                           mb: 1.5,
                           fontSize: '0.7rem',
@@ -381,7 +321,7 @@ const Shop: React.FC = () => {
                         sx={{
                           mb: 1,
                           fontWeight: 700,
-                          color: '#1a4d7a',
+                          color: colors.blueNavy,
                           minHeight: '2.6rem',
                           display: '-webkit-box',
                           WebkitLineClamp: 2,
@@ -404,7 +344,7 @@ const Shop: React.FC = () => {
                         variant="body2"
                         sx={{
                           mb: 1.25,
-                          color: '#666',
+                          color: colors.gray600,
                           minHeight: '2.4rem',
                           display: '-webkit-box',
                           WebkitLineClamp: 2,
@@ -441,7 +381,7 @@ const Shop: React.FC = () => {
                           variant="h4"
                           sx={{
                             fontWeight: 800,
-                            color: '#1a4d7a',
+                            color: colors.blueNavy,
                             mb: 0.5,
                           }}
                       >
@@ -460,8 +400,8 @@ const Shop: React.FC = () => {
                         startIcon={<VisibilityIcon />}
                         onClick={() => navigate(`/products/${product.id}`)}
                         sx={{
-                          borderColor: '#1a4d7a',
-                          color: '#1a4d7a',
+                          borderColor: colors.blueNavy,
+                          color: colors.blueNavy,
                           py: 1.25,
                           fontWeight: 600,
                           textTransform: 'none',
@@ -477,14 +417,14 @@ const Shop: React.FC = () => {
                         onClick={() => handleAddToCart(product)}
                         disabled={product.in_stock === false}
                         sx={{
-                          bgcolor: '#00E676',
+                          bgcolor: colors.green,
                           color: 'white',
                           py: 1.5,
                           fontWeight: 600,
                           textTransform: 'none',
                           borderRadius: 2,
                           '&:hover': {
-                            bgcolor: '#00C85F',
+                            bgcolor: colors.greenDark,
                             transform: 'translateY(-2px)',
                             boxShadow: '0 8px 24px rgba(0, 230, 118, 0.3)',
                           },
@@ -510,10 +450,10 @@ const Shop: React.FC = () => {
                   size="large"
                   sx={{
                     '& .MuiPaginationItem-root.Mui-selected': {
-                      bgcolor: '#00E676',
+                      bgcolor: colors.green,
                       color: 'white',
                       '&:hover': {
-                        bgcolor: '#00C85F',
+                        bgcolor: colors.greenDark,
                       },
                     },
                   }}
@@ -531,10 +471,10 @@ const Shop: React.FC = () => {
               boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
             }}
           >
-            <Typography variant="h5" sx={{ color: '#1a4d7a', mb: 2, fontWeight: 700 }}>
+            <Typography variant="h5" sx={{ color: colors.blueNavy, mb: 2, fontWeight: 700 }}>
               No products found
             </Typography>
-            <Typography variant="body1" sx={{ color: '#666', mb: 4 }}>
+            <Typography variant="body1" sx={{ color: colors.gray600, mb: 4 }}>
               Try adjusting your search or filter criteria
             </Typography>
             <Button
@@ -544,8 +484,8 @@ const Shop: React.FC = () => {
                 setCategoryFilter('all');
               }}
               sx={{
-                bgcolor: '#00E676',
-                '&:hover': { bgcolor: '#00C85F' },
+                bgcolor: colors.green,
+                '&:hover': { bgcolor: colors.greenDark },
                 textTransform: 'none',
               }}
             >
@@ -555,15 +495,7 @@ const Shop: React.FC = () => {
         )}
 
         {/* Trust Section */}
-        <Box
-          sx={{
-            mt: 8,
-            bgcolor: 'white',
-            p: 4,
-            borderRadius: 3,
-            boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
-          }}
-        >
+        <Box sx={{ ...publicUi.card, mt: 8, p: 4 }}>
           <Grid container spacing={4} alignItems="center">
             {[
               { icon: <SecurityIcon />, title: 'Warranty Guaranteed', desc: 'All products come with manufacturer warranty' },
@@ -573,12 +505,12 @@ const Shop: React.FC = () => {
             ].map((item, index) => (
               <Grid item xs={12} sm={6} md={3} key={index}>
                 <Stack direction="row" spacing={2} alignItems="center">
-                  <Box sx={{ color: '#00E676', fontSize: '2.5rem' }}>{item.icon}</Box>
+                  <Box sx={{ color: colors.green, fontSize: '2.5rem' }}>{item.icon}</Box>
                   <Box>
-                    <Typography variant="h6" sx={{ fontWeight: 700, color: '#1a4d7a', mb: 0.5 }}>
+                    <Typography variant="h6" sx={{ fontWeight: 700, color: colors.blueNavy, mb: 0.5 }}>
                       {item.title}
                     </Typography>
-                    <Typography variant="body2" sx={{ color: '#666' }}>
+                    <Typography variant="body2" sx={{ color: colors.gray600 }}>
                       {item.desc}
                     </Typography>
                   </Box>

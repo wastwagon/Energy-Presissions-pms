@@ -15,7 +15,10 @@ import {
 } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 import { Seo } from '../../components/Seo';
+import PublicPageShell from '../../components/public/PublicPageShell';
 import { colors } from '../../theme/colors';
+import { publicUi } from '../../theme/publicUi';
+import { homeUi } from '../../theme/homeUi';
 import { ballparkSizingFromMonthlyKwh } from '../../utils/solarSizingApprox';
 
 const SolarEstimate: React.FC = () => {
@@ -45,25 +48,19 @@ const SolarEstimate: React.FC = () => {
   );
 
   return (
-    <Box>
+    <>
       <Seo
         title="Solar System Size Estimator Ghana | Ballpark kW | Energy Precisions"
         description="Rough, non-binding estimate of solar array size from monthly energy use or bill. For an engineered quote, contact Energy Precisions in Accra."
         path="/solar-estimate"
       />
-      <Box sx={{ bgcolor: colors.blueBlack, color: 'white', py: { xs: 4, md: 5 } }}>
-        <Container maxWidth="md">
-          <Typography variant="h1" sx={{ fontSize: { xs: '1.55rem', md: '1.9rem' }, fontWeight: 800, mb: 1.5 }}>
-            Ballpark solar size calculator
-          </Typography>
-          <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.88)', lineHeight: 1.65 }}>
-            Indicative numbers only — roof, shading, equipment, and grid rules change every project. Use this to
-            start a conversation; our engineers confirm sizing on site.
-          </Typography>
-        </Container>
-      </Box>
-
-      <Container maxWidth="md" sx={{ py: { xs: 3, md: 4 } }}>
+      <PublicPageShell
+        badge="Planning tool"
+        headline="Ballpark solar size calculator"
+        description="Indicative numbers only — roof, shading, equipment, and grid rules change every project. Our engineers confirm sizing on site."
+        contentMaxWidth="md"
+        contentPy={{ xs: 3, md: 4 }}
+      >
         <Alert severity="info" sx={{ mb: 3 }}>
           This tool runs in your browser. It is <strong>not</strong> a quotation, financial offer, or guarantee of
           production or savings. Prefer to add appliances from our catalog? Use the{' '}
@@ -73,7 +70,7 @@ const SolarEstimate: React.FC = () => {
           — ballpark kWp below uses the same peak-sun and performance-ratio assumptions.
         </Alert>
 
-        <Card elevation={0} sx={{ border: `1px solid ${colors.gray200}`, borderRadius: 2 }}>
+        <Card elevation={0} sx={{ ...publicUi.card }}>
           <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
             <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 2 }}>
               Your electricity use
@@ -170,19 +167,18 @@ const SolarEstimate: React.FC = () => {
                   component={RouterLink}
                   to="/contact?action=quote&topic=estimate"
                   variant="contained"
-                  size="large"
-                  sx={{ bgcolor: colors.green, textTransform: 'none', fontWeight: 700 }}
+                  sx={{ ...publicUi.primaryButton, ...homeUi.touchTarget }}
                 >
                   Get a formal engineered quote
                 </Button>
               </Box>
             ) : (
-              <Typography color="text.secondary">Enter valid numbers to see an indicative range.</Typography>
+              <Typography sx={publicUi.mutedText}>Enter valid numbers to see an indicative range.</Typography>
             )}
           </CardContent>
         </Card>
-      </Container>
-    </Box>
+      </PublicPageShell>
+    </>
   );
 };
 

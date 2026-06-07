@@ -27,11 +27,14 @@ import {
 } from '@mui/icons-material';
 import { Seo } from '../../components/Seo';
 import { colors } from '../../theme/colors';
+import { homeUi } from '../../theme/homeUi';
+import { publicUi } from '../../theme/publicUi';
 import { homePageImages } from '../../data/homePageMedia';
 import api from '../../services/api';
 import { useCmsPage } from '../../hooks/useCmsPage';
 import { resolveCmsSeo } from '../../hooks/useCmsSeo';
 import TrustStrip from '../../components/public/TrustStrip';
+import PublicPageHero from '../../components/public/PublicPageHero';
 import Link from '@mui/material/Link';
 import { COMPANY } from '../../data/companyContact';
 
@@ -92,107 +95,28 @@ const About: React.FC = () => {
   return (
     <Box>
       <Seo title={seo.title} description={seo.description} path="/about" />
-      {/* Hero Section */}
-      <Box
-        sx={{
-          bgcolor: colors.blueBlack,
-          color: 'white',
-          py: { xs: 5, md: 6 },
-          position: 'relative',
-          overflow: 'hidden',
-        }}
+      <PublicPageHero
+        badge={hero.badge}
+        headline={hero.headline}
+        headlineHighlight={hero.headline_highlight}
+        description={hero.description}
+        backgroundImage={aboutHero}
       >
-        <Container maxWidth="xl">
-          <Grid container spacing={{ xs: 3, md: 4 }} alignItems="center">
-            <Grid item xs={12} md={6}>
-              <Chip
-                label={hero.badge}
-                sx={{
-                  bgcolor: colors.green,
-                  color: 'white',
-                  fontWeight: 700,
-                  mb: 1.5,
-                  px: 1.75,
-                  height: 'auto',
-                  fontSize: '0.7rem',
-                }}
-              />
-              <Typography
-                variant="h1"
-                sx={{
-                  fontSize: { xs: '1.75rem', sm: '2rem', md: '2.35rem' },
-                  fontWeight: 800,
-                  mb: 2,
-                  lineHeight: 1.15,
-                }}
-              >
-                {hero.headline}{' '}
-                {hero.headline_highlight && (
-                  <Box component="span" sx={{ color: colors.green }}>
-                    {hero.headline_highlight}
-                  </Box>
-                )}
-              </Typography>
-              <Typography
-                variant="body1"
-                sx={{
-                  color: 'rgba(255,255,255,0.88)',
-                  lineHeight: 1.65,
-                  fontWeight: 400,
-                  mb: 2.5,
-                  fontSize: { xs: '0.95rem', md: '1rem' },
-                }}
-              >
-                {hero.description}
-              </Typography>
-              {hero.stats?.length > 0 && (
-                <Stack direction="row" spacing={{ xs: 2, sm: 3 }} flexWrap="wrap" useFlexGap>
-                  {hero.stats.map((s) => (
-                    <Box key={s.label}>
-                      <Typography variant="h5" sx={{ fontWeight: 800, color: colors.green, lineHeight: 1.1 }}>
-                        {s.value}
-                      </Typography>
-                      <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.78)' }}>
-                        {s.label}
-                      </Typography>
-                    </Box>
-                  ))}
-                </Stack>
-              )}
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <Box
-                sx={{
-                  borderRadius: 2,
-                  overflow: 'hidden',
-                  boxShadow: '0 16px 48px rgba(0,0,0,0.35)',
-                  maxHeight: { xs: 280, md: 400 },
-                }}
-              >
-                <Box
-                  component="img"
-                  src={aboutHero}
-                  alt="Energy Precisions solar installation"
-                  sx={{
-                    width: '100%',
-                    height: '100%',
-                    maxHeight: { xs: 280, md: 400 },
-                    objectFit: 'cover',
-                    objectPosition: 'center top',
-                    display: 'block',
-                  }}
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement;
-                    if (!target.src.includes('/website_images/')) {
-                      target.src = '/website_images/remove-bg3.png';
-                    }
-                  }}
-                />
+        {hero.stats?.length > 0 && (
+          <Stack direction="row" spacing={{ xs: 2, sm: 3 }} flexWrap="wrap" useFlexGap>
+            {hero.stats.map((s) => (
+              <Box key={s.label}>
+                <Typography sx={{ fontWeight: 800, color: colors.green, lineHeight: 1.1, fontSize: '1.25rem' }}>
+                  {s.value}
+                </Typography>
+                <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.78)' }}>
+                  {s.label}
+                </Typography>
               </Box>
-            </Grid>
-          </Grid>
-        </Container>
-      </Box>
+            ))}
+          </Stack>
+        )}
+      </PublicPageHero>
 
       <TrustStrip variant="muted" />
 

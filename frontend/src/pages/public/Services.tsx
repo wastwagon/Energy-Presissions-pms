@@ -32,6 +32,7 @@ import HomeSectionHeader from '../../components/public/HomeSectionHeader';
 import api from '../../services/api';
 import { useCmsPage } from '../../hooks/useCmsPage';
 import { resolveCmsSeo } from '../../hooks/useCmsSeo';
+import PublicStickyMobileCta from '../../components/public/PublicStickyMobileCta';
 import { resolveMediaUrl } from '../../utils/mediaUrl';
 
 const Services: React.FC = () => {
@@ -460,6 +461,7 @@ const Services: React.FC = () => {
           </Box>
         </Container>
       </Box>
+      <PublicStickyMobileCta label="Get free consultation" to="/contact?action=quote" />
     </Box>
   );
 };

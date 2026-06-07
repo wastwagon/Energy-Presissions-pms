@@ -11,6 +11,7 @@ type Props = {
   description?: string;
   backgroundImage?: string | null;
   align?: 'left' | 'center';
+  children?: React.ReactNode;
 };
 
 const PublicPageHero: React.FC<Props> = ({
@@ -20,6 +21,7 @@ const PublicPageHero: React.FC<Props> = ({
   description,
   backgroundImage,
   align = 'left',
+  children,
 }) => (
   <Box
     sx={{
@@ -96,6 +98,8 @@ const PublicPageHero: React.FC<Props> = ({
             {description}
           </Typography>
         )}
+
+        {children && <Box sx={{ mt: description ? 2.5 : 0 }}>{children}</Box>}
       </Box>
     </Container>
   </Box>

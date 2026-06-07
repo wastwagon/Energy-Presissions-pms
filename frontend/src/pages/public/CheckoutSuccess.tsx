@@ -1,11 +1,30 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Box, Container, Typography, Button, Card, CardContent, Alert, CircularProgress } from '@mui/material';
-import { useSearchParams, useNavigate } from 'react-router-dom';
-import { CheckCircle as CheckCircleIcon } from '@mui/icons-material';
+import {
+  Box,
+  Typography,
+  Button,
+  Card,
+  CardContent,
+  Alert,
+  CircularProgress,
+  Stack,
+  Grid,
+} from '@mui/material';
+import { Link as RouterLink, useSearchParams, useNavigate } from 'react-router-dom';
+import {
+  CheckCircle as CheckCircleIcon,
+  ArrowForward as ArrowForwardIcon,
+  Engineering as EngineeringIcon,
+  CardGiftcard as ReferralIcon,
+} from '@mui/icons-material';
 import api from '../../services/api';
 import { useCart } from '../../contexts/CartContext';
 import { Seo } from '../../components/Seo';
+import PublicPageShell from '../../components/public/PublicPageShell';
 import { trackPurchase } from '../../utils/analytics';
+import { colors } from '../../theme/colors';
+import { publicUi } from '../../theme/publicUi';
+import { homeUi } from '../../theme/homeUi';
 
 const CheckoutSuccess: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -21,7 +40,7 @@ const CheckoutSuccess: React.FC = () => {
     try {
       setLoading(true);
       const response = await api.get(`/payments/paystack/verify/${orderNumber}`);
-      
+
       if (response.data.verified) {
         const oc = response.data.order_confirmation;
         if (oc) {
@@ -50,7 +69,6 @@ const CheckoutSuccess: React.FC = () => {
   }, [orderNumber, verifyOrder]);
 
   useEffect(() => {
-    // Clear cart on successful payment
     if (order && order.payment_status === 'paid') {
       clearCart();
     }
@@ -72,132 +90,133 @@ const CheckoutSuccess: React.FC = () => {
 
   if (loading) {
     return (
-      <Box sx={{ py: { xs: 5, md: 6 }, textAlign: 'center' }}>
-        <Seo
-          title="Order confirmation"
-          description="Verifying your payment."
-          path="/checkout/success"
-          noIndex
-        />
-        <Container maxWidth="md">
-          <CircularProgress />
-          <Typography variant="body1" sx={{ mt: 1.5 }}>
-            Verifying your payment...
-          </Typography>
-        </Container>
-      </Box>
+      <PublicPageShell badge="Shop" headline="Confirming payment" description="Please wait while we verify your order.">
+        <Box textAlign="center" py={4}>
+          <CircularProgress sx={{ color: colors.green }} />
+          <Typography sx={{ mt: 2, ...publicUi.mutedText }}>Verifying your payment…</Typography>
+        </Box>
+      </PublicPageShell>
     );
   }
 
   if (error) {
     return (
-      <Box sx={{ py: { xs: 5, md: 6 } }}>
-        <Seo
-          title="Order verification"
-          description="Payment verification issue."
-          path="/checkout/success"
-          noIndex
-        />
-        <Container maxWidth="md">
-          <Alert severity="error" sx={{ mb: 2 }}>
+      <>
+        <Seo title="Order verification" description="Payment verification issue." path="/checkout/success" noIndex />
+        <PublicPageShell badge="Shop" headline="Verification issue" description="We could not confirm your payment automatically.">
+          <Alert severity="error" sx={{ mb: 3 }}>
             {error}
           </Alert>
           <Button
             variant="contained"
-            size="medium"
-            onClick={() => navigate('/contact')}
-            sx={{
-              bgcolor: '#00E676',
-              '&:hover': { bgcolor: '#00C85F' },
-              textTransform: 'none',
-            }}
+            component={RouterLink}
+            to="/contact"
+            sx={{ ...publicUi.primaryButton, ...homeUi.touchTarget }}
           >
-            Contact Support
+            Contact support
           </Button>
-        </Container>
-      </Box>
+        </PublicPageShell>
+      </>
     );
   }
 
   return (
-    <Box sx={{ py: { xs: 3, md: 6 } }}>
+    <>
       <Seo
         title="Thank you for your order"
         description="Your Energy Precisions order confirmation."
         path="/checkout/success"
         noIndex
       />
-      <Container maxWidth="md">
-        <Card>
+      <PublicPageShell
+        badge="Order confirmed"
+        headline="Payment successful"
+        description={`Order ${order?.order_number} — thank you for choosing Energy Precisions.`}
+        heroAlign="center"
+      >
+        <Card sx={{ ...publicUi.card, maxWidth: 640, mx: 'auto' }}>
           <CardContent sx={{ p: { xs: 3, md: 4 }, textAlign: 'center' }}>
-            <CheckCircleIcon sx={{ fontSize: 64, color: '#00E676', mb: 1.5 }} />
-            <Typography variant="h2" sx={{ mb: 1.5, fontWeight: 800, color: '#1a4d7a', fontSize: { xs: '1.5rem', md: '1.85rem' } }}>
-              Payment Successful!
-            </Typography>
-            <Typography variant="subtitle1" sx={{ mb: 2, color: '#00E676', fontWeight: 700 }}>
-              Order Number: {order?.order_number}
-            </Typography>
-            <Typography variant="body2" sx={{ mb: 3, color: '#666', lineHeight: 1.65 }}>
-              Thank you for your order! We've sent a confirmation email to your inbox.
-              <br />
-              Your order is being processed and you will receive updates about your order status.
+            <CheckCircleIcon sx={{ fontSize: 56, color: colors.green, mb: 1.5 }} />
+            <Typography sx={{ ...publicUi.mutedText, mb: 3, lineHeight: 1.65 }}>
+              A confirmation email is on its way. Our team will update you on dispatch and delivery.
             </Typography>
 
             {order && (
-              <Box sx={{ bgcolor: '#f8f9fa', p: 2, borderRadius: 2, mb: 3, textAlign: 'left' }}>
-                <Typography variant="subtitle1" sx={{ mb: 1.5, fontWeight: 700 }}>
-                  Order Summary
-                </Typography>
+              <Box sx={{ bgcolor: colors.offWhite, p: 2, borderRadius: homeUi.innerRadius, mb: 3, textAlign: 'left' }}>
+                <Typography sx={{ fontWeight: 700, mb: 1.5 }}>Order summary</Typography>
                 <Box display="flex" justifyContent="space-between" mb={1}>
-                  <Typography variant="body2">Total Amount:</Typography>
-                  <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+                  <Typography variant="body2">Total</Typography>
+                  <Typography variant="body2" sx={{ fontWeight: 700 }}>
                     GHS {order.total_amount?.toLocaleString()}
                   </Typography>
                 </Box>
                 <Box display="flex" justifyContent="space-between">
-                  <Typography variant="body2">Payment Status:</Typography>
-                  <Typography variant="body2" sx={{ fontWeight: 'bold', color: '#00E676' }}>
+                  <Typography variant="body2">Status</Typography>
+                  <Typography variant="body2" sx={{ fontWeight: 700, color: colors.greenDark }}>
                     {order.payment_status === 'paid' ? 'Paid' : 'Pending'}
                   </Typography>
                 </Box>
               </Box>
             )}
 
-            <Box display="flex" gap={1.5} justifyContent="center" flexWrap="wrap">
+            <Typography sx={{ fontWeight: 700, mb: 2, fontSize: '0.9375rem' }}>What&apos;s next?</Typography>
+            <Grid container spacing={1.5} sx={{ mb: 3 }}>
+              <Grid item xs={12} sm={4}>
+                <Button
+                  fullWidth
+                  variant="outlined"
+                  component={RouterLink}
+                  to="/contact?action=quote&topic=installation"
+                  startIcon={<EngineeringIcon />}
+                  sx={{ ...publicUi.secondaryButton, py: 1.25, height: '100%' }}
+                >
+                  Book installation
+                </Button>
+              </Grid>
+              <Grid item xs={12} sm={4}>
+                <Button
+                  fullWidth
+                  variant="outlined"
+                  component={RouterLink}
+                  to="/reviews"
+                  sx={{ ...publicUi.secondaryButton, py: 1.25, height: '100%' }}
+                >
+                  Read client reviews
+                </Button>
+              </Grid>
+              <Grid item xs={12} sm={4}>
+                <Button
+                  fullWidth
+                  variant="outlined"
+                  component={RouterLink}
+                  to="/referral"
+                  startIcon={<ReferralIcon />}
+                  sx={{ ...publicUi.secondaryButton, py: 1.25, height: '100%' }}
+                >
+                  Refer & earn
+                </Button>
+              </Grid>
+            </Grid>
+
+            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} justifyContent="center">
               <Button
                 variant="contained"
-                size="medium"
-                onClick={() => navigate('/shop')}
-                sx={{
-                  bgcolor: '#00E676',
-                  '&:hover': { bgcolor: '#00C85F' },
-                  textTransform: 'none',
-                }}
+                component={RouterLink}
+                to="/shop"
+                endIcon={<ArrowForwardIcon sx={{ fontSize: 18 }} />}
+                sx={{ ...publicUi.primaryButton, ...homeUi.touchTarget }}
               >
-                Continue Shopping
+                Continue shopping
               </Button>
-              <Button
-                variant="outlined"
-                size="medium"
-                onClick={() => navigate('/contact')}
-                sx={{
-                  borderColor: '#1a4d7a',
-                  color: '#1a4d7a',
-                  '&:hover': { borderColor: '#1a4d7a', bgcolor: 'rgba(26, 77, 122, 0.04)' },
-                  textTransform: 'none',
-                }}
-              >
-                Contact Us
+              <Button variant="text" onClick={() => navigate('/contact')} sx={{ textTransform: 'none', color: colors.blueNavy }}>
+                Need help?
               </Button>
-            </Box>
+            </Stack>
           </CardContent>
         </Card>
-      </Container>
-    </Box>
+      </PublicPageShell>
+    </>
   );
 };
 
 export default CheckoutSuccess;
-
-
-
