@@ -36,6 +36,7 @@ class BlogPostPublic(BaseModel):
     body: str
     display_date: str
     read_time: str
+    category: str = "Ghana"
 
     class Config:
         from_attributes = True
@@ -135,6 +136,7 @@ class BlogPostAdmin(BaseModel):
     body: str = ""
     display_date: str = ""
     read_time: str = ""
+    category: str = Field(default="Ghana", max_length=64)
     published: bool = False
     sort_order: int = 0
 

@@ -21,10 +21,15 @@ import {
   Switch,
   FormControlLabel,
   CircularProgress,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from '@mui/material';
 import { Edit as EditIcon, Delete as DeleteIcon, Add as AddIcon } from '@mui/icons-material';
 import api from '../services/api';
 import CmsPageEditor from '../components/admin/CmsPageEditor';
+import { BLOG_CATEGORIES } from '../data/blogPosts';
 
 const SITE_IMAGE_KEYS = [
   { key: 'home_hero_image', label: 'Home hero image URL' },
@@ -40,6 +45,7 @@ interface BlogRow {
   body: string;
   display_date: string;
   read_time: string;
+  category: string;
   published: boolean;
   sort_order: number;
 }
@@ -59,6 +65,7 @@ const emptyBlog: Omit<BlogRow, 'id'> = {
   body: '',
   display_date: '',
   read_time: '',
+  category: 'Ghana',
   published: false,
   sort_order: 0,
 };
@@ -119,6 +126,7 @@ const WebContentAdmin: React.FC = () => {
       body: blogForm.body,
       display_date: blogForm.display_date,
       read_time: blogForm.read_time,
+      category: blogForm.category,
       published: blogForm.published,
       sort_order: blogForm.sort_order,
     };
@@ -188,6 +196,7 @@ const WebContentAdmin: React.FC = () => {
                 <TableRow>
                   <TableCell>Title</TableCell>
                   <TableCell>Slug</TableCell>
+                  <TableCell>Category</TableCell>
                   <TableCell>Published</TableCell>
                   <TableCell align="right">Actions</TableCell>
                 </TableRow>
@@ -197,6 +206,7 @@ const WebContentAdmin: React.FC = () => {
                   <TableRow key={b.id}>
                     <TableCell>{b.title}</TableCell>
                     <TableCell>{b.slug}</TableCell>
+                    <TableCell>{b.category || 'Ghana'}</TableCell>
                     <TableCell>{b.published ? 'Yes' : 'No'}</TableCell>
                     <TableCell align="right">
                       <IconButton size="small" onClick={() => { setBlogForm({ ...b }); setBlogDialog({ open: true, edit: b }); }}>
@@ -274,6 +284,20 @@ const WebContentAdmin: React.FC = () => {
         <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
           <TextField label="Slug" value={blogForm.slug} onChange={(e) => setBlogForm({ ...blogForm, slug: e.target.value })} required />
           <TextField label="Title" value={blogForm.title} onChange={(e) => setBlogForm({ ...blogForm, title: e.target.value })} required />
+          <FormControl size="small" fullWidth>
+            <InputLabel>Category</InputLabel>
+            <Select
+              label="Category"
+              value={blogForm.category || 'Ghana'}
+              onChange={(e) => setBlogForm({ ...blogForm, category: e.target.value })}
+            >
+              {BLOG_CATEGORIES.filter((c) => c !== 'All').map((cat) => (
+                <MenuItem key={cat} value={cat}>
+                  {cat}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
           <TextField label="Excerpt" value={blogForm.excerpt} onChange={(e) => setBlogForm({ ...blogForm, excerpt: e.target.value })} multiline minRows={2} />
           <TextField label="Body" value={blogForm.body} onChange={(e) => setBlogForm({ ...blogForm, body: e.target.value })} multiline minRows={8} />
           <TextField label="Display date" value={blogForm.display_date} onChange={(e) => setBlogForm({ ...blogForm, display_date: e.target.value })} placeholder="e.g. 2026-04-01" />

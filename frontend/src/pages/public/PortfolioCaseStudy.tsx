@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   Box,
   Container,
@@ -12,7 +12,9 @@ import { ArrowBack as ArrowBackIcon, ArrowForward as ArrowForwardIcon } from '@m
 import { Link as RouterLink, useNavigate, useParams } from 'react-router-dom';
 import { Seo } from '../../components/Seo';
 import PublicPageHero from '../../components/public/PublicPageHero';
-import { getPortfolioItemById, portfolioPageItems } from '../../data/portfolioPageItems';
+import { useCmsPage } from '../../hooks/useCmsPage';
+import { getPortfolioItemByIdFromCms, resolvePortfolioItems } from '../../data/portfolioCms';
+import { SITE_CTA } from '../../data/siteCta';
 import { colors } from '../../theme/colors';
 import { homeUi } from '../../theme/homeUi';
 import { publicUi } from '../../theme/publicUi';
@@ -20,7 +22,9 @@ import { publicUi } from '../../theme/publicUi';
 const PortfolioCaseStudy: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const item = getPortfolioItemById(id);
+  const { sections } = useCmsPage('portfolio');
+  const items = useMemo(() => resolvePortfolioItems(sections.items), [sections.items]);
+  const item = getPortfolioItemByIdFromCms(id, sections.items);
 
   if (!item) {
     return (
@@ -34,7 +38,7 @@ const PortfolioCaseStudy: React.FC = () => {
     );
   }
 
-  const related = portfolioPageItems.filter((p) => p.id !== item.id && p.category === item.category).slice(0, 3);
+  const related = items.filter((p) => p.id !== item.id && p.category === item.category).slice(0, 3);
 
   return (
     <Box sx={{ bgcolor: homeUi.pageBg }}>
@@ -74,7 +78,25 @@ const PortfolioCaseStudy: React.FC = () => {
         <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap sx={{ mb: 3 }}>
           <Chip label={item.location} size="small" sx={{ bgcolor: colors.blueBlack, color: 'white' }} />
           <Chip label={item.category} size="small" variant="outlined" />
+          {item.systemSize && <Chip label={item.systemSize} size="small" sx={{ bgcolor: colors.greenLight, color: colors.blueBlack }} />}
         </Stack>
+
+        {(item.projectType || item.savingsNote) && (
+          <Grid container spacing={2} sx={{ mb: 3, maxWidth: 640 }}>
+            {item.projectType && (
+              <Grid item xs={12} sm={6}>
+                <Typography sx={{ fontWeight: 700, fontSize: '0.8125rem', color: colors.gray600, mb: 0.5 }}>Project type</Typography>
+                <Typography sx={{ ...homeUi.body, color: colors.blueBlack }}>{item.projectType}</Typography>
+              </Grid>
+            )}
+            {item.savingsNote && (
+              <Grid item xs={12} sm={6}>
+                <Typography sx={{ fontWeight: 700, fontSize: '0.8125rem', color: colors.gray600, mb: 0.5 }}>Outcome</Typography>
+                <Typography sx={{ ...homeUi.body, color: colors.blueBlack }}>{item.savingsNote}</Typography>
+              </Grid>
+            )}
+          </Grid>
+        )}
 
         <Typography sx={{ ...homeUi.body, ...publicUi.mutedText, mb: 4, maxWidth: 640 }}>
           {item.description} Energy Precisions delivers turnkey design, installation, and lifecycle support for projects like this across Ghana.
@@ -82,12 +104,12 @@ const PortfolioCaseStudy: React.FC = () => {
 
         <Button
           component={RouterLink}
-          to="/contact?action=quote"
+          to={SITE_CTA.quoteHref}
           variant="contained"
           endIcon={<ArrowForwardIcon sx={{ fontSize: 18 }} />}
           sx={{ ...publicUi.primaryButton, ...homeUi.touchTarget, mb: 5 }}
         >
-          Start a similar project
+          {SITE_CTA.consultation}
         </Button>
 
         {related.length > 0 && (

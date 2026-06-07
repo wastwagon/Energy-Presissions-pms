@@ -85,6 +85,21 @@ export interface CmsPortfolioItem {
   link: string;
 }
 
+/** Full gallery entry for /portfolio CMS page */
+export interface CmsPortfolioGalleryItem {
+  id: number;
+  title: string;
+  category: string;
+  description: string;
+  image: string;
+  location: string;
+  media_type?: 'image' | 'video';
+  system_size?: string;
+  project_type?: string;
+  savings_note?: string;
+  published?: boolean;
+}
+
 export interface CmsProcessStep {
   step: string;
   title: string;
@@ -172,7 +187,16 @@ export interface FinancingPageSections {
     payg_title: string;
     payg_body: string;
     payg_footer: string;
+    payment_calculator_title?: string;
+    payment_calculator_subtitle?: string;
   };
+}
+
+export interface PortfolioPageSections {
+  seo: CmsSeo;
+  hero: ShopHero;
+  items: CmsPortfolioGalleryItem[];
+  closing_cta: CmsCta;
 }
 
 export interface PackagesPageSections {
@@ -306,4 +330,5 @@ export type CmsPageSlug =
   | 'contact'
   | 'global'
   | 'packages'
-  | 'financing';
+  | 'financing'
+  | 'portfolio';

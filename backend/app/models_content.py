@@ -23,6 +23,7 @@ class CmsBlogPost(Base):
     body = Column(Text, nullable=False, default="")
     display_date = Column(String(32), nullable=False, default="")
     read_time = Column(String(32), nullable=False, default="")
+    category = Column(String(64), nullable=False, default="Ghana")
     published = Column(Boolean, nullable=False, default=False)
     sort_order = Column(Integer, nullable=False, default=0)
     created_at = Column(DateTime(timezone=True), server_default=func.now())

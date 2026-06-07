@@ -18,7 +18,13 @@ import {
   FormControl,
   Alert,
   Link,
+  Stack,
 } from '@mui/material';
+import {
+  Lock as LockIcon,
+  VerifiedUser as VerifiedIcon,
+  LocalShipping as ShippingIcon,
+} from '@mui/icons-material';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { useCart } from '../../contexts/CartContext';
 import api from '../../services/api';
@@ -452,7 +458,7 @@ const Checkout: React.FC = () => {
                             <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
                               Paystack (Card, Mobile Money, Bank Transfer)
                             </Typography>
-                            <Typography variant="body2" sx={{ color: '#666' }}>
+                            <Typography variant="body2" sx={{ color: colors.gray600 }}>
                               Secure payment via Paystack
                             </Typography>
                           </Box>
@@ -466,7 +472,7 @@ const Checkout: React.FC = () => {
                             <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
                               Cash on Delivery
                             </Typography>
-                            <Typography variant="body2" sx={{ color: '#666' }}>
+                            <Typography variant="body2" sx={{ color: colors.gray600 }}>
                               Pay when you receive your order
                             </Typography>
                           </Box>
@@ -474,6 +480,23 @@ const Checkout: React.FC = () => {
                       />
                     </RadioGroup>
                   </FormControl>
+
+                  <Stack
+                    direction={{ xs: 'column', sm: 'row' }}
+                    spacing={2}
+                    sx={{ mt: 2.5, p: 2, borderRadius: homeUi.innerRadius, bgcolor: colors.offWhite, border: homeUi.cardBorder }}
+                  >
+                    {[
+                      { icon: <LockIcon fontSize="small" />, text: 'Secure Paystack checkout' },
+                      { icon: <VerifiedIcon fontSize="small" />, text: 'Manufacturer warranty on equipment' },
+                      { icon: <ShippingIcon fontSize="small" />, text: 'Delivery across Ghana' },
+                    ].map((item) => (
+                      <Stack key={item.text} direction="row" spacing={1} alignItems="center" sx={{ color: colors.gray600, fontSize: '0.8125rem' }}>
+                        <Box sx={{ color: colors.green, display: 'flex' }}>{item.icon}</Box>
+                        <Typography variant="body2" sx={{ fontSize: '0.8125rem' }}>{item.text}</Typography>
+                      </Stack>
+                    ))}
+                  </Stack>
 
                   <Box sx={{ mt: 2.5 }}>
                     <FormControlLabel
@@ -618,7 +641,7 @@ const Checkout: React.FC = () => {
                       {shippingCost === 0 ? 'Free' : `GHS ${shippingCost.toLocaleString()}`}
                     </Typography>
                     {shippingNote && (
-                      <Typography variant="caption" display="block" sx={{ color: '#666', mt: 0.5 }}>
+                      <Typography variant="caption" display="block" sx={{ color: colors.gray600, mt: 0.5 }}>
                         {shippingNote}
                       </Typography>
                     )}

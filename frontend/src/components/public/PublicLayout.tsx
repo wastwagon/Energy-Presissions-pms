@@ -3,6 +3,7 @@ import { Outlet } from 'react-router-dom';
 import { Box, useTheme, useMediaQuery } from '@mui/material';
 import Header from './Header';
 import Footer from './Footer';
+import WhatsappFab from './WhatsappFab';
 
 const PublicLayout: React.FC = () => {
   const theme = useTheme();
@@ -22,6 +23,7 @@ const PublicLayout: React.FC = () => {
         <Outlet />
       </Box>
       <Footer />
+      <WhatsappFab />
     </Box>
   );
 };

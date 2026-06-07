@@ -17,11 +17,12 @@ import {
 import { Save as SaveIcon } from '@mui/icons-material';
 import api from '../../services/api';
 import { CMS_PAGE_LABELS, getCmsDefaults } from '../../data/cmsDefaults';
-import type { CmsFooter, CmsHero, CmsHeroSlide, CmsLink, CmsPageSlug, CmsServiceCard, CmsSeo } from '../../types/cms';
+import { DEFAULT_CMS_PORTFOLIO_ITEMS } from '../../data/portfolioCms';
+import type { CmsFooter, CmsHero, CmsHeroSlide, CmsLink, CmsPageSlug, CmsPortfolioGalleryItem, CmsServiceCard, CmsSeo } from '../../types/cms';
 import { resolveHeroSlides } from '../../utils/heroSlides';
 import CmsImageField from './CmsImageField';
 
-const PAGES: CmsPageSlug[] = ['home', 'about', 'services', 'shop', 'contact', 'global', 'packages', 'financing'];
+const PAGES: CmsPageSlug[] = ['home', 'about', 'services', 'shop', 'contact', 'global', 'packages', 'financing', 'portfolio'];
 
 const featuresToText = (features: string[] = []) => features.join('\n');
 const textToFeatures = (text: string) => text.split('\n').map((l) => l.trim()).filter(Boolean);
@@ -163,6 +164,18 @@ const CmsPageEditor: React.FC = () => {
       ...s,
       closing_cta: { ...(s.closing_cta as Record<string, string>), [field]: value },
     }));
+  };
+
+  const setPortfolioGalleryItem = (index: number, field: keyof CmsPortfolioGalleryItem, value: string | number | boolean) => {
+    setSections((s) => {
+      const items = [...((s.items as CmsPortfolioGalleryItem[]) || [])];
+      items[index] = { ...items[index], [field]: value };
+      return { ...s, items };
+    });
+  };
+
+  const loadBundledPortfolioItems = () => {
+    setSections((s) => ({ ...s, items: DEFAULT_CMS_PORTFOLIO_ITEMS.map((item) => ({ ...item })) }));
   };
 
   const setServiceCard = (
@@ -479,6 +492,7 @@ const CmsPageEditor: React.FC = () => {
     validity_note: string;
     contact_cta_text: string;
   };
+  const portfolioGalleryItems = (sections.items || []) as CmsPortfolioGalleryItem[];
 
   if (loading) {
     return (
@@ -529,7 +543,7 @@ const CmsPageEditor: React.FC = () => {
               <TextField size="small" label="Quote request title" value={contactHero.quote_title || ''} onChange={(e) => setContactBlock('hero', 'quote_title', e.target.value)} />
               <TextField size="small" label="Subtitle" value={contactHero.subtitle || ''} onChange={(e) => setContactBlock('hero', 'subtitle', e.target.value)} multiline minRows={2} />
             </>
-          ) : page === 'shop' ? (
+          ) : page === 'shop' || page === 'portfolio' ? (
             <>
               <TextField size="small" label="Badge" value={shopHero.badge || ''} onChange={(e) => setShopHero('badge', e.target.value)} />
               <TextField size="small" label="Headline" value={shopHero.headline || ''} onChange={(e) => setShopHero('headline', e.target.value)} />
@@ -701,6 +715,60 @@ const CmsPageEditor: React.FC = () => {
             <TextField size="small" fullWidth sx={{ mb: 1.5 }} label="PAYG section title" value={financingContent.payg_title as string || ''} onChange={(e) => setFinancingContent('payg_title', e.target.value)} />
             <TextField size="small" fullWidth sx={{ mb: 1.5 }} label="PAYG body" value={financingContent.payg_body as string || ''} onChange={(e) => setFinancingContent('payg_body', e.target.value)} multiline minRows={3} />
             <TextField size="small" fullWidth label="PAYG footer" value={financingContent.payg_footer as string || ''} onChange={(e) => setFinancingContent('payg_footer', e.target.value)} multiline minRows={2} />
+            <Divider sx={{ my: 2 }} />
+            <Typography variant="body2" sx={{ fontWeight: 700, mb: 1.5 }}>Payment calculator</Typography>
+            <TextField size="small" fullWidth sx={{ mb: 1.5 }} label="Calculator title" value={financingContent.payment_calculator_title as string || ''} onChange={(e) => setFinancingContent('payment_calculator_title', e.target.value)} />
+            <TextField size="small" fullWidth label="Calculator subtitle" value={financingContent.payment_calculator_subtitle as string || ''} onChange={(e) => setFinancingContent('payment_calculator_subtitle', e.target.value)} multiline minRows={2} />
+          </Paper>
+        </>
+      )}
+
+      {page === 'portfolio' && (
+        <>
+          <Paper variant="outlined" sx={{ p: 2.5, mb: 2 }}>
+            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} alignItems={{ sm: 'center' }} sx={{ mb: 2 }}>
+              <Typography variant="subtitle1" sx={{ fontWeight: 800, flex: 1 }}>
+                Gallery items ({portfolioGalleryItems.length})
+              </Typography>
+              <Button size="small" variant="outlined" onClick={loadBundledPortfolioItems}>
+                Load bundled gallery
+              </Button>
+            </Stack>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+              Leave empty to use bundled install photos on the public site. Save a full list here to override titles, categories, and metadata.
+            </Typography>
+            {portfolioGalleryItems.map((item, i) => (
+              <Box key={item.id ?? i} sx={{ mb: 2, p: 1.5, bgcolor: 'grey.50', borderRadius: 1 }}>
+                <Typography variant="caption" sx={{ fontWeight: 700 }}>
+                  Item {i + 1} · ID {item.id}
+                </Typography>
+                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} sx={{ mt: 1, mb: 1 }}>
+                  <TextField size="small" label="ID" type="number" value={item.id ?? ''} onChange={(e) => setPortfolioGalleryItem(i, 'id', Number(e.target.value) || 0)} sx={{ maxWidth: 100 }} />
+                  <TextField size="small" label="Title" value={item.title || ''} onChange={(e) => setPortfolioGalleryItem(i, 'title', e.target.value)} sx={{ flex: 2 }} />
+                  <TextField size="small" label="Category" value={item.category || ''} onChange={(e) => setPortfolioGalleryItem(i, 'category', e.target.value)} sx={{ flex: 1 }} />
+                </Stack>
+                <TextField size="small" fullWidth sx={{ mb: 1 }} label="Description" value={item.description || ''} onChange={(e) => setPortfolioGalleryItem(i, 'description', e.target.value)} multiline minRows={2} />
+                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} sx={{ mb: 1 }}>
+                  <TextField size="small" label="Location" value={item.location || ''} onChange={(e) => setPortfolioGalleryItem(i, 'location', e.target.value)} sx={{ flex: 1 }} />
+                  <TextField size="small" label="Media type" value={item.media_type || 'image'} onChange={(e) => setPortfolioGalleryItem(i, 'media_type', e.target.value)} sx={{ maxWidth: 140 }} />
+                </Stack>
+                <CmsImageField label="Image / video URL" value={item.image || ''} onChange={(v) => setPortfolioGalleryItem(i, 'image', v)} />
+                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} sx={{ mt: 1 }}>
+                  <TextField size="small" label="System size" value={item.system_size || ''} onChange={(e) => setPortfolioGalleryItem(i, 'system_size', e.target.value)} sx={{ flex: 1 }} />
+                  <TextField size="small" label="Project type" value={item.project_type || ''} onChange={(e) => setPortfolioGalleryItem(i, 'project_type', e.target.value)} sx={{ flex: 1 }} />
+                </Stack>
+                <TextField size="small" fullWidth sx={{ mt: 1 }} label="Outcome / savings note" value={item.savings_note || ''} onChange={(e) => setPortfolioGalleryItem(i, 'savings_note', e.target.value)} />
+              </Box>
+            ))}
+          </Paper>
+          <Paper variant="outlined" sx={{ p: 2.5, mb: 2 }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 800, mb: 2 }}>Closing CTA</Typography>
+            <TextField size="small" fullWidth sx={{ mb: 1.5 }} label="Title" value={closingCta.title || ''} onChange={(e) => setCtaField('title', e.target.value)} />
+            <TextField size="small" fullWidth sx={{ mb: 1.5 }} label="Subtitle" value={closingCta.subtitle || ''} onChange={(e) => setCtaField('subtitle', e.target.value)} multiline minRows={2} />
+            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1}>
+              <TextField size="small" label="Primary button" value={closingCta.primary_cta_text || ''} onChange={(e) => setCtaField('primary_cta_text', e.target.value)} sx={{ flex: 1 }} />
+              <TextField size="small" label="Primary link" value={closingCta.primary_cta_link || ''} onChange={(e) => setCtaField('primary_cta_link', e.target.value)} sx={{ flex: 1 }} />
+            </Stack>
           </Paper>
         </>
       )}

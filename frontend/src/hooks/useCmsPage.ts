@@ -9,6 +9,7 @@ import type {
   GlobalPageSections,
   HomePageSections,
   PackagesPageSections,
+  PortfolioPageSections,
   ServicesPageSections,
   ShopPageSections,
 } from '../types/cms';
@@ -22,6 +23,7 @@ type PageSectionsMap = {
   global: GlobalPageSections;
   packages: PackagesPageSections;
   financing: FinancingPageSections;
+  portfolio: PortfolioPageSections;
 };
 
 export function useCmsPage<P extends CmsPageSlug>(page: P) {

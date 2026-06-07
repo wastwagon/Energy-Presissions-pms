@@ -151,7 +151,7 @@ const About: React.FC = () => {
                 >
                   {sections.mission_vision?.mission_title}
                 </Typography>
-                <Typography variant="body1" sx={{ color: '#666', lineHeight: 1.8, fontSize: '1.1rem' }}>
+                <Typography variant="body1" sx={{ color: colors.gray600, lineHeight: 1.8, fontSize: '1.1rem' }}>
                   {sections.mission_vision?.mission_text}
                 </Typography>
               </Card>
@@ -307,7 +307,7 @@ const About: React.FC = () => {
                   >
                     {feature.title}
                   </Typography>
-                  <Typography variant="body1" sx={{ color: '#666', lineHeight: 1.65, fontSize: '0.98rem' }}>
+                  <Typography variant="body1" sx={{ color: colors.gray600, lineHeight: 1.65, fontSize: '0.98rem' }}>
                     {feature.description}
                   </Typography>
                 </Card>
@@ -525,7 +525,7 @@ const About: React.FC = () => {
       <Box
         sx={{
           py: { xs: 8, md: 12 },
-          bgcolor: '#f8f9fa',
+          bgcolor: colors.offWhite,
           backgroundImage: 'radial-gradient(circle at top left, rgba(0,230,118,0.07), transparent 38%)',
         }}
       >
@@ -553,7 +553,7 @@ const About: React.FC = () => {
             >
               {sections.visit_us?.title}
             </Typography>
-            <Typography variant="h6" sx={{ color: '#666', fontWeight: 400 }}>
+            <Typography variant="h6" sx={{ color: colors.gray600, fontWeight: 400 }}>
               {sections.visit_us?.subtitle}
             </Typography>
           </Box>
@@ -568,14 +568,14 @@ const About: React.FC = () => {
                       <Typography variant="h6" sx={{ fontWeight: 700, color: colors.blueNavy, mb: 0.5 }}>
                         {sections.visit_us?.location_title}
                       </Typography>
-                      <Typography variant="body1" sx={{ color: '#666' }}>
+                      <Typography variant="body1" sx={{ color: colors.gray600 }}>
                         {sections.visit_us?.location_address || COMPANY.addressFull}
                       </Typography>
                     </Box>
                   </Box>
                   <Divider />
                   <Box>
-                    <Typography variant="body1" sx={{ color: '#666', lineHeight: 1.8 }}>
+                    <Typography variant="body1" sx={{ color: colors.gray600, lineHeight: 1.8 }}>
                       {sections.visit_us?.location_body}
                     </Typography>
                   </Box>

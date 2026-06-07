@@ -193,7 +193,7 @@ const Shop: React.FC = () => {
                   onClick={() => setViewMode('grid')}
                   sx={{
                     color: viewMode === 'grid' ? colors.green : '#999',
-                    border: viewMode === 'grid' ? '2px solid #00E676' : '2px solid #e0e0e0',
+                    border: viewMode === 'grid' ? `2px solid ${colors.green}` : `2px solid ${colors.gray200}`,
                   }}
                 >
                   <GridViewIcon />
@@ -202,7 +202,7 @@ const Shop: React.FC = () => {
                   onClick={() => setViewMode('list')}
                   sx={{
                     color: viewMode === 'list' ? colors.green : '#999',
-                    border: viewMode === 'list' ? '2px solid #00E676' : '2px solid #e0e0e0',
+                    border: viewMode === 'list' ? `2px solid ${colors.green}` : `2px solid ${colors.gray200}`,
                   }}
                 >
                   <ViewListIcon />
@@ -244,7 +244,7 @@ const Shop: React.FC = () => {
                       display: 'flex',
                       flexDirection: 'column',
                       borderRadius: 3,
-                      border: '1px solid #e0e0e0',
+                      border: `1px solid ${colors.gray200}`,
                       overflow: 'hidden',
                       transition: 'all 0.3s ease',
                       '&:hover': {
@@ -258,7 +258,7 @@ const Shop: React.FC = () => {
                     <Box
                       sx={{
                         position: 'relative',
-                        bgcolor: '#f8f9fa',
+                        bgcolor: colors.offWhite,
                         height: 250,
                         overflow: 'hidden',
                       }}

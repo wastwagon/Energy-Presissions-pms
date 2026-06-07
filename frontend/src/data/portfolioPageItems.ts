@@ -11,6 +11,10 @@ export type PortfolioPageItem = {
   image: string;
   location: string;
   mediaType?: PortfolioMediaType;
+  /** Optional case-study metadata */
+  systemSize?: string;
+  projectType?: string;
+  savingsNote?: string;
 };
 
 const installGallery: PortfolioPageItem[] = [
@@ -180,6 +184,9 @@ export const portfolioPageItems: PortfolioPageItem[] = [
     image: '/website_images/portfolio-commercial-office-solar.png',
     location: 'Kumasi, Ghana',
     mediaType: 'image',
+    systemSize: '25 kW',
+    projectType: 'Commercial grid-tied + monitoring',
+    savingsNote: 'Significant daytime load offset for office HVAC and IT',
   },
   {
     id: 4,
@@ -189,8 +196,17 @@ export const portfolioPageItems: PortfolioPageItem[] = [
     image: '/website_images/portfolio-school-solar-project.png',
     location: 'Northern Region',
     mediaType: 'image',
+    systemSize: '12 kW hybrid',
+    projectType: 'Off-grid / institutional',
+    savingsNote: 'Backup power for classrooms and admin block',
   },
 ];
+
+/** Unique portfolio categories for filter chips */
+export function getPortfolioCategories(): string[] {
+  const cats = new Set(portfolioPageItems.map((p) => p.category));
+  return ['All', ...Array.from(cats).sort()];
+}
 
 export function getPortfolioItemById(id: string | undefined): PortfolioPageItem | undefined {
   const num = Number(id);

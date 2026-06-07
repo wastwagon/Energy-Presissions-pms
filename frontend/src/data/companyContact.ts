@@ -16,9 +16,19 @@ export const COMPANY = {
   whatsapp: '233533611611',
   whatsappHref: 'https://wa.me/233533611611',
   whatsappDisplay: 'Chat on WhatsApp',
-  /** Google Maps search / reviews — update with direct Place URL when available */
+  /**
+   * Optional Google Place ID — when set, embed and write-review links use direct Place ID URLs.
+   * Find yours in Google Business Profile or Maps share link.
+   */
+  googlePlaceId: '' as string,
+  /** Google Maps — update write-review URL when you claim the Business Profile */
   googleMapsReviewUrl:
     'https://www.google.com/maps/search/?api=1&query=Energy+Precisions+Haatso+Ecomog+Accra+Ghana',
+  googleMapsWriteReviewUrl:
+    'https://www.google.com/maps/search/?api=1&query=Energy+Precisions+Haatso+Ecomog+Accra+Ghana',
+  /** Embed map (no API key) — replace if embed breaks or use Place ID embed */
+  googleMapsEmbedUrl:
+    'https://maps.google.com/maps?q=Energy+Precisions+Haatso+Ecomog+Accra+Ghana&hl=en&z=15&output=embed',
   emailPrimary: 'info@energyprecisions.com',
   /** Public sales/support inbox (same as emailPrimary) */
   emailSales: 'info@energyprecisions.com',

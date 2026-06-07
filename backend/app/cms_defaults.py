@@ -4,7 +4,7 @@ from __future__ import annotations
 import copy
 from typing import Any, Dict
 
-CMS_PAGES = ("home", "about", "services", "shop", "contact", "global", "packages", "financing")
+CMS_PAGES = ("home", "about", "services", "shop", "contact", "global", "packages", "financing", "portfolio")
 
 _DEFAULTS: Dict[str, Dict[str, Any]] = {
     "home": {
@@ -803,6 +803,8 @@ _DEFAULTS: Dict[str, Dict[str, Any]] = {
                 {"label": "Portfolio", "path": "/portfolio"},
                 {"label": "Shop", "path": "/shop"},
                 {"label": "Financing", "path": "/financing"},
+                {"label": "Solar in Accra", "path": "/solar-accra"},
+                {"label": "Solar in Kumasi", "path": "/solar-kumasi"},
                 {"label": "Get a quote", "path": "/contact?action=quote"},
             ],
             "other_links_title": "Company",
@@ -981,6 +983,37 @@ _DEFAULTS: Dict[str, Dict[str, Any]] = {
                 "Mention financing or PAYG in your quote request so we route you to the right "
                 "conversation."
             ),
+            "payment_calculator_title": "Example monthly payment",
+            "payment_calculator_subtitle": (
+                "Indicative only — actual terms depend on project size, lender, and your quote. "
+                "Request a formal proposal for binding numbers."
+            ),
+        },
+    },
+    "portfolio": {
+        "seo": {
+            "title": "Solar Project Portfolio Ghana | Energy Precisions",
+            "description": (
+                "Residential, commercial, industrial and community solar projects across Ghana — "
+                "design, installation and support from Energy Precisions."
+            ),
+        },
+        "hero": {
+            "badge": "OUR WORK",
+            "headline": "Projects That Power Ghana",
+            "description": (
+                "Explore our completed solar installations across residential, commercial, "
+                "and industrial sectors."
+            ),
+        },
+        "items": [],
+        "closing_cta": {
+            "title": "Start your solar project",
+            "subtitle": "Join hundreds of satisfied customers across Ghana.",
+            "primary_cta_text": "Get free consultation",
+            "primary_cta_link": "/contact?action=quote",
+            "secondary_cta_text": "View packages",
+            "secondary_cta_link": "/packages",
         },
     },
 }

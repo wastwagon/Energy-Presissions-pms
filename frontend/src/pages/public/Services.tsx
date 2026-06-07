@@ -33,6 +33,7 @@ import api from '../../services/api';
 import { useCmsPage } from '../../hooks/useCmsPage';
 import { resolveCmsSeo } from '../../hooks/useCmsSeo';
 import PublicStickyMobileCta from '../../components/public/PublicStickyMobileCta';
+import { SITE_CTA } from '../../data/siteCta';
 import { resolveMediaUrl } from '../../utils/mediaUrl';
 
 const Services: React.FC = () => {
@@ -158,7 +159,7 @@ const Services: React.FC = () => {
                           <Grid item xs={12} sm={6} key={idx}>
                             <Box display="flex" alignItems="center" gap={1}>
                               <CheckCircleIcon sx={{ color: cardColor, fontSize: '1.2rem' }} />
-                              <Typography variant="body2" sx={{ color: '#666' }}>
+                              <Typography variant="body2" sx={{ color: colors.gray600 }}>
                                 {feature}
                               </Typography>
                             </Box>
@@ -461,7 +462,7 @@ const Services: React.FC = () => {
           </Box>
         </Container>
       </Box>
-      <PublicStickyMobileCta label="Get free consultation" to="/contact?action=quote" />
+      <PublicStickyMobileCta label={SITE_CTA.consultation} to={SITE_CTA.quoteHref} />
     </Box>
   );
 };

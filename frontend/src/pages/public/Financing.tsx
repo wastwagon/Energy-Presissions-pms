@@ -27,6 +27,7 @@ import { homeUi } from '../../theme/homeUi';
 import { publicUi } from '../../theme/publicUi';
 import { useCmsPage } from '../../hooks/useCmsPage';
 import { resolveCmsSeo } from '../../hooks/useCmsSeo';
+import FinancingPaymentEstimate from '../../components/public/FinancingPaymentEstimate';
 
 const HERO_CARD_ICONS = [HandshakeIcon, AccountBalanceIcon];
 
@@ -145,6 +146,11 @@ const Financing: React.FC = () => {
             </Card>
           </Grid>
         </Grid>
+
+        <FinancingPaymentEstimate
+          title={content.payment_calculator_title}
+          subtitle={content.payment_calculator_subtitle}
+        />
 
         <Card variant="outlined" sx={{ mt: 4, borderColor: colors.green, bgcolor: 'rgba(0, 230, 118, 0.04)' }}>
           <CardContent>

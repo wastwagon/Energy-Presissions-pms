@@ -6,9 +6,11 @@ import type {
   GlobalPageSections,
   HomePageSections,
   PackagesPageSections,
+  PortfolioPageSections,
   ServicesPageSections,
   ShopPageSections,
 } from '../types/cms';
+import { DEFAULT_CMS_PORTFOLIO_ITEMS } from './portfolioCms';
 
 type PageDefaultsMap = {
   home: HomePageSections;
@@ -19,6 +21,7 @@ type PageDefaultsMap = {
   global: GlobalPageSections;
   packages: PackagesPageSections;
   financing: FinancingPageSections;
+  portfolio: PortfolioPageSections;
 };
 
 const DEFAULTS: PageDefaultsMap = {
@@ -565,6 +568,8 @@ const DEFAULTS: PageDefaultsMap = {
         { label: 'Portfolio', path: '/portfolio' },
         { label: 'Shop', path: '/shop' },
         { label: 'Financing', path: '/financing' },
+        { label: 'Solar in Accra', path: '/solar-accra' },
+        { label: 'Solar in Kumasi', path: '/solar-kumasi' },
         { label: 'Get a quote', path: '/contact?action=quote' },
       ],
       other_links_title: 'Company',
@@ -707,6 +712,31 @@ const DEFAULTS: PageDefaultsMap = {
         'For customers comparing plans like pay-as-you-go solar or bank-backed asset finance, we map your site load, equipment, and installation phases first—then align with partner programmes where they are live and documented. We do not publish rates here because products and eligibility change.',
       payg_footer:
         'Mention financing or PAYG in your quote request so we route you to the right conversation.',
+      payment_calculator_title: 'Example monthly payment',
+      payment_calculator_subtitle:
+        'Indicative only — actual terms depend on project size, lender, and your quote. Request a formal proposal for binding numbers.',
+    },
+  },
+  portfolio: {
+    seo: {
+      title: 'Solar Project Portfolio Ghana | Energy Precisions',
+      description:
+        'Residential, commercial, industrial and community solar projects across Ghana — design, installation and support from Energy Precisions.',
+    },
+    hero: {
+      badge: 'OUR WORK',
+      headline: 'Projects That Power Ghana',
+      description:
+        'Explore our completed solar installations across residential, commercial, and industrial sectors.',
+    },
+    items: DEFAULT_CMS_PORTFOLIO_ITEMS,
+    closing_cta: {
+      title: 'Start your solar project',
+      subtitle: 'Join hundreds of satisfied customers across Ghana.',
+      primary_cta_text: 'Get free consultation',
+      primary_cta_link: '/contact?action=quote',
+      secondary_cta_text: 'View packages',
+      secondary_cta_link: '/packages',
     },
   },
 };
@@ -749,4 +779,5 @@ export const CMS_PAGE_LABELS: Record<CmsPageSlug, string> = {
   global: 'Global (footer)',
   packages: 'Hybrid packages page',
   financing: 'Financing page',
+  portfolio: 'Portfolio page',
 };

@@ -37,6 +37,7 @@ const Privacy = lazy(() => import('./pages/public/Privacy'));
 const Terms = lazy(() => import('./pages/public/Terms'));
 const Reviews = lazy(() => import('./pages/public/Reviews'));
 const Warranty = lazy(() => import('./pages/public/Warranty'));
+const LocationPage = lazy(() => import('./pages/public/LocationPage'));
 const PortfolioCaseStudy = lazy(() => import('./pages/public/PortfolioCaseStudy'));
 const Blog = lazy(() => import('./pages/public/Blog'));
 const BlogPost = lazy(() => import('./pages/public/BlogPost'));
@@ -126,6 +127,9 @@ function App() {
               <Route path="blog/:slug" element={<Suspense fallback={<PageLoader />}><BlogPost /></Suspense>} />
               <Route path="portfolio/:id" element={<Suspense fallback={<PageLoader />}><PortfolioCaseStudy /></Suspense>} />
               <Route path="portfolio" element={<Suspense fallback={<PageLoader />}><Portfolio /></Suspense>} />
+              <Route path="solar-accra" element={<Suspense fallback={<PageLoader />}><LocationPage /></Suspense>} />
+              <Route path="solar-kumasi" element={<Suspense fallback={<PageLoader />}><LocationPage /></Suspense>} />
+              <Route path="solar-tamale" element={<Suspense fallback={<PageLoader />}><LocationPage /></Suspense>} />
               <Route path="solar-packages" element={<Suspense fallback={<PageLoader />}><HybridPackages /></Suspense>} />
               <Route path="privacy" element={<Suspense fallback={<PageLoader />}><Privacy /></Suspense>} />
               <Route path="terms" element={<Suspense fallback={<PageLoader />}><Terms /></Suspense>} />
