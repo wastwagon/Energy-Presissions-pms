@@ -1,7 +1,6 @@
 import React, { useMemo } from 'react';
 import {
   Box,
-  Container,
   Typography,
   Button,
   Grid,
@@ -11,10 +10,12 @@ import {
 import { ArrowBack as ArrowBackIcon, ArrowForward as ArrowForwardIcon } from '@mui/icons-material';
 import { Link as RouterLink, useNavigate, useParams } from 'react-router-dom';
 import { Seo } from '../../components/Seo';
-import PublicPageHero from '../../components/public/PublicPageHero';
+import PublicPageShell from '../../components/public/PublicPageShell';
+import PublicStickyMobileCta from '../../components/public/PublicStickyMobileCta';
 import { useCmsPage } from '../../hooks/useCmsPage';
 import { getPortfolioItemByIdFromCms, resolvePortfolioItems } from '../../data/portfolioCms';
 import { SITE_CTA } from '../../data/siteCta';
+import { resolveMediaUrl } from '../../utils/mediaUrl';
 import { colors } from '../../theme/colors';
 import { homeUi } from '../../theme/homeUi';
 import { publicUi } from '../../theme/publicUi';
@@ -28,29 +29,38 @@ const PortfolioCaseStudy: React.FC = () => {
 
   if (!item) {
     return (
-      <Box sx={{ py: 8, textAlign: 'center', bgcolor: homeUi.pageBg }}>
-        <Seo title="Project not found" description="Portfolio project." path={`/portfolio/${id || ''}`} noIndex />
-        <Typography sx={{ mb: 2 }}>Project not found.</Typography>
-        <Button component={RouterLink} to="/portfolio" sx={publicUi.secondaryButton} variant="outlined">
-          Back to portfolio
-        </Button>
-      </Box>
+      <>
+        <Seo title="Project not found | Energy Precisions" description="Portfolio project." path={`/portfolio/${id || ''}`} noIndex />
+        <PublicPageShell
+          badge="Portfolio"
+          headline="Project not found"
+          description="This case study may have moved or the link is outdated. Browse our completed installations across Ghana."
+          heroAlign="center"
+        >
+          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} justifyContent="center">
+            <Button component={RouterLink} to="/portfolio" variant="contained" sx={{ ...publicUi.primaryButton, ...homeUi.touchTarget }}>
+              View all projects
+            </Button>
+            <Button component={RouterLink} to={SITE_CTA.quoteHref} variant="outlined" sx={{ ...publicUi.secondaryButton, ...homeUi.touchTarget }}>
+              {SITE_CTA.consultation}
+            </Button>
+          </Stack>
+        </PublicPageShell>
+      </>
     );
   }
 
   const related = items.filter((p) => p.id !== item.id && p.category === item.category).slice(0, 3);
 
   return (
-    <Box sx={{ bgcolor: homeUi.pageBg }}>
+    <>
       <Seo
         title={`${item.title} | Portfolio | Energy Precisions`}
         description={item.description}
         path={`/portfolio/${item.id}`}
-        ogImage={item.mediaType !== 'video' ? item.image : undefined}
+        ogImage={item.mediaType !== 'video' ? resolveMediaUrl(item.image) : undefined}
       />
-      <PublicPageHero badge={item.category} headline={item.title} description={item.description} />
-
-      <Container maxWidth="lg" sx={{ px: publicUi.containerPx, py: { xs: 4, md: 6 } }}>
+      <PublicPageShell badge={item.category} headline={item.title} description={item.description} contentMaxWidth="lg">
         <Button
           startIcon={<ArrowBackIcon />}
           onClick={() => navigate('/portfolio')}
@@ -69,9 +79,9 @@ const PortfolioCaseStudy: React.FC = () => {
           }}
         >
           {item.mediaType === 'video' ? (
-            <Box component="video" src={item.image} controls playsInline sx={{ width: '100%', maxHeight: 480, display: 'block' }} />
+            <Box component="video" src={resolveMediaUrl(item.image)} controls playsInline sx={{ width: '100%', maxHeight: 480, display: 'block' }} />
           ) : (
-            <Box component="img" src={item.image} alt={item.title} sx={{ width: '100%', maxHeight: 520, objectFit: 'cover', display: 'block' }} />
+            <Box component="img" src={resolveMediaUrl(item.image)} alt={item.title} sx={{ width: '100%', maxHeight: 520, objectFit: 'cover', display: 'block' }} />
           )}
         </Box>
 
@@ -132,8 +142,9 @@ const PortfolioCaseStudy: React.FC = () => {
             </Grid>
           </>
         )}
-      </Container>
-    </Box>
+      </PublicPageShell>
+      <PublicStickyMobileCta label={SITE_CTA.consultation} to={SITE_CTA.quoteHref} />
+    </>
   );
 };
 

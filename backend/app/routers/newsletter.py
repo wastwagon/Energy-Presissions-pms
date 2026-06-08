@@ -1,29 +1,51 @@
 """
 Newsletter subscription API - public subscribe + admin list/update.
 """
+from collections import defaultdict
 from datetime import datetime
+from threading import Lock
 from typing import List
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from sqlalchemy.orm import Session
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 from app.database import get_db
 from app.models import NewsletterSubscriber, User, UserRole
 from app.auth import require_role
+from app.rate_limit import check_rate_limit
 
 router = APIRouter(prefix="/api/newsletter", tags=["newsletter"])
+
+_NEWSLETTER_SUBMITS: dict[str, list[float]] = defaultdict(list)
+_NEWSLETTER_LOCK = Lock()
+_NEWSLETTER_MAX_PER_WINDOW = 5
+_NEWSLETTER_WINDOW_SEC = 600
 
 
 class SubscribeRequest(BaseModel):
     email: EmailStr
+    company_website: str = Field("", max_length=200)  # honeypot — leave blank
 
 
 @router.post("/subscribe")
 async def subscribe(
+    request: Request,
     data: SubscribeRequest,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """Subscribe an email to the newsletter. Idempotent - returns success if already subscribed."""
+    if data.company_website:
+        return {"message": "Subscribed successfully", "status": "success"}
+
+    check_rate_limit(
+        _NEWSLETTER_SUBMITS,
+        _NEWSLETTER_LOCK,
+        request,
+        max_per_window=_NEWSLETTER_MAX_PER_WINDOW,
+        window_sec=_NEWSLETTER_WINDOW_SEC,
+        detail="Too many subscription attempts. Please try again later.",
+    )
+
     existing = db.query(NewsletterSubscriber).filter(
         NewsletterSubscriber.email == data.email.lower()
     ).first()

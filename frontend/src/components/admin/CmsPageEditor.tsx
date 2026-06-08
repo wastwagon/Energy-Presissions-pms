@@ -18,11 +18,43 @@ import { Save as SaveIcon } from '@mui/icons-material';
 import api from '../../services/api';
 import { CMS_PAGE_LABELS, getCmsDefaults } from '../../data/cmsDefaults';
 import { DEFAULT_CMS_PORTFOLIO_ITEMS } from '../../data/portfolioCms';
-import type { CmsFooter, CmsHero, CmsHeroSlide, CmsLink, CmsPageSlug, CmsPortfolioGalleryItem, CmsServiceCard, CmsSeo } from '../../types/cms';
+import type {
+  CmsFooter,
+  CmsHero,
+  CmsHeroSlide,
+  CmsLink,
+  CmsPageSlug,
+  CmsPortfolioGalleryItem,
+  CmsServiceCard,
+  CmsSeo,
+  LegalContentSection,
+  LocationCmsItem,
+} from '../../types/cms';
 import { resolveHeroSlides } from '../../utils/heroSlides';
+import { HYBRID_PACKAGES } from '../../data/hybridPackages';
 import CmsImageField from './CmsImageField';
 
-const PAGES: CmsPageSlug[] = ['home', 'about', 'services', 'shop', 'contact', 'global', 'packages', 'financing', 'portfolio'];
+const PAGES: CmsPageSlug[] = [
+  'home',
+  'about',
+  'services',
+  'shop',
+  'contact',
+  'global',
+  'packages',
+  'financing',
+  'portfolio',
+  'blog',
+  'reviews',
+  'referral',
+  'privacy',
+  'terms',
+  'warranty',
+  'locations',
+  'faqs',
+  'solar_estimate',
+  'load_calculator',
+];
 
 const featuresToText = (features: string[] = []) => features.join('\n');
 const textToFeatures = (text: string) => text.split('\n').map((l) => l.trim()).filter(Boolean);
@@ -287,6 +319,30 @@ const CmsPageEditor: React.FC = () => {
     }));
   };
 
+  const setGoogleReviewsField = (field: 'rating' | 'review_count' | 'place_id', value: string) => {
+    setSections((s) => {
+      const current = (s.google_reviews as { rating: number; review_count: number; place_id?: string }) || {
+        rating: 0,
+        review_count: 0,
+        place_id: '',
+      };
+      if (field === 'place_id') {
+        return {
+          ...s,
+          google_reviews: { ...current, place_id: value },
+        };
+      }
+      const parsed = Number(value.replace(/,/g, ''));
+      return {
+        ...s,
+        google_reviews: {
+          ...current,
+          [field]: Number.isFinite(parsed) && parsed >= 0 ? parsed : 0,
+        },
+      };
+    });
+  };
+
   const setFooterField = (field: string, value: string) => {
     setSections((s) => {
       const footer = { ...(s.footer as Record<string, unknown>) };
@@ -335,6 +391,39 @@ const CmsPageEditor: React.FC = () => {
       ...s,
       packages_section: { ...(s.packages_section as Record<string, string>), [field]: value },
     }));
+  };
+
+  const setLegalSection = (index: number, field: 'title' | 'body', value: string) => {
+    setSections((s) => {
+      const blocks = [...((s.content_sections as LegalContentSection[]) || [])];
+      blocks[index] = { ...blocks[index], [field]: value };
+      return { ...s, content_sections: blocks };
+    });
+  };
+
+  const setLocationItem = (index: number, field: keyof LocationCmsItem, value: string) => {
+    setSections((s) => {
+      const items = [...((s.items as LocationCmsItem[]) || [])];
+      if (field === 'highlights' || field === 'services') {
+        items[index] = { ...items[index], [field]: textToFeatures(value) };
+      } else {
+        items[index] = { ...items[index], [field]: value };
+      }
+      return { ...s, items };
+    });
+  };
+
+  const setTierPrice = (pkgId: string, value: string) => {
+    setSections((s) => {
+      const tierPrices = { ...((s.tier_prices as Record<string, number>) || {}) };
+      const parsed = Number(value.replace(/,/g, ''));
+      if (!value.trim() || Number.isNaN(parsed) || parsed <= 0) {
+        delete tierPrices[pkgId];
+      } else {
+        tierPrices[pkgId] = Math.round(parsed);
+      }
+      return { ...s, tier_prices: tierPrices };
+    });
   };
 
   const setReadingGuide = (field: 'title' | 'points_text', value: string) => {
@@ -531,7 +620,7 @@ const CmsPageEditor: React.FC = () => {
       {message && <Alert severity="success" sx={{ mb: 2 }}>{message}</Alert>}
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
 
-      {page !== 'global' && (
+      {page !== 'global' && page !== 'locations' && (
       <Paper variant="outlined" sx={{ p: 2.5, mb: 2 }}>
         <Typography variant="subtitle1" sx={{ fontWeight: 800, mb: 2 }}>
           Hero section
@@ -543,7 +632,7 @@ const CmsPageEditor: React.FC = () => {
               <TextField size="small" label="Quote request title" value={contactHero.quote_title || ''} onChange={(e) => setContactBlock('hero', 'quote_title', e.target.value)} />
               <TextField size="small" label="Subtitle" value={contactHero.subtitle || ''} onChange={(e) => setContactBlock('hero', 'subtitle', e.target.value)} multiline minRows={2} />
             </>
-          ) : page === 'shop' || page === 'portfolio' ? (
+          ) : page === 'shop' || page === 'portfolio' || page === 'blog' || page === 'reviews' || page === 'referral' || page === 'privacy' || page === 'terms' || page === 'warranty' || page === 'faqs' || page === 'solar_estimate' || page === 'load_calculator' ? (
             <>
               <TextField size="small" label="Badge" value={shopHero.badge || ''} onChange={(e) => setShopHero('badge', e.target.value)} />
               <TextField size="small" label="Headline" value={shopHero.headline || ''} onChange={(e) => setShopHero('headline', e.target.value)} />
@@ -640,6 +729,43 @@ const CmsPageEditor: React.FC = () => {
       )}
 
       {page === 'global' && (
+        <>
+        <Paper variant="outlined" sx={{ p: 2.5, mb: 2 }}>
+          <Typography variant="subtitle1" sx={{ fontWeight: 800, mb: 1 }}>Google reviews band</Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            Shown on /reviews. Leave rating at 0 to use the average from homepage testimonials instead of a hardcoded score.
+            Add a Google Place ID for direct Maps embed and review links (no API key required).
+          </Typography>
+          <TextField
+            size="small"
+            fullWidth
+            label="Google Place ID (optional)"
+            value={(sections.google_reviews as { place_id?: string })?.place_id || ''}
+            onChange={(e) => setGoogleReviewsField('place_id', e.target.value)}
+            sx={{ mb: 1.5 }}
+            helperText="Find in Google Business Profile → Share → Embed map, or use a Place ID lookup tool."
+          />
+          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1}>
+            <TextField
+              size="small"
+              type="number"
+              label="Google rating (1–5)"
+              value={(sections.google_reviews as { rating?: number })?.rating || ''}
+              onChange={(e) => setGoogleReviewsField('rating', e.target.value)}
+              inputProps={{ min: 0, max: 5, step: 0.1 }}
+              sx={{ flex: 1 }}
+            />
+            <TextField
+              size="small"
+              type="number"
+              label="Google review count"
+              value={(sections.google_reviews as { review_count?: number })?.review_count || ''}
+              onChange={(e) => setGoogleReviewsField('review_count', e.target.value)}
+              inputProps={{ min: 0, step: 1 }}
+              sx={{ flex: 1 }}
+            />
+          </Stack>
+        </Paper>
         <Paper variant="outlined" sx={{ p: 2.5, mb: 2 }}>
           <Typography variant="subtitle1" sx={{ fontWeight: 800, mb: 2 }}>Footer</Typography>
           <TextField size="small" fullWidth sx={{ mb: 1.5 }} label="Company name" value={footer.company_name || ''} onChange={(e) => setFooterField('company_name', e.target.value)} />
@@ -686,6 +812,7 @@ const CmsPageEditor: React.FC = () => {
             <TextField size="small" label="Copyright (use {year})" value={footer.copyright || ''} onChange={(e) => setFooterField('copyright', e.target.value)} sx={{ flex: 2 }} />
           </Stack>
         </Paper>
+        </>
       )}
 
       {page === 'financing' && (
@@ -781,6 +908,30 @@ const CmsPageEditor: React.FC = () => {
             <TextField size="small" fullWidth label="Subtitle" value={packagesSection.subtitle || ''} onChange={(e) => setPackagesSection('subtitle', e.target.value)} multiline minRows={2} />
           </Paper>
           <Paper variant="outlined" sx={{ p: 2.5, mb: 2 }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 800, mb: 1 }}>Package prices (GHS)</Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+              Override turnkey prices per tier. Leave blank to use bundled defaults from code.
+            </Typography>
+            {HYBRID_PACKAGES.map((pkg) => {
+              const tierPrices = (sections.tier_prices || {}) as Record<string, number>;
+              const override = tierPrices[pkg.id];
+              return (
+                <TextField
+                  key={pkg.id}
+                  size="small"
+                  fullWidth
+                  sx={{ mb: 1.5 }}
+                  label={`${pkg.kvaLabel} (${pkg.badge})`}
+                  type="number"
+                  placeholder={String(pkg.priceGhs)}
+                  value={override ?? ''}
+                  onChange={(e) => setTierPrice(pkg.id, e.target.value)}
+                  inputProps={{ min: 0, step: 100 }}
+                />
+              );
+            })}
+          </Paper>
+          <Paper variant="outlined" sx={{ p: 2.5, mb: 2 }}>
             <Typography variant="subtitle1" sx={{ fontWeight: 800, mb: 2 }}>Reading guide</Typography>
             <TextField size="small" fullWidth sx={{ mb: 1.5 }} label="Title" value={readingGuide.title || ''} onChange={(e) => setReadingGuide('title', e.target.value)} />
             <TextField size="small" fullWidth label="Points (one per line)" value={featuresToText(readingGuide.points)} onChange={(e) => setReadingGuide('points_text', e.target.value)} multiline minRows={6} />
@@ -801,6 +952,68 @@ const CmsPageEditor: React.FC = () => {
             <TextField size="small" fullWidth label="Contact CTA text" value={whySection.contact_cta_text || ''} onChange={(e) => setWhySection('contact_cta_text', e.target.value)} />
           </Paper>
         </>
+      )}
+
+      {(page === 'privacy' || page === 'terms' || page === 'warranty') && (
+        <Paper variant="outlined" sx={{ p: 2.5, mb: 2 }}>
+          <Typography variant="subtitle1" sx={{ fontWeight: 800, mb: 2 }}>
+            Legal content sections
+          </Typography>
+          {((sections.content_sections as LegalContentSection[]) || []).map((sec, i) => (
+            <Box key={`${sec.title}-${i}`} sx={{ mb: 2, p: 1.5, bgcolor: 'grey.50', borderRadius: 1 }}>
+              <Typography variant="caption" sx={{ fontWeight: 700 }}>
+                Section {i + 1}
+              </Typography>
+              <TextField
+                size="small"
+                fullWidth
+                sx={{ mt: 1, mb: 1 }}
+                label="Title"
+                value={sec.title || ''}
+                onChange={(e) => setLegalSection(i, 'title', e.target.value)}
+              />
+              <TextField
+                size="small"
+                fullWidth
+                label="Body"
+                value={sec.body || ''}
+                onChange={(e) => setLegalSection(i, 'body', e.target.value)}
+                multiline
+                minRows={3}
+              />
+            </Box>
+          ))}
+        </Paper>
+      )}
+
+      {page === 'locations' && (
+        <Paper variant="outlined" sx={{ p: 2.5, mb: 2 }}>
+          <Typography variant="subtitle1" sx={{ fontWeight: 800, mb: 1 }}>
+            Location landing pages
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            Accra, Kumasi, and Tamale pages — routes use each item&apos;s slug (e.g. /solar-accra).
+          </Typography>
+          {((sections.items as LocationCmsItem[]) || []).map((loc, i) => (
+            <Box key={loc.slug || i} sx={{ mb: 2.5, p: 1.5, bgcolor: 'grey.50', borderRadius: 1 }}>
+              <Typography variant="caption" sx={{ fontWeight: 700 }}>
+                {loc.city || `Location ${i + 1}`}
+              </Typography>
+              <TextField size="small" fullWidth sx={{ mt: 1, mb: 1 }} label="Slug" value={loc.slug || ''} onChange={(e) => setLocationItem(i, 'slug', e.target.value)} />
+              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} sx={{ mb: 1 }}>
+                <TextField size="small" label="City" value={loc.city || ''} onChange={(e) => setLocationItem(i, 'city', e.target.value)} sx={{ flex: 1 }} />
+                <TextField size="small" label="Region" value={loc.region || ''} onChange={(e) => setLocationItem(i, 'region', e.target.value)} sx={{ flex: 1 }} />
+              </Stack>
+              <TextField size="small" fullWidth sx={{ mb: 1 }} label="Badge" value={loc.badge || ''} onChange={(e) => setLocationItem(i, 'badge', e.target.value)} />
+              <TextField size="small" fullWidth sx={{ mb: 1 }} label="Headline" value={loc.headline || ''} onChange={(e) => setLocationItem(i, 'headline', e.target.value)} />
+              <TextField size="small" fullWidth sx={{ mb: 1 }} label="Description" value={loc.description || ''} onChange={(e) => setLocationItem(i, 'description', e.target.value)} multiline minRows={2} />
+              <TextField size="small" fullWidth sx={{ mb: 1 }} label="Highlights (one per line)" value={featuresToText(loc.highlights)} onChange={(e) => setLocationItem(i, 'highlights', e.target.value)} multiline minRows={3} />
+              <TextField size="small" fullWidth sx={{ mb: 1 }} label="Services (one per line)" value={featuresToText(loc.services)} onChange={(e) => setLocationItem(i, 'services', e.target.value)} multiline minRows={3} />
+              <TextField size="small" fullWidth sx={{ mb: 1 }} label="SEO title" value={loc.seo_title || ''} onChange={(e) => setLocationItem(i, 'seo_title', e.target.value)} />
+              <TextField size="small" fullWidth label="SEO description" value={loc.seo_description || ''} onChange={(e) => setLocationItem(i, 'seo_description', e.target.value)} multiline minRows={2} />
+            </Box>
+          ))}
+        </Paper>
       )}
 
       {page === 'home' && (

@@ -27,7 +27,7 @@ import { Seo } from '../../components/Seo';
 import { colors } from '../../theme/colors';
 import { homeUi } from '../../theme/homeUi';
 import { publicUi } from '../../theme/publicUi';
-import PublicPageHero from '../../components/public/PublicPageHero';
+import PublicPageShell from '../../components/public/PublicPageShell';
 import HomeSectionHeader from '../../components/public/HomeSectionHeader';
 import api from '../../services/api';
 import { useCmsPage } from '../../hooks/useCmsPage';
@@ -72,16 +72,16 @@ const Services: React.FC = () => {
   const processStepIcons = [<SupportIcon />, <EngineeringIcon />, <SolarPowerIcon />, <CheckCircleIcon />, <BatteryIcon />];
 
   return (
-    <Box>
+    <>
       <Seo title={seo.title} description={seo.description} path={pathname} />
-      <PublicPageHero
+      <PublicPageShell
         badge={hero.badge}
         headline={hero.headline}
         headlineHighlight={hero.headline_highlight}
         description={hero.description}
         backgroundImage={servicesHeroBg}
-      />
-
+        wrapContent={false}
+      >
       {/* Services Grid */}
       <Box sx={{ py: { xs: 4, md: 7 }, bgcolor: homeUi.pageBg }}>
         <Container maxWidth="lg" sx={{ px: homeUi.containerPx }}>
@@ -462,8 +462,9 @@ const Services: React.FC = () => {
           </Box>
         </Container>
       </Box>
+      </PublicPageShell>
       <PublicStickyMobileCta label={SITE_CTA.consultation} to={SITE_CTA.quoteHref} />
-    </Box>
+    </>
   );
 };
 

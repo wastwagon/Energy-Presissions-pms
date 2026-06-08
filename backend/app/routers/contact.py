@@ -2,7 +2,6 @@
 Public contact form — stores inquiries and emails admin (optional SendGrid).
 """
 import os
-import time
 from collections import defaultdict
 from datetime import datetime
 from threading import Lock
@@ -18,37 +17,14 @@ from app.models import ContactInquiry, User
 from app.auth import require_role
 from app.services.email_service import email_service
 from app.config import settings
+from app.rate_limit import check_rate_limit
 
 router = APIRouter(prefix="/api/contact", tags=["contact"])
 
-# In-process limiter (per server process). Use a proxy CDN/WAF for production scale.
 _CONTACT_SUBMITS: dict[str, list[float]] = defaultdict(list)
 _CONTACT_LOCK = Lock()
 _CONTACT_MAX_PER_WINDOW = 8
 _CONTACT_WINDOW_SEC = 600
-
-
-def _client_ip(request: Request) -> str:
-    xf = request.headers.get("x-forwarded-for")
-    if xf:
-        return xf.split(",")[0].strip()[:80]
-    if request.client:
-        return request.client.host or "unknown"
-    return "unknown"
-
-
-def _check_contact_rate_limit(request: Request) -> None:
-    ip = _client_ip(request)
-    now = time.time()
-    with _CONTACT_LOCK:
-        bucket = _CONTACT_SUBMITS[ip]
-        bucket[:] = [t for t in bucket if now - t < _CONTACT_WINDOW_SEC]
-        if len(bucket) >= _CONTACT_MAX_PER_WINDOW:
-            raise HTTPException(
-                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-                detail="Too many submissions. Please try again later.",
-            )
-        bucket.append(now)
 
 
 class ContactSubmit(BaseModel):
@@ -85,7 +61,14 @@ async def submit_contact(
     if data.company_website:
         return {"message": "Thank you for your message.", "status": "success"}
 
-    _check_contact_rate_limit(request)
+    check_rate_limit(
+        _CONTACT_SUBMITS,
+        _CONTACT_LOCK,
+        request,
+        max_per_window=_CONTACT_MAX_PER_WINDOW,
+        window_sec=_CONTACT_WINDOW_SEC,
+        detail="Too many submissions. Please try again later.",
+    )
 
     src = "website"
     if data.topic:

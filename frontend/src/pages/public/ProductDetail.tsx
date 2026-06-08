@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
   Box,
-  Container,
   Typography,
   Grid,
   Button,
@@ -13,7 +12,6 @@ import {
   TableBody,
   TableRow,
   TableCell,
-  Divider,
   useTheme,
   useMediaQuery,
 } from '@mui/material';
@@ -27,9 +25,11 @@ import api from '../../services/api';
 import { useCart } from '../../contexts/CartContext';
 import { catalogLineUnitPrice } from '../../utils/catalogPrice';
 import { Seo } from '../../components/Seo';
-import PublicPageHero from '../../components/public/PublicPageHero';
+import PublicPageShell from '../../components/public/PublicPageShell';
+import ProductImage from '../../components/public/ProductImage';
 import { trackViewItem, trackAddToCart } from '../../utils/analytics';
-import { resolveMediaUrl } from '../../utils/mediaUrl';
+import { resolveCatalogImageUrl } from '../../utils/catalogImage';
+import { formatApiErrorDetail } from '../../utils/apiErrorMessage';
 import { productJsonLd } from '../../utils/jsonLd';
 import { colors } from '../../theme/colors';
 import { homeUi } from '../../theme/homeUi';
@@ -97,22 +97,46 @@ const ProductDetail: React.FC = () => {
 
   if (error || !product) {
     return (
-      <Box sx={{ py: 8, textAlign: 'center', bgcolor: homeUi.pageBg }}>
+      <>
         <Seo title="Product not found" description="Not available." path={productPath} noIndex />
-        <Typography sx={{ mb: 2 }}>{error || 'Product not found'}</Typography>
-        <Button startIcon={<ArrowBackIcon />} onClick={() => navigate('/shop')} sx={{ textTransform: 'none' }}>
-          Back to shop
-        </Button>
-      </Box>
+        <PublicPageShell
+          badge="Shop"
+          headline="Product not found"
+          description="This item may have been removed or the link is outdated. Browse our solar equipment catalog."
+          heroAlign="center"
+        >
+          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} justifyContent="center">
+            <Button
+              component={RouterLink}
+              to="/shop"
+              variant="contained"
+              sx={{ ...publicUi.primaryButton, ...homeUi.touchTarget }}
+            >
+              Browse shop
+            </Button>
+            <Button
+              component={RouterLink}
+              to="/contact?action=quote&topic=shop"
+              variant="outlined"
+              sx={{ ...publicUi.secondaryButton, ...homeUi.touchTarget }}
+            >
+              Request a quote
+            </Button>
+          </Stack>
+        </PublicPageShell>
+      </>
     );
   }
 
   const title = product.name || `${product.brand || ''} ${product.model || ''}`.trim() || 'Product';
   const unit = catalogLineUnitPrice(product);
-  const img = resolveMediaUrl(product.image_url);
+  const img = resolveCatalogImageUrl(product);
   const desc = product.description || product.short_description || 'Premium solar equipment from Energy Precisions catalog.';
   const ogImage = /^https?:\/\//i.test(img) ? img : undefined;
   const inStock = product.in_stock !== false;
+  const typeLabel = product.product_type
+    ? String(product.product_type).charAt(0).toUpperCase() + String(product.product_type).slice(1)
+    : 'Shop';
 
   const specs: { label: string; value: string }[] = [];
   if (product.sku) specs.push({ label: 'SKU', value: product.sku });
@@ -130,12 +154,12 @@ const ProductDetail: React.FC = () => {
       trackAddToCart([{ item_id: String(product.id), item_name: title, price: unit, quantity: 1 }]);
       navigate('/cart');
     } catch (e: any) {
-      alert(e.response?.data?.detail || 'Failed to add product');
+      alert(formatApiErrorDetail(e) || 'Failed to add product');
     }
   };
 
   return (
-    <Box sx={{ bgcolor: homeUi.pageBg, pb: isMobile ? 12 : 0 }}>
+    <>
       <Seo
         title={title}
         description={desc.slice(0, 160)}
@@ -151,136 +175,133 @@ const ProductDetail: React.FC = () => {
           brand: product.brand,
         })}
       />
-      <PublicPageHero badge="Shop" headline={title} description={product.short_description || desc.slice(0, 120)} />
+      <PublicPageShell badge={typeLabel} headline={title} description={product.short_description || desc.slice(0, 120)}>
+        <Button
+          startIcon={<ArrowBackIcon />}
+          size="small"
+          onClick={() => navigate('/shop')}
+          sx={{ mb: 2, textTransform: 'none', color: colors.blueNavy }}
+        >
+          Back to shop
+        </Button>
 
-      <Box sx={{ py: { xs: 4, md: 5 } }}>
-        <Container maxWidth="lg" sx={{ px: publicUi.containerPx }}>
-          <Button
-            startIcon={<ArrowBackIcon />}
-            size="small"
-            onClick={() => navigate('/shop')}
-            sx={{ mb: 2, textTransform: 'none', color: colors.blueNavy }}
-          >
-            Back to shop
-          </Button>
-
-          <Grid container spacing={{ xs: 2, md: 4 }}>
-            <Grid item xs={12} md={6}>
-              <Card sx={{ ...publicUi.card, overflow: 'hidden' }}>
-                <Box
-                  sx={{
-                    minHeight: { xs: 280, md: 360 },
-                    bgcolor: colors.offWhite,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    p: 2,
-                  }}
-                >
-                  {img ? (
-                    <Box component="img" src={img} alt={title} sx={{ maxWidth: '100%', maxHeight: 340, objectFit: 'contain' }} />
-                  ) : (
-                    <Typography sx={{ color: colors.gray400 }}>{title}</Typography>
-                  )}
-                </Box>
-              </Card>
-            </Grid>
-
-            <Grid item xs={12} md={6}>
-              <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap sx={{ mb: 2 }}>
-                {product.product_type && (
-                  <Chip label={String(product.product_type)} size="small" sx={{ bgcolor: colors.blueBlack, color: '#fff' }} />
-                )}
-                <Chip
-                  label={inStock ? 'In stock · Accra warehouse' : 'Out of stock'}
-                  size="small"
-                  sx={inStock ? { bgcolor: colors.green, color: colors.blueBlack } : undefined}
-                  color={inStock ? undefined : 'error'}
+        <Grid container spacing={{ xs: 2, md: 4 }}>
+          <Grid item xs={12} md={6}>
+            <Card sx={{ ...publicUi.card, overflow: 'hidden' }}>
+              <Box
+                sx={{
+                  minHeight: { xs: 280, md: 360 },
+                  bgcolor: colors.offWhite,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  p: 2,
+                }}
+              >
+                <ProductImage
+                  product={product}
+                  alt={title}
+                  objectFit="contain"
+                  sx={{ maxWidth: '100%', maxHeight: 340 }}
                 />
-              </Stack>
-
-              <Typography sx={{ ...homeUi.title, fontSize: { xs: '1.5rem', md: '1.75rem' }, color: colors.blueBlack, mb: 1 }}>
-                GHS {unit.toLocaleString()}
-              </Typography>
-              {product.price_type && product.price_type !== 'fixed' && (
-                <Typography sx={{ ...publicUi.mutedText, fontSize: '0.8125rem', mb: 2 }}>
-                  Pricing: {product.price_type.replace(/_/g, ' ')}
-                </Typography>
-              )}
-
-              <Typography sx={{ ...homeUi.body, ...publicUi.mutedText, mb: 3 }}>{desc}</Typography>
-
-              {!isMobile && (
-                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5}>
-                  <Button
-                    variant="contained"
-                    startIcon={<ShoppingCartIcon />}
-                    onClick={handleAdd}
-                    disabled={!inStock}
-                    sx={{ ...publicUi.primaryButton, ...homeUi.touchTarget, px: 3 }}
-                  >
-                    Add to cart
-                  </Button>
-                  <Button
-                    component={RouterLink}
-                    to="/contact?action=quote&topic=shop"
-                    variant="outlined"
-                    startIcon={<EngineeringIcon />}
-                    sx={{ ...publicUi.secondaryButton, ...homeUi.touchTarget, px: 3 }}
-                  >
-                    Add installation quote
-                  </Button>
-                </Stack>
-              )}
-
-              {specs.length > 0 && (
-                <Box sx={{ mt: 4 }}>
-                  <Typography sx={{ fontWeight: 700, mb: 1.5 }}>Specifications</Typography>
-                  <Card sx={publicUi.card}>
-                    <Table size="small">
-                      <TableBody>
-                        {specs.map((row) => (
-                          <TableRow key={row.label}>
-                            <TableCell sx={{ fontWeight: 600, width: '38%', borderColor: colors.gray200 }}>{row.label}</TableCell>
-                            <TableCell sx={{ ...publicUi.mutedText, borderColor: colors.gray200 }}>{row.value}</TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </Card>
-                </Box>
-              )}
-
-              <Typography sx={{ ...publicUi.mutedText, fontSize: '0.8125rem', mt: 2 }}>
-                <RouterLink to="/warranty" style={{ color: colors.greenDark, fontWeight: 600, textDecoration: 'none' }}>
-                  Warranty information
-                </RouterLink>
-              </Typography>
-            </Grid>
+              </Box>
+            </Card>
           </Grid>
 
-          {related.length > 0 && (
-            <Box sx={{ mt: { xs: 5, md: 7 } }}>
-              <Typography sx={{ ...homeUi.title, fontSize: '1.125rem', mb: 2 }}>Related products</Typography>
-              <Grid container spacing={2}>
-                {related.map((p) => (
-                  <Grid item xs={12} sm={4} key={p.id}>
-                    <Button
-                      component={RouterLink}
-                      to={`/products/${p.id}`}
-                      fullWidth
-                      variant="outlined"
-                      sx={{ ...publicUi.secondaryButton, py: 1.5, justifyContent: 'flex-start' }}
-                    >
-                      {p.name || p.model || 'Product'}
-                    </Button>
-                  </Grid>
-                ))}
-              </Grid>
-            </Box>
-          )}
-        </Container>
-      </Box>
+          <Grid item xs={12} md={6}>
+            <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap sx={{ mb: 2 }}>
+              {product.product_type && (
+                <Chip label={String(product.product_type)} size="small" sx={{ bgcolor: colors.blueBlack, color: '#fff' }} />
+              )}
+              <Chip
+                label={inStock ? 'In stock · Accra warehouse' : 'Out of stock'}
+                size="small"
+                sx={inStock ? { bgcolor: colors.green, color: colors.blueBlack } : undefined}
+                color={inStock ? undefined : 'error'}
+              />
+            </Stack>
+
+            <Typography sx={{ ...homeUi.title, fontSize: { xs: '1.5rem', md: '1.75rem' }, color: colors.blueBlack, mb: 1 }}>
+              GHS {unit.toLocaleString()}
+            </Typography>
+            {product.price_type && product.price_type !== 'fixed' && (
+              <Typography sx={{ ...publicUi.mutedText, fontSize: '0.8125rem', mb: 2 }}>
+                Pricing: {product.price_type.replace(/_/g, ' ')}
+              </Typography>
+            )}
+
+            <Typography sx={{ ...homeUi.body, ...publicUi.mutedText, mb: 3 }}>{desc}</Typography>
+
+            {!isMobile && (
+              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5}>
+                <Button
+                  variant="contained"
+                  startIcon={<ShoppingCartIcon />}
+                  onClick={handleAdd}
+                  disabled={!inStock}
+                  sx={{ ...publicUi.primaryButton, ...homeUi.touchTarget, px: 3 }}
+                >
+                  Add to cart
+                </Button>
+                <Button
+                  component={RouterLink}
+                  to="/contact?action=quote&topic=shop"
+                  variant="outlined"
+                  startIcon={<EngineeringIcon />}
+                  sx={{ ...publicUi.secondaryButton, ...homeUi.touchTarget, px: 3 }}
+                >
+                  Add installation quote
+                </Button>
+              </Stack>
+            )}
+
+            {specs.length > 0 && (
+              <Box sx={{ mt: 4 }}>
+                <Typography sx={{ fontWeight: 700, mb: 1.5 }}>Specifications</Typography>
+                <Card sx={publicUi.card}>
+                  <Table size="small">
+                    <TableBody>
+                      {specs.map((row) => (
+                        <TableRow key={row.label}>
+                          <TableCell sx={{ fontWeight: 600, width: '38%', borderColor: colors.gray200 }}>{row.label}</TableCell>
+                          <TableCell sx={{ ...publicUi.mutedText, borderColor: colors.gray200 }}>{row.value}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </Card>
+              </Box>
+            )}
+
+            <Typography sx={{ ...publicUi.mutedText, fontSize: '0.8125rem', mt: 2 }}>
+              <RouterLink to="/warranty" style={{ color: colors.greenDark, fontWeight: 600, textDecoration: 'none' }}>
+                Warranty information
+              </RouterLink>
+            </Typography>
+          </Grid>
+        </Grid>
+
+        {related.length > 0 && (
+          <Box sx={{ mt: { xs: 5, md: 7 } }}>
+            <Typography sx={{ ...homeUi.title, fontSize: '1.125rem', mb: 2 }}>Related products</Typography>
+            <Grid container spacing={2}>
+              {related.map((p) => (
+                <Grid item xs={12} sm={4} key={p.id}>
+                  <Button
+                    component={RouterLink}
+                    to={`/products/${p.id}`}
+                    fullWidth
+                    variant="outlined"
+                    sx={{ ...publicUi.secondaryButton, py: 1.5, justifyContent: 'flex-start' }}
+                  >
+                    {p.name || p.model || 'Product'}
+                  </Button>
+                </Grid>
+              ))}
+            </Grid>
+          </Box>
+        )}
+      </PublicPageShell>
 
       {isMobile && (
         <Box
@@ -310,7 +331,7 @@ const ProductDetail: React.FC = () => {
           </Stack>
         </Box>
       )}
-    </Box>
+    </>
   );
 };
 

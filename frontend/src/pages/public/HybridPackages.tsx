@@ -33,14 +33,14 @@ import { COMPANY } from '../../data/companyContact';
 import { useCmsPage } from '../../hooks/useCmsPage';
 import { resolveCmsSeo } from '../../hooks/useCmsSeo';
 import PublicStickyMobileCta from '../../components/public/PublicStickyMobileCta';
-import PublicPageHero from '../../components/public/PublicPageHero';
+import PublicPageShell from '../../components/public/PublicPageShell';
 import PackageComparisonTable from '../../components/public/PackageComparisonTable';
 import { homeUi } from '../../theme/homeUi';
 import { publicUi } from '../../theme/publicUi';
 import {
-  HYBRID_PACKAGES,
   LOAD_CEILING_HELP,
   formatGhs,
+  resolveHybridPackages,
 } from '../../data/hybridPackages';
 
 const isExternalLink = (path: string) =>
@@ -54,44 +54,52 @@ const HybridPackages: React.FC = () => {
       'Turnkey 6.5–20 kVA hybrid lithium solar packages from our Accra office — panels, installation, monitoring and competitive GHS pricing across Ghana.',
   });
   const { hero, packages_section: packagesSection, reading_guide: readingGuide, why_section: whySection } = sections;
-  const [expanded, setExpanded] = useState<string | false>(HYBRID_PACKAGES[0]?.id ?? false);
+  const packages = resolveHybridPackages(sections.tier_prices);
+  const [expanded, setExpanded] = useState<string | false>(packages[0]?.id ?? false);
 
   const secondaryCtaExternal = isExternalLink(hero.secondary_cta_link);
 
+  const heroCtas = (
+    <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5}>
+      <Button
+        variant="contained"
+        component={RouterLink}
+        to={hero.primary_cta_link}
+        sx={{ ...publicUi.primaryButton, ...homeUi.touchTarget, px: 3 }}
+      >
+        {hero.primary_cta_text}
+      </Button>
+      <Button
+        variant="outlined"
+        component={secondaryCtaExternal ? 'a' : RouterLink}
+        {...(secondaryCtaExternal ? { href: hero.secondary_cta_link } : { to: hero.secondary_cta_link })}
+        sx={{
+          borderColor: 'rgba(255,255,255,0.45)',
+          color: 'white',
+          borderRadius: 999,
+          textTransform: 'none',
+          fontWeight: 600,
+          px: 3,
+          ...homeUi.touchTarget,
+          '&:hover': { borderColor: 'white', bgcolor: 'rgba(255,255,255,0.06)' },
+        }}
+      >
+        {hero.secondary_cta_text}
+      </Button>
+    </Stack>
+  );
+
   return (
-    <Box>
+    <>
       <Seo title={seo.title} description={seo.description} path="/solar-packages" />
-
-      <PublicPageHero badge={hero.badge} headline={hero.headline} description={hero.description}>
-        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5}>
-          <Button
-            variant="contained"
-            component={RouterLink}
-            to={hero.primary_cta_link}
-            sx={{ ...publicUi.primaryButton, ...homeUi.touchTarget, px: 3 }}
-          >
-            {hero.primary_cta_text}
-          </Button>
-          <Button
-            variant="outlined"
-            component={secondaryCtaExternal ? 'a' : RouterLink}
-            {...(secondaryCtaExternal ? { href: hero.secondary_cta_link } : { to: hero.secondary_cta_link })}
-            sx={{
-              borderColor: 'rgba(255,255,255,0.45)',
-              color: 'white',
-              borderRadius: 999,
-              textTransform: 'none',
-              fontWeight: 600,
-              px: 3,
-              ...homeUi.touchTarget,
-              '&:hover': { borderColor: 'white', bgcolor: 'rgba(255,255,255,0.06)' },
-            }}
-          >
-            {hero.secondary_cta_text}
-          </Button>
-        </Stack>
-      </PublicPageHero>
-
+      <PublicPageShell
+        badge={hero.badge}
+        headline={hero.headline}
+        description={hero.description}
+        headlineSize="prominent"
+        heroChildren={heroCtas}
+        wrapContent={false}
+      >
       {/* Package grid */}
       <Box sx={{ py: { xs: 5, md: 8 }, bgcolor: colors.offWhite }}>
         <Container maxWidth="xl">
@@ -145,10 +153,10 @@ const HybridPackages: React.FC = () => {
             </List>
           </Box>
 
-          <PackageComparisonTable />
+          <PackageComparisonTable packages={packages} />
 
           <Grid container spacing={2} alignItems="stretch">
-            {HYBRID_PACKAGES.map((pkg) => (
+            {packages.map((pkg) => (
               <Grid item xs={12} sm={6} lg={4} key={pkg.id}>
                 <Card
                   sx={{
@@ -425,8 +433,9 @@ const HybridPackages: React.FC = () => {
           </Grid>
         </Container>
       </Box>
+      </PublicPageShell>
       <PublicStickyMobileCta label="Book free site survey" to="/contact?action=quote&topic=package" />
-    </Box>
+    </>
   );
 };
 

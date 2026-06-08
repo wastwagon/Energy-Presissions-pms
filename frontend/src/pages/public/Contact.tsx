@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import api from '../../services/api';
+import { formatApiErrorDetail } from '../../utils/apiErrorMessage';
 import {
   Box,
   Typography,
@@ -36,6 +37,8 @@ import {
 import { colors } from '../../theme/colors';
 import { publicUi } from '../../theme/publicUi';
 import { homeUi } from '../../theme/homeUi';
+import PublicStickyMobileCta from '../../components/public/PublicStickyMobileCta';
+import { SITE_CTA } from '../../data/siteCta';
 
 const Contact: React.FC = () => {
   const { sections } = useCmsPage('contact');
@@ -123,12 +126,9 @@ const Contact: React.FC = () => {
         company_website: '',
       });
     } catch (err: any) {
-      const d = err.response?.data?.detail;
-      if (err.response?.status === 429) {
-        setSubmitError('Too many requests. Please wait a few minutes and try again.');
-      } else {
-        setSubmitError(typeof d === 'string' ? d : 'Something went wrong. Please try again or call us.');
-      }
+      setSubmitError(
+        formatApiErrorDetail(err) || 'Something went wrong. Please try again or call us.',
+      );
     } finally {
       setSubmitting(false);
     }
@@ -253,6 +253,10 @@ const Contact: React.FC = () => {
           </Grid>
         </Grid>
       </PublicPageShell>
+      <PublicStickyMobileCta
+        label={isQuoteRequest ? 'Submit quote request' : SITE_CTA.consultation}
+        to={isQuoteRequest ? '/contact?action=quote' : SITE_CTA.quoteHref}
+      />
     </>
   );
 };

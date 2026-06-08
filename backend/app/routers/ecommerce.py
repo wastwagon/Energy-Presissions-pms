@@ -7,7 +7,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, Request, Query
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import or_, desc
 from app.database import get_db
-from app.models import Product, ProductType, Customer, User
+from app.models import Product, ProductType, Customer, User, UserRole
 from app.models_ecommerce import Order, OrderItem, CartItem, Coupon
 from app.schemas_ecommerce import (
     ProductPublic, OrderCreate, OrderResponse, OrderDetailResponse, OrderStatusUpdate,
@@ -21,6 +21,8 @@ from app.services.coupon_order import compute_order_coupon_discount
 from app.services.stock import deduct_stock_on_order_paid
 from datetime import datetime, timezone
 import uuid
+
+WEB_OR_ADMIN = [UserRole.ADMIN, UserRole.WEBSITE_ADMIN]
 
 # Category dropdown on shop may send product_type values (panel, inverter, …)
 _ECOM_CATEGORY_AS_PRODUCT_TYPE = {pt.value for pt in ProductType}
@@ -447,9 +449,9 @@ async def list_orders_admin(
     skip: int = 0,
     limit: int = 50,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_active_user)
+    current_user: User = Depends(require_role(WEB_OR_ADMIN)),
 ):
-    """Admin: List all e-commerce orders (auth required)"""
+    """Admin / website_admin: List all e-commerce orders"""
     query = db.query(Order)
     if status:
         query = query.filter(Order.status == status)
@@ -474,9 +476,9 @@ async def update_order_status(
     order_number: str,
     update: OrderStatusUpdate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_active_user)
+    current_user: User = Depends(require_role(WEB_OR_ADMIN)),
 ):
-    """Admin: Update order status (auth required)"""
+    """Admin / website_admin: Update order status"""
     order = (
         db.query(Order)
         .options(joinedload(Order.items))
@@ -503,9 +505,9 @@ async def update_order_status(
 async def get_order(
     order_number: str,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_active_user),
+    current_user: User = Depends(require_role(WEB_OR_ADMIN)),
 ):
-    """Get order by order number (includes items). Staff auth required — avoids public PII leak."""
+    """Get order by order number (includes items). Admin / website_admin only."""
     order = (
         db.query(Order)
         .options(joinedload(Order.items))

@@ -11,10 +11,6 @@ import {
   TextField,
   InputAdornment,
   Chip,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
   Pagination,
   Stack,
   Divider,
@@ -37,10 +33,12 @@ import { Seo } from '../../components/Seo';
 import { useCart } from '../../contexts/CartContext';
 import { catalogLineUnitPrice } from '../../utils/catalogPrice';
 import { trackAddToCart } from '../../utils/analytics';
-import { resolveMediaUrl } from '../../utils/mediaUrl';
 import { useCmsPage } from '../../hooks/useCmsPage';
 import { resolveCmsSeo } from '../../hooks/useCmsSeo';
-import PublicPageHero from '../../components/public/PublicPageHero';
+import PublicPageShell from '../../components/public/PublicPageShell';
+import FilterChip from '../../components/public/FilterChip';
+import ProductImage from '../../components/public/ProductImage';
+import { formatApiErrorDetail } from '../../utils/apiErrorMessage';
 import { colors } from '../../theme/colors';
 import { homeUi } from '../../theme/homeUi';
 import { publicUi } from '../../theme/publicUi';
@@ -91,6 +89,10 @@ const Shop: React.FC = () => {
     fetchProducts();
   }, [categoryFilter, searchTerm]);
 
+  useEffect(() => {
+    setPage(1);
+  }, [categoryFilter, searchTerm]);
+
   const categories = [
     { value: 'all', label: 'All Products' },
     { value: 'panel', label: 'Solar Panels' },
@@ -124,7 +126,7 @@ const Shop: React.FC = () => {
       trackAddToCart([{ item_id: String(product.id), item_name: name, price: unit, quantity: 1 }]);
       navigate('/cart');
     } catch (error: any) {
-      alert(error.response?.data?.detail || 'Failed to add product to cart');
+      alert(formatApiErrorDetail(error) || 'Failed to add product to cart');
     }
   };
 
@@ -138,15 +140,15 @@ const Shop: React.FC = () => {
   };
 
   return (
-    <Box sx={{ minHeight: '70vh', bgcolor: homeUi.pageBg }}>
+    <>
       <Seo title={seo.title} description={seo.description} path={pathname} />
-      <PublicPageHero
+      <PublicPageShell
         badge={shopHero.badge}
         headline={shopHero.headline}
         description={shopHero.description}
-      />
-
-      <Container maxWidth="xl" sx={{ px: publicUi.containerPx, pb: { xs: 4, md: 6 } }}>
+        wrapContent={false}
+      >
+      <Container maxWidth="xl" sx={{ px: publicUi.containerPx, py: { xs: 4, md: 6 } }}>
         {/* Filters and Search Bar */}
         <Box sx={{ ...publicUi.card, p: 3, mb: 4 }}>
           <Grid container spacing={3} alignItems="center">
@@ -170,27 +172,12 @@ const Shop: React.FC = () => {
                 }}
           />
             </Grid>
-            <Grid item xs={12} sm={6} md={3}>
-              <FormControl fullWidth>
-            <InputLabel>Category</InputLabel>
-            <Select
-              value={categoryFilter}
-              label="Category"
-              onChange={(e) => setCategoryFilter(e.target.value)}
-                  sx={{ borderRadius: 2 }}
-            >
-              {categories.map((cat) => (
-                    <MenuItem key={cat.value} value={cat.value}>
-                      {cat.label}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-            </Grid>
-            <Grid item xs={12} sm={6} md={3}>
-              <Stack direction="row" spacing={1} justifyContent="flex-end">
+            <Grid item xs={12} md={6}>
+              <Stack direction="row" spacing={1} justifyContent={{ xs: 'flex-start', md: 'flex-end' }}>
                 <IconButton
                   onClick={() => setViewMode('grid')}
+                  aria-pressed={viewMode === 'grid'}
+                  aria-label="Grid view"
                   sx={{
                     color: viewMode === 'grid' ? colors.green : '#999',
                     border: viewMode === 'grid' ? `2px solid ${colors.green}` : `2px solid ${colors.gray200}`,
@@ -200,6 +187,8 @@ const Shop: React.FC = () => {
                 </IconButton>
                 <IconButton
                   onClick={() => setViewMode('list')}
+                  aria-pressed={viewMode === 'list'}
+                  aria-label="List view"
                   sx={{
                     color: viewMode === 'list' ? colors.green : '#999',
                     border: viewMode === 'list' ? `2px solid ${colors.green}` : `2px solid ${colors.gray200}`,
@@ -210,6 +199,25 @@ const Shop: React.FC = () => {
               </Stack>
             </Grid>
           </Grid>
+
+          <Stack
+            direction="row"
+            spacing={1}
+            flexWrap="wrap"
+            useFlexGap
+            sx={{ mt: 2 }}
+            role="group"
+            aria-label="Filter by category"
+          >
+            {categories.map((cat) => (
+              <FilterChip
+                key={cat.value}
+                label={cat.label}
+                selected={categoryFilter === cat.value}
+                onSelect={() => setCategoryFilter(cat.value)}
+              />
+            ))}
+          </Stack>
 
           {/* Results Count */}
           <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -263,25 +271,15 @@ const Shop: React.FC = () => {
                         overflow: 'hidden',
                       }}
                     >
-                      <Box
-                      component="img"
-                        src={resolveMediaUrl(product.image_url) || 'https://placehold.co/300x300/e8e8e8/999?text=No+Image'}
-                      alt={product.name || `${product.brand} ${product.model}`}
+                      <ProductImage
+                        product={product}
+                        alt={product.name || `${product.brand} ${product.model}`}
                         sx={{
                           position: 'absolute',
                           inset: 0,
                           width: '100%',
                           height: '100%',
-                          display: 'block',
-                          objectFit: 'cover',
-                          objectPosition: 'center',
                           transform: 'scale(1.08)',
-                        }}
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          if (!target.src.includes('placehold.co')) {
-                            target.src = 'https://placehold.co/300x300/e8e8e8/999?text=No+Image';
-                          }
                         }}
                       />
                       {/* Badge */}
@@ -520,7 +518,8 @@ const Shop: React.FC = () => {
           </Grid>
         </Box>
       </Container>
-    </Box>
+      </PublicPageShell>
+    </>
   );
 };
 

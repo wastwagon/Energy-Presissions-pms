@@ -167,8 +167,17 @@ export interface CmsFooter {
   copyright: string;
 }
 
+export interface CmsGoogleReviews {
+  /** Google Maps star rating (1–5). 0 or empty = use on-site testimonials average */
+  rating: number;
+  review_count: number;
+  /** Optional Google Place ID for embed + write-review links */
+  place_id?: string;
+}
+
 export interface GlobalPageSections {
   footer: CmsFooter;
+  google_reviews?: CmsGoogleReviews;
 }
 
 export interface FinancingPageSections {
@@ -212,6 +221,42 @@ export interface PackagesPageSections {
     validity_note: string;
     contact_cta_text: string;
   };
+  /** Optional GHS price overrides keyed by package id (e.g. ep-8kva) */
+  tier_prices?: Record<string, number>;
+}
+
+/** Hero + SEO for marketing pages (blog, reviews, referral) */
+export interface MarketingPageSections {
+  seo?: CmsSeo;
+  hero: ShopHero;
+}
+
+export interface LegalContentSection {
+  title: string;
+  body: string;
+}
+
+export interface LegalPageSections {
+  seo?: CmsSeo;
+  hero: ShopHero;
+  content_sections: LegalContentSection[];
+}
+
+export interface LocationCmsItem {
+  slug: string;
+  city: string;
+  region: string;
+  badge: string;
+  headline: string;
+  description: string;
+  highlights: string[];
+  services: string[];
+  seo_title: string;
+  seo_description: string;
+}
+
+export interface LocationsPageSections {
+  items: LocationCmsItem[];
 }
 
 export interface CmsCredibilityProof {
@@ -331,4 +376,14 @@ export type CmsPageSlug =
   | 'global'
   | 'packages'
   | 'financing'
-  | 'portfolio';
+  | 'portfolio'
+  | 'blog'
+  | 'reviews'
+  | 'referral'
+  | 'privacy'
+  | 'terms'
+  | 'warranty'
+  | 'locations'
+  | 'faqs'
+  | 'solar_estimate'
+  | 'load_calculator';

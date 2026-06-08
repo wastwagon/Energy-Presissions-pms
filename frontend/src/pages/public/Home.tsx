@@ -15,6 +15,7 @@ import HomeToolsStrip from '../../components/public/HomeToolsStrip';
 import { useCmsPage } from '../../hooks/useCmsPage';
 import { resolveCmsSeo } from '../../hooks/useCmsSeo';
 import { localBusinessJsonLd } from '../../utils/jsonLd';
+import { SITE_CTA } from '../../data/siteCta';
 
 const Home: React.FC = () => {
   const { sections } = useCmsPage('home');
@@ -108,7 +109,7 @@ const Home: React.FC = () => {
             <Button
               variant="contained"
               component={Link}
-              to={sections.closing_cta?.primary_cta_link || '/contact?action=quote'}
+              to={sections.closing_cta?.primary_cta_link || SITE_CTA.quoteHref}
               endIcon={<ArrowForwardIcon sx={{ fontSize: 18 }} />}
               sx={{
                 ...homeUi.touchTarget,
@@ -123,7 +124,7 @@ const Home: React.FC = () => {
                 '&:hover': { bgcolor: colors.greenDark, boxShadow: 'none' },
               }}
             >
-              {sections.closing_cta?.primary_cta_text}
+              {sections.closing_cta?.primary_cta_text || SITE_CTA.consultation}
             </Button>
             <Button
               variant="outlined"

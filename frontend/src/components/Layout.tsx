@@ -16,6 +16,7 @@ import {
   Avatar,
   Menu,
   MenuItem,
+  Divider,
 } from '@mui/material';
 import {
   Menu as MenuIcon,
@@ -33,34 +34,29 @@ import {
   MailOutline as MailOutlineIcon,
   LocalOffer as LocalOfferIcon,
   Article as ContentIcon,
+  OpenInNew as OpenInNewIcon,
 } from '@mui/icons-material';
 import { Helmet } from 'react-helmet-async';
 import { useAuth } from '../contexts/AuthContext';
+import { canManageWebsite, filterPmsNav } from '../config/adminNav';
 
 const drawerWidth = 220;
 
-type MenuItem = {
-  text: string;
-  icon: React.ReactNode;
-  path: string;
-  adminOnly?: boolean;
+const PMS_NAV_ICONS: Record<string, React.ReactNode> = {
+  Dashboard: <DashboardIcon />,
+  Customers: <PeopleIcon />,
+  Projects: <FolderIcon />,
+  Quotes: <DescriptionIcon />,
+  Products: <InventoryIcon />,
+  Appliances: <AppliancesIcon />,
+  Orders: <OrdersIcon />,
+  'Website content': <ContentIcon />,
+  'Promo codes': <LocalOfferIcon />,
+  'Contact leads': <MailOutlineIcon />,
+  'Media Library': <MediaIcon />,
+  Reports: <AssessmentIcon />,
+  Settings: <SettingsIcon />,
 };
-
-const menuItems: MenuItem[] = [
-  { text: 'Dashboard', icon: <DashboardIcon />, path: '/pms/dashboard' },
-  { text: 'Customers', icon: <PeopleIcon />, path: '/pms/customers' },
-  { text: 'Projects', icon: <FolderIcon />, path: '/pms/projects' },
-  { text: 'Quotes', icon: <DescriptionIcon />, path: '/pms/quotes' },
-  { text: 'Products', icon: <InventoryIcon />, path: '/pms/products' },
-  { text: 'Appliances', icon: <AppliancesIcon />, path: '/pms/appliances' },
-  { text: 'Orders', icon: <OrdersIcon />, path: '/pms/orders' },
-  { text: 'Website content', icon: <ContentIcon />, path: '/pms/website-content', adminOnly: true },
-  { text: 'Promo codes', icon: <LocalOfferIcon />, path: '/pms/promo-codes', adminOnly: true },
-  { text: 'Contact leads', icon: <MailOutlineIcon />, path: '/pms/contact-leads', adminOnly: true },
-  { text: 'Media Library', icon: <MediaIcon />, path: '/pms/media' },
-  { text: 'Reports', icon: <AssessmentIcon />, path: '/pms/reports' },
-  { text: 'Settings', icon: <SettingsIcon />, path: '/pms/settings' },
-];
 
 const Layout: React.FC = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -94,6 +90,8 @@ const Layout: React.FC = () => {
     navigate('/pms/admin');
   };
 
+  const visibleMenu = filterPmsNav(user?.role);
+
   const drawer = (
     <div>
       <Toolbar variant="dense" sx={{ minHeight: 52, px: 1.5 }}>
@@ -111,12 +109,14 @@ const Layout: React.FC = () => {
         />
       </Toolbar>
       <List dense sx={{ px: 1, py: 0.5 }}>
-        {menuItems
-          .filter((item) => !item.adminOnly || user?.role === 'admin')
-          .map((item) => (
+        {visibleMenu.map((item) => (
           <ListItem key={item.text} disablePadding sx={{ mb: 0.25 }}>
             <ListItemButton
-              selected={location.pathname === item.path}
+              selected={
+                item.path.startsWith('/web/app')
+                  ? location.pathname === item.path || location.pathname.startsWith(`${item.path}/`)
+                  : location.pathname === item.path
+              }
               onClick={() => {
                 navigate(item.path);
                 setMobileOpen(false);
@@ -141,7 +141,7 @@ const Layout: React.FC = () => {
               }}
             >
               <ListItemIcon sx={{ minWidth: 36, color: 'inherit', '& .MuiSvgIcon-root': { fontSize: '1.15rem' } }}>
-                {item.icon}
+                {PMS_NAV_ICONS[item.text]}
               </ListItemIcon>
               <ListItemText
                 primary={item.text}
@@ -153,6 +153,25 @@ const Layout: React.FC = () => {
             </ListItemButton>
           </ListItem>
         ))}
+        {canManageWebsite(user?.role) && (
+          <>
+            <Divider sx={{ my: 1 }} />
+            <ListItem disablePadding sx={{ mb: 0.25 }}>
+              <ListItemButton
+                onClick={() => {
+                  navigate('/web/app');
+                  setMobileOpen(false);
+                }}
+                sx={{ borderRadius: 1.5, py: 0.75, px: 1.25 }}
+              >
+                <ListItemIcon sx={{ minWidth: 36, '& .MuiSvgIcon-root': { fontSize: '1.15rem' } }}>
+                  <OpenInNewIcon />
+                </ListItemIcon>
+                <ListItemText primary="Website admin" primaryTypographyProps={{ fontSize: '0.8125rem' }} />
+              </ListItemButton>
+            </ListItem>
+          </>
+        )}
       </List>
     </div>
   );
@@ -183,7 +202,7 @@ const Layout: React.FC = () => {
             <MenuIcon fontSize="small" />
           </IconButton>
           <Typography variant="subtitle1" noWrap component="div" sx={{ flexGrow: 1, fontWeight: 600, fontSize: '0.95rem' }}>
-            {menuItems.find((item) => item.path === location.pathname)?.text || 'Energy Precision PMS'}
+            {visibleMenu.find((item) => item.path === location.pathname)?.text || 'Energy Precision PMS'}
           </Typography>
           <IconButton onClick={handleMenuClick} sx={{ p: 0 }} size="small">
             <Avatar sx={{ bgcolor: 'secondary.main', width: 32, height: 32, fontSize: '0.8rem' }}>

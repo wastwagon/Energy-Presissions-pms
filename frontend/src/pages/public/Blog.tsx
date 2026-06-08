@@ -1,8 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import {
-  Box,
-  Container,
   Typography,
   Grid,
   Card,
@@ -11,15 +9,19 @@ import {
   Chip,
   Stack,
   Button,
+  Box,
 } from '@mui/material';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { Seo } from '../../components/Seo';
-import PublicPageHero from '../../components/public/PublicPageHero';
+import PublicPageShell from '../../components/public/PublicPageShell';
+import FilterChip from '../../components/public/FilterChip';
 import { BLOG_CATEGORIES, blogPosts, type BlogPost } from '../../data/blogPosts';
 import api from '../../services/api';
 import { colors } from '../../theme/colors';
 import { homeUi } from '../../theme/homeUi';
 import { publicUi } from '../../theme/publicUi';
+import { useCmsPage } from '../../hooks/useCmsPage';
+import { resolveCmsSeo } from '../../hooks/useCmsSeo';
 
 type ListPost = Pick<BlogPost, 'slug' | 'title' | 'excerpt' | 'category'> & { date: string; readTime: string };
 
@@ -42,6 +44,13 @@ function mapApiToListPost(row: {
 }
 
 const Blog: React.FC = () => {
+  const { sections } = useCmsPage('blog');
+  const seo = resolveCmsSeo(sections, {
+    title: 'Solar Resources & Insights | Energy Precisions Ghana',
+    description:
+      'Practical articles on solar sizing, grid-tied and hybrid systems, and getting accurate quotes in Ghana — from Energy Precisions.',
+  });
+  const { hero } = sections;
   const [activeCategory, setActiveCategory] = useState<string>('All');
   const [posts, setPosts] = useState<ListPost[]>(() =>
     [...blogPosts]
@@ -87,32 +96,16 @@ const Blog: React.FC = () => {
   const featured = posts[0];
 
   return (
-    <Box sx={{ bgcolor: homeUi.pageBg }}>
-      <Seo
-        title="Solar Resources & Insights | Energy Precisions Ghana"
-        description="Practical articles on solar sizing, grid-tied and hybrid systems, and getting accurate quotes in Ghana — from Energy Precisions."
-        path="/blog"
-      />
-      <PublicPageHero
-        badge="Resources"
-        headline="Solar insights for homes and businesses"
-        description="Short guides you can trust — no hype, just how we think about design, tariffs, and backup when we engineer systems in Ghana."
-      />
-
-      <Container maxWidth="lg" sx={{ py: { xs: 4, md: 6 }, px: publicUi.containerPx }}>
-        <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap sx={{ mb: 3 }}>
+    <>
+      <Seo title={seo.title} description={seo.description} path="/blog" />
+      <PublicPageShell badge={hero.badge} headline={hero.headline} description={hero.description}>
+        <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap sx={{ mb: 3 }} role="group" aria-label="Filter by category">
           {BLOG_CATEGORIES.map((cat) => (
-            <Chip
+            <FilterChip
               key={cat}
               label={cat}
-              clickable
-              onClick={() => setActiveCategory(cat)}
-              sx={{
-                fontWeight: 600,
-                bgcolor: activeCategory === cat ? colors.green : 'transparent',
-                color: activeCategory === cat ? colors.blueBlack : colors.gray600,
-                border: activeCategory === cat ? 'none' : `1px solid ${colors.gray200}`,
-              }}
+              selected={activeCategory === cat}
+              onSelect={() => setActiveCategory(cat)}
             />
           ))}
         </Stack>
@@ -149,36 +142,27 @@ const Blog: React.FC = () => {
                         {post.date} · {post.readTime}
                       </Typography>
                     </Stack>
-                    <Typography
-                      component="h2"
-                      sx={{ fontWeight: 700, mb: 1, color: colors.blueBlack, fontSize: { xs: '1.05rem', md: '1.15rem' } }}
-                    >
+                    <Typography sx={{ fontWeight: 700, color: colors.blueBlack, mb: 1, lineHeight: 1.35 }}>
                       {post.title}
                     </Typography>
-                    <Typography sx={{ ...homeUi.body, ...publicUi.mutedText, mb: 1.5, flexGrow: 1 }}>
+                    <Typography sx={{ ...publicUi.mutedText, flexGrow: 1, mb: 2, lineHeight: 1.6 }}>
                       {post.excerpt}
                     </Typography>
-                    <Stack direction="row" alignItems="center" spacing={0.5} sx={{ color: colors.greenDark, fontWeight: 600 }}>
-                      <Typography variant="body2">Read article</Typography>
-                      <ArrowForwardIcon sx={{ fontSize: 18 }} />
-                    </Stack>
+                    <Button
+                      component="span"
+                      endIcon={<ArrowForwardIcon sx={{ fontSize: 16 }} />}
+                      sx={{ ...publicUi.inlineLink, alignSelf: 'flex-start', p: 0 }}
+                    >
+                      Read article
+                    </Button>
                   </CardContent>
                 </CardActionArea>
               </Card>
             </Grid>
           ))}
         </Grid>
-
-        {filtered.length === 0 && (
-          <Box textAlign="center" py={6}>
-            <Typography sx={publicUi.mutedText}>No articles in this category yet.</Typography>
-            <Button onClick={() => setActiveCategory('All')} sx={{ mt: 2, textTransform: 'none', color: colors.blueNavy }}>
-              View all articles
-            </Button>
-          </Box>
-        )}
-      </Container>
-    </Box>
+      </PublicPageShell>
+    </>
   );
 };
 

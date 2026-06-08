@@ -2,11 +2,12 @@
 import json
 from typing import Any, Dict, List
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from app.cms_defaults import CMS_PAGES, merge_page_sections
+from app.faq_defaults import get_default_faqs
 from app.database import get_db
 from app.models import User, UserRole
 from app.models_content import SiteSetting, CmsBlogPost, CmsFaqItem, CmsPageContent
@@ -15,6 +16,18 @@ from app.auth import require_role
 router = APIRouter(prefix="/api/content", tags=["content"])
 
 WEB_OR_ADMIN = [UserRole.ADMIN, UserRole.WEBSITE_ADMIN]
+
+BLOG_CATEGORIES = frozenset({"Planning", "Systems", "Ghana"})
+
+
+def _normalize_blog_category(category: str) -> str:
+    value = (category or "Ghana").strip()
+    if value not in BLOG_CATEGORIES:
+        raise HTTPException(
+            status_code=400,
+            detail=f"category must be one of: {', '.join(sorted(BLOG_CATEGORIES))}",
+        )
+    return value
 
 # Keys readable anonymously (URLs / text for marketing pages)
 PUBLIC_SETTING_KEYS = frozenset(
@@ -42,14 +55,23 @@ class BlogPostPublic(BaseModel):
         from_attributes = True
 
 
+@router.get("/blog/categories", response_model=List[str])
+async def list_blog_categories_public():
+    return sorted(BLOG_CATEGORIES)
+
+
 @router.get("/blog", response_model=List[BlogPostPublic])
-async def list_blog_posts_public(db: Session = Depends(get_db)):
-    rows = (
-        db.query(CmsBlogPost)
-        .filter(CmsBlogPost.published == True)
-        .order_by(CmsBlogPost.sort_order.asc(), CmsBlogPost.display_date.desc())
-        .all()
-    )
+async def list_blog_posts_public(
+    category: str | None = Query(None, description="Filter by category"),
+    db: Session = Depends(get_db),
+):
+    query = db.query(CmsBlogPost).filter(CmsBlogPost.published == True)
+    if category:
+        cat = _normalize_blog_category(category)
+        query = query.filter(CmsBlogPost.category == cat)
+    rows = query.order_by(
+        CmsBlogPost.sort_order.asc(), CmsBlogPost.display_date.desc()
+    ).all()
     return rows
 
 
@@ -81,7 +103,9 @@ async def list_faqs_public(db: Session = Depends(get_db)):
         .order_by(CmsFaqItem.sort_order.asc(), CmsFaqItem.id.asc())
         .all()
     )
-    return rows
+    if rows:
+        return rows
+    return [FaqPublic(**row) for row in get_default_faqs()]
 
 
 @router.get("/settings/public")
@@ -207,7 +231,9 @@ async def admin_create_blog(
     exists = db.query(CmsBlogPost).filter(CmsBlogPost.slug == body.slug).first()
     if exists:
         raise HTTPException(status_code=400, detail="Slug already exists")
-    row = CmsBlogPost(**body.model_dump())
+    payload = body.model_dump()
+    payload["category"] = _normalize_blog_category(payload.get("category", "Ghana"))
+    row = CmsBlogPost(**payload)
     db.add(row)
     db.commit()
     db.refresh(row)
@@ -231,7 +257,9 @@ async def admin_update_blog(
     )
     if clash:
         raise HTTPException(status_code=400, detail="Slug already exists")
-    for k, v in body.model_dump().items():
+    payload = body.model_dump()
+    payload["category"] = _normalize_blog_category(payload.get("category", "Ghana"))
+    for k, v in payload.items():
         setattr(row, k, v)
     db.commit()
     db.refresh(row)

@@ -185,6 +185,18 @@ export const HYBRID_PACKAGE_FOOTER_POINTS = [
   'Typical payment: 30% deposit · 40% on delivery · 30% on commissioning (negotiable for commercial clients).',
 ];
 
+export function resolveHybridPackages(
+  tierPrices?: Record<string, number>,
+): HybridPackage[] {
+  if (!tierPrices || Object.keys(tierPrices).length === 0) {
+    return HYBRID_PACKAGES;
+  }
+  return HYBRID_PACKAGES.map((pkg) => ({
+    ...pkg,
+    priceGhs: tierPrices[pkg.id] ?? pkg.priceGhs,
+  }));
+}
+
 export function formatGhs(amount: number): string {
   return new Intl.NumberFormat('en-GH', {
     style: 'currency',

@@ -34,7 +34,9 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import { Seo, SITE_ORIGIN } from '../../components/Seo';
-import PublicPageHero from '../../components/public/PublicPageHero';
+import PublicPageShell from '../../components/public/PublicPageShell';
+import { useCmsPage } from '../../hooks/useCmsPage';
+import { resolveCmsSeo } from '../../hooks/useCmsSeo';
 import { colors } from '../../theme/colors';
 import { homeUi } from '../../theme/homeUi';
 import { publicUi } from '../../theme/publicUi';
@@ -112,6 +114,13 @@ function buildContactPrefill(lines: CartLine[], preview: PreviewResult): string 
 }
 
 const LoadCalculator: React.FC = () => {
+  const { sections } = useCmsPage('load_calculator');
+  const seo = resolveCmsSeo(sections, {
+    title: 'Home & Business Load Calculator | Appliances | Energy Precisions',
+    description:
+      'Build a rough daily kWh estimate from the same appliance catalog our engineers use in the PMS. Indicative only — not a quote.',
+  });
+  const { hero } = sections;
   const navigate = useNavigate();
   const [catalog, setCatalog] = useState<Record<string, CatalogTemplate[]>>({});
   const [catalogLoading, setCatalogLoading] = useState(true);
@@ -305,10 +314,10 @@ const LoadCalculator: React.FC = () => {
   };
 
   return (
-    <Box>
+    <>
       <Seo
-        title="Home & Business Load Calculator | Appliances | Energy Precisions"
-        description="Build a rough daily kWh estimate from the same appliance catalog our engineers use in the PMS. Indicative only — not a quote."
+        title={seo.title}
+        description={seo.description}
         path="/load-calculator"
         jsonLd={{
           '@context': 'https://schema.org',
@@ -326,12 +335,12 @@ const LoadCalculator: React.FC = () => {
           },
         }}
       />
-      <PublicPageHero
-        badge="Planning tool"
-        headline="Appliance load calculator"
-        description="Pick typical appliances from our catalog, adjust how many you run and for how long each day. Results are indicative — your engineer confirms everything on site."
-      />
-
+      <PublicPageShell
+        badge={hero.badge}
+        headline={hero.headline}
+        description={hero.description}
+        wrapContent={false}
+      >
       <Box sx={{ bgcolor: homeUi.pageBg }}>
       <Container maxWidth="lg" sx={{ py: { xs: 3, md: 4 }, px: publicUi.containerPx }}>
         <Alert severity="info" sx={{ mb: 2 }}>
@@ -562,6 +571,7 @@ const LoadCalculator: React.FC = () => {
         </Typography>
       </Container>
       </Box>
+      </PublicPageShell>
 
       <Snackbar
         open={copySnackbar.open}
@@ -624,7 +634,7 @@ const LoadCalculator: React.FC = () => {
           </List>
         </DialogContent>
       </Dialog>
-    </Box>
+    </>
   );
 };
 

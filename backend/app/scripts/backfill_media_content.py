@@ -40,7 +40,18 @@ PRODUCT_TYPE_DEFAULT_MEDIA: dict[str, str] = {
     "INVERTER": "/api/media/public/22",
     "BATTERY": "/api/media/public/23",
     "MOUNTING": "/api/media/public/22",
+    "BOS": "/api/media/public/22",
     "OTHER": "/api/media/public/22",
+}
+
+# Service-line items — no catalog image (quote-only SKUs)
+SKIP_IMAGE_PRODUCT_TYPES = frozenset({"INSTALLATION", "TRANSPORT"})
+
+CATEGORY_DEFAULT_MEDIA: dict[str, str] = {
+    "SOLAR PANELS": "/api/media/public/19",
+    "INVERTERS": "/api/media/public/22",
+    "BATTERIES": "/api/media/public/23",
+    "ACCESSORIES": "/api/media/public/22",
 }
 
 
@@ -93,17 +104,23 @@ def assign_missing_product_images(db: Session) -> int:
     for product in rows:
         ptype = (product.product_type.value if hasattr(product.product_type, "value") else product.product_type) or ""
         ptype = str(ptype).upper()
+        if ptype in SKIP_IMAGE_PRODUCT_TYPES:
+            continue
         sku = (product.sku or "").upper()
         if "LONGI" in sku and "570" in sku:
             product.image_url = "/api/media/public/21"
         elif "JINKO" in sku:
             product.image_url = "/api/media/public/20"
-        elif "JA" in sku or "J.A" in sku or "560" in sku or "570" in sku and ptype == "PANEL":
+        elif ptype == "PANEL" and ("JA" in sku or "J.A" in sku or "560" in sku or "570" in sku):
             product.image_url = "/api/media/public/19"
         elif ptype in PRODUCT_TYPE_DEFAULT_MEDIA:
             product.image_url = PRODUCT_TYPE_DEFAULT_MEDIA[ptype]
         else:
-            continue
+            cat = (product.category or "").upper()
+            if cat in CATEGORY_DEFAULT_MEDIA:
+                product.image_url = CATEGORY_DEFAULT_MEDIA[cat]
+            else:
+                continue
         assigned += 1
         print(f"  product {product.id} {product.sku} -> {product.image_url}")
     return assigned

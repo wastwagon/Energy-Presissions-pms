@@ -19,6 +19,7 @@ if config.config_file_name is not None:
 from app.database import Base
 from app.models import *  # noqa
 from app import models_ecommerce  # Import e-commerce models
+from app import models_content  # CMS tables for autogenerate
 
 target_metadata = Base.metadata
 

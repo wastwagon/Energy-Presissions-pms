@@ -11,9 +11,16 @@ type Props = {
   description?: string;
   backgroundImage?: string | null;
   heroAlign?: 'left' | 'center';
+  headlineSize?: 'default' | 'prominent';
+  /** Optional CTAs or stats rendered inside the hero band */
+  heroChildren?: React.ReactNode;
+  /** Content between hero and main container (e.g. financing hero cards) */
+  beforeContent?: React.ReactNode;
   /** lg for most pages, md for narrow reading layouts */
   contentMaxWidth?: 'lg' | 'md' | 'xl';
   contentPy?: typeof homeUi.sectionPy | { xs: number; md: number };
+  /** When false, children render without an inner Container (multi-band pages like Services) */
+  wrapContent?: boolean;
   children: React.ReactNode;
 };
 
@@ -24,8 +31,12 @@ const PublicPageShell: React.FC<Props> = ({
   description,
   backgroundImage,
   heroAlign = 'left',
+  headlineSize = 'default',
+  heroChildren,
+  beforeContent,
   contentMaxWidth = 'lg',
   contentPy = { xs: 4, md: 6 },
+  wrapContent = true,
   children,
 }) => (
   <Box sx={{ bgcolor: publicUi.pageBg, minHeight: '40vh' }}>
@@ -36,12 +47,20 @@ const PublicPageShell: React.FC<Props> = ({
       description={description}
       backgroundImage={backgroundImage}
       align={heroAlign}
-    />
-    <Box component="section" sx={{ py: contentPy }}>
-      <Container maxWidth={contentMaxWidth} sx={{ px: publicUi.containerPx }}>
-        {children}
-      </Container>
-    </Box>
+      headlineSize={headlineSize}
+    >
+      {heroChildren}
+    </PublicPageHero>
+    {beforeContent}
+    {wrapContent ? (
+      <Box component="section" sx={{ py: contentPy }}>
+        <Container maxWidth={contentMaxWidth} sx={{ px: publicUi.containerPx }}>
+          {children}
+        </Container>
+      </Box>
+    ) : (
+      <Box component="section">{children}</Box>
+    )}
   </Box>
 );
 

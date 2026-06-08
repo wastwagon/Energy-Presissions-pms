@@ -10,7 +10,7 @@ import {
   Typography,
   Card,
 } from '@mui/material';
-import { HYBRID_PACKAGES, formatGhs } from '../../data/hybridPackages';
+import { HYBRID_PACKAGES, formatGhs, type HybridPackage } from '../../data/hybridPackages';
 import { colors } from '../../theme/colors';
 import { homeUi } from '../../theme/homeUi';
 import { publicUi } from '../../theme/publicUi';
@@ -27,7 +27,11 @@ function batterySummary(components: string[]): string {
   return line ? line.replace(/\s*\(\d+\)\s*$/, '').trim() : '—';
 }
 
-const PackageComparisonTable: React.FC = () => (
+type Props = {
+  packages?: HybridPackage[];
+};
+
+const PackageComparisonTable: React.FC<Props> = ({ packages = HYBRID_PACKAGES }) => (
   <Box sx={{ mb: { xs: 4, md: 5 } }}>
     <Typography
       sx={{
@@ -56,7 +60,7 @@ const PackageComparisonTable: React.FC = () => (
             </TableRow>
           </TableHead>
           <TableBody>
-            {HYBRID_PACKAGES.map((pkg) => (
+            {packages.map((pkg) => (
               <TableRow key={pkg.id} hover>
                 <TableCell sx={{ fontWeight: 600, borderColor: colors.gray200 }}>{pkg.badge}</TableCell>
                 <TableCell sx={{ borderColor: colors.gray200 }}>{pkg.kvaLabel}</TableCell>

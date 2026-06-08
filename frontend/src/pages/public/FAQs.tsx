@@ -11,9 +11,11 @@ import {
   Link,
 } from '@mui/material';
 import { ExpandMore as ExpandMoreIcon, Search as SearchIcon } from '@mui/icons-material';
-import websiteContent from '../../data/extracted_content.json';
+import { getDefaultFaqs } from '../../data/faqDefaults';
 import { Seo } from '../../components/Seo';
 import PublicPageShell from '../../components/public/PublicPageShell';
+import { useCmsPage } from '../../hooks/useCmsPage';
+import { resolveCmsSeo } from '../../hooks/useCmsSeo';
 import api from '../../services/api';
 import { faqPageJsonLd } from '../../utils/jsonLd';
 import { colors } from '../../theme/colors';
@@ -23,7 +25,14 @@ import { homeUi } from '../../theme/homeUi';
 type Faq = { question: string; answer: string };
 
 const FAQs: React.FC = () => {
-  const [faqs, setFaqs] = useState<Faq[]>(websiteContent.faqs as Faq[]);
+  const { sections } = useCmsPage('faqs');
+  const seo = resolveCmsSeo(sections, {
+    title: 'Solar FAQs Ghana | Energy Precisions',
+    description:
+      'Answers to common questions about solar panels, installation, batteries, costs and maintenance in Ghana — from Energy Precisions.',
+  });
+  const { hero } = sections;
+  const [faqs, setFaqs] = useState<Faq[]>(getDefaultFaqs());
   const [query, setQuery] = useState('');
 
   useEffect(() => {
@@ -51,18 +60,8 @@ const FAQs: React.FC = () => {
 
   return (
     <>
-      <Seo
-        title="Solar FAQs Ghana | Energy Precisions"
-        description="Answers to common questions about solar panels, installation, batteries, costs and maintenance in Ghana — from Energy Precisions."
-        path="/faqs"
-        jsonLd={faqPageJsonLd(faqs)}
-      />
-      <PublicPageShell
-        badge="Support"
-        headline="Frequently asked questions"
-        description="Have questions about solar in Ghana? Start here — or use our planning tools for a rough sizing estimate."
-        heroAlign="center"
-      >
+      <Seo title={seo.title} description={seo.description} path="/faqs" jsonLd={faqPageJsonLd(faqs)} />
+      <PublicPageShell badge={hero.badge} headline={hero.headline} description={hero.description} heroAlign="center">
         <TextField
           fullWidth
           size="small"

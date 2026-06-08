@@ -27,7 +27,7 @@ import { useCart } from '../../contexts/CartContext';
 import { catalogLineUnitPrice } from '../../utils/catalogPrice';
 import { Seo } from '../../components/Seo';
 import PublicPageShell from '../../components/public/PublicPageShell';
-import { resolveMediaUrl } from '../../utils/mediaUrl';
+import ProductImage from '../../components/public/ProductImage';
 import { colors } from '../../theme/colors';
 import { publicUi } from '../../theme/publicUi';
 import { homeUi } from '../../theme/homeUi';
@@ -113,11 +113,11 @@ const Cart: React.FC = () => {
                                 flexShrink: 0,
                               }}
                             >
-                              {resolveMediaUrl(item.product?.image_url) ? (
-                                <img
-                                  src={resolveMediaUrl(item.product?.image_url)}
-                                  alt={item.product?.name || 'Product'}
-                                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                              {item.product ? (
+                                <ProductImage
+                                  product={item.product}
+                                  alt={item.product.name || 'Product'}
+                                  sx={{ width: '100%', height: '100%' }}
                                 />
                               ) : (
                                 <Box display="flex" alignItems="center" justifyContent="center" height="100%">

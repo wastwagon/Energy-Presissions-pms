@@ -1,15 +1,17 @@
 import React from 'react';
 import { Fab, useTheme, useMediaQuery } from '@mui/material';
 import { Chat as ChatIcon } from '@mui/icons-material';
+import { useLocation } from 'react-router-dom';
 import { COMPANY } from '../../data/companyContact';
-import { colors } from '../../theme/colors';
+import { pathHasStickyCta } from '../../data/stickyCtaPaths';
 
 /** Mobile-only floating WhatsApp — sits above bottom tab bar */
 const WhatsappFab: React.FC = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const { pathname } = useLocation();
 
-  if (!isMobile) return null;
+  if (!isMobile || pathHasStickyCta(pathname)) return null;
 
   return (
     <Fab

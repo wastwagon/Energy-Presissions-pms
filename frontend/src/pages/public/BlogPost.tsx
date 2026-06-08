@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { Link as RouterLink, useParams, Navigate } from 'react-router-dom';
-import { Box, Container, Typography, Button, Chip, Stack, CircularProgress } from '@mui/material';
+import { Box, Typography, Button, Chip, Stack, CircularProgress } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { Seo } from '../../components/Seo';
-import PublicPageHero from '../../components/public/PublicPageHero';
+import PublicPageShell from '../../components/public/PublicPageShell';
 import { colors } from '../../theme/colors';
 import { homeUi } from '../../theme/homeUi';
 import { publicUi } from '../../theme/publicUi';
 import { getBlogPost, type BlogPost } from '../../data/blogPosts';
+import { SITE_CTA } from '../../data/siteCta';
 import api from '../../services/api';
 
 const BlogPostPage: React.FC = () => {
@@ -67,10 +68,14 @@ const BlogPostPage: React.FC = () => {
   }
 
   return (
-    <Box sx={{ bgcolor: homeUi.pageBg }}>
+    <>
       <Seo title={post.title} description={post.excerpt} path={`/blog/${post.slug}`} />
-      <PublicPageHero badge={post.category} headline={post.title} description={post.excerpt} />
-      <Container maxWidth="md" sx={{ py: { xs: 4, md: 5 }, px: publicUi.containerPx }}>
+      <PublicPageShell
+        badge={post.category}
+        headline={post.title}
+        description={post.excerpt}
+        contentMaxWidth="md"
+      >
         <Button
           component={RouterLink}
           to="/blog"
@@ -95,15 +100,15 @@ const BlogPostPage: React.FC = () => {
           <Typography sx={{ ...publicUi.mutedText, mb: 1.5 }}>Need a system sized for your site?</Typography>
           <Button
             component={RouterLink}
-            to="/contact?action=quote"
+            to={SITE_CTA.quoteHref}
             variant="contained"
             sx={{ ...publicUi.primaryButton, ...homeUi.touchTarget }}
           >
-            Request a quote
+            {SITE_CTA.consultation}
           </Button>
         </Box>
-      </Container>
-    </Box>
+      </PublicPageShell>
+    </>
   );
 };
 

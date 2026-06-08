@@ -8,6 +8,9 @@ import type {
   FinancingPageSections,
   GlobalPageSections,
   HomePageSections,
+  LegalPageSections,
+  LocationsPageSections,
+  MarketingPageSections,
   PackagesPageSections,
   PortfolioPageSections,
   ServicesPageSections,
@@ -24,6 +27,16 @@ type PageSectionsMap = {
   packages: PackagesPageSections;
   financing: FinancingPageSections;
   portfolio: PortfolioPageSections;
+  blog: MarketingPageSections;
+  reviews: MarketingPageSections;
+  referral: MarketingPageSections;
+  privacy: LegalPageSections;
+  terms: LegalPageSections;
+  warranty: LegalPageSections;
+  locations: LocationsPageSections;
+  faqs: MarketingPageSections;
+  solar_estimate: MarketingPageSections;
+  load_calculator: MarketingPageSections;
 };
 
 export function useCmsPage<P extends CmsPageSlug>(page: P) {

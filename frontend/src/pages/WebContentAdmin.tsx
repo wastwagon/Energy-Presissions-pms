@@ -25,10 +25,12 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  Alert,
 } from '@mui/material';
 import { Edit as EditIcon, Delete as DeleteIcon, Add as AddIcon } from '@mui/icons-material';
 import api from '../services/api';
 import CmsPageEditor from '../components/admin/CmsPageEditor';
+import { formatApiErrorDetail } from '../utils/apiErrorMessage';
 import { BLOG_CATEGORIES } from '../data/blogPosts';
 
 const SITE_IMAGE_KEYS = [
@@ -80,6 +82,7 @@ const WebContentAdmin: React.FC = () => {
   const [blogForm, setBlogForm] = useState(emptyBlog);
   const [faqDialog, setFaqDialog] = useState<{ open: boolean; edit?: FaqRow | null }>({ open: false });
   const [faqForm, setFaqForm] = useState({ question: '', answer: '', sort_order: 0, published: true });
+  const [actionError, setActionError] = useState<string | null>(null);
 
   const loadSettings = async () => {
     const res = await api.get<Record<string, string>>('/content/admin/settings');
@@ -114,11 +117,18 @@ const WebContentAdmin: React.FC = () => {
   }, []);
 
   const saveSetting = async (key: string, value: string) => {
-    await api.put(`/content/admin/settings/${encodeURIComponent(key)}`, { value });
-    setSettings((s) => ({ ...s, [key]: value }));
+    try {
+      setActionError(null);
+      await api.put(`/content/admin/settings/${encodeURIComponent(key)}`, { value });
+      setSettings((s) => ({ ...s, [key]: value }));
+    } catch (err) {
+      setActionError(formatApiErrorDetail(err) || 'Failed to save setting');
+    }
   };
 
   const saveBlog = async () => {
+    try {
+      setActionError(null);
     const payload = {
       slug: blogForm.slug,
       title: blogForm.title,
@@ -137,28 +147,46 @@ const WebContentAdmin: React.FC = () => {
     }
     setBlogDialog({ open: false });
     await loadBlogs();
+    } catch (err) {
+      setActionError(formatApiErrorDetail(err) || 'Failed to save blog post');
+    }
   };
 
   const deleteBlog = async (id: number) => {
     if (!window.confirm('Delete this post?')) return;
-    await api.delete(`/content/admin/blog/${id}`);
-    await loadBlogs();
+    try {
+      setActionError(null);
+      await api.delete(`/content/admin/blog/${id}`);
+      await loadBlogs();
+    } catch (err) {
+      setActionError(formatApiErrorDetail(err) || 'Failed to delete blog post');
+    }
   };
 
   const saveFaq = async () => {
-    if (faqDialog.edit) {
-      await api.put(`/content/admin/faqs/${faqDialog.edit.id}`, faqForm);
-    } else {
-      await api.post('/content/admin/faqs', faqForm);
+    try {
+      setActionError(null);
+      if (faqDialog.edit) {
+        await api.put(`/content/admin/faqs/${faqDialog.edit.id}`, faqForm);
+      } else {
+        await api.post('/content/admin/faqs', faqForm);
+      }
+      setFaqDialog({ open: false });
+      await loadFaqs();
+    } catch (err) {
+      setActionError(formatApiErrorDetail(err) || 'Failed to save FAQ');
     }
-    setFaqDialog({ open: false });
-    await loadFaqs();
   };
 
   const deleteFaq = async (id: number) => {
     if (!window.confirm('Delete this FAQ?')) return;
-    await api.delete(`/content/admin/faqs/${id}`);
-    await loadFaqs();
+    try {
+      setActionError(null);
+      await api.delete(`/content/admin/faqs/${id}`);
+      await loadFaqs();
+    } catch (err) {
+      setActionError(formatApiErrorDetail(err) || 'Failed to delete FAQ');
+    }
   };
 
   if (loading && blogs.length === 0 && faqs.length === 0) {
@@ -174,6 +202,11 @@ const WebContentAdmin: React.FC = () => {
       <Typography variant="h5" sx={{ fontWeight: 800, mb: 2 }}>
         Website content
       </Typography>
+      {actionError && (
+        <Alert severity="error" sx={{ mb: 2 }} onClose={() => setActionError(null)}>
+          {actionError}
+        </Alert>
+      )}
       <Paper variant="outlined" sx={{ mb: 2 }}>
         <Tabs value={tab} onChange={(_, v) => setTab(v)}>
           <Tab label="Page content" />
@@ -262,7 +295,7 @@ const WebContentAdmin: React.FC = () => {
       {tab === 3 && (
         <Paper variant="outlined" sx={{ p: 2 }}>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-            Legacy hero image overrides. Prefer editing hero image URLs under Page content → Hero section.
+            Legacy hero image overrides — used only when a page CMS hero image field is empty. Prefer Page content → Hero section (or upload via Media library and paste /api/media/public/ID).
           </Typography>
           {SITE_IMAGE_KEYS.map(({ key, label }) => (
             <Box key={key} sx={{ mb: 2 }}>

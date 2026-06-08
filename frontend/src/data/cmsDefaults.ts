@@ -5,12 +5,16 @@ import type {
   FinancingPageSections,
   GlobalPageSections,
   HomePageSections,
+  LegalPageSections,
+  LocationsPageSections,
+  MarketingPageSections,
   PackagesPageSections,
   PortfolioPageSections,
   ServicesPageSections,
   ShopPageSections,
 } from '../types/cms';
 import { DEFAULT_CMS_PORTFOLIO_ITEMS } from './portfolioCms';
+import { getDefaultLocationCmsItems } from './locationCms';
 
 type PageDefaultsMap = {
   home: HomePageSections;
@@ -22,6 +26,16 @@ type PageDefaultsMap = {
   packages: PackagesPageSections;
   financing: FinancingPageSections;
   portfolio: PortfolioPageSections;
+  blog: MarketingPageSections;
+  reviews: MarketingPageSections;
+  referral: MarketingPageSections;
+  privacy: LegalPageSections;
+  terms: LegalPageSections;
+  warranty: LegalPageSections;
+  locations: LocationsPageSections;
+  faqs: MarketingPageSections;
+  solar_estimate: MarketingPageSections;
+  load_calculator: MarketingPageSections;
 };
 
 const DEFAULTS: PageDefaultsMap = {
@@ -558,6 +572,11 @@ const DEFAULTS: PageDefaultsMap = {
     },
   },
   global: {
+    google_reviews: {
+      rating: 0,
+      review_count: 0,
+      place_id: '',
+    },
     footer: {
       company_name: 'Energy Precisions',
       tagline: 'Turnkey solar design, installation, and lifecycle support for homes and businesses across Ghana.',
@@ -664,6 +683,7 @@ const DEFAULTS: PageDefaultsMap = {
       validity_note: 'Prices valid until December 2026. Final design is confirmed after a free site survey.',
       contact_cta_text: 'Request a formal quotation',
     },
+    tier_prices: {},
   },
   financing: {
     seo: {
@@ -736,7 +756,216 @@ const DEFAULTS: PageDefaultsMap = {
       primary_cta_text: 'Get free consultation',
       primary_cta_link: '/contact?action=quote',
       secondary_cta_text: 'View packages',
-      secondary_cta_link: '/packages',
+      secondary_cta_link: '/solar-packages',
+    },
+  },
+  blog: {
+    seo: {
+      title: 'Solar Resources & Insights | Energy Precisions Ghana',
+      description:
+        'Practical articles on solar sizing, grid-tied and hybrid systems, and getting accurate quotes in Ghana — from Energy Precisions.',
+    },
+    hero: {
+      badge: 'Resources',
+      headline: 'Solar insights for homes and businesses',
+      description:
+        'Short guides you can trust — no hype, just how we think about design, tariffs, and backup when we engineer systems in Ghana.',
+    },
+  },
+  reviews: {
+    seo: {
+      title: 'Client Reviews | Solar Ghana | Energy Precisions',
+      description:
+        'What residential, commercial and industrial clients say about Energy Precisions solar design, installation and support across Ghana.',
+    },
+    hero: {
+      badge: 'Client reviews',
+      headline: 'Trusted across Ghana',
+      description:
+        'Real feedback from homeowners, businesses and facility managers who switched to solar with Energy Precisions.',
+    },
+  },
+  referral: {
+    seo: {
+      title: 'Solar Champions Referral Program | Energy Precisions',
+      description:
+        'Refer homes and businesses to Energy Precisions for solar in Ghana. Ask about our referral rewards for successful installations.',
+    },
+    hero: {
+      badge: 'Solar champions',
+      headline: 'Referral program',
+      description:
+        'Help friends, family, and businesses go solar. Share a lead today — we confirm eligibility and reward terms with you directly.',
+    },
+  },
+  privacy: {
+    seo: {
+      title: 'Privacy Policy | Energy Precisions',
+      description:
+        'How Energy Precisions collects, uses, and protects your personal information when you use our website and services.',
+    },
+    hero: {
+      badge: 'Legal',
+      headline: 'Privacy Policy',
+      description:
+        'How Energy Precisions collects, uses, and protects your personal information when you use our website and services.',
+    },
+    content_sections: [
+      {
+        title: 'Information we collect',
+        body:
+          'We may collect your name, email address, phone number, property or business location, energy usage details, and any information you submit through contact forms, quote requests, shop checkout, newsletter signup, or referral program enquiries.',
+      },
+      {
+        title: 'How we use your information',
+        body:
+          'We use this information to respond to enquiries, prepare quotations, deliver solar design and installation services, process shop orders, send service updates you have requested, and improve our website and customer experience.',
+      },
+      {
+        title: 'Sharing and storage',
+        body:
+          'We do not sell your personal data. We may share information with trusted service providers (such as payment processors or logistics partners) only where needed to fulfil your request. Data is stored on secure systems with access limited to authorised staff.',
+      },
+      {
+        title: 'Your choices',
+        body:
+          'You may request access to, correction of, or deletion of your personal data by contacting us at info@energyprecisions.com. You can unsubscribe from marketing emails at any time using the link in our messages.',
+      },
+      {
+        title: 'Contact',
+        body:
+          'Energy Precisions\nHaatso, Ecomog, Accra, Ghana\nPhone: (+233) 533 611 611\nEmail: info@energyprecisions.com',
+      },
+    ],
+  },
+  terms: {
+    seo: {
+      title: 'Terms of Use | Energy Precisions',
+      description: 'Terms governing use of the Energy Precisions website, tools, and online services.',
+    },
+    hero: {
+      badge: 'Legal',
+      headline: 'Terms of Use',
+      description: 'Terms governing use of the Energy Precisions website, tools, and online services.',
+    },
+    content_sections: [
+      {
+        title: 'Use of this website',
+        body:
+          'By accessing energyprecisions.com you agree to use this site for lawful purposes only. Content is provided for general information about our solar products and services in Ghana and does not constitute a binding offer until confirmed in writing.',
+      },
+      {
+        title: 'Quotes, pricing, and projects',
+        body:
+          'Solar system sizing, pricing, and availability depend on site survey and engineering assessment. Published package prices, estimator outputs, and load calculator results are indicative only. Final quotations may differ after technical review.',
+      },
+      {
+        title: 'Shop and payments',
+        body:
+          'Product orders are subject to stock availability and confirmed order acceptance. Payment terms for equipment and installation projects are set out in your quotation or invoice. Warranty coverage follows manufacturer and Energy Precisions workmanship terms supplied with your project.',
+      },
+      {
+        title: 'Intellectual property',
+        body:
+          'All website content, branding, photography, and documentation remain the property of Energy Precisions or its licensors. You may not reproduce or redistribute materials without prior written permission.',
+      },
+      {
+        title: 'Limitation of liability',
+        body:
+          'To the fullest extent permitted by law, Energy Precisions is not liable for indirect or consequential loss arising from use of this website or reliance on general information published here. Nothing in these terms limits rights you may have under applicable Ghanaian consumer law.',
+      },
+      {
+        title: 'Contact',
+        body:
+          'Questions about these terms: info@energyprecisions.com or (+233) 533 611 611.',
+      },
+    ],
+  },
+  warranty: {
+    seo: {
+      title: 'Warranty & Coverage | Energy Precisions',
+      description:
+        'How Energy Precisions protects your solar investment — workmanship, equipment, and what to expect after installation.',
+    },
+    hero: {
+      badge: 'Support',
+      headline: 'Warranty & coverage',
+      description:
+        'How Energy Precisions protects your solar investment — workmanship, equipment, and what to expect after installation.',
+    },
+    content_sections: [
+      {
+        title: 'Installation workmanship',
+        body:
+          'Energy Precisions provides a workmanship warranty on professional installation — covering mounting, wiring, commissioning, and labelled distribution. Terms and duration are confirmed in your project quotation and handover documents.',
+      },
+      {
+        title: 'Solar panels',
+        body:
+          'Tier-1 modules supplied through Energy Precisions carry manufacturer product and performance warranties, typically 10–12 years product and 25–30 years linear performance (exact terms vary by brand and batch).',
+      },
+      {
+        title: 'Inverters & batteries',
+        body:
+          'Inverter and lithium battery warranties follow the manufacturer — commonly 5–10 years depending on model. Hybrid packages on our website note battery warranty on each tier card; final coverage is listed on your invoice.',
+      },
+      {
+        title: 'Shop equipment-only orders',
+        body:
+          'Products purchased from our online shop without installation carry manufacturer warranty only. Installation, commissioning, and extended workmanship coverage require a separate site survey and project agreement.',
+      },
+      {
+        title: 'Maintenance & monitoring',
+        body:
+          'Optional maintenance plans and remote monitoring help protect uptime and validate warranty claims. Contact us after handover to schedule annual checks or to report a fault.',
+      },
+      {
+        title: 'Making a claim',
+        body:
+          'Email info@energyprecisions.com or call (+233) 533 611 611 with your order or project reference, photos of the issue, and inverter/battery serial numbers where applicable. We will route you to the correct manufacturer or dispatch a technician.',
+      },
+    ],
+  },
+  locations: {
+    items: getDefaultLocationCmsItems(),
+  },
+  faqs: {
+    seo: {
+      title: 'Solar FAQs Ghana | Energy Precisions',
+      description:
+        'Answers to common questions about solar panels, installation, batteries, costs and maintenance in Ghana — from Energy Precisions.',
+    },
+    hero: {
+      badge: 'Support',
+      headline: 'Frequently asked questions',
+      description:
+        'Have questions about solar in Ghana? Start here — or use our planning tools for a rough sizing estimate.',
+    },
+  },
+  solar_estimate: {
+    seo: {
+      title: 'Solar System Size Estimator Ghana | Ballpark kW | Energy Precisions',
+      description:
+        'Rough, non-binding estimate of solar array size from monthly energy use or bill. For an engineered quote, contact Energy Precisions in Accra.',
+    },
+    hero: {
+      badge: 'Planning tool',
+      headline: 'Ballpark solar size calculator',
+      description:
+        'Indicative numbers only — roof, shading, equipment, and grid rules change every project. Our engineers confirm sizing on site.',
+    },
+  },
+  load_calculator: {
+    seo: {
+      title: 'Appliance Load Calculator Ghana | Energy Precisions',
+      description:
+        'Estimate daily kWh from typical appliances using Energy Precisions load rules. Indicative only — not a quotation.',
+    },
+    hero: {
+      badge: 'Planning tool',
+      headline: 'Appliance load calculator',
+      description:
+        'Pick typical appliances from our catalog, adjust how many you run and for how long each day. Results are indicative — your engineer confirms everything on site.',
     },
   },
 };
@@ -767,7 +996,22 @@ export function mergeCmsSections<P extends CmsPageSlug>(
 ): PageDefaultsMap[P] {
   const defaults = getCmsDefaults(page);
   if (!stored) return defaults;
-  return deepMerge(defaults, stored);
+  const merged = deepMerge(defaults, stored);
+  // API may return items:[] from backend defaults — keep bundled gallery until admin saves overrides.
+  const storedItems = (stored as Record<string, unknown>).items;
+  if (page === 'portfolio' && Array.isArray(storedItems) && storedItems.length === 0) {
+    return {
+      ...merged,
+      items: (defaults as PageDefaultsMap['portfolio']).items,
+    } as PageDefaultsMap[P];
+  }
+  if (page === 'locations' && Array.isArray(storedItems) && storedItems.length === 0) {
+    return {
+      ...merged,
+      items: (defaults as PageDefaultsMap['locations']).items,
+    } as PageDefaultsMap[P];
+  }
+  return merged;
 }
 
 export const CMS_PAGE_LABELS: Record<CmsPageSlug, string> = {
@@ -780,4 +1024,14 @@ export const CMS_PAGE_LABELS: Record<CmsPageSlug, string> = {
   packages: 'Hybrid packages page',
   financing: 'Financing page',
   portfolio: 'Portfolio page',
+  blog: 'Blog listing page',
+  reviews: 'Reviews page',
+  referral: 'Referral program page',
+  privacy: 'Privacy policy',
+  terms: 'Terms of use',
+  warranty: 'Warranty page',
+  locations: 'Location landing pages',
+  faqs: 'FAQs page',
+  solar_estimate: 'Solar estimate tool page',
+  load_calculator: 'Load calculator page',
 };

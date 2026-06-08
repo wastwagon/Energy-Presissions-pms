@@ -49,9 +49,9 @@ async def list_media(
     skip: int = 0,
     limit: int = 50,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_active_user),
+    current_user: User = Depends(require_role(["admin", "website_admin"])),
 ):
-    """List all media items with optional search and pagination."""
+    """List media items (admin / website_admin)."""
     query = db.query(MediaItem)
     if search:
         search_term = f"%{search}%"

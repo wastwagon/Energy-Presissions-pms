@@ -34,21 +34,20 @@ import {
 import { Helmet } from 'react-helmet-async';
 import { useAuth } from '../contexts/AuthContext';
 import { UserRole } from '../types';
+import { WEB_ADMIN_NAV } from '../config/adminNav';
 
 const drawerWidth = 220;
 
-type MenuItemT = { text: string; icon: React.ReactNode; path: string; adminOnly?: boolean };
-
-const menuItems: MenuItemT[] = [
-  { text: 'Dashboard', icon: <DashboardIcon />, path: '/web/app' },
-  { text: 'Shop products', icon: <InventoryIcon />, path: '/web/app/products' },
-  { text: 'Orders', icon: <OrdersIcon />, path: '/web/app/orders' },
-  { text: 'Media', icon: <MediaIcon />, path: '/web/app/media' },
-  { text: 'Promo codes', icon: <PromoIcon />, path: '/web/app/promo-codes' },
-  { text: 'Contact leads', icon: <LeadsIcon />, path: '/web/app/contact-leads' },
-  { text: 'Newsletter', icon: <NewsletterIcon />, path: '/web/app/newsletter' },
-  { text: 'Website content', icon: <ContentIcon />, path: '/web/app/content' },
-];
+const WEB_NAV_ICONS: Record<string, React.ReactNode> = {
+  Dashboard: <DashboardIcon />,
+  'Shop products': <InventoryIcon />,
+  Orders: <OrdersIcon />,
+  Media: <MediaIcon />,
+  'Promo codes': <PromoIcon />,
+  'Contact leads': <LeadsIcon />,
+  Newsletter: <NewsletterIcon />,
+  'Website content': <ContentIcon />,
+};
 
 const WebAdminLayout: React.FC = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -72,7 +71,7 @@ const WebAdminLayout: React.FC = () => {
     navigate('/web/admin', { replace: true });
   };
 
-  const visibleMenu = menuItems.filter((item) => !item.adminOnly || user?.role === UserRole.ADMIN);
+  const visibleMenu = WEB_ADMIN_NAV;
 
   const drawer = (
     <div>
@@ -93,7 +92,7 @@ const WebAdminLayout: React.FC = () => {
               sx={{ borderRadius: 1.5, py: 0.75 }}
             >
               <ListItemIcon sx={{ minWidth: 36, '& .MuiSvgIcon-root': { fontSize: '1.15rem' } }}>
-                {item.icon}
+                {WEB_NAV_ICONS[item.text]}
               </ListItemIcon>
               <ListItemText
                 primary={item.text}

@@ -62,7 +62,11 @@ services:
       - key: PAYSTACK_PUBLIC_KEY
         sync: false
       - key: AUTO_SEED
-        value: "true"  # Each deploy/restart: seed_production (admin/bank stubs), seed_ecommerce_products (if catalog empty), seed_proforma_catalog_items (BOM SKUs, idempotent)
+        value: "true"  # Each deploy/restart: seed_production, seed_ecommerce_products, seed_proforma_catalog_items, seed_cms_content (blog/FAQ/portfolio; all idempotent)
+      - key: AUTO_ASSIGN_PRODUCT_IMAGES
+        sync: false  # Optional: set "true" once to backfill missing product image_url via backfill_media_content --assign-products
+      - key: DEFAULT_ADMIN_EMAIL
+        sync: false  # Admin login for seed_production (falls back to admin@energyprecisions.com)
       - key: DEFAULT_ADMIN_PASSWORD
         sync: false  # Set in Render dashboard: required on first deploy for seed_production admin (when AUTO_SEED is true)
 

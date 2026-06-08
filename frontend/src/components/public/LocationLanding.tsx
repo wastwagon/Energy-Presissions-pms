@@ -1,7 +1,6 @@
 import React from 'react';
 import {
   Box,
-  Container,
   Typography,
   Grid,
   Card,
@@ -20,7 +19,8 @@ import {
   Phone as PhoneIcon,
 } from '@mui/icons-material';
 import { Seo } from '../Seo';
-import PublicPageHero from './PublicPageHero';
+import PublicPageShell from './PublicPageShell';
+import PublicStickyMobileCta from './PublicStickyMobileCta';
 import type { LocationPageData } from '../../data/locationPages';
 import { COMPANY } from '../../data/companyContact';
 import { SITE_CTA } from '../../data/siteCta';
@@ -42,39 +42,42 @@ const LocationLanding: React.FC<Props> = ({ page }) => {
   };
 
   return (
-    <Box sx={{ bgcolor: homeUi.pageBg }}>
+    <>
       <Seo title={page.seoTitle} description={page.seoDescription} path={path} jsonLd={jsonLd} />
-      <PublicPageHero badge={page.badge} headline={page.headline} description={page.description}>
-        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5}>
-          <Button
-            component={RouterLink}
-            to={`${SITE_CTA.quoteHref}&city=${encodeURIComponent(page.city)}`}
-            variant="contained"
-            endIcon={<ArrowForwardIcon sx={{ fontSize: 18 }} />}
-            sx={{ ...publicUi.primaryButton, ...homeUi.touchTarget, px: 3 }}
-          >
-            {SITE_CTA.consultation}
-          </Button>
-          <Button
-            component="a"
-            href={COMPANY.phoneHref}
-            variant="outlined"
-            startIcon={<PhoneIcon />}
-            sx={{
-              borderColor: 'rgba(255,255,255,0.45)',
-              color: 'white',
-              borderRadius: 999,
-              textTransform: 'none',
-              fontWeight: 600,
-              '&:hover': { borderColor: 'white', bgcolor: 'rgba(255,255,255,0.06)' },
-            }}
-          >
-            {COMPANY.phoneDisplay}
-          </Button>
-        </Stack>
-      </PublicPageHero>
-
-      <Container maxWidth="lg" sx={{ py: { xs: 4, md: 6 }, px: publicUi.containerPx }}>
+      <PublicPageShell
+        badge={page.badge}
+        headline={page.headline}
+        description={page.description}
+        heroChildren={
+          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5}>
+            <Button
+              component={RouterLink}
+              to={`${SITE_CTA.quoteHref}&city=${encodeURIComponent(page.city)}`}
+              variant="contained"
+              endIcon={<ArrowForwardIcon sx={{ fontSize: 18 }} />}
+              sx={{ ...publicUi.primaryButton, ...homeUi.touchTarget, px: 3 }}
+            >
+              {SITE_CTA.consultation}
+            </Button>
+            <Button
+              component="a"
+              href={COMPANY.phoneHref}
+              variant="outlined"
+              startIcon={<PhoneIcon />}
+              sx={{
+                borderColor: 'rgba(255,255,255,0.45)',
+                color: 'white',
+                borderRadius: 999,
+                textTransform: 'none',
+                fontWeight: 600,
+                '&:hover': { borderColor: 'white', bgcolor: 'rgba(255,255,255,0.06)' },
+              }}
+            >
+              {COMPANY.phoneDisplay}
+            </Button>
+          </Stack>
+        }
+      >
         <Grid container spacing={{ xs: 2, md: 3 }} sx={{ mb: { xs: 4, md: 5 } }}>
           <Grid item xs={12} md={6}>
             <Card sx={{ ...publicUi.card, height: '100%' }}>
@@ -133,8 +136,9 @@ const LocationLanding: React.FC<Props> = ({ page }) => {
             {SITE_CTA.consultation}
           </Button>
         </Box>
-      </Container>
-    </Box>
+      </PublicPageShell>
+      <PublicStickyMobileCta label={SITE_CTA.consultation} to={SITE_CTA.quoteHref} />
+    </>
   );
 };
 

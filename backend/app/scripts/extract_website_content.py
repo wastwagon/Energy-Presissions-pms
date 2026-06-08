@@ -16,8 +16,10 @@ import re
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 WEBSITE_URL = "https://energyprecisions.com"
-OUTPUT_DIR = Path(__file__).parent.parent.parent / "website_content"
+REPO_ROOT = Path(__file__).parent.parent.parent
+OUTPUT_DIR = REPO_ROOT / "website_content"
 IMAGES_DIR = OUTPUT_DIR / "images"
+CANONICAL_CONTENT_JSON = REPO_ROOT / "frontend" / "src" / "data" / "extracted_content.json"
 
 def create_directories():
     """Create output directories"""
@@ -184,12 +186,12 @@ def extract_content():
         "images": images
     }
     
-    # Save extracted content
-    content_file = OUTPUT_DIR / "extracted_content.json"
-    with open(content_file, 'w', encoding='utf-8') as f:
+    # Save to canonical path (single source for FE + BE FAQ seed/fallback)
+    CANONICAL_CONTENT_JSON.parent.mkdir(parents=True, exist_ok=True)
+    with open(CANONICAL_CONTENT_JSON, 'w', encoding='utf-8') as f:
         json.dump(content, f, indent=2, ensure_ascii=False)
-    
-    print(f"✅ Content extracted and saved to {content_file}")
+
+    print(f"✅ Content extracted and saved to {CANONICAL_CONTENT_JSON}")
     print(f"✅ Downloaded {len(images)} images to {IMAGES_DIR}")
     
     return content

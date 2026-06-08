@@ -20,6 +20,7 @@ import {
   Instagram as InstagramIcon,
 } from '@mui/icons-material';
 import api from '../../services/api';
+import { formatApiErrorDetail } from '../../utils/apiErrorMessage';
 import { SOCIAL_LINKS } from '../../data/socialLinks';
 import { COMPANY } from '../../data/companyContact';
 import {
@@ -120,6 +121,7 @@ const Footer: React.FC = () => {
   const { sections } = useCmsPage('global');
   const footer = sections.footer;
   const [email, setEmail] = useState('');
+  const [honeypot, setHoneypot] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
@@ -136,13 +138,13 @@ const Footer: React.FC = () => {
     setLoading(true);
     setMessage(null);
     try {
-      await api.post('/newsletter/subscribe', { email });
+      await api.post('/newsletter/subscribe', { email, company_website: honeypot });
       setMessage({ type: 'success', text: 'Thank you for subscribing.' });
       setEmail('');
     } catch (err: any) {
       setMessage({
         type: 'error',
-        text: err.response?.data?.detail || 'Subscription failed. Please try again.',
+        text: formatApiErrorDetail(err) || 'Subscription failed. Please try again.',
       });
     } finally {
       setLoading(false);
@@ -182,6 +184,17 @@ const Footer: React.FC = () => {
             </Typography>
           </Box>
           <Box>
+            <Box
+              component="input"
+              type="text"
+              name="company_website"
+              value={honeypot}
+              onChange={(e) => setHoneypot(e.target.value)}
+              tabIndex={-1}
+              autoComplete="off"
+              aria-hidden
+              sx={{ position: 'absolute', left: -9999, width: 1, height: 1, opacity: 0 }}
+            />
             <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1}>
               <TextField
                 placeholder="Email address"

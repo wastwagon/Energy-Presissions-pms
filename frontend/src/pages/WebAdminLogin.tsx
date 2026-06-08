@@ -13,6 +13,7 @@ import { Helmet } from 'react-helmet-async';
 import { useAuth } from '../contexts/AuthContext';
 import { authService } from '../services/auth';
 import { UserRole } from '../types';
+import { formatApiErrorDetail } from '../utils/apiErrorMessage';
 
 const WebAdminLogin: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -49,7 +50,7 @@ const WebAdminLogin: React.FC = () => {
       }
     } catch (err: any) {
       console.error('Login error:', err);
-      const errorMessage = err.response?.data?.detail || err.message || 'Login failed. Please check your credentials.';
+      const errorMessage = formatApiErrorDetail(err) || err.message || 'Login failed. Please check your credentials.';
       setError(errorMessage);
       setLoading(false);
     }

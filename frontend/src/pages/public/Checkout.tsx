@@ -32,6 +32,7 @@ import { catalogLineUnitPrice } from '../../utils/catalogPrice';
 import { Seo } from '../../components/Seo';
 import PublicPageShell from '../../components/public/PublicPageShell';
 import { trackBeginCheckout } from '../../utils/analytics';
+import { formatApiErrorDetail } from '../../utils/apiErrorMessage';
 import { colors } from '../../theme/colors';
 import { publicUi } from '../../theme/publicUi';
 import { homeUi } from '../../theme/homeUi';
@@ -298,7 +299,7 @@ const Checkout: React.FC = () => {
       }
     } catch (err: any) {
       console.error('Error creating order:', err);
-      setError(err.response?.data?.detail || 'Failed to create order. Please try again.');
+      setError(formatApiErrorDetail(err) || 'Failed to create order. Please try again.');
     } finally {
       setLoading(false);
     }

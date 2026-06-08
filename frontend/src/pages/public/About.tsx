@@ -33,8 +33,7 @@ import { homePageImages } from '../../data/homePageMedia';
 import api from '../../services/api';
 import { useCmsPage } from '../../hooks/useCmsPage';
 import { resolveCmsSeo } from '../../hooks/useCmsSeo';
-import TrustStrip from '../../components/public/TrustStrip';
-import PublicPageHero from '../../components/public/PublicPageHero';
+import PublicPageShell from '../../components/public/PublicPageShell';
 import Link from '@mui/material/Link';
 import { COMPANY } from '../../data/companyContact';
 
@@ -92,34 +91,35 @@ const About: React.FC = () => {
     };
   }, [hero.hero_image]);
 
+  const heroStats =
+    hero.stats?.length > 0 ? (
+      <Stack direction="row" spacing={{ xs: 2, sm: 3 }} flexWrap="wrap" useFlexGap>
+        {hero.stats.map((s) => (
+          <Box key={s.label}>
+            <Typography sx={{ fontWeight: 800, color: colors.green, lineHeight: 1.1, fontSize: '1.25rem' }}>
+              {s.value}
+            </Typography>
+            <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.78)' }}>
+              {s.label}
+            </Typography>
+          </Box>
+        ))}
+      </Stack>
+    ) : undefined;
+
   return (
-    <Box>
+    <>
       <Seo title={seo.title} description={seo.description} path="/about" />
-      <PublicPageHero
+      <PublicPageShell
         badge={hero.badge}
         headline={hero.headline}
         headlineHighlight={hero.headline_highlight}
         description={hero.description}
         backgroundImage={aboutHero}
+        headlineSize="prominent"
+        heroChildren={heroStats}
+        wrapContent={false}
       >
-        {hero.stats?.length > 0 && (
-          <Stack direction="row" spacing={{ xs: 2, sm: 3 }} flexWrap="wrap" useFlexGap>
-            {hero.stats.map((s) => (
-              <Box key={s.label}>
-                <Typography sx={{ fontWeight: 800, color: colors.green, lineHeight: 1.1, fontSize: '1.25rem' }}>
-                  {s.value}
-                </Typography>
-                <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.78)' }}>
-                  {s.label}
-                </Typography>
-              </Box>
-            ))}
-          </Stack>
-        )}
-      </PublicPageHero>
-
-      <TrustStrip variant="muted" />
-
       {/* Mission & Vision */}
       <Box
         sx={{
@@ -616,7 +616,8 @@ const About: React.FC = () => {
           </Grid>
         </Container>
       </Box>
-    </Box>
+      </PublicPageShell>
+    </>
   );
 };
 

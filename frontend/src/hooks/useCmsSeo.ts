@@ -8,7 +8,7 @@ export interface CmsSeoFallback {
 }
 
 export function resolveCmsSeo(
-  sections: { seo?: CmsSeo } | Record<string, unknown>,
+  sections: unknown,
   fallback: CmsSeoFallback,
   options?: { isQuoteRequest?: boolean },
 ) {

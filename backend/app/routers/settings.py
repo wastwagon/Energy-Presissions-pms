@@ -166,9 +166,10 @@ async def update_peak_sun_hours_by_location(
 @router.post("/upload-logo")
 async def upload_logo(
     file: UploadFile = File(...),
-    current_user: User = Depends(require_role(["admin"]))
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role(["admin", "website_admin"])),
 ):
-    """Upload company logo (admin only)"""
+    """Upload company logo — stored in DB-backed media (survives Render redeploys)."""
     # Validate file type
     if not file.content_type or not file.content_type.startswith('image/'):
         raise HTTPException(status_code=400, detail="File must be an image")
@@ -183,23 +184,23 @@ async def upload_logo(
     if file_ext not in ['.jpg', '.jpeg', '.png', '.gif', '.svg']:
         file_ext = '.jpg'
     
-    # Save to static directory
-    static_dir = Path("static")
-    static_dir.mkdir(exist_ok=True)
-    
-    logo_path = static_dir / f"logo{file_ext}"
-    
-    # Write file
-    with open(logo_path, "wb") as buffer:
-        buffer.write(contents)
-    
-    # Also save as logo.jpg for consistent access
-    if file_ext != '.jpg':
-        logo_jpg_path = static_dir / "logo.jpg"
-        with open(logo_jpg_path, "wb") as buffer:
-            buffer.write(contents)
-    
-    return {"message": "Logo uploaded successfully", "path": f"/static/logo{file_ext}"}
+    from app.services.media_persist import create_db_backed_media_item
+
+    original_name = f"company-logo{file_ext}"
+    item = create_db_backed_media_item(
+        db,
+        contents=contents,
+        original_name=original_name,
+        mime_type=file.content_type or "image/jpeg",
+        title="Company logo",
+        alt_text="Energy Precisions logo",
+    )
+    return {
+        "message": "Logo uploaded successfully",
+        "path": item.url,
+        "url": item.url,
+        "id": item.id,
+    }
 
 
 @router.get("/logo")

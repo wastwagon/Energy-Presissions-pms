@@ -159,15 +159,15 @@ function App() {
               <Route path="projects/:id" element={<Suspense fallback={<PageLoader />}><ProjectDetail /></Suspense>} />
               <Route path="quotes" element={<Suspense fallback={<PageLoader />}><Quotes /></Suspense>} />
               <Route path="quotes/:id" element={<Suspense fallback={<PageLoader />}><QuoteDetail /></Suspense>} />
-              <Route path="products" element={<Suspense fallback={<PageLoader />}><Products /></Suspense>} />
+              <Route path="products" element={<Navigate to="/web/app/products" replace />} />
               <Route path="appliances" element={<Suspense fallback={<PageLoader />}><AppliancesCatalog /></Suspense>} />
-              <Route path="orders" element={<Suspense fallback={<PageLoader />}><Orders /></Suspense>} />
-              <Route path="website-content" element={<Suspense fallback={<PageLoader />}><WebContentAdmin /></Suspense>} />
-              <Route path="media" element={<Suspense fallback={<PageLoader />}><MediaLibrary /></Suspense>} />
+              <Route path="orders" element={<Navigate to="/web/app/orders" replace />} />
+              <Route path="website-content" element={<Navigate to="/web/app/content" replace />} />
+              <Route path="media" element={<Navigate to="/web/app/media" replace />} />
               <Route path="settings" element={<Suspense fallback={<PageLoader />}><Settings /></Suspense>} />
               <Route path="reports" element={<Suspense fallback={<PageLoader />}><Reports /></Suspense>} />
-              <Route path="contact-leads" element={<Suspense fallback={<PageLoader />}><ContactInquiries /></Suspense>} />
-              <Route path="promo-codes" element={<Suspense fallback={<PageLoader />}><PromoCodes /></Suspense>} />
+              <Route path="contact-leads" element={<Navigate to="/web/app/contact-leads" replace />} />
+              <Route path="promo-codes" element={<Navigate to="/web/app/promo-codes" replace />} />
             </Route>
 
             {/* Website admin (shop + marketing CMS) — admin or website_admin only */}

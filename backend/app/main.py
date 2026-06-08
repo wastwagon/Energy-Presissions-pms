@@ -203,17 +203,32 @@ def _run_migrations():
         command.upgrade(alembic_cfg, "head")
         logger.info("Database migrations applied successfully")
     except Exception as e:
-        if "already exists" in str(e) or "DuplicateColumn" in str(e):
+        allow_stamp = os.environ.get("ALLOW_ALEMBIC_STAMP", "").lower() in ("true", "1", "yes")
+        if allow_stamp and ("already exists" in str(e) or "DuplicateColumn" in str(e)):
             try:
                 from alembic import command
                 from alembic.config import Config
                 alembic_cfg = Config(str(Path(__file__).parent.parent / "alembic.ini"))
                 command.stamp(alembic_cfg, "head")
-                logger.info("Database stamped to head (migrations already applied)")
-            except Exception:
-                pass
+                logger.warning(
+                    "Database stamped to head after duplicate DDL error — verify schema manually"
+                )
+            except Exception as stamp_err:
+                logger.warning("Alembic stamp failed: %s", stamp_err)
         else:
-            logger.warning("Migration skipped or failed: %s", e)
+            logger.warning("Migration failed: %s", e)
+
+
+def _warn_insecure_production_config():
+    """Log warnings for unsafe defaults on hosted Postgres (e.g. Render)."""
+    from app.config import settings
+
+    db_url = os.environ.get("DATABASE_URL", "") or ""
+    is_hosted = "render.com" in db_url or os.environ.get("RENDER") == "true"
+    if not is_hosted:
+        return
+    if settings.SECRET_KEY == "changeme-secret-key-for-jwt-tokens":
+        logger.warning("SECRET_KEY is still the default — set a strong value in production")
 
 
 def _run_init_and_seed():
@@ -244,7 +259,34 @@ def _run_init_and_seed():
                     pr.returncode,
                     (pr.stderr or b"").decode("utf-8", errors="replace")[:800],
                 )
-            logger.info("Seed scripts completed (production admin, ecommerce products, proforma catalog BOM)")
+            cr = subprocess.run(
+                [sys.executable, "-m", "app.scripts.seed_cms_content"],
+                cwd=str(backend_dir),
+                check=False,
+                capture_output=True,
+            )
+            if cr.returncode != 0:
+                logger.warning(
+                    "seed_cms_content exit=%s stderr=%s",
+                    cr.returncode,
+                    (cr.stderr or b"").decode("utf-8", errors="replace")[:800],
+                )
+            if os.environ.get("AUTO_ASSIGN_PRODUCT_IMAGES", "").lower() in ("true", "1", "yes"):
+                ar = subprocess.run(
+                    [sys.executable, "-m", "app.scripts.backfill_media_content", "--assign-products"],
+                    cwd=str(backend_dir),
+                    check=False,
+                    capture_output=True,
+                )
+                if ar.returncode != 0:
+                    logger.warning(
+                        "assign-product-images exit=%s stderr=%s",
+                        ar.returncode,
+                        (ar.stderr or b"").decode("utf-8", errors="replace")[:800],
+                    )
+            logger.info(
+                "Seed scripts completed (admin, ecommerce, proforma BOM, CMS blog/FAQ/portfolio)"
+            )
         except Exception as e:
             logger.warning("Seed skipped: %s", e)
 
@@ -252,6 +294,7 @@ def _run_init_and_seed():
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Run migrations and seed on startup"""
+    _warn_insecure_production_config()
     _run_migrations()
     _ensure_media_columns()
     _ensure_quote_options_schema()
@@ -260,8 +303,10 @@ async def lifespan(app: FastAPI):
     yield
 
 
-# Create database tables (fallback if migrations don't create them)
-Base.metadata.create_all(bind=engine)
+# Opt-in only — Alembic is the source of truth for schema in production.
+if os.environ.get("ENABLE_CREATE_ALL", "").lower() in ("true", "1", "yes"):
+    Base.metadata.create_all(bind=engine)
+    logger.info("ENABLE_CREATE_ALL=true — created tables via SQLAlchemy metadata")
 
 app = FastAPI(
     title="Energy Precision PMS API",

@@ -46,6 +46,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useCart } from '../../contexts/CartContext';
 import { SOCIAL_LINKS } from '../../data/socialLinks';
 import { COMPANY } from '../../data/companyContact';
+import { SITE_CTA } from '../../data/siteCta';
 import { UserRole } from '../../types';
 
 const Header: React.FC = () => {
@@ -484,8 +485,8 @@ const Header: React.FC = () => {
                   </IconButton>
                 </Box>
               </Box>
-              <Button size="small" disableElevation sx={quoteButtonSx} component={Link} to="/contact?action=quote">
-                Request a quote
+              <Button size="small" disableElevation sx={quoteButtonSx} component={Link} to={SITE_CTA.quoteHref}>
+                {SITE_CTA.consultation}
               </Button>
             </Box>
           </Container>

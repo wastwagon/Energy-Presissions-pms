@@ -16,12 +16,21 @@ import {
 import { Link as RouterLink } from 'react-router-dom';
 import { Seo } from '../../components/Seo';
 import PublicPageShell from '../../components/public/PublicPageShell';
+import { useCmsPage } from '../../hooks/useCmsPage';
+import { resolveCmsSeo } from '../../hooks/useCmsSeo';
 import { colors } from '../../theme/colors';
 import { publicUi } from '../../theme/publicUi';
 import { homeUi } from '../../theme/homeUi';
 import { ballparkSizingFromMonthlyKwh } from '../../utils/solarSizingApprox';
 
 const SolarEstimate: React.FC = () => {
+  const { sections } = useCmsPage('solar_estimate');
+  const seo = resolveCmsSeo(sections, {
+    title: 'Solar System Size Estimator Ghana | Ballpark kW | Energy Precisions',
+    description:
+      'Rough, non-binding estimate of solar array size from monthly energy use or bill. For an engineered quote, contact Energy Precisions in Accra.',
+  });
+  const { hero } = sections;
   const [mode, setMode] = useState<'kwh' | 'bill'>('kwh');
   const [monthlyKwh, setMonthlyKwh] = useState<string>('450');
   const [monthlyBill, setMonthlyBill] = useState<string>('800');
@@ -49,15 +58,11 @@ const SolarEstimate: React.FC = () => {
 
   return (
     <>
-      <Seo
-        title="Solar System Size Estimator Ghana | Ballpark kW | Energy Precisions"
-        description="Rough, non-binding estimate of solar array size from monthly energy use or bill. For an engineered quote, contact Energy Precisions in Accra."
-        path="/solar-estimate"
-      />
+      <Seo title={seo.title} description={seo.description} path="/solar-estimate" />
       <PublicPageShell
-        badge="Planning tool"
-        headline="Ballpark solar size calculator"
-        description="Indicative numbers only — roof, shading, equipment, and grid rules change every project. Our engineers confirm sizing on site."
+        badge={hero.badge}
+        headline={hero.headline}
+        description={hero.description}
         contentMaxWidth="md"
         contentPy={{ xs: 3, md: 4 }}
       >
