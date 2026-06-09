@@ -101,10 +101,12 @@ services:
     labels:
       # Traefik lives on `coolify`; without this it cannot reach an isolated bridge network.
       - traefik.docker.network=coolify
-      # Coolify creates routers but may omit the port when the service only `expose`s (not `ports`).
-      # Use COMPOSE_PROJECT_NAME (Coolify sets --project-name to the resource UUID).
-      - traefik.http.services.http-0-${COMPOSE_PROJECT_NAME}-frontend.loadbalancer.server.port=80
-      - traefik.http.services.https-0-${COMPOSE_PROJECT_NAME}-frontend.loadbalancer.server.port=80
+      # Coolify router/service IDs use the resource UUID (--project-name). Compose label keys
+      # are not interpolated by Coolify's deploy merge, so set the UUID explicitly (from the
+      # resource URL in Coolify, e.g. .../nf5o3ozeuqxmdukeau8f4475/...). Also set domain to
+      # https://energyprecisions.com:80 in the Coolify UI.
+      - traefik.http.services.http-0-nf5o3ozeuqxmdukeau8f4475-frontend.loadbalancer.server.port=80
+      - traefik.http.services.https-0-nf5o3ozeuqxmdukeau8f4475-frontend.loadbalancer.server.port=80
 
 volumes:
   postgres_data:

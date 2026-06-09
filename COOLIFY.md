@@ -61,13 +61,17 @@ Copy from [`.env.coolify.example`](.env.coolify.example) into Coolify’s enviro
 
 ## 4. Domain in Coolify
 
-Assign your domain to the **`frontend`** service (port 80) only:
+Assign your domain to the **`frontend`** service only. Include **`:80`** in the URL so Coolify generates Traefik `loadbalancer.server.port` labels (required when the service uses `expose`, not `ports`):
 
 ```text
-https://energyprecisions.com
+https://energyprecisions.com:80
 ```
 
+Visitors still use `https://energyprecisions.com` without the port in the browser.
+
 Coolify’s Traefik/Caddy will terminate HTTPS and forward to the frontend container. Do **not** bind host port `80` in compose — Coolify already uses it for its proxy (`expose: 80` only).
+
+If you recreate the Coolify resource, update the hardcoded resource UUID in `docker-compose.coolify.yml` Traefik labels (match the UUID in the Coolify resource URL).
 
 **Do not** assign a backend/API subdomain. API traffic is same-origin at `/api/*` via nginx.
 
@@ -162,7 +166,7 @@ Set `AUTO_SEED=false` after the first successful production deploy to avoid re-r
 
 | Symptom | Fix |
 |---------|-----|
-| **503 no available server** (containers healthy) | (1) Enable **Connect To Predefined Network** on `frontend`. (2) Ensure compose joins external `coolify` network. (3) Confirm Traefik has `loadbalancer.server.port=80` on the frontend service (see `docker-compose.coolify.yml` labels). (4) In Coolify UI, assign domain to **`frontend`** with port **80**. (5) On Docker 29+, upgrade Traefik to **v3.6.1** if proxy logs show API errors. |
+| **503 no available server** (containers healthy) | (1) Set frontend domain to **`https://your-domain.com:80`** in Coolify UI. (2) Enable **Connect To Predefined Network** on `frontend`. (3) Confirm `docker inspect` shows `loadbalancer.server.port=80` with your resource UUID in the label key (not `${...}`). (4) On Docker 29+, upgrade Traefik to **v3.6.1** if proxy logs show API errors. |
 | API 502 on `/api/*` | Backend not healthy — check `docker compose logs backend`, DB connection |
 | Login works locally but not prod | `REACT_APP_API_URL` / `FRONTEND_URL` mismatch; redeploy frontend |
 | CORS errors | Add origin to `CORS_ORIGINS` env var |
