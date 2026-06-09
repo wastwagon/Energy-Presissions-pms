@@ -84,8 +84,8 @@ services:
     restart: unless-stopped
     environment:
       REACT_APP_API_URL: https://energyprecisions.com
-    ports:
-      - '80:80'
+    expose:
+      - '80'
     depends_on:
       backend:
         condition: service_healthy

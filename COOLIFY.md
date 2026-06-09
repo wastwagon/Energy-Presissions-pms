@@ -63,7 +63,7 @@ Copy from [`.env.coolify.example`](.env.coolify.example) into Coolify’s enviro
 
 Assign your domain to the **`frontend`** service (port 80).
 
-Coolify’s Traefik/Caddy will terminate HTTPS and forward to the frontend container.
+Coolify’s Traefik/Caddy will terminate HTTPS and forward to the frontend container. Do **not** bind host port `80` in compose — Coolify already uses it for its proxy (`expose: 80` only).
 
 **Do not** expose `backend` or `db` to the internet.
 
