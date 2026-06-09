@@ -162,7 +162,7 @@ Set `AUTO_SEED=false` after the first successful production deploy to avoid re-r
 
 | Symptom | Fix |
 |---------|-----|
-| **503 no available server** (containers healthy) | (1) Enable **Connect To Predefined Network** on `frontend`. (2) Ensure compose joins external `coolify` network (see `docker-compose.coolify.yml`). (3) On Docker 29+, upgrade Traefik to **v3.6.1** (or v2.11.31): **Servers → Proxy → Configuration → version → Restart Proxy**. Check `docker logs coolify-proxy --tail=50` for `client version 1.24 is too old`. |
+| **503 no available server** (containers healthy) | (1) Enable **Connect To Predefined Network** on `frontend`. (2) Ensure compose joins external `coolify` network. (3) Confirm Traefik has `loadbalancer.server.port=80` on the frontend service (see `docker-compose.coolify.yml` labels). (4) In Coolify UI, assign domain to **`frontend`** with port **80**. (5) On Docker 29+, upgrade Traefik to **v3.6.1** if proxy logs show API errors. |
 | API 502 on `/api/*` | Backend not healthy — check `docker compose logs backend`, DB connection |
 | Login works locally but not prod | `REACT_APP_API_URL` / `FRONTEND_URL` mismatch; redeploy frontend |
 | CORS errors | Add origin to `CORS_ORIGINS` env var |
