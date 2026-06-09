@@ -97,6 +97,10 @@ services:
       start_period: 30s
     networks:
       - internal
+      - coolify
+    labels:
+      # Traefik lives on `coolify`; without this it cannot reach an isolated bridge network.
+      - traefik.docker.network=coolify
 
 volumes:
   postgres_data:
@@ -105,3 +109,5 @@ volumes:
 networks:
   internal:
     driver: bridge
+  coolify:
+    external: true

@@ -61,11 +61,19 @@ Copy from [`.env.coolify.example`](.env.coolify.example) into Coolify’s enviro
 
 ## 4. Domain in Coolify
 
-Assign your domain to the **`frontend`** service (port 80).
+Assign your domain to the **`frontend`** service (port 80) only:
+
+```text
+https://energyprecisions.com
+```
 
 Coolify’s Traefik/Caddy will terminate HTTPS and forward to the frontend container. Do **not** bind host port `80` in compose — Coolify already uses it for its proxy (`expose: 80` only).
 
+**Do not** assign a backend/API subdomain. API traffic is same-origin at `/api/*` via nginx.
+
 **Do not** expose `backend` or `db` to the internet.
+
+In **Configuration → Advanced**, enable **Connect To Predefined Network** for the `frontend` service (attaches the shared `coolify` Docker network so Traefik can route to it).
 
 ---
 
@@ -154,6 +162,7 @@ Set `AUTO_SEED=false` after the first successful production deploy to avoid re-r
 
 | Symptom | Fix |
 |---------|-----|
+| **503 no available server** (containers healthy) | (1) Enable **Connect To Predefined Network** on `frontend`. (2) Ensure compose joins external `coolify` network (see `docker-compose.coolify.yml`). (3) On Docker 29+, upgrade Traefik to **v3.6.1** (or v2.11.31): **Servers → Proxy → Configuration → version → Restart Proxy**. Check `docker logs coolify-proxy --tail=50` for `client version 1.24 is too old`. |
 | API 502 on `/api/*` | Backend not healthy — check `docker compose logs backend`, DB connection |
 | Login works locally but not prod | `REACT_APP_API_URL` / `FRONTEND_URL` mismatch; redeploy frontend |
 | CORS errors | Add origin to `CORS_ORIGINS` env var |
