@@ -91,17 +91,9 @@
       ]
     }
     </script>
-    <!-- Runtime API URL: set REACT_APP_API_URL at build/deploy, or inject before this script. -->
+    <!-- Runtime API URL: injected at container start from REACT_APP_API_URL (Coolify/VPS). -->
     <script>
-      (function () {
-        var h = window.location.hostname;
-        // Only pin API host for the marketing domain. Otherwise leave unset so
-        // resolveApiUrl() can pair Render front/back hosts or use localhost in dev.
-        if (h === 'energyprecisions.com' || h === 'www.energyprecisions.com') {
-          window.REACT_APP_API_URL =
-            window.REACT_APP_API_URL || 'https://energy-pms-backend-1b7h.onrender.com';
-        }
-      })();
+      window.REACT_APP_API_URL = window.REACT_APP_API_URL || '';
     </script>
   </head>
   <body>

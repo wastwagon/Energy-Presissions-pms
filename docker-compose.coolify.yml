@@ -1,0 +1,107 @@
+# Energy Precision PMS — Coolify / VPS production stack
+# Postgres + API + static frontend in one compose file.
+#
+# Coolify: New Resource → Docker Compose → point to this file.
+# Expose only `frontend` to the public domain; `backend` and `db` stay internal.
+# Nginx in `frontend` proxies /api → backend (single-domain setup).
+
+services:
+  db:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: energy_pms
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: energy_pms
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U energy_pms -d energy_pms']
+      interval: 10s
+      timeout: 5s
+      retries: 8
+      start_period: 20s
+    networks:
+      - internal
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.prod
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://energy_pms:${POSTGRES_PASSWORD}@db:5432/energy_pms
+      POSTGRES_USER: energy_pms
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: energy_pms
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+      SECRET_KEY: ${SECRET_KEY}
+      ALGORITHM: HS256
+      ACCESS_TOKEN_EXPIRE_MINUTES: 1440
+      FRONTEND_URL: https://energyprecisions.com
+      CORS_ORIGINS: https://www.energyprecisions.com
+      COMPANY_NAME: Energy Precisions
+      COMPANY_ADDRESS: Haatso - Ecomog
+      COMPANY_PHONE: +233533611611
+      COMPANY_EMAIL: info@energyprecisions.com
+      ADMIN_EMAIL: info@energyprecisions.com
+      SMTP_PORT: 587
+      SMTP_FROM_EMAIL: info@energyprecisions.com
+      PAYSTACK_SECRET_KEY: ${PAYSTACK_SECRET_KEY:-}
+      PAYSTACK_PUBLIC_KEY: ${PAYSTACK_PUBLIC_KEY:-}
+      ECOMMERCE_SHIPPING_FLAT_GHS: 0
+      ECOMMERCE_FREE_SHIPPING_THRESHOLD_GHS: 5000
+      AUTO_SEED: "true"
+      AUTO_ASSIGN_PRODUCT_IMAGES: "false"
+      DEFAULT_ADMIN_EMAIL: admin@energyprecisions.com
+      DEFAULT_ADMIN_PASSWORD: ${DEFAULT_ADMIN_PASSWORD}
+      DEFAULT_WEBSITE_ADMIN_EMAIL: webadmin@energyprecisions.com
+      DEFAULT_WEBSITE_ADMIN_PASSWORD: ${DEFAULT_ADMIN_PASSWORD}
+      STATIC_ROOT: /app/static
+    volumes:
+      - backend_static:/app/static
+    expose:
+      - '8000'
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:8000/api/health']
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 90s
+    networks:
+      - internal
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.prod
+      args:
+        REACT_APP_API_URL: https://energyprecisions.com
+    restart: unless-stopped
+    environment:
+      REACT_APP_API_URL: https://energyprecisions.com
+    ports:
+      - '80:80'
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD', 'wget', '--quiet', '--tries=1', '--spider', 'http://localhost/health']
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    networks:
+      - internal
+
+volumes:
+  postgres_data:
+  backend_static:
+
+networks:
+  internal:
+    driver: bridge

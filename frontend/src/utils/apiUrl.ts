@@ -1,13 +1,7 @@
 const LOCAL_API_URL = 'http://localhost:8000';
 
-/** Live API when the marketing site has no /api reverse proxy (must match public/index.html fallback). */
-const ENERGYPRECISIONS_API = 'https://energy-pms-backend-1b7h.onrender.com';
-
 const isLocalHost = (host: string): boolean =>
   host === 'localhost' || host === '127.0.0.1';
-
-const isEnergyPrecisionsSite = (host: string): boolean =>
-  host === 'energyprecisions.com' || host === 'www.energyprecisions.com';
 
 const deriveRenderBackendUrl = (host: string): string | null => {
   if (!host.endsWith('.onrender.com') || !host.includes('frontend')) {
@@ -46,10 +40,6 @@ export const resolveApiUrl = (): string => {
     return renderBackendUrl;
   }
 
-  // Without this, login/API calls go to the static site origin (no /api) → Chrome "Network Error".
-  if (isEnergyPrecisionsSite(host)) {
-    return ENERGYPRECISIONS_API;
-  }
-
+  // Self-hosted (Coolify/VPS): nginx proxies /api on the same origin.
   return window.location.origin.replace(/\/+$/, '');
 };
