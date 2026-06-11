@@ -25,8 +25,8 @@ RUN npm run build
 # Production stage
 FROM nginx:alpine
 
-# Install Node.js for the injection script
-RUN apk add --no-cache nodejs npm
+# Node for API URL injection; curl for Docker healthcheck
+RUN apk add --no-cache nodejs npm curl
 
 # Copy built files from builder
 COPY --from=builder /app/build /usr/share/nginx/html
