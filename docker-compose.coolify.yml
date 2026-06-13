@@ -105,8 +105,11 @@ services:
       # are not interpolated by Coolify's deploy merge, so set the UUID explicitly (from the
       # resource URL in Coolify, e.g. .../nf5o3ozeuqxmdukeau8f4475/...). Also set domain to
       # https://energyprecisions.com:80 in the Coolify UI.
+      # One service on port 80; bind both http+https routers explicitly (Traefik v3 fails with
+      # "cannot be linked automatically with multiple Services" if two service port labels exist).
       - traefik.http.services.http-0-nf5o3ozeuqxmdukeau8f4475-frontend.loadbalancer.server.port=80
-      - traefik.http.services.https-0-nf5o3ozeuqxmdukeau8f4475-frontend.loadbalancer.server.port=80
+      - traefik.http.routers.http-0-nf5o3ozeuqxmdukeau8f4475-frontend.service=http-0-nf5o3ozeuqxmdukeau8f4475-frontend
+      - traefik.http.routers.https-0-nf5o3ozeuqxmdukeau8f4475-frontend.service=http-0-nf5o3ozeuqxmdukeau8f4475-frontend
 
 volumes:
   postgres_data:

@@ -167,6 +167,7 @@ Set `AUTO_SEED=false` after the first successful production deploy to avoid re-r
 | Symptom | Fix |
 |---------|-----|
 | **503 no available server** (containers healthy) | (1) Set frontend domain to **`https://your-domain.com:80`** in Coolify UI. (2) Enable **Connect To Predefined Network** on `frontend`. (3) Confirm `docker inspect` shows `loadbalancer.server.port=80` with your resource UUID in the label key (not `${...}`). (4) On Docker 29+, upgrade Traefik to **v3.6.1** if proxy logs show API errors. |
+| **404 / 503 + Traefik log: "cannot be linked automatically with multiple Services"** | Remove duplicate `https-0-...-frontend.loadbalancer.server.port` label; use one service on port 80 and add explicit `traefik.http.routers.*.service=http-0-<uuid>-frontend` labels (see `docker-compose.coolify.yml`). Redeploy frontend, then `docker restart coolify-proxy`. |
 | API 502 on `/api/*` | Backend not healthy — check `docker compose logs backend`, DB connection |
 | Login works locally but not prod | `REACT_APP_API_URL` / `FRONTEND_URL` mismatch; redeploy frontend |
 | CORS errors | Add origin to `CORS_ORIGINS` env var |
