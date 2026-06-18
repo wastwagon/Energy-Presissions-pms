@@ -48,6 +48,9 @@ import { SOCIAL_LINKS } from '../../data/socialLinks';
 import { COMPANY } from '../../data/companyContact';
 import { SITE_CTA } from '../../data/siteCta';
 import { UserRole } from '../../types';
+import { useCmsPage } from '../../hooks/useCmsPage';
+import { getCmsDefaults } from '../../data/cmsDefaults';
+import type { CmsHeaderNavItem } from '../../types/cms';
 
 const Header: React.FC = () => {
   const theme = useTheme();
@@ -60,37 +63,12 @@ const Header: React.FC = () => {
   const navigate = useNavigate();
   const { isAuthenticated, user, logout } = useAuth();
   const { cartCount } = useCart();
-
-  const menuItems = [
-    { label: 'Home', path: '/' },
-    { label: 'Our Company', path: '/about' },
-    {
-      label: 'Services',
-      path: '/services',
-      submenu: [
-        { label: 'Residential Solar', path: '/services/residential' },
-        { label: 'Commercial Solar', path: '/services/commercial' },
-        { label: 'Battery Storage', path: '/services/battery' },
-        { label: 'Solar Packages', path: '/solar-packages' },
-        { label: 'FAQs', path: '/faqs' },
-      ],
-    },
-    { label: 'Portfolio', path: '/portfolio' },
-    { label: 'Solar Packages', path: '/solar-packages' },
-    { label: 'Shop', path: '/shop' },
-    { label: 'Financing', path: '/financing' },
-    {
-      label: 'Resources',
-      path: '/blog',
-      submenu: [
-        { label: 'Blog', path: '/blog' },
-        { label: 'Solar estimate', path: '/solar-estimate' },
-        { label: 'Load calculator', path: '/load-calculator' },
-        { label: 'Referral program', path: '/referral' },
-      ],
-    },
-    { label: 'Contact', path: '/contact' },
-  ];
+  const { sections: globalSections } = useCmsPage('global');
+  const defaultHeader = getCmsDefaults('global').header;
+  const menuItems: CmsHeaderNavItem[] =
+    globalSections.header?.menu_items?.length > 0
+      ? globalSections.header.menu_items
+      : defaultHeader.menu_items;
 
   const handleNavEnter = (key: string) => {
     if (hoverNavTimer.current) clearTimeout(hoverNavTimer.current);
@@ -119,17 +97,20 @@ const Header: React.FC = () => {
   };
 
 
-  const isSubmenuParentActive = (label: string) => {
-    if (label === 'Services') return isPathActive('/services') || location.pathname.startsWith('/faqs');
-    if (label === 'Resources') {
-      return (
-        location.pathname.startsWith('/blog') ||
-        location.pathname === '/solar-estimate' ||
-        location.pathname === '/load-calculator' ||
-        location.pathname === '/referral'
-      );
-    }
-    return false;
+  const isSubmenuParentActive = (item: CmsHeaderNavItem) => {
+    if (!item.submenu?.length) return false;
+    const pathOnly = (p: string) => p.split('?')[0];
+    return (
+      isPathActive(item.path) ||
+      item.submenu.some((sub) => {
+        const subPath = pathOnly(sub.path);
+        return (
+          location.pathname === subPath ||
+          location.pathname.startsWith(`${subPath}/`) ||
+          (subPath !== '/' && location.pathname.startsWith(subPath))
+        );
+      })
+    );
   };
 
   const socialIconSx = {
@@ -571,7 +552,7 @@ const Header: React.FC = () => {
               >
                 {menuItems.map((item) => {
                   const parentActive = item.submenu
-                    ? isSubmenuParentActive(item.label)
+                    ? isSubmenuParentActive(item)
                     : isPathActive(item.path);
                   const dropdownOpen = hoverNav === item.label;
 

@@ -144,6 +144,16 @@ export interface CmsTextCard {
   body: string;
 }
 
+export interface CmsHeaderNavItem {
+  label: string;
+  path: string;
+  submenu?: CmsLink[];
+}
+
+export interface CmsHeader {
+  menu_items: CmsHeaderNavItem[];
+}
+
 export interface CmsFooter {
   company_name: string;
   tagline: string;
@@ -176,6 +186,7 @@ export interface CmsGoogleReviews {
 }
 
 export interface GlobalPageSections {
+  header: CmsHeader;
   footer: CmsFooter;
   google_reviews?: CmsGoogleReviews;
 }

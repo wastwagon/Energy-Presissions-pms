@@ -572,6 +572,38 @@ const DEFAULTS: PageDefaultsMap = {
     },
   },
   global: {
+    header: {
+      menu_items: [
+        { label: 'Home', path: '/' },
+        { label: 'Our Company', path: '/about' },
+        {
+          label: 'Services',
+          path: '/services',
+          submenu: [
+            { label: 'Residential Solar', path: '/services/residential' },
+            { label: 'Commercial Solar', path: '/services/commercial' },
+            { label: 'Battery Storage', path: '/services/battery' },
+            { label: 'Solar Packages', path: '/solar-packages' },
+            { label: 'FAQs', path: '/faqs' },
+          ],
+        },
+        { label: 'Portfolio', path: '/portfolio' },
+        { label: 'Solar Packages', path: '/solar-packages' },
+        { label: 'Shop', path: '/shop' },
+        { label: 'Financing', path: '/financing' },
+        {
+          label: 'Resources',
+          path: '/blog',
+          submenu: [
+            { label: 'Blog', path: '/blog' },
+            { label: 'Solar estimate', path: '/solar-estimate' },
+            { label: 'Load calculator', path: '/load-calculator' },
+            { label: 'Referral program', path: '/referral' },
+          ],
+        },
+        { label: 'Contact', path: '/contact' },
+      ],
+    },
     google_reviews: {
       rating: 0,
       review_count: 0,
@@ -1020,7 +1052,7 @@ export const CMS_PAGE_LABELS: Record<CmsPageSlug, string> = {
   services: 'Services page',
   shop: 'Shop page',
   contact: 'Contact page',
-  global: 'Global (footer)',
+  global: 'Global (header & footer)',
   packages: 'Hybrid packages page',
   financing: 'Financing page',
   portfolio: 'Portfolio page',

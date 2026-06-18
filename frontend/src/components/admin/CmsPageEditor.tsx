@@ -20,6 +20,7 @@ import { CMS_PAGE_LABELS, getCmsDefaults } from '../../data/cmsDefaults';
 import { DEFAULT_CMS_PORTFOLIO_ITEMS } from '../../data/portfolioCms';
 import type {
   CmsFooter,
+  CmsHeaderNavItem,
   CmsHero,
   CmsHeroSlide,
   CmsLink,
@@ -350,6 +351,31 @@ const CmsPageEditor: React.FC = () => {
     });
   };
 
+  const setHeaderMenuItem = (index: number, field: 'label' | 'path', value: string) => {
+    setSections((s) => {
+      const header = { ...(s.header as { menu_items: CmsHeaderNavItem[] }) };
+      const items = [...(header.menu_items || [])];
+      items[index] = { ...items[index], [field]: value };
+      return { ...s, header: { ...header, menu_items: items } };
+    });
+  };
+
+  const setHeaderSubmenuItem = (
+    menuIndex: number,
+    subIndex: number,
+    field: keyof CmsLink,
+    value: string,
+  ) => {
+    setSections((s) => {
+      const header = { ...(s.header as { menu_items: CmsHeaderNavItem[] }) };
+      const items = [...(header.menu_items || [])];
+      const submenu = [...(items[menuIndex].submenu || [])];
+      submenu[subIndex] = { ...submenu[subIndex], [field]: value };
+      items[menuIndex] = { ...items[menuIndex], submenu };
+      return { ...s, header: { ...header, menu_items: items } };
+    });
+  };
+
   const setFooterLink = (
     listKey: 'quick_links' | 'other_links' | 'service_links' | 'tools_links' | 'legal_links',
     index: number,
@@ -568,6 +594,8 @@ const CmsPageEditor: React.FC = () => {
   const servicesClosingCta = (sections.closing_cta || {}) as Record<string, string>;
   const seo = (sections.seo || {}) as CmsSeo;
   const footer = (sections.footer || {}) as Partial<CmsFooter>;
+  const headerMenu = ((sections.header as { menu_items?: CmsHeaderNavItem[] })?.menu_items ||
+    []) as CmsHeaderNavItem[];
   const simpleHero = (sections.hero || {}) as Record<string, string>;
   const financingContent = (sections.content || {}) as Record<string, string | string[]>;
   const heroCards = (sections.hero_cards || []) as { title: string; body: string }[];
@@ -765,6 +793,50 @@ const CmsPageEditor: React.FC = () => {
               sx={{ flex: 1 }}
             />
           </Stack>
+        </Paper>
+        <Paper variant="outlined" sx={{ p: 2.5, mb: 2 }}>
+          <Typography variant="subtitle1" sx={{ fontWeight: 800, mb: 1 }}>Header navigation</Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            Main site menu (desktop dropdowns and mobile drawer). Items with sub-links show a flyout menu.
+          </Typography>
+          {headerMenu.map((item, i) => (
+            <Box key={`header-${i}`} sx={{ mb: 2, pb: 2, borderBottom: '1px solid', borderColor: 'divider' }}>
+              <Stack direction="row" spacing={1} sx={{ mb: 1 }}>
+                <TextField
+                  size="small"
+                  label="Menu label"
+                  value={item.label}
+                  onChange={(e) => setHeaderMenuItem(i, 'label', e.target.value)}
+                  sx={{ flex: 1 }}
+                />
+                <TextField
+                  size="small"
+                  label="Path"
+                  value={item.path}
+                  onChange={(e) => setHeaderMenuItem(i, 'path', e.target.value)}
+                  sx={{ flex: 1 }}
+                />
+              </Stack>
+              {(item.submenu || []).map((sub, j) => (
+                <Stack key={`header-${i}-sub-${j}`} direction="row" spacing={1} sx={{ mb: 1, pl: 2 }}>
+                  <TextField
+                    size="small"
+                    label="Submenu label"
+                    value={sub.label}
+                    onChange={(e) => setHeaderSubmenuItem(i, j, 'label', e.target.value)}
+                    sx={{ flex: 1 }}
+                  />
+                  <TextField
+                    size="small"
+                    label="Submenu path"
+                    value={sub.path}
+                    onChange={(e) => setHeaderSubmenuItem(i, j, 'path', e.target.value)}
+                    sx={{ flex: 1 }}
+                  />
+                </Stack>
+              ))}
+            </Box>
+          ))}
         </Paper>
         <Paper variant="outlined" sx={{ p: 2.5, mb: 2 }}>
           <Typography variant="subtitle1" sx={{ fontWeight: 800, mb: 2 }}>Footer</Typography>
