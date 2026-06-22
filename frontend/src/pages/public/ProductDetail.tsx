@@ -35,6 +35,7 @@ import { colors } from '../../theme/colors';
 import { homeUi } from '../../theme/homeUi';
 import { publicUi } from '../../theme/publicUi';
 import { mobileFixedAboveTabBar } from '../../utils/mobileChrome';
+import { hapticTap } from '../../utils/haptics';
 
 const ProductDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -150,6 +151,7 @@ const ProductDetail: React.FC = () => {
   if (product.category) specs.push({ label: 'Category', value: product.category });
 
   const handleAdd = async () => {
+    hapticTap();
     try {
       await addToCart(product.id, 1);
       trackAddToCart([{ item_id: String(product.id), item_name: title, price: unit, quantity: 1 }]);
@@ -179,9 +181,8 @@ const ProductDetail: React.FC = () => {
       <PublicPageShell badge={typeLabel} headline={title} description={product.short_description || desc.slice(0, 120)}>
         <Button
           startIcon={<ArrowBackIcon />}
-          size="small"
           onClick={() => navigate('/shop')}
-          sx={{ mb: 2, textTransform: 'none', color: colors.blueNavy }}
+          sx={{ mb: 2, textTransform: 'none', color: colors.blueNavy, ...homeUi.touchTarget, justifyContent: 'flex-start', px: 0 }}
         >
           Back to shop
         </Button>
@@ -260,16 +261,38 @@ const ProductDetail: React.FC = () => {
               <Box sx={{ mt: 4 }}>
                 <Typography sx={{ fontWeight: 700, mb: 1.5 }}>Specifications</Typography>
                 <Card sx={publicUi.card}>
-                  <Table size="small">
-                    <TableBody>
-                      {specs.map((row) => (
-                        <TableRow key={row.label}>
-                          <TableCell sx={{ fontWeight: 600, width: '38%', borderColor: colors.gray200 }}>{row.label}</TableCell>
-                          <TableCell sx={{ ...publicUi.mutedText, borderColor: colors.gray200 }}>{row.value}</TableCell>
-                        </TableRow>
+                  {isMobile ? (
+                    <Box sx={{ px: 2, py: 1 }}>
+                      {specs.map((row, index) => (
+                        <Box
+                          key={row.label}
+                          display="flex"
+                          justifyContent="space-between"
+                          gap={2}
+                          py={1.25}
+                          borderBottom={index < specs.length - 1 ? homeUi.cardBorder : 'none'}
+                        >
+                          <Typography sx={{ fontWeight: 600, fontSize: '0.875rem', flexShrink: 0 }}>
+                            {row.label}
+                          </Typography>
+                          <Typography sx={{ ...publicUi.mutedText, fontSize: '0.875rem', textAlign: 'right' }}>
+                            {row.value}
+                          </Typography>
+                        </Box>
                       ))}
-                    </TableBody>
-                  </Table>
+                    </Box>
+                  ) : (
+                    <Table size="small">
+                      <TableBody>
+                        {specs.map((row) => (
+                          <TableRow key={row.label}>
+                            <TableCell sx={{ fontWeight: 600, width: '38%', borderColor: colors.gray200 }}>{row.label}</TableCell>
+                            <TableCell sx={{ ...publicUi.mutedText, borderColor: colors.gray200 }}>{row.value}</TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  )}
                 </Card>
               </Box>
             )}
@@ -315,8 +338,9 @@ const ProductDetail: React.FC = () => {
             px: 2,
             py: 1,
             bgcolor: 'rgba(251, 251, 253, 0.94)',
-            backdropFilter: 'blur(16px)',
-            borderTop: homeUi.cardBorder,
+            backdropFilter: 'saturate(180%) blur(16px)',
+            WebkitBackdropFilter: 'saturate(180%) blur(16px)',
+            borderTop: '1px solid rgba(0, 0, 0, 0.06)',
           }}
         >
           <Stack direction="row" spacing={1}>

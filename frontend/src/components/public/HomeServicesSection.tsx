@@ -36,6 +36,7 @@ const ServiceCard: React.FC<{ service: CmsServiceCard; eagerImage?: boolean }> =
       border: homeUi.cardBorder,
       boxShadow: homeUi.cardShadow,
       transition: 'box-shadow 0.3s ease, transform 0.3s ease',
+      '&:active': { transform: 'scale(0.98)' },
       '@media (hover: hover)': {
         '&:hover': {
           boxShadow: homeUi.cardShadowHover,

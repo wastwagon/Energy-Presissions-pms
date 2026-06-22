@@ -14,6 +14,8 @@ import { ExpandMore as ExpandMoreIcon, Search as SearchIcon } from '@mui/icons-m
 import { getDefaultFaqs } from '../../data/faqDefaults';
 import { Seo } from '../../components/Seo';
 import PublicPageShell from '../../components/public/PublicPageShell';
+import PublicStickyMobileCta from '../../components/public/PublicStickyMobileCta';
+import { SITE_CTA } from '../../data/siteCta';
 import { useCmsPage } from '../../hooks/useCmsPage';
 import { resolveCmsSeo } from '../../hooks/useCmsSeo';
 import api from '../../services/api';
@@ -95,7 +97,10 @@ const FAQs: React.FC = () => {
               key={`${faq.question}-${index}`}
               sx={{ ...publicUi.card, mb: 1.5, '&:before': { display: 'none' } }}
             >
-              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                sx={{ minHeight: 48, '& .MuiAccordionSummary-content': { my: 1 } }}
+              >
                 <Typography sx={{ fontWeight: 700, fontSize: '0.9375rem' }}>{faq.question}</Typography>
               </AccordionSummary>
               <AccordionDetails>
@@ -114,6 +119,7 @@ const FAQs: React.FC = () => {
           )}
         </Box>
       </PublicPageShell>
+      <PublicStickyMobileCta label={SITE_CTA.consultation} to={SITE_CTA.quoteHref} />
     </>
   );
 };

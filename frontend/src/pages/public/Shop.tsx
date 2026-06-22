@@ -36,9 +36,11 @@ import { trackAddToCart } from '../../utils/analytics';
 import { useCmsPage } from '../../hooks/useCmsPage';
 import { resolveCmsSeo } from '../../hooks/useCmsSeo';
 import PublicPageShell from '../../components/public/PublicPageShell';
+import PublicStickyMobileCta from '../../components/public/PublicStickyMobileCta';
 import FilterChip from '../../components/public/FilterChip';
 import ProductImage from '../../components/public/ProductImage';
 import { formatApiErrorDetail } from '../../utils/apiErrorMessage';
+import { hapticTap } from '../../utils/haptics';
 import { colors } from '../../theme/colors';
 import { homeUi } from '../../theme/homeUi';
 import { publicUi } from '../../theme/publicUi';
@@ -119,6 +121,7 @@ const Shop: React.FC = () => {
   );
 
   const handleAddToCart = async (product: any) => {
+    hapticTap();
     try {
       await addToCart(product.id, 1);
       const unit = catalogLineUnitPrice(product);
@@ -179,6 +182,8 @@ const Shop: React.FC = () => {
                   aria-pressed={viewMode === 'grid'}
                   aria-label="Grid view"
                   sx={{
+                    width: 44,
+                    height: 44,
                     color: viewMode === 'grid' ? colors.green : '#999',
                     border: viewMode === 'grid' ? `2px solid ${colors.green}` : `2px solid ${colors.gray200}`,
                   }}
@@ -190,6 +195,8 @@ const Shop: React.FC = () => {
                   aria-pressed={viewMode === 'list'}
                   aria-label="List view"
                   sx={{
+                    width: 44,
+                    height: 44,
                     color: viewMode === 'list' ? colors.green : '#999',
                     border: viewMode === 'list' ? `2px solid ${colors.green}` : `2px solid ${colors.gray200}`,
                   }}
@@ -200,15 +207,26 @@ const Shop: React.FC = () => {
             </Grid>
           </Grid>
 
-          <Stack
-            direction="row"
-            spacing={1}
-            flexWrap="wrap"
-            useFlexGap
-            sx={{ mt: 2 }}
-            role="group"
-            aria-label="Filter by category"
+          <Box
+            sx={{
+              mt: 2,
+              mx: { xs: -1, sm: 0 },
+              px: { xs: 1, sm: 0 },
+              overflowX: { xs: 'auto', sm: 'visible' },
+              WebkitOverflowScrolling: 'touch',
+              scrollbarWidth: 'none',
+              '&::-webkit-scrollbar': { display: 'none' },
+            }}
           >
+            <Stack
+              direction="row"
+              spacing={1}
+              flexWrap={{ xs: 'nowrap', sm: 'wrap' }}
+              useFlexGap
+              role="group"
+              aria-label="Filter by category"
+              sx={{ pb: { xs: 0.5, sm: 0 }, minWidth: { xs: 'min-content', sm: 'auto' } }}
+            >
             {categories.map((cat) => (
               <FilterChip
                 key={cat.value}
@@ -217,7 +235,8 @@ const Shop: React.FC = () => {
                 onSelect={() => setCategoryFilter(cat.value)}
               />
             ))}
-          </Stack>
+            </Stack>
+          </Box>
 
           {/* Results Count */}
           <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -243,22 +262,32 @@ const Shop: React.FC = () => {
           </Box>
         ) : paginatedProducts.length > 0 ? (
           <>
-            <Grid container spacing={3}>
+            <Grid container spacing={viewMode === 'list' ? 2 : 3}>
               {paginatedProducts.map((product: any) => (
-                <Grid item xs={12} sm={6} md={4} lg={3} key={product.id}>
+                <Grid
+                  item
+                  xs={12}
+                  sm={viewMode === 'list' ? 12 : 6}
+                  md={viewMode === 'list' ? 12 : 4}
+                  lg={viewMode === 'list' ? 12 : 3}
+                  key={product.id}
+                >
                   <Card
                     sx={{
                       height: '100%',
                       display: 'flex',
-                      flexDirection: 'column',
+                      flexDirection: viewMode === 'list' ? 'row' : 'column',
                       borderRadius: 3,
                       border: `1px solid ${colors.gray200}`,
                       overflow: 'hidden',
-                      transition: 'all 0.3s ease',
-                      '&:hover': {
-                        boxShadow: '0 12px 40px rgba(0,0,0,0.15)',
-                        transform: 'translateY(-8px)',
-                        borderColor: colors.green,
+                      transition: 'box-shadow 0.3s ease, transform 0.3s ease, border-color 0.3s ease',
+                      '&:active': { transform: 'scale(0.98)' },
+                      '@media (hover: hover)': {
+                        '&:hover': {
+                          boxShadow: '0 12px 40px rgba(0,0,0,0.15)',
+                          transform: viewMode === 'list' ? 'translateX(4px)' : 'translateY(-8px)',
+                          borderColor: colors.green,
+                        },
                       },
                     }}
                   >
@@ -267,7 +296,11 @@ const Shop: React.FC = () => {
                       sx={{
                         position: 'relative',
                         bgcolor: colors.offWhite,
-                        height: 250,
+                        flexShrink: 0,
+                        width: viewMode === 'list' ? { xs: 112, sm: 200, md: 220 } : '100%',
+                        height: viewMode === 'list' ? { xs: 'auto', sm: 'auto' } : 250,
+                        alignSelf: viewMode === 'list' ? 'stretch' : undefined,
+                        minHeight: viewMode === 'list' ? { xs: 112, sm: 180 } : undefined,
                         overflow: 'hidden',
                       }}
                     >
@@ -299,7 +332,23 @@ const Shop: React.FC = () => {
                       )}
                     </Box>
 
-                    <CardContent sx={{ flexGrow: 1, p: 2 }}>
+                    <Box
+                      sx={{
+                        display: viewMode === 'list' ? 'flex' : 'contents',
+                        flex: viewMode === 'list' ? 1 : undefined,
+                        flexDirection: 'column',
+                        minWidth: 0,
+                      }}
+                    >
+                    <CardContent
+                      sx={{
+                        flexGrow: 1,
+                        p: viewMode === 'list' ? { xs: 1.5, sm: 2 } : 2,
+                        display: viewMode === 'list' ? 'flex' : 'block',
+                        flexDirection: viewMode === 'list' ? 'column' : undefined,
+                        minWidth: 0,
+                      }}
+                    >
                       {/* Category */}
                       <Chip
                         label={getProductTypeLabel(product.product_type || product.category || 'Product')}
@@ -320,11 +369,12 @@ const Shop: React.FC = () => {
                           mb: 1,
                           fontWeight: 700,
                           color: colors.blueNavy,
-                          minHeight: '2.6rem',
+                          minHeight: viewMode === 'list' ? 'auto' : '2.6rem',
                           display: '-webkit-box',
-                          WebkitLineClamp: 2,
+                          WebkitLineClamp: viewMode === 'list' ? 2 : 2,
                           WebkitBoxOrient: 'vertical',
                           overflow: 'hidden',
+                          fontSize: viewMode === 'list' ? { xs: '0.9375rem', sm: '1.125rem' } : undefined,
                         }}
                       >
                         {product.name || `${product.brand} ${product.model}`}
@@ -338,6 +388,7 @@ const Shop: React.FC = () => {
                       )}
 
                       {/* Description */}
+                      {viewMode !== 'list' && (
                       <Typography
                         variant="body2"
                         sx={{
@@ -352,8 +403,10 @@ const Shop: React.FC = () => {
                       >
                         {product.short_description || product.description || 'Premium quality solar equipment'}
                       </Typography>
+                      )}
 
                       {/* Features */}
+                      {viewMode !== 'list' && (
                       <Stack direction="row" spacing={1} sx={{ mb: 1.25, flexWrap: 'wrap', gap: 1 }}>
                         <Chip
                           icon={<SecurityIcon sx={{ fontSize: '1rem' }} />}
@@ -370,8 +423,9 @@ const Shop: React.FC = () => {
                           sx={{ fontSize: '0.7rem' }}
                         />
                       </Stack>
+                      )}
 
-                      <Divider sx={{ my: 1.25 }} />
+                      <Divider sx={{ my: viewMode === 'list' ? 1 : 1.25 }} />
 
                       {/* Price */}
                       <Box sx={{ mb: 1.25 }}>
@@ -381,17 +435,28 @@ const Shop: React.FC = () => {
                             fontWeight: 800,
                             color: colors.blueNavy,
                             mb: 0.5,
+                            fontSize: viewMode === 'list' ? { xs: '1.25rem', sm: '1.5rem' } : undefined,
                           }}
                       >
                         GHS {catalogLineUnitPrice(product).toLocaleString()}
                       </Typography>
-                        <Typography variant="body2" sx={{ color: '#999' }}>
+                        <Typography variant="body2" sx={{ color: '#999', display: viewMode === 'list' ? { xs: 'none', sm: 'block' } : 'block' }}>
                           Including VAT
                         </Typography>
                       </Box>
                     </CardContent>
 
-                    <CardActions sx={{ p: 3, pt: 0, flexDirection: 'column', gap: 1, alignItems: 'stretch' }}>
+                    <CardActions
+                      sx={{
+                        p: viewMode === 'list' ? { xs: 1.5, sm: 2 } : 3,
+                        pt: 0,
+                        mt: viewMode === 'list' ? 'auto' : undefined,
+                        flexDirection: viewMode === 'list' ? { xs: 'row', sm: 'column' } : 'column',
+                        gap: 1,
+                        alignItems: 'stretch',
+                        flexShrink: 0,
+                      }}
+                    >
                       <Button
                         fullWidth
                         variant="outlined"
@@ -400,7 +465,7 @@ const Shop: React.FC = () => {
                         sx={{
                           borderColor: colors.blueNavy,
                           color: colors.blueNavy,
-                          py: 1.25,
+                          ...homeUi.touchTarget,
                           fontWeight: 600,
                           textTransform: 'none',
                           borderRadius: 2,
@@ -417,14 +482,16 @@ const Shop: React.FC = () => {
                         sx={{
                           bgcolor: colors.green,
                           color: 'white',
-                          py: 1.5,
+                          ...homeUi.touchTarget,
                           fontWeight: 600,
                           textTransform: 'none',
                           borderRadius: 2,
-                          '&:hover': {
-                            bgcolor: colors.greenDark,
-                            transform: 'translateY(-2px)',
-                            boxShadow: '0 8px 24px rgba(0, 230, 118, 0.3)',
+                          '@media (hover: hover)': {
+                            '&:hover': {
+                              bgcolor: colors.greenDark,
+                              transform: 'translateY(-2px)',
+                              boxShadow: '0 8px 24px rgba(0, 230, 118, 0.3)',
+                            },
                           },
                           transition: 'all 0.3s ease',
                         }}
@@ -432,6 +499,7 @@ const Shop: React.FC = () => {
                         {product.in_stock !== false ? 'Add to Cart' : 'Out of Stock'}
                       </Button>
                     </CardActions>
+                    </Box>
                   </Card>
                 </Grid>
               ))}
@@ -519,6 +587,10 @@ const Shop: React.FC = () => {
         </Box>
       </Container>
       </PublicPageShell>
+      <PublicStickyMobileCta
+        label="Need installation help?"
+        to="/contact?action=quote&topic=shop"
+      />
     </>
   );
 };

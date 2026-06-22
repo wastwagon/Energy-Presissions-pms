@@ -319,16 +319,28 @@ const HomePortfolioSection: React.FC<Props> = ({
               aria-label={`Go to ${project.title}`}
               onClick={() => goTo(index)}
               sx={{
-                width: index === activeIndex ? 28 : 8,
-                height: 8,
-                borderRadius: 999,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: 44,
+                height: 44,
                 border: 'none',
                 p: 0,
                 cursor: 'pointer',
-                bgcolor: index === activeIndex ? colors.green : 'rgba(0,0,0,0.15)',
-                transition: 'width 0.25s ease, background-color 0.25s ease',
+                bgcolor: 'transparent',
               }}
-            />
+            >
+              <Box
+                aria-hidden
+                sx={{
+                  width: index === activeIndex ? 28 : 8,
+                  height: 8,
+                  borderRadius: 999,
+                  bgcolor: index === activeIndex ? colors.green : 'rgba(0,0,0,0.15)',
+                  transition: 'width 0.25s ease, background-color 0.25s ease',
+                }}
+              />
+            </Box>
           ))}
         </Stack>
       )}

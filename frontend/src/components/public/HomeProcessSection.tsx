@@ -60,6 +60,7 @@ const ProcessStepCard: React.FC<{ item: CmsProcessStep; index: number }> = ({ it
             boxShadow: `0 14px 36px ${theme.glow}`,
           },
         },
+        '&:active': { transform: 'scale(0.98)' },
       }}
     >
       <Box

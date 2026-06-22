@@ -54,7 +54,25 @@ const Portfolio: React.FC = () => {
         description={hero.description}
         contentPy={{ xs: 4, md: 7 }}
       >
-        <Stack direction="row" flexWrap="wrap" gap={1} sx={{ mb: 3 }} role="group" aria-label="Filter by category">
+        <Box
+          sx={{
+            mb: 3,
+            mx: { xs: -2, sm: 0 },
+            px: { xs: 2, sm: 0 },
+            overflowX: { xs: 'auto', sm: 'visible' },
+            WebkitOverflowScrolling: 'touch',
+            scrollbarWidth: 'none',
+            '&::-webkit-scrollbar': { display: 'none' },
+          }}
+        >
+          <Stack
+            direction="row"
+            flexWrap={{ xs: 'nowrap', sm: 'wrap' }}
+            gap={1}
+            role="group"
+            aria-label="Filter by category"
+            sx={{ pb: { xs: 0.5, sm: 0 }, minWidth: { xs: 'min-content', sm: 'auto' } }}
+          >
           {categories.map((cat) => (
             <FilterChip
               key={cat}
@@ -63,7 +81,8 @@ const Portfolio: React.FC = () => {
               onSelect={() => setActiveCategory(cat)}
             />
           ))}
-        </Stack>
+          </Stack>
+        </Box>
 
         <Grid container spacing={{ xs: 2, md: 3 }}>
           {filtered.map((item) => (
@@ -81,11 +100,14 @@ const Portfolio: React.FC = () => {
                   textDecoration: 'none',
                   color: 'inherit',
                   transition: 'transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease',
-                  '&:hover': {
-                    transform: 'translateY(-3px)',
-                    boxShadow: homeUi.cardShadowHover,
-                    borderColor: colors.green,
-                    '& .portfolio-image': { transform: reducedMotion ? 'none' : 'scale(1.03)' },
+                  '&:active': { transform: 'scale(0.98)' },
+                  '@media (hover: hover)': {
+                    '&:hover': {
+                      transform: 'translateY(-3px)',
+                      boxShadow: homeUi.cardShadowHover,
+                      borderColor: colors.green,
+                      '& .portfolio-image': { transform: reducedMotion ? 'none' : 'scale(1.03)' },
+                    },
                   },
                 }}
               >

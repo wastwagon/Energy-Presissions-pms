@@ -2,8 +2,10 @@ import React from 'react';
 import { Typography, Stack } from '@mui/material';
 import { Seo } from '../Seo';
 import PublicPageShell from './PublicPageShell';
+import PublicStickyMobileCta from './PublicStickyMobileCta';
 import { homeUi } from '../../theme/homeUi';
 import { colors } from '../../theme/colors';
+import { SITE_CTA } from '../../data/siteCta';
 
 type Section = {
   title: string;
@@ -51,6 +53,7 @@ const LegalDocument: React.FC<Props> = ({
         ))}
       </Stack>
     </PublicPageShell>
+    <PublicStickyMobileCta label="Questions? Contact us" to="/contact" />
   </>
 );
 

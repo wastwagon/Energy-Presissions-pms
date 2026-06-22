@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Container, Typography, Button, Grid, Card, CardContent, Stack } from '@mui/material';
+import { Box, Typography, Button, Grid, Card, CardContent, Stack } from '@mui/material';
 import {
   CardGiftcard as GiftIcon,
   Groups as GroupsIcon,
@@ -10,6 +10,7 @@ import {
 import { Link as RouterLink } from 'react-router-dom';
 import { Seo } from '../../components/Seo';
 import PublicPageShell from '../../components/public/PublicPageShell';
+import PublicStickyMobileCta from '../../components/public/PublicStickyMobileCta';
 import { colors } from '../../theme/colors';
 import { publicUi } from '../../theme/publicUi';
 import { homeUi } from '../../theme/homeUi';
@@ -40,7 +41,12 @@ const ReferralProgram: React.FC = () => {
         heroAlign="center"
         contentMaxWidth="lg"
       >
-        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} justifyContent="center" sx={{ mb: 4 }}>
+        <Stack
+          direction={{ xs: 'column', sm: 'row' }}
+          spacing={1.5}
+          justifyContent="center"
+          sx={{ mb: 4, display: { xs: 'none', md: 'flex' } }}
+        >
           <Button
             component={RouterLink}
             to="/contact?action=quote&topic=referral"
@@ -115,19 +121,20 @@ const ReferralProgram: React.FC = () => {
               target="_blank"
               rel="noopener noreferrer"
               variant="contained"
-              sx={{ ...publicUi.primaryButton, mt: 3 }}
+              sx={{ ...publicUi.primaryButton, ...homeUi.touchTarget, mt: 3 }}
             >
               WhatsApp a lead to us
             </Button>
           </CardContent>
         </Card>
 
-        <Box sx={{ textAlign: 'center', mt: 4 }}>
-          <Button component={RouterLink} to="/contact?action=quote&topic=referral" variant="outlined" sx={{ ...publicUi.secondaryButton, px: 3 }}>
+        <Box sx={{ textAlign: 'center', mt: 4, display: { xs: 'none', md: 'block' } }}>
+          <Button component={RouterLink} to="/contact?action=quote&topic=referral" variant="outlined" sx={{ ...publicUi.secondaryButton, ...homeUi.touchTarget, px: 3 }}>
             Or use the referral form
           </Button>
         </Box>
       </PublicPageShell>
+      <PublicStickyMobileCta label="Submit a referral" to="/contact?action=quote&topic=referral" />
     </>
   );
 };

@@ -22,6 +22,8 @@ import { homeUi } from '../../theme/homeUi';
 import { publicUi } from '../../theme/publicUi';
 import { useCmsPage } from '../../hooks/useCmsPage';
 import { resolveCmsSeo } from '../../hooks/useCmsSeo';
+import PublicStickyMobileCta from '../../components/public/PublicStickyMobileCta';
+import { SITE_CTA } from '../../data/siteCta';
 
 type ListPost = Pick<BlogPost, 'slug' | 'title' | 'excerpt' | 'category'> & { date: string; readTime: string };
 
@@ -162,6 +164,7 @@ const Blog: React.FC = () => {
           ))}
         </Grid>
       </PublicPageShell>
+      <PublicStickyMobileCta label={SITE_CTA.consultation} to={SITE_CTA.quoteHref} />
     </>
   );
 };

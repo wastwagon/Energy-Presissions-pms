@@ -9,6 +9,10 @@ import {
   TableRow,
   Typography,
   Card,
+  CardContent,
+  Stack,
+  useTheme,
+  useMediaQuery,
 } from '@mui/material';
 import { HYBRID_PACKAGES, formatGhs, type HybridPackage } from '../../data/hybridPackages';
 import { colors } from '../../theme/colors';
@@ -31,54 +35,90 @@ type Props = {
   packages?: HybridPackage[];
 };
 
-const PackageComparisonTable: React.FC<Props> = ({ packages = HYBRID_PACKAGES }) => (
-  <Box sx={{ mb: { xs: 4, md: 5 } }}>
-    <Typography
-      sx={{
-        ...homeUi.title,
-        fontSize: { xs: '1.125rem', md: '1.25rem' },
-        color: colors.blueBlack,
-        mb: 0.75,
-        textAlign: 'center',
-      }}
-    >
-      Compare packages at a glance
-    </Typography>
-    <Typography sx={{ ...publicUi.mutedText, textAlign: 'center', mb: 2.5, fontSize: '0.875rem' }}>
-      Turnkey GHS prices from our Accra office — final BOM confirmed after site survey.
-    </Typography>
-    <Card sx={{ ...publicUi.card, overflow: 'hidden' }}>
-      <TableContainer sx={{ overflowX: 'auto' }}>
-        <Table size="small" sx={{ minWidth: 640 }}>
-          <TableHead>
-            <TableRow sx={{ bgcolor: colors.offWhite }}>
-              {['Tier', 'Load (kVA)', 'Max W', 'Battery', 'Panels', 'From (GHS)'].map((h) => (
-                <TableCell key={h} sx={{ fontWeight: 700, whiteSpace: 'nowrap', borderColor: colors.gray200 }}>
-                  {h}
-                </TableCell>
-              ))}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {packages.map((pkg) => (
-              <TableRow key={pkg.id} hover>
-                <TableCell sx={{ fontWeight: 600, borderColor: colors.gray200 }}>{pkg.badge}</TableCell>
-                <TableCell sx={{ borderColor: colors.gray200 }}>{pkg.kvaLabel}</TableCell>
-                <TableCell sx={{ borderColor: colors.gray200 }}>{pkg.maxWatts} W</TableCell>
-                <TableCell sx={{ ...publicUi.mutedText, fontSize: '0.8125rem', borderColor: colors.gray200 }}>
-                  {batterySummary(pkg.components)}
-                </TableCell>
-                <TableCell sx={{ borderColor: colors.gray200 }}>{panelCount(pkg.components)}</TableCell>
-                <TableCell sx={{ fontWeight: 700, color: colors.greenDark, borderColor: colors.gray200, whiteSpace: 'nowrap' }}>
-                  {formatGhs(pkg.priceGhs)}
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </Card>
+const specRow = (label: string, value: string) => (
+  <Box key={label} display="flex" justifyContent="space-between" gap={2} py={0.75}>
+    <Typography sx={{ fontSize: '0.8125rem', color: colors.gray600 }}>{label}</Typography>
+    <Typography sx={{ fontSize: '0.8125rem', fontWeight: 600, textAlign: 'right' }}>{value}</Typography>
   </Box>
 );
+
+const PackageComparisonTable: React.FC<Props> = ({ packages = HYBRID_PACKAGES }) => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+
+  return (
+    <Box sx={{ mb: { xs: 4, md: 5 } }}>
+      <Typography
+        sx={{
+          ...homeUi.title,
+          fontSize: { xs: '1.125rem', md: '1.25rem' },
+          color: colors.blueBlack,
+          mb: 0.75,
+          textAlign: 'center',
+        }}
+      >
+        Compare packages at a glance
+      </Typography>
+      <Typography sx={{ ...publicUi.mutedText, textAlign: 'center', mb: 2.5, fontSize: '0.875rem' }}>
+        Turnkey GHS prices from our Accra office — final BOM confirmed after site survey.
+      </Typography>
+
+      {isMobile ? (
+        <Stack spacing={1.5}>
+          {packages.map((pkg) => (
+            <Card key={pkg.id} sx={publicUi.card}>
+              <CardContent sx={{ p: 2 }}>
+                <Box display="flex" justifyContent="space-between" alignItems="baseline" mb={1.5}>
+                  <Typography sx={{ fontWeight: 800, fontSize: '1rem', color: colors.blueBlack }}>
+                    {pkg.badge}
+                  </Typography>
+                  <Typography sx={{ fontWeight: 800, color: colors.greenDark, fontSize: '1rem' }}>
+                    {formatGhs(pkg.priceGhs)}
+                  </Typography>
+                </Box>
+                {specRow('Load', pkg.kvaLabel)}
+                {specRow('Max watts', `${pkg.maxWatts} W`)}
+                {specRow('Battery', batterySummary(pkg.components))}
+                {specRow('Panels', panelCount(pkg.components))}
+              </CardContent>
+            </Card>
+          ))}
+        </Stack>
+      ) : (
+        <Card sx={{ ...publicUi.card, overflow: 'hidden' }}>
+          <TableContainer sx={{ overflowX: 'auto' }}>
+            <Table size="small" sx={{ minWidth: 640 }}>
+              <TableHead>
+                <TableRow sx={{ bgcolor: colors.offWhite }}>
+                  {['Tier', 'Load (kVA)', 'Max W', 'Battery', 'Panels', 'From (GHS)'].map((h) => (
+                    <TableCell key={h} sx={{ fontWeight: 700, whiteSpace: 'nowrap', borderColor: colors.gray200 }}>
+                      {h}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {packages.map((pkg) => (
+                  <TableRow key={pkg.id} hover>
+                    <TableCell sx={{ fontWeight: 600, borderColor: colors.gray200 }}>{pkg.badge}</TableCell>
+                    <TableCell sx={{ borderColor: colors.gray200 }}>{pkg.kvaLabel}</TableCell>
+                    <TableCell sx={{ borderColor: colors.gray200 }}>{pkg.maxWatts} W</TableCell>
+                    <TableCell sx={{ ...publicUi.mutedText, fontSize: '0.8125rem', borderColor: colors.gray200 }}>
+                      {batterySummary(pkg.components)}
+                    </TableCell>
+                    <TableCell sx={{ borderColor: colors.gray200 }}>{panelCount(pkg.components)}</TableCell>
+                    <TableCell sx={{ fontWeight: 700, color: colors.greenDark, borderColor: colors.gray200, whiteSpace: 'nowrap' }}>
+                      {formatGhs(pkg.priceGhs)}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Card>
+      )}
+    </Box>
+  );
+};
 
 export default PackageComparisonTable;

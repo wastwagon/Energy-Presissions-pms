@@ -1,8 +1,8 @@
 /**
  * Minimal PWA service worker — caches the app shell; network-first for navigations and API.
  */
-const CACHE = 'ep-shell-v1';
-const SHELL = ['/', '/index.html', '/manifest.json', '/favicon.svg', '/icons/icon-192.png'];
+const CACHE = 'ep-shell-v2';
+const SHELL = ['/', '/index.html', '/offline.html', '/manifest.json', '/favicon.svg', '/icons/icon-192.png'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -37,7 +37,9 @@ self.addEventListener('fetch', (event) => {
           caches.open(CACHE).then((cache) => cache.put('/index.html', copy));
           return res;
         })
-        .catch(() => caches.match('/index.html').then((r) => r || caches.match('/'))),
+        .catch(() =>
+          caches.match('/index.html').then((r) => r || caches.match('/') || caches.match('/offline.html')),
+        ),
     );
     return;
   }

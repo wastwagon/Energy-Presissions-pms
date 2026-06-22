@@ -10,8 +10,17 @@ export const MOBILE_CHECKOUT_BAR_RESERVE = 72;
 /** Bottom offset for elements stacked above the tab bar (matches sticky CTA positioning). */
 export const MOBILE_ABOVE_TAB_BAR = 56;
 
+/** Height (px) of fixed mobile product detail action bar. */
+export const MOBILE_PRODUCT_BAR_RESERVE = 64;
+
+/** Extra bottom reserve for pages with fixed mobile chrome above the tab bar. */
+export function mobileExtraChromeReserve(pathname: string): number {
+  if (pathname === '/checkout') return MOBILE_CHECKOUT_BAR_RESERVE;
+  if (pathname.startsWith('/products/')) return MOBILE_PRODUCT_BAR_RESERVE;
+  return 0;
+}
+
 /**
- * Main scroll-area padding-bottom on mobile, accounting for tab bar,
  * optional sticky CTA bar, optional extra chrome (e.g. checkout bar), and safe area.
  */
 export function mobileMainPaddingBottom(hasStickyCta: boolean, extraReserve = 0): string {

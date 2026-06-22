@@ -4,6 +4,7 @@ import { Box, Typography, Button, Chip, Stack, CircularProgress } from '@mui/mat
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { Seo } from '../../components/Seo';
 import PublicPageShell from '../../components/public/PublicPageShell';
+import PublicStickyMobileCta from '../../components/public/PublicStickyMobileCta';
 import { colors } from '../../theme/colors';
 import { homeUi } from '../../theme/homeUi';
 import { publicUi } from '../../theme/publicUi';
@@ -80,23 +81,53 @@ const BlogPostPage: React.FC = () => {
           component={RouterLink}
           to="/blog"
           startIcon={<ArrowBackIcon />}
-          size="small"
-          sx={{ mb: 2, textTransform: 'none', color: colors.blueNavy }}
+          sx={{
+            mb: 2,
+            textTransform: 'none',
+            color: colors.blueNavy,
+            ...homeUi.touchTarget,
+            justifyContent: 'flex-start',
+            px: 0,
+          }}
         >
           All articles
         </Button>
-        <Stack direction="row" spacing={1} sx={{ mb: 2 }} flexWrap="wrap" useFlexGap>
-          <Chip label={post.date} size="small" variant="outlined" />
-          <Chip label={post.readTime} size="small" variant="outlined" />
+        <Stack direction="row" spacing={1} sx={{ mb: 3 }} flexWrap="wrap" useFlexGap>
+          <Chip label={post.date} size="small" variant="outlined" sx={{ height: 28 }} />
+          <Chip label={post.readTime} size="small" variant="outlined" sx={{ height: 28 }} />
         </Stack>
-        <Box component="article" sx={{ '& p': { mb: 2, ...homeUi.body, ...publicUi.mutedText } }}>
+        <Box
+          component="article"
+          sx={{
+            maxWidth: 680,
+            mx: 'auto',
+            '& p': {
+              mb: 2.5,
+              fontSize: { xs: '1.0625rem', md: '1.125rem' },
+              lineHeight: 1.7,
+              color: colors.gray600,
+              letterSpacing: '-0.01em',
+            },
+            '& p:first-of-type': {
+              fontSize: { xs: '1.125rem', md: '1.1875rem' },
+              color: colors.blueBlack,
+            },
+          }}
+        >
           {post.paragraphs.map((p, i) => (
-            <Typography key={i} component="p" variant="body2">
+            <Typography key={i} component="p">
               {p}
             </Typography>
           ))}
         </Box>
-        <Box sx={{ mt: 3, pt: 3, borderTop: homeUi.cardBorder }}>
+        <Box
+          sx={{
+            mt: 4,
+            pt: 3,
+            borderTop: homeUi.cardBorder,
+            display: { xs: 'none', md: 'block' },
+          }}
+        >
           <Typography sx={{ ...publicUi.mutedText, mb: 1.5 }}>Need a system sized for your site?</Typography>
           <Button
             component={RouterLink}
@@ -108,6 +139,7 @@ const BlogPostPage: React.FC = () => {
           </Button>
         </Box>
       </PublicPageShell>
+      <PublicStickyMobileCta label={SITE_CTA.consultation} to={SITE_CTA.quoteHref} />
     </>
   );
 };

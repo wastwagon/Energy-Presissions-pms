@@ -64,7 +64,14 @@ const PortfolioCaseStudy: React.FC = () => {
         <Button
           startIcon={<ArrowBackIcon />}
           onClick={() => navigate('/portfolio')}
-          sx={{ mb: 3, textTransform: 'none', color: colors.blueNavy }}
+          sx={{
+            mb: 3,
+            textTransform: 'none',
+            color: colors.blueNavy,
+            ...homeUi.touchTarget,
+            justifyContent: 'flex-start',
+            px: 0,
+          }}
         >
           All projects
         </Button>
@@ -117,7 +124,12 @@ const PortfolioCaseStudy: React.FC = () => {
           to={SITE_CTA.quoteHref}
           variant="contained"
           endIcon={<ArrowForwardIcon sx={{ fontSize: 18 }} />}
-          sx={{ ...publicUi.primaryButton, ...homeUi.touchTarget, mb: 5 }}
+          sx={{
+            ...publicUi.primaryButton,
+            ...homeUi.touchTarget,
+            mb: 5,
+            display: { xs: 'none', md: 'inline-flex' },
+          }}
         >
           {SITE_CTA.consultation}
         </Button>

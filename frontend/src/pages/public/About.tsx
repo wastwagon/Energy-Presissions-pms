@@ -34,8 +34,10 @@ import api from '../../services/api';
 import { useCmsPage } from '../../hooks/useCmsPage';
 import { resolveCmsSeo } from '../../hooks/useCmsSeo';
 import PublicPageShell from '../../components/public/PublicPageShell';
+import PublicStickyMobileCta from '../../components/public/PublicStickyMobileCta';
 import Link from '@mui/material/Link';
 import { COMPANY } from '../../data/companyContact';
+import { SITE_CTA } from '../../data/siteCta';
 
 const About: React.FC = () => {
   const { sections } = useCmsPage('about');
@@ -617,6 +619,7 @@ const About: React.FC = () => {
         </Container>
       </Box>
       </PublicPageShell>
+      <PublicStickyMobileCta label={SITE_CTA.consultation} to={SITE_CTA.quoteHref} />
     </>
   );
 };

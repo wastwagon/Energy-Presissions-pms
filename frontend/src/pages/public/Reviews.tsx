@@ -4,6 +4,7 @@ import { Link as RouterLink } from 'react-router-dom';
 import { ArrowForward as ArrowForwardIcon } from '@mui/icons-material';
 import { Seo } from '../../components/Seo';
 import PublicPageShell from '../../components/public/PublicPageShell';
+import PublicStickyMobileCta from '../../components/public/PublicStickyMobileCta';
 import GoogleReviewsBand from '../../components/public/GoogleReviewsBand';
 import { useCmsPage } from '../../hooks/useCmsPage';
 import { resolveCmsSeo } from '../../hooks/useCmsSeo';
@@ -53,7 +54,7 @@ const Reviews: React.FC = () => {
           spacing={2}
           justifyContent="center"
           alignItems="center"
-          sx={{ mt: { xs: 4, md: 6 }, textAlign: 'center' }}
+          sx={{ mt: { xs: 4, md: 6 }, textAlign: 'center', display: { xs: 'none', md: 'flex' } }}
         >
           <Typography sx={{ ...publicUi.mutedText, maxWidth: 420 }}>
             Ready to join our clients? Book a free site assessment — no hard sell.
@@ -69,6 +70,7 @@ const Reviews: React.FC = () => {
           </Button>
         </Stack>
       </PublicPageShell>
+      <PublicStickyMobileCta label={SITE_CTA.consultation} to={SITE_CTA.quoteHref} />
     </>
   );
 };

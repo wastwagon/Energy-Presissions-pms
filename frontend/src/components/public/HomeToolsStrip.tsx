@@ -92,6 +92,7 @@ const HomeToolsStrip: React.FC<Props> = ({
                     boxShadow: homeUi.cardShadow,
                   },
                 },
+                '&:active': { transform: 'scale(0.98)' },
               }}
             >
               <Box

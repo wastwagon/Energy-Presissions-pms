@@ -108,13 +108,13 @@ const LocationLanding: React.FC<Props> = ({ page }) => {
                   ))}
                 </Stack>
                 <Stack direction="row" flexWrap="wrap" gap={1} sx={{ mt: 2.5 }}>
-                  <Button component={RouterLink} to="/solar-packages" size="small" sx={{ textTransform: 'none', color: colors.blueNavy }}>
+                  <Button component={RouterLink} to="/solar-packages" sx={{ textTransform: 'none', color: colors.blueNavy, minHeight: 44 }}>
                     Hybrid packages
                   </Button>
-                  <Button component={RouterLink} to="/portfolio" size="small" sx={{ textTransform: 'none', color: colors.blueNavy }}>
+                  <Button component={RouterLink} to="/portfolio" sx={{ textTransform: 'none', color: colors.blueNavy, minHeight: 44 }}>
                     View projects
                   </Button>
-                  <Button component={RouterLink} to="/solar-estimate" size="small" sx={{ textTransform: 'none', color: colors.blueNavy }}>
+                  <Button component={RouterLink} to="/solar-estimate" sx={{ textTransform: 'none', color: colors.blueNavy, minHeight: 44 }}>
                     Size estimator
                   </Button>
                 </Stack>
@@ -123,7 +123,7 @@ const LocationLanding: React.FC<Props> = ({ page }) => {
           </Grid>
         </Grid>
 
-        <Box sx={{ textAlign: 'center' }}>
+        <Box sx={{ textAlign: 'center', display: { xs: 'none', md: 'block' } }}>
           <Typography sx={{ ...publicUi.mutedText, mb: 2, maxWidth: 520, mx: 'auto' }}>
             {COMPANY.officeRegionNote}
           </Typography>

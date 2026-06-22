@@ -10,9 +10,19 @@ export const STICKY_CTA_PATHS = [
   '/solar-tamale',
   '/solar-estimate',
   '/checkout/success',
+  '/blog',
+  '/about',
+  '/faqs',
+  '/shop',
+  '/referral',
+  '/reviews',
+  '/warranty',
+  '/privacy',
+  '/terms',
 ] as const;
 
 export function pathHasStickyCta(pathname: string): boolean {
+  if (pathname.startsWith('/blog/') && pathname !== '/blog') return true;
   return STICKY_CTA_PATHS.some(
     (p) => pathname === p || pathname.startsWith(`${p}/`),
   );

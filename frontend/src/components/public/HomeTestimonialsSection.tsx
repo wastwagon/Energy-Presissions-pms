@@ -36,6 +36,8 @@ const HomeTestimonialsSection: React.FC<Props> = ({ badge, title, subtitle, item
                 bgcolor: homeUi.pageBg,
                 border: homeUi.cardBorder,
                 boxShadow: homeUi.cardShadow,
+                transition: 'transform 0.2s ease',
+                '&:active': { transform: 'scale(0.98)' },
               }}
             >
               <Box display="flex" gap={0.35} mb={1.5}>

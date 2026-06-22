@@ -56,6 +56,7 @@ const HomeCredibility: React.FC<Props> = ({ data }) => {
                       transform: 'translateY(-2px)',
                     },
                   },
+                  '&:active': { transform: 'scale(0.98)' },
                 }}
               >
                 <Box

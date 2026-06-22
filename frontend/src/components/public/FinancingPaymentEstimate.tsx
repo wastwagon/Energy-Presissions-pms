@@ -8,6 +8,8 @@ import {
   Grid,
   Slider,
   Button,
+  useTheme,
+  useMediaQuery,
 } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 import { colors } from '../../theme/colors';
@@ -22,6 +24,16 @@ function monthlyPayment(principal: number, annualRatePct: number, months: number
   return (principal * r * Math.pow(1 + r, months)) / (Math.pow(1 + r, months) - 1);
 }
 
+const sliderSx = {
+  color: colors.green,
+  py: 1.5,
+  '& .MuiSlider-thumb': {
+    width: 22,
+    height: 22,
+  },
+  '& .MuiSlider-rail': { opacity: 0.35 },
+};
+
 type Props = {
   title?: string;
   subtitle?: string;
@@ -31,6 +43,8 @@ const FinancingPaymentEstimate: React.FC<Props> = ({
   title = 'Example monthly payment',
   subtitle = 'Indicative only — actual terms depend on project size, lender, and your quote. Request a formal proposal for binding numbers.',
 }) => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [projectGhs, setProjectGhs] = useState('150000');
   const [downPct, setDownPct] = useState(30);
   const [termMonths, setTermMonths] = useState(24);
@@ -53,17 +67,17 @@ const FinancingPaymentEstimate: React.FC<Props> = ({
           <Grid item xs={12} sm={6}>
             <TextField
               fullWidth
-              size="small"
               label="Project cost (GHS)"
               value={projectGhs}
               onChange={(e) => setProjectGhs(e.target.value)}
+              inputMode="decimal"
             />
           </Grid>
           <Grid item xs={12} sm={6}>
             <Typography variant="caption" sx={publicUi.mutedText}>
               Down payment: {downPct}%
             </Typography>
-            <Slider value={downPct} onChange={(_, v) => setDownPct(v as number)} min={0} max={70} step={5} sx={{ color: colors.green }} />
+            <Slider value={downPct} onChange={(_, v) => setDownPct(v as number)} min={0} max={70} step={5} sx={sliderSx} />
           </Grid>
           <Grid item xs={12} sm={6}>
             <Typography variant="caption" sx={publicUi.mutedText}>
@@ -80,16 +94,16 @@ const FinancingPaymentEstimate: React.FC<Props> = ({
                 { value: 24, label: '24' },
                 { value: 36, label: '36' },
               ]}
-              sx={{ color: colors.green }}
+              sx={sliderSx}
             />
           </Grid>
           <Grid item xs={12} sm={6}>
             <TextField
               fullWidth
-              size="small"
               label="Indicative APR (%)"
               value={String(ratePct)}
               onChange={(e) => setRatePct(parseFloat(e.target.value) || 0)}
+              inputMode="decimal"
               helperText="Placeholder rate for planning — not an offer"
             />
           </Grid>
@@ -99,19 +113,21 @@ const FinancingPaymentEstimate: React.FC<Props> = ({
           <Typography sx={{ fontSize: '0.8125rem', ...publicUi.mutedText, mb: 0.5 }}>
             Financed amount: GHS {Math.round(result.financed).toLocaleString()}
           </Typography>
-          <Typography sx={{ fontWeight: 800, fontSize: '1.35rem', color: colors.blueBlack }}>
+          <Typography sx={{ fontWeight: 800, fontSize: { xs: '1.5rem', md: '1.35rem' }, color: colors.blueBlack }}>
             ≈ GHS {Math.round(result.monthly).toLocaleString()} / month
           </Typography>
         </Box>
 
-        <Button
-          component={RouterLink}
-          to={`${SITE_CTA.quoteHref}&topic=financing`}
-          variant="contained"
-          sx={{ ...publicUi.primaryButton, ...homeUi.touchTarget, mt: 2.5 }}
-        >
-          Discuss financing on your quote
-        </Button>
+        {!isMobile && (
+          <Button
+            component={RouterLink}
+            to={`${SITE_CTA.quoteHref}&topic=financing`}
+            variant="contained"
+            sx={{ ...publicUi.primaryButton, ...homeUi.touchTarget, mt: 2.5 }}
+          >
+            Discuss financing on your quote
+          </Button>
+        )}
       </CardContent>
     </Card>
   );
