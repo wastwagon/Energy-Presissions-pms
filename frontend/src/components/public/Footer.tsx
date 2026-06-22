@@ -31,6 +31,7 @@ import {
 import { useCmsPage } from '../../hooks/useCmsPage';
 import { colors } from '../../theme/colors';
 import { homeUi } from '../../theme/homeUi';
+import { MOBILE_TAB_BAR_RESERVE } from '../../utils/mobileChrome';
 import { publicUi } from '../../theme/publicUi';
 import type { CmsLink } from '../../types/cms';
 
@@ -159,7 +160,7 @@ const Footer: React.FC = () => {
         color: ft.text,
         borderTop: `1px solid ${publicUi.topBar.accentLine}`,
         pt: { xs: 5, md: 7 },
-        pb: { xs: 'calc(4.5rem + env(safe-area-inset-bottom, 0px))', md: 4 },
+        pb: { xs: `calc(${MOBILE_TAB_BAR_RESERVE}px + env(safe-area-inset-bottom, 0px))`, md: 4 },
       }}
     >
       <Container maxWidth="xl" sx={{ px: homeUi.containerPx }}>

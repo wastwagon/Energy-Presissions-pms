@@ -92,7 +92,9 @@ export const publicUi = {
   },
 
   bottomNav: {
-    bg: '#ffffff',
+    bg: 'rgba(255, 255, 255, 0.72)',
+    backdropFilter: 'saturate(180%) blur(20px)',
+    WebkitBackdropFilter: 'saturate(180%) blur(20px)',
     border: '1px solid rgba(0, 0, 0, 0.06)',
     shadow: '0 -4px 24px rgba(10, 14, 23, 0.06)',
     active: colors.green,

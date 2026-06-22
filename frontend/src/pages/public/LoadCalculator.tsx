@@ -27,6 +27,8 @@ import {
   TableRow,
   CircularProgress,
   Grid,
+  useTheme,
+  useMediaQuery,
 } from '@mui/material';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import AddIcon from '@mui/icons-material/Add';
@@ -42,6 +44,9 @@ import { homeUi } from '../../theme/homeUi';
 import { publicUi } from '../../theme/publicUi';
 import { formatApiErrorDetail } from '../../utils/apiErrorMessage';
 import { ballparkSizingFromDailyKwh } from '../../utils/solarSizingApprox';
+import PublicStickyMobileCta from '../../components/public/PublicStickyMobileCta';
+import { hapticTap } from '../../utils/haptics';
+import { MOBILE_STICKY_CTA_RESERVE } from '../../utils/mobileChrome';
 
 type CatalogTemplate = {
   category: string;
@@ -113,7 +118,77 @@ function buildContactPrefill(lines: CartLine[], preview: PreviewResult): string 
   ].join('\n');
 }
 
+type LoadLineCardProps = {
+  line: CartLine;
+  onUpdate: (key: string, patch: Partial<CartLine>) => void;
+  onRemove: (key: string) => void;
+};
+
+const LoadLineCard: React.FC<LoadLineCardProps> = ({ line, onUpdate, onRemove }) => (
+  <Box
+    sx={{
+      p: 2,
+      borderRadius: homeUi.innerRadius,
+      border: `1px solid ${colors.gray200}`,
+      bgcolor: '#fff',
+    }}
+  >
+    <Box display="flex" justifyContent="space-between" alignItems="flex-start" gap={1} mb={1.5}>
+      <Box flex={1} minWidth={0}>
+        <Typography variant="body2" fontWeight={700}>
+          {line.name}
+        </Typography>
+        <Typography variant="caption" color="text.secondary" display="block">
+          {line.description}
+        </Typography>
+        <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 0.5 }}>
+          {line.power_value} {line.power_unit}
+        </Typography>
+      </Box>
+      <IconButton
+        aria-label="Remove appliance"
+        onClick={() => onRemove(line.key)}
+        sx={{ minWidth: 44, minHeight: 44, flexShrink: 0 }}
+      >
+        <DeleteOutlineIcon />
+      </IconButton>
+    </Box>
+    <Grid container spacing={1.5}>
+      <Grid item xs={6}>
+        <TextField
+          fullWidth
+          size="small"
+          label="Qty"
+          type="number"
+          inputProps={{ min: 1, max: 500, step: 1 }}
+          value={line.quantity}
+          onChange={(e) => {
+            const v = parseInt(e.target.value, 10);
+            onUpdate(line.key, { quantity: Number.isFinite(v) ? v : 1 });
+          }}
+        />
+      </Grid>
+      <Grid item xs={6}>
+        <TextField
+          fullWidth
+          size="small"
+          label="Hours / day"
+          type="number"
+          inputProps={{ min: 0.1, max: 24, step: 0.5 }}
+          value={line.hours_per_day}
+          onChange={(e) => {
+            const v = parseFloat(e.target.value);
+            onUpdate(line.key, { hours_per_day: Number.isFinite(v) ? v : 1 });
+          }}
+        />
+      </Grid>
+    </Grid>
+  </Box>
+);
+
 const LoadCalculator: React.FC = () => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const { sections } = useCmsPage('load_calculator');
   const seo = resolveCmsSeo(sections, {
     title: 'Home & Business Load Calculator | Appliances | Energy Precisions',
@@ -280,6 +355,7 @@ const LoadCalculator: React.FC = () => {
 
   const goToQuote = () => {
     if (!preview || lines.length === 0) return;
+    hapticTap();
     sessionStorage.setItem('ep_load_prefill', summaryText);
     navigate('/contact?action=quote&topic=load');
   };
@@ -342,7 +418,17 @@ const LoadCalculator: React.FC = () => {
         wrapContent={false}
       >
       <Box sx={{ bgcolor: homeUi.pageBg }}>
-      <Container maxWidth="lg" sx={{ py: { xs: 3, md: 4 }, px: publicUi.containerPx }}>
+      <Container
+        maxWidth="lg"
+        sx={{
+          py: { xs: 3, md: 4 },
+          px: publicUi.containerPx,
+          pb:
+            isMobile && preview
+              ? `calc(${MOBILE_STICKY_CTA_RESERVE}px + 24px + env(safe-area-inset-bottom, 0px))`
+              : undefined,
+        }}
+      >
         <Alert severity="info" sx={{ mb: 2 }}>
           This page calls our API for calculations so totals stay aligned with Energy Precisions’ PMS. It is not a
           quotation or guarantee.
@@ -361,7 +447,7 @@ const LoadCalculator: React.FC = () => {
             startIcon={<AddIcon />}
             onClick={openAddDialog}
             disabled={catalogLoading || !!catalogError}
-            sx={{ textTransform: 'none', alignSelf: { xs: 'stretch', md: 'center' } }}
+            sx={{ textTransform: 'none', ...homeUi.touchTarget }}
           >
             Add from catalog
           </Button>
@@ -374,13 +460,14 @@ const LoadCalculator: React.FC = () => {
               />
             }
             label="Apply load diversity (typical simultaneous use)"
+            sx={{ minHeight: 48, mx: 0 }}
           />
-          <Box sx={{ flex: 1 }} />
+          <Box sx={{ flex: 1, display: { xs: 'none', md: 'block' } }} />
           <Button
             variant="outlined"
             onClick={() => runPreview()}
             disabled={lines.length === 0 || previewLoading}
-            sx={{ textTransform: 'none' }}
+            sx={{ textTransform: 'none', ...homeUi.touchTarget }}
           >
             {previewLoading ? <CircularProgress size={22} /> : 'Calculate load'}
           </Button>
@@ -390,6 +477,19 @@ const LoadCalculator: React.FC = () => {
           <CardContent sx={{ p: { xs: 2, sm: 2.5 } }}>
             {lines.length === 0 ? (
               <Typography color="text.secondary">No appliances yet. Use “Add from catalog” to begin.</Typography>
+            ) : isMobile ? (
+              <Stack spacing={1.5}>
+                {lines.map((L) => (
+                  <LoadLineCard
+                    key={L.key}
+                    line={L}
+                    onUpdate={(key, patch) =>
+                      setLines((prev) => prev.map((x) => (x.key === key ? { ...x, ...patch } : x)))
+                    }
+                    onRemove={(key) => setLines((prev) => prev.filter((x) => x.key !== key))}
+                  />
+                ))}
+              </Stack>
             ) : (
               <Table size="small">
                 <TableHead>
@@ -543,14 +643,23 @@ const LoadCalculator: React.FC = () => {
               )}
               <Divider sx={{ my: 1.5 }} />
               <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} flexWrap="wrap" alignItems={{ sm: 'center' }}>
-                <Button variant="contained" color="secondary" onClick={goToQuote} sx={{ textTransform: 'none' }}>
+                <Button
+                  variant="contained"
+                  color="secondary"
+                  onClick={goToQuote}
+                  sx={{
+                    textTransform: 'none',
+                    ...homeUi.touchTarget,
+                    display: { xs: 'none', sm: 'inline-flex' },
+                  }}
+                >
                   Request a quote with this load
                 </Button>
                 <Button
                   variant="outlined"
                   startIcon={<ContentCopyIcon />}
                   onClick={() => copySummary()}
-                  sx={{ textTransform: 'none' }}
+                  sx={{ textTransform: 'none', ...homeUi.touchTarget }}
                 >
                   Copy summary
                 </Button>
@@ -573,6 +682,13 @@ const LoadCalculator: React.FC = () => {
       </Box>
       </PublicPageShell>
 
+      {preview && (
+        <PublicStickyMobileCta
+          label="Request a quote with this load"
+          onClick={goToQuote}
+        />
+      )}
+
       <Snackbar
         open={copySnackbar.open}
         autoHideDuration={4000}
@@ -581,7 +697,7 @@ const LoadCalculator: React.FC = () => {
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       />
 
-      <Dialog open={addOpen} onClose={closeAddDialog} maxWidth="sm" fullWidth>
+      <Dialog open={addOpen} onClose={closeAddDialog} maxWidth="sm" fullWidth fullScreen={isMobile}>
         <DialogTitle>Add appliance</DialogTitle>
         <DialogContent>
           <TextField
@@ -600,7 +716,16 @@ const LoadCalculator: React.FC = () => {
               <CircularProgress size={28} />
             </Box>
           )}
-          <List dense sx={{ maxHeight: 360, overflow: 'auto', display: searchLoading ? 'none' : 'block' }}>
+          <List
+            dense
+            sx={{
+              maxHeight: isMobile ? 'none' : 360,
+              flex: isMobile ? 1 : undefined,
+              overflow: 'auto',
+              WebkitOverflowScrolling: 'touch',
+              display: searchLoading ? 'none' : 'block',
+            }}
+          >
             {displayTemplates.slice(0, 250).map((t, idx) => (
               <ListItemButton
                 key={`${idx}-${t.category}-${t.appliance_type}-${t.name}-${t.power_value}`}
@@ -608,6 +733,7 @@ const LoadCalculator: React.FC = () => {
                   setLines((prev) => [...prev, templateToCartLine(t)]);
                   closeAddDialog();
                 }}
+                sx={{ minHeight: 48 }}
               >
                 <ListItemText
                   primary={t.name}

@@ -6,7 +6,7 @@ import {
   Button,
   Container,
   IconButton,
-  Drawer,
+  SwipeableDrawer,
   List,
   ListItem,
   ListItemButton,
@@ -51,6 +51,14 @@ import { UserRole } from '../../types';
 import { useCmsPage } from '../../hooks/useCmsPage';
 import { getCmsDefaults } from '../../data/cmsDefaults';
 import type { CmsHeaderNavItem } from '../../types/cms';
+import { hapticTap } from '../../utils/haptics';
+
+const sheetHandleSx = {
+  width: 36,
+  height: 4,
+  borderRadius: 999,
+  bgcolor: 'rgba(0, 0, 0, 0.18)',
+};
 
 const Header: React.FC = () => {
   const theme = useTheme();
@@ -85,8 +93,13 @@ const Header: React.FC = () => {
   };
 
   const handleDrawerToggle = () => {
-    setMobileOpen(!mobileOpen);
+    setMobileOpen((open) => {
+      if (!open) hapticTap();
+      return !open;
+    });
   };
+
+  const closeDrawer = () => setMobileOpen(false);
 
   const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -137,45 +150,73 @@ const Header: React.FC = () => {
     '&:hover': { color: colors.green },
   };
 
-  const drawer = (
-    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', bgcolor: homeUi.pageBg }}>
+  const mobileMenuSheet = (
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        maxHeight: 'min(85dvh, 640px)',
+        bgcolor: homeUi.pageBg,
+      }}
+      role="presentation"
+      onKeyDown={(e) => {
+        if (e.key === 'Escape') closeDrawer();
+      }}
+    >
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          pt: 1.25,
+          pb: 0.75,
+          flexShrink: 0,
+        }}
+      >
+        <Box sx={sheetHandleSx} aria-hidden />
+      </Box>
       <Box
         sx={{
           px: 2,
-          py: 2,
+          pb: 1,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          bgcolor: colors.blueBlack,
-          color: 'white',
+          flexShrink: 0,
         }}
       >
         <Box>
-          <Typography sx={{ fontWeight: 700, letterSpacing: '-0.02em', fontSize: '1rem' }}>
-            Energy Precisions
-          </Typography>
-          <Typography sx={{ color: 'rgba(255,255,255,0.62)', fontSize: '0.8125rem', mt: 0.25 }}>
+          <Typography sx={{ fontWeight: 700, letterSpacing: '-0.02em', fontSize: '1.0625rem' }}>
             Menu
+          </Typography>
+          <Typography sx={{ color: colors.gray600, fontSize: '0.8125rem', mt: 0.25 }}>
+            Energy Precisions
           </Typography>
         </Box>
         <IconButton
-          onClick={handleDrawerToggle}
+          onClick={closeDrawer}
           aria-label="Close menu"
-          edge="end"
           sx={{
             width: 44,
             height: 44,
             borderRadius: 2,
-            border: '1px solid rgba(255,255,255,0.12)',
-            color: 'white',
-            '&:hover': { bgcolor: 'rgba(255,255,255,0.08)' },
+            border: homeUi.cardBorder,
+            color: colors.blueBlack,
+            '&:hover': { bgcolor: 'rgba(0,0,0,0.04)' },
           }}
         >
           <CloseIcon sx={{ fontSize: 22 }} />
         </IconButton>
       </Box>
       <Divider />
-      <List sx={{ py: 1.5, px: 1, flex: 1 }}>
+      <List
+        sx={{
+          py: 1.5,
+          px: 1,
+          flex: 1,
+          overflow: 'auto',
+          WebkitOverflowScrolling: 'touch',
+        }}
+      >
         {menuItems.map((item) => (
           <React.Fragment key={item.label}>
             {item.submenu ? (
@@ -184,11 +225,12 @@ const Header: React.FC = () => {
                   <ListItemButton
                     component={Link}
                     to={item.path}
-                    onClick={handleDrawerToggle}
+                    onClick={closeDrawer}
                     sx={{
                       borderRadius: 2,
                       py: 1.25,
                       px: 1.5,
+                      minHeight: 48,
                       textAlign: 'left',
                       '&:hover': { bgcolor: 'rgba(0, 230, 118, 0.08)' },
                     }}
@@ -204,12 +246,13 @@ const Header: React.FC = () => {
                     <ListItemButton
                       component={Link}
                       to={sub.path}
-                      onClick={handleDrawerToggle}
+                      onClick={closeDrawer}
                       sx={{
                         borderRadius: 2,
                         py: 1,
                         pl: 3,
                         pr: 1.5,
+                        minHeight: 48,
                         textAlign: 'left',
                         borderLeft: `3px solid ${colors.green}`,
                         ml: 1.25,
@@ -229,11 +272,12 @@ const Header: React.FC = () => {
                 <ListItemButton
                   component={Link}
                   to={item.path}
-                  onClick={handleDrawerToggle}
+                  onClick={closeDrawer}
                   sx={{
                     borderRadius: 2,
                     py: 1.15,
                     px: 1.5,
+                    minHeight: 48,
                     textAlign: 'left',
                     ...(isPathActive(item.path)
                       ? { bgcolor: 'rgba(0, 230, 118, 0.12)', borderLeft: `3px solid ${colors.green}` }
@@ -388,11 +432,14 @@ const Header: React.FC = () => {
           key={key}
           component={Link}
           to={to}
+          onClick={() => hapticTap()}
           sx={{
             flex: 1,
             flexDirection: 'column',
-            py: 0.5,
+            py: 0.75,
             px: 0.25,
+            minHeight: 48,
+            minWidth: 48,
             borderRadius: 2,
             color: active ? publicUi.bottomNav.active : publicUi.bottomNav.inactive,
             '&:active': { transform: 'scale(0.97)' },
@@ -407,12 +454,17 @@ const Header: React.FC = () => {
     return (
       <ButtonBase
         key={key}
-        onClick={onPress}
+        onClick={() => {
+          hapticTap();
+          onPress?.();
+        }}
         sx={{
           flex: 1,
           flexDirection: 'column',
-          py: 0.5,
+          py: 0.75,
           px: 0.25,
+          minHeight: 48,
+          minWidth: 48,
           borderRadius: 2,
           color: active ? publicUi.bottomNav.active : publicUi.bottomNav.inactive,
           '&:active': { transform: 'scale(0.97)' },
@@ -481,6 +533,7 @@ const Header: React.FC = () => {
         sx={{
           ...publicUi.appBar,
           color: colors.blueBlack,
+          pt: { xs: 'env(safe-area-inset-top, 0px)', md: 0 },
         }}
       >
         <Container maxWidth="xl" sx={{ px: publicUi.containerPx }}>
@@ -689,6 +742,7 @@ const Header: React.FC = () => {
                   {mobileOpen ? <CloseIcon sx={{ fontSize: 22 }} /> : <MenuIcon sx={{ fontSize: 22 }} />}
                 </IconButton>
               )}
+              {!isMobile && (
               <IconButton
                 component={Link}
                 to="/cart"
@@ -698,22 +752,15 @@ const Header: React.FC = () => {
                   width: 44,
                   height: 44,
                   color: colors.blueBlack,
-                  ...(isMobile
-                    ? {
-                        borderRadius: 2,
-                        border: homeUi.cardBorder,
-                        '&:hover': { bgcolor: 'rgba(0,0,0,0.04)' },
-                      }
-                    : {}),
                 }}
               >
-                <ShoppingCartIcon sx={{ fontSize: isMobile ? 22 : 24 }} />
+                <ShoppingCartIcon sx={{ fontSize: 24 }} />
                 {cartCount > 0 && (
                   <Box
                     sx={{
                       position: 'absolute',
-                      top: isMobile ? 2 : 4,
-                      right: isMobile ? 2 : 4,
+                      top: 4,
+                      right: 4,
                       bgcolor: colors.green,
                       color: colors.blueBlack,
                       borderRadius: '50%',
@@ -730,6 +777,7 @@ const Header: React.FC = () => {
                   </Box>
                 )}
               </IconButton>
+              )}
               {!isMobile && isAuthenticated ? (
                 <>
                   <IconButton onClick={handleMenuClick} color="inherit" aria-label="Account menu" sx={{ color: colors.blueBlack }}>
@@ -762,24 +810,33 @@ const Header: React.FC = () => {
         </Container>
       </AppBar>
 
-      <Drawer
-        variant="temporary"
+      <SwipeableDrawer
+        anchor="bottom"
         open={mobileOpen}
-        onClose={handleDrawerToggle}
+        onClose={closeDrawer}
+        onOpen={() => setMobileOpen(true)}
+        disableSwipeToOpen
+        disableDiscovery
         ModalProps={{ keepMounted: true }}
         sx={{
           display: { xs: 'block', md: 'none' },
           '& .MuiDrawer-paper': {
-            boxSizing: 'border-box',
-            width: { xs: 'min(100vw - 48px, 320px)', sm: 320 },
-            borderTopRightRadius: 16,
-            borderBottomRightRadius: 16,
-            boxShadow: '0 8px 40px rgba(10, 14, 23, 0.18)',
+            borderTopLeftRadius: 20,
+            borderTopRightRadius: 20,
+            maxHeight: 'min(85dvh, 640px)',
+            pb: 'env(safe-area-inset-bottom, 0px)',
+            overflow: 'hidden',
+            bgcolor: homeUi.glass.bgcolor,
+            backdropFilter: homeUi.glass.backdropFilter,
+            WebkitBackdropFilter: homeUi.glass.WebkitBackdropFilter,
+            border: homeUi.glass.border,
+            borderBottom: 'none',
+            boxShadow: '0 -8px 40px rgba(10, 14, 23, 0.14)',
           },
         }}
       >
-        {drawer}
-      </Drawer>
+        {mobileMenuSheet}
+      </SwipeableDrawer>
 
       {/* App-style bottom navigation (mobile / tablet) */}
       {isMobile && (
@@ -796,6 +853,8 @@ const Header: React.FC = () => {
             pt: 0.35,
             pb: 'max(8px, env(safe-area-inset-bottom))',
             bgcolor: publicUi.bottomNav.bg,
+            backdropFilter: publicUi.bottomNav.backdropFilter,
+            WebkitBackdropFilter: publicUi.bottomNav.WebkitBackdropFilter,
             borderTop: publicUi.bottomNav.border,
             boxShadow: publicUi.bottomNav.shadow,
           }}

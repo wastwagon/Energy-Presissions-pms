@@ -17,6 +17,7 @@ import api from '../../services/api';
 import { heroAutoplayMs, resolveHeroSlides } from '../../utils/heroSlides';
 import type { CmsHeroSlide } from '../../types/cms';
 import { resolveMediaUrl } from '../../utils/mediaUrl';
+import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion';
 
 function useSlideImage(slide: CmsHeroSlide, slideIndex: number) {
   const fallback = slide.hero_image || homePageImages.hero;
@@ -55,7 +56,8 @@ const SlideBackground: React.FC<{
   slide: CmsHeroSlide;
   slideIndex: number;
   active: boolean;
-}> = ({ slide, slideIndex, active }) => {
+  reducedMotion: boolean;
+}> = ({ slide, slideIndex, active, reducedMotion }) => {
   const src = useSlideImage(slide, slideIndex);
 
   return (
@@ -65,7 +67,7 @@ const SlideBackground: React.FC<{
         position: 'absolute',
         inset: 0,
         opacity: active ? 1 : 0,
-        transition: 'opacity 0.9s ease-in-out',
+        transition: reducedMotion ? 'none' : 'opacity 0.9s ease-in-out',
         pointerEvents: 'none',
       }}
     >
@@ -82,8 +84,12 @@ const SlideBackground: React.FC<{
           height: '100%',
           objectFit: 'cover',
           objectPosition: 'center center',
-          transform: active ? 'scale(1.06)' : 'scale(1)',
-          transition: active ? 'transform 8s ease-out' : 'transform 0.4s ease-out',
+          transform: active && !reducedMotion ? 'scale(1.06)' : 'scale(1)',
+          transition: reducedMotion
+            ? 'none'
+            : active
+              ? 'transform 8s ease-out'
+              : 'transform 0.4s ease-out',
         }}
         onError={(e) => {
           const target = e.target as HTMLImageElement;
@@ -122,6 +128,7 @@ const HomeHero: React.FC = () => {
   const hero = sections.hero;
   const slides = useMemo(() => resolveHeroSlides(hero), [hero]);
   const autoplayMs = heroAutoplayMs(hero);
+  const reducedMotion = usePrefersReducedMotion();
   const [activeIndex, setActiveIndex] = useState(0);
   const [paused, setPaused] = useState(false);
   const touchStartX = useRef<number | null>(null);
@@ -146,10 +153,10 @@ const HomeHero: React.FC = () => {
   }, [slideCount]);
 
   useEffect(() => {
-    if (!showControls || !autoplayMs || paused) return undefined;
+    if (!showControls || !autoplayMs || paused || reducedMotion) return undefined;
     const timer = window.setInterval(goNext, autoplayMs);
     return () => window.clearInterval(timer);
-  }, [autoplayMs, goNext, paused, showControls]);
+  }, [autoplayMs, goNext, paused, reducedMotion, showControls]);
 
   const handleTouchStart = (event: React.TouchEvent) => {
     touchStartX.current = event.touches[0]?.clientX ?? null;
@@ -177,7 +184,7 @@ const HomeHero: React.FC = () => {
         position: 'relative',
         overflow: 'hidden',
         color: 'white',
-        minHeight: { xs: '72vh', sm: '68vh', md: 620 },
+        minHeight: { xs: '72dvh', sm: '68dvh', md: 620 },
         maxHeight: { md: 760 },
         bgcolor: colors.blueBlack,
       }}
@@ -188,6 +195,7 @@ const HomeHero: React.FC = () => {
           slide={slide}
           slideIndex={index}
           active={index === activeIndex}
+          reducedMotion={reducedMotion}
         />
       ))}
 
@@ -196,7 +204,7 @@ const HomeHero: React.FC = () => {
         sx={{
           position: 'relative',
           zIndex: 2,
-          minHeight: { xs: '72vh', sm: '68vh', md: 620 },
+          minHeight: { xs: '72dvh', sm: '68dvh', md: 620 },
           maxHeight: { md: 760 },
           display: 'flex',
           flexDirection: 'column',
@@ -206,7 +214,7 @@ const HomeHero: React.FC = () => {
         }}
       >
         <Box aria-live="polite" sx={{ maxWidth: 620 }}>
-          <Fade in key={`content-${activeIndex}`} timeout={600}>
+          <Fade in key={`content-${activeIndex}`} timeout={reducedMotion ? 0 : 600}>
             <Box>
               {activeSlide?.badge && (
                 <Chip
@@ -345,7 +353,7 @@ const HomeHero: React.FC = () => {
             >
               {String(activeIndex + 1).padStart(2, '0')} / {String(slideCount).padStart(2, '0')}
             </Typography>
-            <Stack direction="row" spacing={0.75}>
+            <Stack direction="row" spacing={0.25} alignItems="center">
               {slides.map((slide, index) => (
                 <Box
                   key={`dot-${index}`}
@@ -356,16 +364,28 @@ const HomeHero: React.FC = () => {
                   aria-label={`Slide ${index + 1}: ${slide.badge || slide.headline}`}
                   onClick={() => goTo(index)}
                   sx={{
-                    width: index === activeIndex ? 32 : 8,
-                    height: 3,
-                    borderRadius: 999,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: 44,
+                    height: 44,
                     border: 'none',
                     p: 0,
                     cursor: 'pointer',
-                    bgcolor: index === activeIndex ? colors.green : 'rgba(255,255,255,0.35)',
-                    transition: 'width 0.25s ease, background-color 0.25s ease',
+                    bgcolor: 'transparent',
                   }}
-                />
+                >
+                  <Box
+                    aria-hidden
+                    sx={{
+                      width: index === activeIndex ? 32 : 8,
+                      height: 3,
+                      borderRadius: 999,
+                      bgcolor: index === activeIndex ? colors.green : 'rgba(255,255,255,0.35)',
+                      transition: reducedMotion ? 'none' : 'width 0.25s ease, background-color 0.25s ease',
+                    }}
+                  />
+                </Box>
               ))}
             </Stack>
           </Stack>

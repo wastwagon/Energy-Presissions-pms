@@ -22,6 +22,18 @@ import { colors } from '../../theme/colors';
 import { publicUi } from '../../theme/publicUi';
 import { homeUi } from '../../theme/homeUi';
 import { ballparkSizingFromMonthlyKwh } from '../../utils/solarSizingApprox';
+import PublicStickyMobileCta from '../../components/public/PublicStickyMobileCta';
+import { SITE_CTA } from '../../data/siteCta';
+
+const toggleSx = {
+  '& .MuiToggleButton-root': {
+    flex: 1,
+    minHeight: 48,
+    textTransform: 'none' as const,
+    fontWeight: 600,
+    fontSize: '0.875rem',
+  },
+};
 
 const SolarEstimate: React.FC = () => {
   const { sections } = useCmsPage('solar_estimate');
@@ -84,8 +96,8 @@ const SolarEstimate: React.FC = () => {
               exclusive
               value={mode}
               onChange={(_, v) => v && setMode(v)}
-              size="small"
-              sx={{ mb: 2 }}
+              fullWidth
+              sx={{ mb: 2, ...toggleSx }}
             >
               <ToggleButton value="kwh">Monthly kWh</ToggleButton>
               <ToggleButton value="bill">Monthly bill (GHS)</ToggleButton>
@@ -155,8 +167,15 @@ const SolarEstimate: React.FC = () => {
             <Divider sx={{ my: 3 }} />
 
             {result ? (
-              <Box>
-                <Typography variant="h6" sx={{ fontWeight: 800, mb: 1.5 }}>
+              <Box
+                sx={{
+                  p: 2,
+                  borderRadius: homeUi.innerRadius,
+                  bgcolor: colors.offWhite,
+                  border: homeUi.cardBorder,
+                }}
+              >
+                <Typography sx={{ fontWeight: 800, fontSize: { xs: '1.125rem', md: '1.25rem' }, mb: 1.5 }}>
                   Indicative result
                 </Typography>
                 <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
@@ -172,7 +191,8 @@ const SolarEstimate: React.FC = () => {
                   component={RouterLink}
                   to="/contact?action=quote&topic=estimate"
                   variant="contained"
-                  sx={{ ...publicUi.primaryButton, ...homeUi.touchTarget }}
+                  fullWidth
+                  sx={{ ...publicUi.primaryButton, ...homeUi.touchTarget, display: { xs: 'none', md: 'inline-flex' } }}
                 >
                   Get a formal engineered quote
                 </Button>
@@ -183,6 +203,10 @@ const SolarEstimate: React.FC = () => {
           </CardContent>
         </Card>
       </PublicPageShell>
+      <PublicStickyMobileCta
+        label={SITE_CTA.consultation}
+        to="/contact?action=quote&topic=estimate"
+      />
     </>
   );
 };

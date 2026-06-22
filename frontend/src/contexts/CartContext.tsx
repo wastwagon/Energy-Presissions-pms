@@ -3,7 +3,7 @@ import api from '../services/api';
 import { catalogLineUnitPrice } from '../utils/catalogPrice';
 import { useAuth } from './AuthContext';
 
-interface CartItem {
+export interface CartItem {
   id: number;
   product_id: number;
   quantity: number;

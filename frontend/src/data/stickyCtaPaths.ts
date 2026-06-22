@@ -8,6 +8,8 @@ export const STICKY_CTA_PATHS = [
   '/solar-accra',
   '/solar-kumasi',
   '/solar-tamale',
+  '/solar-estimate',
+  '/checkout/success',
 ] as const;
 
 export function pathHasStickyCta(pathname: string): boolean {

@@ -34,6 +34,7 @@ import { productJsonLd } from '../../utils/jsonLd';
 import { colors } from '../../theme/colors';
 import { homeUi } from '../../theme/homeUi';
 import { publicUi } from '../../theme/publicUi';
+import { mobileFixedAboveTabBar } from '../../utils/mobileChrome';
 
 const ProductDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -309,7 +310,7 @@ const ProductDetail: React.FC = () => {
             position: 'fixed',
             left: 0,
             right: 0,
-            bottom: 'calc(56px + env(safe-area-inset-bottom, 0px))',
+            bottom: mobileFixedAboveTabBar(),
             zIndex: theme.zIndex.appBar - 1,
             px: 2,
             py: 1,

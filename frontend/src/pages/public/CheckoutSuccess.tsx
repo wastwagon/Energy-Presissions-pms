@@ -8,27 +8,40 @@ import {
   Alert,
   CircularProgress,
   Stack,
-  Grid,
+  useTheme,
+  useMediaQuery,
 } from '@mui/material';
-import { Link as RouterLink, useSearchParams, useNavigate } from 'react-router-dom';
+import { Link as RouterLink, useSearchParams } from 'react-router-dom';
 import {
   CheckCircle as CheckCircleIcon,
   ArrowForward as ArrowForwardIcon,
   Engineering as EngineeringIcon,
   CardGiftcard as ReferralIcon,
+  RateReview as ReviewsIcon,
 } from '@mui/icons-material';
 import api from '../../services/api';
 import { useCart } from '../../contexts/CartContext';
 import { Seo } from '../../components/Seo';
 import PublicPageShell from '../../components/public/PublicPageShell';
+import PublicStickyMobileCta from '../../components/public/PublicStickyMobileCta';
 import { trackPurchase } from '../../utils/analytics';
 import { colors } from '../../theme/colors';
 import { publicUi } from '../../theme/publicUi';
 import { homeUi } from '../../theme/homeUi';
 
+const nextStepSx = {
+  ...publicUi.secondaryButton,
+  ...homeUi.touchTarget,
+  justifyContent: 'flex-start',
+  px: 2,
+  py: 1.5,
+  textAlign: 'left' as const,
+};
+
 const CheckoutSuccess: React.FC = () => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
   const { clearCart } = useCart();
   const orderNumber = searchParams.get('order');
   const [order, setOrder] = useState<any>(null);
@@ -136,7 +149,7 @@ const CheckoutSuccess: React.FC = () => {
       >
         <Card sx={{ ...publicUi.card, maxWidth: 640, mx: 'auto' }}>
           <CardContent sx={{ p: { xs: 3, md: 4 }, textAlign: 'center' }}>
-            <CheckCircleIcon sx={{ fontSize: 56, color: colors.green, mb: 1.5 }} />
+            <CheckCircleIcon sx={{ fontSize: { xs: 52, md: 56 }, color: colors.green, mb: 1.5 }} />
             <Typography sx={{ ...publicUi.mutedText, mb: 3, lineHeight: 1.65 }}>
               A confirmation email is on its way. Our team will update you on dispatch and delivery.
             </Typography>
@@ -159,46 +172,48 @@ const CheckoutSuccess: React.FC = () => {
               </Box>
             )}
 
-            <Typography sx={{ fontWeight: 700, mb: 2, fontSize: '0.9375rem' }}>What&apos;s next?</Typography>
-            <Grid container spacing={1.5} sx={{ mb: 3 }}>
-              <Grid item xs={12} sm={4}>
-                <Button
-                  fullWidth
-                  variant="outlined"
-                  component={RouterLink}
-                  to="/contact?action=quote&topic=installation"
-                  startIcon={<EngineeringIcon />}
-                  sx={{ ...publicUi.secondaryButton, py: 1.25, height: '100%' }}
-                >
-                  Book installation
-                </Button>
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <Button
-                  fullWidth
-                  variant="outlined"
-                  component={RouterLink}
-                  to="/reviews"
-                  sx={{ ...publicUi.secondaryButton, py: 1.25, height: '100%' }}
-                >
-                  Read client reviews
-                </Button>
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <Button
-                  fullWidth
-                  variant="outlined"
-                  component={RouterLink}
-                  to="/referral"
-                  startIcon={<ReferralIcon />}
-                  sx={{ ...publicUi.secondaryButton, py: 1.25, height: '100%' }}
-                >
-                  Refer & earn
-                </Button>
-              </Grid>
-            </Grid>
+            <Typography sx={{ fontWeight: 700, mb: 2, fontSize: '0.9375rem', textAlign: 'left' }}>
+              What&apos;s next?
+            </Typography>
+            <Stack spacing={1.25} sx={{ mb: 3 }}>
+              <Button
+                fullWidth
+                variant="outlined"
+                component={RouterLink}
+                to="/contact?action=quote&topic=installation"
+                startIcon={<EngineeringIcon />}
+                sx={nextStepSx}
+              >
+                Book installation
+              </Button>
+              <Button
+                fullWidth
+                variant="outlined"
+                component={RouterLink}
+                to="/reviews"
+                startIcon={<ReviewsIcon />}
+                sx={nextStepSx}
+              >
+                Read client reviews
+              </Button>
+              <Button
+                fullWidth
+                variant="outlined"
+                component={RouterLink}
+                to="/referral"
+                startIcon={<ReferralIcon />}
+                sx={nextStepSx}
+              >
+                Refer & earn
+              </Button>
+            </Stack>
 
-            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} justifyContent="center">
+            <Stack
+              direction={{ xs: 'column', sm: 'row' }}
+              spacing={1.5}
+              justifyContent="center"
+              sx={{ display: { xs: 'none', md: 'flex' } }}
+            >
               <Button
                 variant="contained"
                 component={RouterLink}
@@ -208,13 +223,22 @@ const CheckoutSuccess: React.FC = () => {
               >
                 Continue shopping
               </Button>
-              <Button variant="text" onClick={() => navigate('/contact')} sx={{ textTransform: 'none', color: colors.blueNavy }}>
+              <Button
+                variant="text"
+                component={RouterLink}
+                to="/contact"
+                sx={{ textTransform: 'none', color: colors.blueNavy, ...homeUi.touchTarget }}
+              >
                 Need help?
               </Button>
             </Stack>
           </CardContent>
         </Card>
       </PublicPageShell>
+
+      {isMobile && (
+        <PublicStickyMobileCta label="Continue shopping" to="/shop" />
+      )}
     </>
   );
 };

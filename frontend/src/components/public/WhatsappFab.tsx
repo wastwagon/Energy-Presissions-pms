@@ -4,6 +4,7 @@ import { Chat as ChatIcon } from '@mui/icons-material';
 import { useLocation } from 'react-router-dom';
 import { COMPANY } from '../../data/companyContact';
 import { pathHasStickyCta } from '../../data/stickyCtaPaths';
+import { mobileFixedAboveTabBar } from '../../utils/mobileChrome';
 
 /** Mobile-only floating WhatsApp — sits above bottom tab bar */
 const WhatsappFab: React.FC = () => {
@@ -23,7 +24,7 @@ const WhatsappFab: React.FC = () => {
       sx={{
         position: 'fixed',
         right: 16,
-        bottom: 'calc(72px + env(safe-area-inset-bottom, 0px))',
+        bottom: mobileFixedAboveTabBar(16),
         zIndex: theme.zIndex.speedDial,
         bgcolor: '#25D366',
         color: '#fff',

@@ -7,15 +7,36 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* iOS-style tap feedback — no default blue flash */
+a,
+button,
+[role='button'],
+.MuiButtonBase-root {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Prevent iOS Safari zoom on form focus (requires ≥16px) */
+@media (max-width: 899px) {
+  input,
+  select,
+  textarea,
+  .MuiInputBase-input {
+    font-size: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
-
-
-
-
-
-
-
-

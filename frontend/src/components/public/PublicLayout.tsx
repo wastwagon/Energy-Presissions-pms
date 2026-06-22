@@ -1,13 +1,18 @@
 import React from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import { Box, useTheme, useMediaQuery } from '@mui/material';
 import Header from './Header';
 import Footer from './Footer';
 import WhatsappFab from './WhatsappFab';
+import { pathHasStickyCta } from '../../data/stickyCtaPaths';
+import { mobileMainPaddingBottom, MOBILE_CHECKOUT_BAR_RESERVE } from '../../utils/mobileChrome';
 
 const PublicLayout: React.FC = () => {
   const theme = useTheme();
   const isMobileNav = useMediaQuery(theme.breakpoints.down('md'));
+  const { pathname } = useLocation();
+  const hasStickyCta = pathHasStickyCta(pathname);
+  const checkoutBarReserve = isMobileNav && pathname === '/checkout' ? MOBILE_CHECKOUT_BAR_RESERVE : 0;
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
@@ -42,8 +47,7 @@ const PublicLayout: React.FC = () => {
         sx={{
           flexGrow: 1,
           outline: 'none',
-          /* Space for fixed app-style bottom bar + iOS safe area */
-          pb: isMobileNav ? 'calc(64px + env(safe-area-inset-bottom, 0px))' : 0,
+          pb: isMobileNav ? mobileMainPaddingBottom(hasStickyCta, checkoutBarReserve) : 0,
         }}
       >
         <Outlet />
