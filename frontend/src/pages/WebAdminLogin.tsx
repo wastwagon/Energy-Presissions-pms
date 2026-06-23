@@ -50,7 +50,8 @@ const WebAdminLogin: React.FC = () => {
       }
     } catch (err: any) {
       console.error('Login error:', err);
-      const errorMessage = formatApiErrorDetail(err) || err.message || 'Login failed. Please check your credentials.';
+      const errorMessage =
+        err.message || formatApiErrorDetail(err.response?.data?.detail) || 'Login failed. Please check your credentials.';
       setError(errorMessage);
       setLoading(false);
     }

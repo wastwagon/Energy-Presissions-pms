@@ -1,6 +1,15 @@
-/** Turn FastAPI / Pydantic `detail` into a short user-facing string. */
+/** Turn FastAPI / Pydantic `detail` (or axios/Error) into a short user-facing string. */
 export function formatApiErrorDetail(detail: unknown): string {
   if (detail == null) return '';
+  if (detail instanceof Error && detail.message) return detail.message;
+  if (typeof detail === 'object' && detail !== null && 'response' in detail) {
+    const axiosDetail = (detail as { response?: { data?: { detail?: unknown } } }).response?.data
+      ?.detail;
+    if (axiosDetail != null) {
+      const nested = formatApiErrorDetail(axiosDetail);
+      if (nested) return nested;
+    }
+  }
   if (typeof detail === 'string') return detail;
   if (Array.isArray(detail)) {
     const parts = detail.map((item) => {
