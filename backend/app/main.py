@@ -275,6 +275,13 @@ def _run_init_and_seed():
                 capture_output=True,
             )
             _log_subprocess_result("create_default_website_admin", web_admin_pr)
+            media_seed_pr = subprocess.run(
+                [sys.executable, "-m", "app.scripts.seed_website_images_to_media"],
+                cwd=str(backend_dir),
+                check=False,
+                capture_output=True,
+            )
+            _log_subprocess_result("seed_website_images_to_media", media_seed_pr)
             subprocess.run([sys.executable, "-m", "app.scripts.seed_ecommerce_products"], cwd=str(backend_dir), check=False, capture_output=True)
             pr = subprocess.run(
                 [sys.executable, "-m", "app.scripts.seed_proforma_catalog_items"],

@@ -1,8 +1,14 @@
 /**
  * Minimal PWA service worker — caches the app shell; network-first for navigations and API.
  */
-const CACHE = 'ep-shell-v2';
+const CACHE = 'ep-shell-v3';
 const SHELL = ['/', '/index.html', '/offline.html', '/manifest.json', '/favicon.svg', '/icons/icon-192.png'];
+
+const shouldBypass = (pathname) =>
+  pathname.startsWith('/api') ||
+  pathname.includes('paystack') ||
+  pathname.startsWith('/web/app') ||
+  pathname.startsWith('/pms');
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -25,20 +31,25 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
 
-  // API and payment flows — always network
-  if (url.pathname.startsWith('/api') || url.pathname.includes('paystack')) return;
+  // API, payments, and admin CMS — always network (no SW interception)
+  if (shouldBypass(url.pathname)) return;
 
   // SPA navigations — network first, fallback to cached shell
   if (request.mode === 'navigate') {
     event.respondWith(
       fetch(request)
         .then((res) => {
-          const copy = res.clone();
-          caches.open(CACHE).then((cache) => cache.put('/index.html', copy));
+          if (res.ok) {
+            const copy = res.clone();
+            caches.open(CACHE).then((cache) => cache.put('/index.html', copy));
+          }
           return res;
         })
         .catch(() =>
-          caches.match('/index.html').then((r) => r || caches.match('/') || caches.match('/offline.html')),
+          caches
+            .match('/index.html')
+            .then((r) => r || caches.match('/') || caches.match('/offline.html'))
+            .then((r) => r || Response.error()),
         ),
     );
     return;
@@ -50,7 +61,8 @@ self.addEventListener('fetch', (event) => {
       const network = fetch(request)
         .then((res) => {
           if (res.ok) {
-            caches.open(CACHE).then((cache) => cache.put(request, res.clone()));
+            const copy = res.clone();
+            caches.open(CACHE).then((cache) => cache.put(request, copy));
           }
           return res;
         })
