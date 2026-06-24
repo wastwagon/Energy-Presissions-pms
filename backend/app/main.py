@@ -231,6 +231,15 @@ def _warn_insecure_production_config():
         logger.warning("SECRET_KEY is still the default — set a strong value in production")
 
 
+def _log_subprocess_result(name: str, result) -> None:
+    """Log non-zero exit codes from idempotent seed subprocesses."""
+    if result.returncode == 0:
+        return
+    stderr = (result.stderr or b"").decode("utf-8", errors="replace")[:800]
+    stdout = (result.stdout or b"").decode("utf-8", errors="replace")[:400]
+    logger.warning("%s exit=%s stderr=%s stdout=%s", name, result.returncode, stderr, stdout)
+
+
 def _run_init_and_seed():
     """Run init_db and seed scripts (idempotent)"""
     try:
@@ -245,7 +254,27 @@ def _run_init_and_seed():
             import subprocess
             import sys
             backend_dir = Path(__file__).parent.parent
-            subprocess.run([sys.executable, "scripts/seed_production.py"], cwd=str(backend_dir), check=False, capture_output=True)
+            seed_pr = subprocess.run(
+                [sys.executable, "scripts/seed_production.py"],
+                cwd=str(backend_dir),
+                check=False,
+                capture_output=True,
+            )
+            _log_subprocess_result("seed_production", seed_pr)
+            admin_pr = subprocess.run(
+                [sys.executable, "-m", "app.scripts.create_default_admin"],
+                cwd=str(backend_dir),
+                check=False,
+                capture_output=True,
+            )
+            _log_subprocess_result("create_default_admin", admin_pr)
+            web_admin_pr = subprocess.run(
+                [sys.executable, "-m", "app.scripts.create_default_website_admin"],
+                cwd=str(backend_dir),
+                check=False,
+                capture_output=True,
+            )
+            _log_subprocess_result("create_default_website_admin", web_admin_pr)
             subprocess.run([sys.executable, "-m", "app.scripts.seed_ecommerce_products"], cwd=str(backend_dir), check=False, capture_output=True)
             pr = subprocess.run(
                 [sys.executable, "-m", "app.scripts.seed_proforma_catalog_items"],
