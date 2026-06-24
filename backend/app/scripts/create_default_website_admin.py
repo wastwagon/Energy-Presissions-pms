@@ -20,7 +20,10 @@ def create_default_website_admin():
     db: Session = SessionLocal()
     try:
         email = os.getenv("DEFAULT_WEBSITE_ADMIN_EMAIL", "webadmin@energyprecisions.com").strip()
-        password = os.getenv("DEFAULT_WEBSITE_ADMIN_PASSWORD", "").strip()
+        password = (
+            os.getenv("DEFAULT_WEBSITE_ADMIN_PASSWORD", "").strip()
+            or os.getenv("DEFAULT_ADMIN_PASSWORD", "").strip()
+        )
         force_reset = os.getenv("FORCE_RESET_WEBSITE_ADMIN_PASSWORD", "false").lower() in ("1", "true", "yes")
         full_name = "Website Administrator"
 
