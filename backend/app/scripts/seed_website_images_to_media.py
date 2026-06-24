@@ -1,9 +1,13 @@
 #!/usr/bin/env python3
 """
-Import bundled /website_images assets into the media library (DB-backed).
+Import bundled public site images into the media library (DB-backed).
 
-Fresh production databases have no media rows — this seeds the library from
-static files shipped with the frontend (fetched via FRONTEND_URL in Docker).
+Sources:
+  - /website_images/*  (logos, service cards, illustrative portfolio PNGs)
+  - /portfolio/*       (real install photos used on the portfolio CMS page)
+
+Fresh production databases have no media rows — files are loaded from disk in dev
+or fetched via FRONTEND_URL in Docker.
 
 Usage:
   python -m app.scripts.seed_website_images_to_media
@@ -28,7 +32,12 @@ from app.services.media_persist import create_db_backed_media_item
 
 IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp", ".gif", ".svg"}
 
-# CMS service/portfolio assets (not always listed in images_manifest.json)
+REPO_ROOT = Path(__file__).resolve().parents[3]
+REPO_WEBSITE_IMAGES = REPO_ROOT / "frontend" / "public" / "website_images"
+REPO_PORTFOLIO = REPO_ROOT / "frontend" / "public" / "portfolio"
+MANIFEST_PATH = Path(__file__).resolve().parents[2] / "website_content" / "images_manifest.json"
+
+# CMS service/portfolio PNGs under /website_images (not in images_manifest.json)
 EXTRA_WEBSITE_IMAGE_FILENAMES = [
     "service-agricultural-productive-use.png",
     "service-battery-storage-solutions.png",
@@ -48,13 +57,21 @@ EXTRA_WEBSITE_IMAGE_FILENAMES = [
     "portfolio-school-solar-project.png",
 ]
 
-REPO_WEBSITE_IMAGES = (
-    Path(__file__).resolve().parents[3] / "frontend" / "public" / "website_images"
-)
-MANIFEST_PATH = Path(__file__).resolve().parents[2] / "website_content" / "images_manifest.json"
+# Real install gallery under /portfolio (videos stay as static /portfolio/*.mp4 URLs)
+EXTRA_PORTFOLIO_FILENAMES = [f"ep-install-{i:02d}.jpg" for i in range(1, 16)]
 
 
-def _collect_filenames() -> list[str]:
+def _scan_public_dir(directory: Path) -> set[str]:
+    names: set[str] = set()
+    if not directory.is_dir():
+        return names
+    for path in directory.iterdir():
+        if path.is_file() and path.suffix.lower() in IMAGE_EXTENSIONS:
+            names.add(path.name)
+    return names
+
+
+def _collect_website_image_filenames() -> list[str]:
     names: set[str] = set(EXTRA_WEBSITE_IMAGE_FILENAMES)
     if MANIFEST_PATH.is_file():
         try:
@@ -65,10 +82,24 @@ def _collect_filenames() -> list[str]:
                     names.add(filename)
         except (json.JSONDecodeError, OSError) as exc:
             print(f"  warning: could not read manifest: {exc}")
-    if REPO_WEBSITE_IMAGES.is_dir():
-        for path in REPO_WEBSITE_IMAGES.iterdir():
-            if path.is_file() and path.suffix.lower() in IMAGE_EXTENSIONS:
-                names.add(path.name)
+    names.update(_scan_public_dir(REPO_WEBSITE_IMAGES))
+    return sorted(names)
+
+
+def _collect_portfolio_filenames() -> list[str]:
+    names: set[str] = set(EXTRA_PORTFOLIO_FILENAMES)
+    try:
+        from app.portfolio_defaults import get_default_portfolio_items
+
+        for item in get_default_portfolio_items():
+            image = str(item.get("image") or "")
+            if image.startswith("/portfolio/"):
+                filename = Path(image).name
+                if Path(filename).suffix.lower() in IMAGE_EXTENSIONS:
+                    names.add(filename)
+    except Exception as exc:
+        print(f"  warning: could not parse portfolio defaults: {exc}")
+    names.update(_scan_public_dir(REPO_PORTFOLIO))
     return sorted(names)
 
 
@@ -77,12 +108,12 @@ def _guess_mime(filename: str) -> str:
     return mime or "application/octet-stream"
 
 
-def _load_bytes(filename: str, base_url: str) -> bytes | None:
-    local_path = REPO_WEBSITE_IMAGES / filename
+def _load_bytes(filename: str, base_url: str, *, public_subdir: str) -> bytes | None:
+    local_path = REPO_ROOT / "frontend" / "public" / public_subdir / filename
     if local_path.is_file():
         return local_path.read_bytes()
 
-    url = f"{base_url.rstrip('/')}/website_images/{filename}"
+    url = f"{base_url.rstrip('/')}/{public_subdir}/{filename}"
     try:
         req = urllib.request.Request(url, headers={"User-Agent": "EnergyPrecisions-MediaSeed/1.0"})
         with urllib.request.urlopen(req, timeout=45) as resp:
@@ -90,16 +121,18 @@ def _load_bytes(filename: str, base_url: str) -> bytes | None:
                 return None
             return resp.read()
     except (urllib.error.URLError, TimeoutError, OSError) as exc:
-        print(f"  skip {filename}: {exc}")
+        print(f"  skip {public_subdir}/{filename}: {exc}")
         return None
 
 
-def _already_imported(db: Session, filename: str) -> bool:
+def _already_imported(db: Session, filename: str, public_subdir: str) -> bool:
     stem = Path(filename).stem
+    tag = f"{public_subdir}/{filename}"
     rows = db.query(MediaItem).filter(
         (MediaItem.original_filename == filename)
         | (MediaItem.filename == filename)
         | (MediaItem.title == filename)
+        | (MediaItem.title == tag)
     ).all()
     for row in rows:
         if row.content:
@@ -109,27 +142,53 @@ def _already_imported(db: Session, filename: str) -> bool:
     return False
 
 
+def _import_public_assets(
+    db: Session,
+    *,
+    base_url: str,
+    public_subdir: str,
+    filenames: list[str],
+) -> int:
+    created = 0
+    for filename in filenames:
+        tag = f"{public_subdir}/{filename}"
+        if _already_imported(db, filename, public_subdir):
+            print(f"  exists: {tag}")
+            continue
+        data = _load_bytes(filename, base_url, public_subdir=public_subdir)
+        if not data:
+            continue
+        item = create_db_backed_media_item(
+            db,
+            contents=data,
+            original_name=filename,
+            mime_type=_guess_mime(filename),
+            title=tag,
+        )
+        created += 1
+        print(f"  imported: {tag} -> {item.url}")
+    return created
+
+
 def seed_website_images_to_media() -> int:
     base_url = os.environ.get("FRONTEND_URL", "https://energyprecisions.com").strip()
     db: Session = SessionLocal()
     created = 0
     try:
-        for filename in _collect_filenames():
-            if _already_imported(db, filename):
-                print(f"  exists: {filename}")
-                continue
-            data = _load_bytes(filename, base_url)
-            if not data:
-                continue
-            item = create_db_backed_media_item(
-                db,
-                contents=data,
-                original_name=filename,
-                mime_type=_guess_mime(filename),
-                title=filename,
-            )
-            created += 1
-            print(f"  imported: {filename} -> {item.url}")
+        print("==> website_images")
+        created += _import_public_assets(
+            db,
+            base_url=base_url,
+            public_subdir="website_images",
+            filenames=_collect_website_image_filenames(),
+        )
+        print("==> portfolio")
+        created += _import_public_assets(
+            db,
+            base_url=base_url,
+            public_subdir="portfolio",
+            filenames=_collect_portfolio_filenames(),
+        )
         return created
     finally:
         db.close()
@@ -137,7 +196,7 @@ def seed_website_images_to_media() -> int:
 
 def main() -> None:
     count = seed_website_images_to_media()
-    print(f"\nDone: {count} website image(s) imported into media library.")
+    print(f"\nDone: {count} public image(s) imported into media library.")
 
 
 if __name__ == "__main__":

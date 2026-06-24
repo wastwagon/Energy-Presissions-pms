@@ -42,7 +42,7 @@ const CmsImageField: React.FC<CmsImageFieldProps> = ({ label, value, onChange, h
     let cancelled = false;
     setLoading(true);
     api
-      .get<MediaItem[]>('/media/', { params: { limit: 60 } })
+      .get<MediaItem[]>('/media/', { params: { limit: 200 } })
       .then((res) => {
         if (!cancelled) setItems(res.data || []);
       })

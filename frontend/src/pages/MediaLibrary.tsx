@@ -124,7 +124,7 @@ const MediaLibrary: React.FC = () => {
   const fetchItems = async () => {
     try {
       setLoading(true);
-      const params = search ? { search } : {};
+      const params = search ? { search, limit: 200 } : { limit: 200 };
       const res = await api.get('/media/', { params });
       setItems(res.data || []);
     } catch (err) {

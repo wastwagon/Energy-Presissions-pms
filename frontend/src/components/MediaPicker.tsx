@@ -50,7 +50,7 @@ const MediaPicker: React.FC<MediaPickerProps> = ({ open, onClose, onSelect, acce
   const fetchItems = async () => {
     try {
       setLoading(true);
-      const params = search ? { search } : {};
+      const params = search ? { search, limit: 200 } : { limit: 200 };
       const res = await api.get('/media/', { params });
       let data = res.data || [];
       if (acceptImagesOnly) {

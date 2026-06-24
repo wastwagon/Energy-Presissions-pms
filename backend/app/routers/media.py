@@ -47,7 +47,7 @@ async def serve_legacy_file_media(item_id: int, db: Session = Depends(get_db)):
 async def list_media(
     search: Optional[str] = None,
     skip: int = 0,
-    limit: int = 50,
+    limit: int = 200,
     db: Session = Depends(get_db),
     current_user: User = Depends(require_role(["admin", "website_admin"])),
 ):
