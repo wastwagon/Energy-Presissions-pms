@@ -12,6 +12,13 @@ export type HybridPackage = {
   customerNote: string;
   /** When stocked inverter exceeds load-tier badge (see package_copy.py) */
   inverterHeadroom?: string;
+  /** Key BOM figures always visible on the card */
+  specs: {
+    inverter: string;
+    storage: string;
+    panels: string;
+    solarKw: string;
+  };
   priceGhs: number;
   highlights: string[];
   components: string[];
@@ -51,14 +58,20 @@ export const HYBRID_PACKAGES: HybridPackage[] = [
     maxWatts: '5,500',
     customerNote:
       '6.5 KVA tier with a matching 6.5 kW inverter. Fifteen panels are sized for this load — no air conditioning in this tier; upgrade if you need AC.',
+    specs: {
+      inverter: '6.5 kW hybrid (1)',
+      storage: '16 kWh LiFePO₄ (1 module)',
+      panels: '15 × 570W tier-1',
+      solarKw: '8.55 kW DC',
+    },
     priceGhs: 140900,
     highlights: ['Entry tier · flats & small homes'],
     components: [
-      '6.5 kVA hybrid inverter',
-      '16 kWh LiFePO₄ battery',
-      'Battery management & monitoring',
+      '6.5 kW hybrid inverter (1)',
+      '16 kWh LiFePO₄ lithium battery (1)',
+      'Battery management & monitoring (1)',
       '570W tier-1 solar panels (15)',
-      'DC/AC protection & changeover',
+      'DC protection, changeover & AC distribution',
       'Roof mounting structure',
       'Cables, MC4, earthing & commissioning',
     ],
@@ -73,14 +86,20 @@ export const HYBRID_PACKAGES: HybridPackage[] = [
     inverterHeadroom: '+25% inverter headroom · AC motor starts',
     customerNote:
       'Badge is 8 KVA (~6,800 W planned use). We install one 10 kW inverter (stocked) for AC starts — still plan within ~6,800 W continuous. Nineteen panels match the 8 KVA tier, not 10 kW maximum.',
+    specs: {
+      inverter: '10 kW hybrid (1)',
+      storage: '32 kWh LiFePO₄ (2 modules)',
+      panels: '19 × 570W tier-1',
+      solarKw: '10.83 kW DC',
+    },
     priceGhs: 194900,
     highlights: ['Popular family home'],
     components: [
-      '10 kW hybrid inverter',
-      '16 kWh LiFePO₄ batteries (2)',
-      'Battery management & monitoring',
+      '10 kW hybrid inverter (1)',
+      '16 kWh LiFePO₄ lithium batteries (2)',
+      'Battery management & monitoring (1)',
       '570W tier-1 solar panels (19)',
-      'DC/AC protection & changeover',
+      'DC protection, changeover & AC distribution',
       'Roof mounting structure',
       'Cables, MC4, earthing & commissioning',
     ],
@@ -94,14 +113,20 @@ export const HYBRID_PACKAGES: HybridPackage[] = [
     maxWatts: '8,500',
     customerNote:
       '10 KVA tier with one 10 kW inverter — aligned. Run up to ~8,500 W continuous; do not run two split AC units on full cool at the same time.',
+    specs: {
+      inverter: '10 kW hybrid (1)',
+      storage: '48 kWh LiFePO₄ (3 modules)',
+      panels: '23 × 570W tier-1',
+      solarKw: '13.11 kW DC',
+    },
     priceGhs: 229900,
     highlights: ['Large home or small office'],
     components: [
-      '10 kVA hybrid inverter',
-      '16 kWh LiFePO₄ batteries (3)',
-      'Battery management & monitoring',
+      '10 kW hybrid inverter (1)',
+      '16 kWh LiFePO₄ lithium batteries (3)',
+      'Battery management & monitoring (1)',
       '570W tier-1 solar panels (23)',
-      'DC/AC protection & changeover',
+      'DC protection, changeover & AC distribution',
       'Roof mounting structure',
       'Cables, MC4, earthing & commissioning',
     ],
@@ -116,14 +141,20 @@ export const HYBRID_PACKAGES: HybridPackage[] = [
     inverterHeadroom: '+8% inverter headroom · dual 6.5 kW sync',
     customerNote:
       '12 KVA tier (~10,200 W planned use). Two 6.5 kW inverters work together (~13 kW available). Twenty-eight panels are sized for 12 KVA load, not 13 kW inverter maximum.',
+    specs: {
+      inverter: '2 × 6.5 kW hybrid (~13 kW sync)',
+      storage: '64 kWh LiFePO₄ (4 modules)',
+      panels: '28 × 570W Jinko / Longi',
+      solarKw: '15.96 kW DC',
+    },
     priceGhs: 286900,
     highlights: ['Executive home · boutique office'],
     components: [
       '6.5 kW hybrid inverters (2, synchronized)',
-      '16 kWh LiFePO₄ batteries (4)',
-      'Battery management & monitoring',
-      '570W Jinko / Longi panels (28)',
-      'Dual MPPT where required, changeover',
+      '16 kWh LiFePO₄ lithium batteries (4)',
+      'Battery management & monitoring (1)',
+      '570W Jinko / Longi solar panels (28)',
+      'DC protection, dual MPPT where required, changeover',
       'Roof mounting structure',
       'Cables, MC4, earthing & commissioning',
     ],
@@ -138,14 +169,20 @@ export const HYBRID_PACKAGES: HybridPackage[] = [
     inverterHeadroom: '+33% inverter headroom · dual 10 kW sync',
     customerNote:
       '15 KVA tier (~12,800 W planned use). Two 10 kW inverters (synchronized, stocked) handle peaks; thirty-five panels are sized for 15 KVA — less solar than the 20 KVA tier on the same inverter pair.',
+    specs: {
+      inverter: '2 × 10 kW hybrid (20 kW sync)',
+      storage: '80 kWh LiFePO₄ (5 modules)',
+      panels: '35 × 570W tier-1',
+      solarKw: '19.95 kW DC',
+    },
     priceGhs: 353900,
     highlights: ['Guest house · shop · church hall'],
     components: [
       '10 kW hybrid inverters (2, synchronized)',
-      '16 kWh LiFePO₄ batteries (5)',
-      'Battery management & monitoring',
-      '570W tier-1 panels (35)',
-      'AC/DC distribution & changeover',
+      '16 kWh LiFePO₄ lithium batteries (5)',
+      'Battery management & monitoring (1)',
+      '570W tier-1 solar panels (35)',
+      'AC/DC distribution boards & changeover',
       'Roof mounting structure',
       'Cables, MC4, earthing & commissioning',
     ],
@@ -159,14 +196,20 @@ export const HYBRID_PACKAGES: HybridPackage[] = [
     maxWatts: '17,000',
     customerNote:
       '20 KVA tier (~17,000 W planned use) with two 10 kW inverters. Forty-six panels match this load; guest-house and hotel loads need a written load schedule on survey.',
+    specs: {
+      inverter: '2 × 10 kW hybrid (20 kW sync)',
+      storage: '96 kWh LiFePO₄ (6 modules)',
+      panels: '46 × 570W tier-1',
+      solarKw: '26.22 kW DC',
+    },
     priceGhs: 447900,
     highlights: ['Hotel wing · office block · multi-tenant'],
     components: [
-      '10 kVA hybrid inverters (2, synchronized)',
-      '16 kWh LiFePO₄ batteries (6)',
-      'Battery management & monitoring',
-      '570W tier-1 panels (46)',
-      'AC/DC distribution & changeover',
+      '10 kW hybrid inverters (2, synchronized)',
+      '16 kWh LiFePO₄ lithium batteries (6)',
+      'Battery management & monitoring (1)',
+      '570W tier-1 solar panels (46)',
+      'AC/DC distribution boards & changeover',
       'Roof mounting structure',
       'Cables, MC4, earthing & commissioning',
     ],

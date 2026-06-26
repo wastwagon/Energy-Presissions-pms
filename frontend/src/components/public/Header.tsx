@@ -682,7 +682,7 @@ const Header: React.FC = () => {
                               to={item.path}
                               sx={dropdownLinkSx(isPathActive(item.path))}
                             >
-                              {item.label === 'Services' ? 'View all services' : 'Blog home'}
+                              {item.label === 'Services' ? 'View all services' : 'View all articles'}
                             </Box>
                             {item.submenu.map((sub) => (
                               <Box

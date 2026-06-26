@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import {
   Box,
@@ -13,13 +13,9 @@ import {
   ListItem,
   ListItemIcon,
   ListItemText,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
   Stack,
 } from '@mui/material';
 import {
-  ExpandMore as ExpandMoreIcon,
   CheckCircle as CheckIcon,
   Phone as PhoneIcon,
   Email as EmailIcon,
@@ -51,7 +47,6 @@ const HybridPackages: React.FC = () => {
   });
   const { hero, packages_section: packagesSection, reading_guide: readingGuide, why_section: whySection } = sections;
   const packages = HYBRID_PACKAGES;
-  const [expanded, setExpanded] = useState<string | false>(packages[0]?.id ?? false);
 
   const secondaryCtaExternal = isExternalLink(hero.secondary_cta_link);
 
@@ -157,7 +152,6 @@ const HybridPackages: React.FC = () => {
                 <Card
                   sx={{
                     height: '100%',
-                    minHeight: { xs: 'auto', lg: 520 },
                     display: 'flex',
                     flexDirection: 'column',
                     borderRadius: 2,
@@ -245,40 +239,58 @@ const HybridPackages: React.FC = () => {
                         sx={{ mb: 1.5, mr: 0.5, fontWeight: 600, fontSize: '0.7rem' }}
                       />
                     ))}
-                    <Accordion
-                      expanded={expanded === pkg.id}
-                      onChange={(_, isExp) => setExpanded(isExp ? pkg.id : false)}
-                      disableGutters
-                      elevation={0}
-                      sx={{
-                        bgcolor: 'transparent',
-                        '&:before': { display: 'none' },
-                      }}
-                    >
-                      <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={{ px: 0, minHeight: 40 }}>
-                        <Typography variant="subtitle2" fontWeight={700}>
-                          What&apos;s included
-                        </Typography>
-                      </AccordionSummary>
-                      <AccordionDetails sx={{ px: 0, pt: 0 }}>
-                        <List dense disablePadding>
-                          {pkg.components.map((line) => (
-                            <ListItem key={line} disableGutters sx={{ py: 0.25 }}>
-                              <ListItemIcon sx={{ minWidth: 28 }}>
-                                <CheckIcon sx={{ fontSize: 16, color: colors.green }} />
-                              </ListItemIcon>
-                              <ListItemText
-                                primary={line}
-                                primaryTypographyProps={{ variant: 'body2', fontSize: '0.8rem' }}
-                              />
-                            </ListItem>
-                          ))}
-                        </List>
-                        <Typography variant="caption" sx={{ color: colors.gray600, display: 'block', mt: 1 }}>
-                          <strong>Typical loads (stagger heavy items):</strong> {pkg.appliances}
-                        </Typography>
-                      </AccordionDetails>
-                    </Accordion>
+                    <Grid container spacing={1} sx={{ mb: 1.5 }}>
+                      {(
+                        [
+                          { label: 'Inverter', value: pkg.specs.inverter },
+                          { label: 'Storage', value: pkg.specs.storage },
+                          { label: 'Panels', value: pkg.specs.panels },
+                          { label: 'PV array', value: pkg.specs.solarKw },
+                        ] as const
+                      ).map((spec) => (
+                        <Grid item xs={6} key={spec.label}>
+                          <Box
+                            sx={{
+                              p: 1,
+                              borderRadius: 1,
+                              bgcolor: colors.offWhite,
+                              border: '1px solid',
+                              borderColor: colors.gray200,
+                              height: '100%',
+                            }}
+                          >
+                            <Typography
+                              variant="caption"
+                              sx={{ color: colors.gray600, fontWeight: 700, textTransform: 'uppercase', fontSize: '0.62rem' }}
+                            >
+                              {spec.label}
+                            </Typography>
+                            <Typography variant="body2" sx={{ fontWeight: 700, fontSize: '0.78rem', lineHeight: 1.35, mt: 0.25 }}>
+                              {spec.value}
+                            </Typography>
+                          </Box>
+                        </Grid>
+                      ))}
+                    </Grid>
+                    <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 0.75 }}>
+                      What&apos;s included
+                    </Typography>
+                    <List dense disablePadding>
+                      {pkg.components.map((line) => (
+                        <ListItem key={line} disableGutters sx={{ py: 0.25 }}>
+                          <ListItemIcon sx={{ minWidth: 28 }}>
+                            <CheckIcon sx={{ fontSize: 16, color: colors.green }} />
+                          </ListItemIcon>
+                          <ListItemText
+                            primary={line}
+                            primaryTypographyProps={{ variant: 'body2', fontSize: '0.8rem' }}
+                          />
+                        </ListItem>
+                      ))}
+                    </List>
+                    <Typography variant="caption" sx={{ color: colors.gray600, display: 'block', mt: 1 }}>
+                      <strong>Typical loads (stagger heavy items):</strong> {pkg.appliances}
+                    </Typography>
                   </CardContent>
                   <Box sx={{ px: 2, pb: 2 }}>
                     <Button

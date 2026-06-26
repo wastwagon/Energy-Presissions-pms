@@ -19,18 +19,6 @@ import { colors } from '../../theme/colors';
 import { homeUi } from '../../theme/homeUi';
 import { publicUi } from '../../theme/publicUi';
 
-function panelCount(components: string[]): string {
-  const line = components.find((c) => /panels/i.test(c));
-  if (!line) return '—';
-  const m = line.match(/\((\d+)\)/);
-  return m ? m[1] : line.replace(/.*panels?\s*/i, '').trim() || '—';
-}
-
-function batterySummary(components: string[]): string {
-  const line = components.find((c) => /LiFePO|battery|kWh/i.test(c));
-  return line ? line.replace(/\s*\(\d+\)\s*$/, '').trim() : '—';
-}
-
 type Props = {
   packages?: HybridPackage[];
 };
@@ -60,7 +48,7 @@ const PackageComparisonTable: React.FC<Props> = ({ packages = HYBRID_PACKAGES })
         Compare packages at a glance
       </Typography>
       <Typography sx={{ ...publicUi.mutedText, textAlign: 'center', mb: 2.5, fontSize: '0.875rem' }}>
-        Compare load tiers, storage and panels — contact us for a free site assessment and tailored quote.
+        Compare load tiers, inverter, storage, panels and PV size — contact us for a free site assessment and tailored quote.
       </Typography>
 
       {isMobile ? (
@@ -73,8 +61,10 @@ const PackageComparisonTable: React.FC<Props> = ({ packages = HYBRID_PACKAGES })
                 </Typography>
                 {specRow('Load', pkg.kvaLabel)}
                 {specRow('Max watts', `${pkg.maxWatts} W`)}
-                {specRow('Battery', batterySummary(pkg.components))}
-                {specRow('Panels', panelCount(pkg.components))}
+                {specRow('Inverter', pkg.specs.inverter)}
+                {specRow('Storage', pkg.specs.storage)}
+                {specRow('Panels', pkg.specs.panels)}
+                {specRow('PV array', pkg.specs.solarKw)}
               </CardContent>
             </Card>
           ))}
@@ -82,10 +72,10 @@ const PackageComparisonTable: React.FC<Props> = ({ packages = HYBRID_PACKAGES })
       ) : (
         <Card sx={{ ...publicUi.card, overflow: 'hidden' }}>
           <TableContainer sx={{ overflowX: 'auto' }}>
-            <Table size="small" sx={{ minWidth: 640 }}>
+            <Table size="small" sx={{ minWidth: 900 }}>
               <TableHead>
                 <TableRow sx={{ bgcolor: colors.offWhite }}>
-                  {['Tier', 'Load (kVA)', 'Max W', 'Battery', 'Panels'].map((h) => (
+                  {['Tier', 'Load', 'Max W', 'Inverter', 'Storage', 'Panels', 'PV'].map((h) => (
                     <TableCell key={h} sx={{ fontWeight: 700, whiteSpace: 'nowrap', borderColor: colors.gray200 }}>
                       {h}
                     </TableCell>
@@ -98,10 +88,16 @@ const PackageComparisonTable: React.FC<Props> = ({ packages = HYBRID_PACKAGES })
                     <TableCell sx={{ fontWeight: 600, borderColor: colors.gray200 }}>{pkg.badge}</TableCell>
                     <TableCell sx={{ borderColor: colors.gray200 }}>{pkg.kvaLabel}</TableCell>
                     <TableCell sx={{ borderColor: colors.gray200 }}>{pkg.maxWatts} W</TableCell>
-                    <TableCell sx={{ ...publicUi.mutedText, fontSize: '0.8125rem', borderColor: colors.gray200 }}>
-                      {batterySummary(pkg.components)}
+                    <TableCell sx={{ ...publicUi.mutedText, fontSize: '0.75rem', borderColor: colors.gray200, maxWidth: 140 }}>
+                      {pkg.specs.inverter}
                     </TableCell>
-                    <TableCell sx={{ borderColor: colors.gray200 }}>{panelCount(pkg.components)}</TableCell>
+                    <TableCell sx={{ ...publicUi.mutedText, fontSize: '0.75rem', borderColor: colors.gray200, whiteSpace: 'nowrap' }}>
+                      {pkg.specs.storage}
+                    </TableCell>
+                    <TableCell sx={{ borderColor: colors.gray200, fontSize: '0.8125rem' }}>{pkg.specs.panels}</TableCell>
+                    <TableCell sx={{ borderColor: colors.gray200, fontWeight: 600, whiteSpace: 'nowrap' }}>
+                      {pkg.specs.solarKw}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>

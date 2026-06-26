@@ -595,7 +595,6 @@ const DEFAULTS: PageDefaultsMap = {
           label: 'Resources',
           path: '/blog',
           submenu: [
-            { label: 'Blog', path: '/blog' },
             { label: 'Solar estimate', path: '/solar-estimate' },
             { label: 'Load calculator', path: '/load-calculator' },
             { label: 'Referral program', path: '/referral' },
