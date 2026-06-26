@@ -32,7 +32,6 @@ import type {
   LocationCmsItem,
 } from '../../types/cms';
 import { resolveHeroSlides } from '../../utils/heroSlides';
-import { HYBRID_PACKAGES } from '../../data/hybridPackages';
 import CmsImageField from './CmsImageField';
 
 const PAGES: CmsPageSlug[] = [
@@ -436,19 +435,6 @@ const CmsPageEditor: React.FC = () => {
         items[index] = { ...items[index], [field]: value };
       }
       return { ...s, items };
-    });
-  };
-
-  const setTierPrice = (pkgId: string, value: string) => {
-    setSections((s) => {
-      const tierPrices = { ...((s.tier_prices as Record<string, number>) || {}) };
-      const parsed = Number(value.replace(/,/g, ''));
-      if (!value.trim() || Number.isNaN(parsed) || parsed <= 0) {
-        delete tierPrices[pkgId];
-      } else {
-        tierPrices[pkgId] = Math.round(parsed);
-      }
-      return { ...s, tier_prices: tierPrices };
     });
   };
 
@@ -980,30 +966,6 @@ const CmsPageEditor: React.FC = () => {
             <TextField size="small" fullWidth label="Subtitle" value={packagesSection.subtitle || ''} onChange={(e) => setPackagesSection('subtitle', e.target.value)} multiline minRows={2} />
           </Paper>
           <Paper variant="outlined" sx={{ p: 2.5, mb: 2 }}>
-            <Typography variant="subtitle1" sx={{ fontWeight: 800, mb: 1 }}>Package prices (GHS)</Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-              Override turnkey prices per tier. Leave blank to use bundled defaults from code.
-            </Typography>
-            {HYBRID_PACKAGES.map((pkg) => {
-              const tierPrices = (sections.tier_prices || {}) as Record<string, number>;
-              const override = tierPrices[pkg.id];
-              return (
-                <TextField
-                  key={pkg.id}
-                  size="small"
-                  fullWidth
-                  sx={{ mb: 1.5 }}
-                  label={`${pkg.kvaLabel} (${pkg.badge})`}
-                  type="number"
-                  placeholder={String(pkg.priceGhs)}
-                  value={override ?? ''}
-                  onChange={(e) => setTierPrice(pkg.id, e.target.value)}
-                  inputProps={{ min: 0, step: 100 }}
-                />
-              );
-            })}
-          </Paper>
-          <Paper variant="outlined" sx={{ p: 2.5, mb: 2 }}>
             <Typography variant="subtitle1" sx={{ fontWeight: 800, mb: 2 }}>Reading guide</Typography>
             <TextField size="small" fullWidth sx={{ mb: 1.5 }} label="Title" value={readingGuide.title || ''} onChange={(e) => setReadingGuide('title', e.target.value)} />
             <TextField size="small" fullWidth label="Points (one per line)" value={featuresToText(readingGuide.points)} onChange={(e) => setReadingGuide('points_text', e.target.value)} multiline minRows={6} />
@@ -1020,7 +982,7 @@ const CmsPageEditor: React.FC = () => {
             ))}
             <TextField size="small" fullWidth sx={{ mb: 2 }} label="Footer points (one per line)" value={featuresToText(whySection.footer_points)} onChange={(e) => setWhyFooterPoints(e.target.value)} multiline minRows={6} />
             <TextField size="small" fullWidth sx={{ mb: 1.5 }} label="Warranty note" value={whySection.warranty_note || ''} onChange={(e) => setWhySection('warranty_note', e.target.value)} multiline minRows={2} />
-            <TextField size="small" fullWidth sx={{ mb: 1.5 }} label="Validity note" value={whySection.validity_note || ''} onChange={(e) => setWhySection('validity_note', e.target.value)} />
+            <TextField size="small" fullWidth sx={{ mb: 1.5 }} label="Site assessment note" value={whySection.validity_note || ''} onChange={(e) => setWhySection('validity_note', e.target.value)} />
             <TextField size="small" fullWidth label="Contact CTA text" value={whySection.contact_cta_text || ''} onChange={(e) => setWhySection('contact_cta_text', e.target.value)} />
           </Paper>
         </>

@@ -26,7 +26,7 @@ export const HYBRID_PACKAGE_READING_GUIDE = {
     'Inverter line = equipment we stock; it may be larger than the kVA badge for AC starts and reliability.',
     'Panel count = sized to the kVA load tier, not to fill a larger inverter — survey may adjust.',
     'Hybrid = solar + lithium + grid (generator-ready); backup hours depend on battery size and night load.',
-    'Turnkey price is from our Accra office; final BOM and price are confirmed after a free site survey.',
+    'Pricing is tailored to your site — book a free assessment and we confirm the final BOM and quote after survey.',
   ],
 } as const;
 
@@ -37,7 +37,8 @@ export const HYBRID_PACKAGE_BRAND = {
   documentTitle: 'Hybrid Lithium Solar Packages',
   subtitle:
     'Hybrid solar with lithium backup (grid + generator ready). Turnkey supply, roof mounting, protection, commissioning, and monitoring.',
-  validityNote: 'Prices valid until December 2026. Final design is confirmed after a free site survey.',
+  validityNote:
+    'Every project starts with a free site assessment — final design and pricing are confirmed after survey.',
   warrantyNote:
     'Premium 16 kWh LiFePO₄ batteries · 5-year battery warranty (manufacturer) · 2-year workmanship on installation.',
 };

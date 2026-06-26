@@ -92,7 +92,7 @@ const DEFAULTS: PageDefaultsMap = {
           image_overlay: 'Hybrid · Lithium · Monitoring',
           primary_cta_text: 'View hybrid packages',
           primary_cta_link: '/solar-packages',
-          secondary_cta_text: 'Book site survey',
+          secondary_cta_text: 'Book site assessment',
           secondary_cta_link: '/contact?action=quote&topic=package',
         },
         {
@@ -662,14 +662,14 @@ const DEFAULTS: PageDefaultsMap = {
     seo: {
       title: 'Hybrid Lithium Solar Packages Ghana | Energy Precisions',
       description:
-        'Turnkey 6.5–20 kVA hybrid lithium solar packages from our Accra office — panels, installation, monitoring and competitive GHS pricing across Ghana.',
+        'Turnkey 6.5–20 kVA hybrid lithium solar packages from our Accra office — panels, installation, monitoring and free site assessment across Ghana.',
     },
     hero: {
       badge: 'LiFePO₄ LITHIUM STORAGE',
       headline: 'Hybrid Lithium Solar Packages',
       description:
         'Hybrid solar with lithium backup (grid + generator ready). Turnkey supply, roof mounting, protection, commissioning, and monitoring.',
-      primary_cta_text: 'Book free site survey',
+      primary_cta_text: 'Book free site assessment',
       primary_cta_link: '/contact?action=quote&topic=package',
       secondary_cta_text: 'Call us',
       secondary_cta_link: 'tel:+233533611611',
@@ -687,7 +687,7 @@ const DEFAULTS: PageDefaultsMap = {
         'Inverter line = equipment we stock; it may be larger than the kVA badge for AC starts and reliability.',
         'Panel count = sized to the kVA load tier, not to fill a larger inverter — survey may adjust.',
         'Hybrid = solar + lithium + grid (generator-ready); backup hours depend on battery size and night load.',
-        'Turnkey price is from our Accra office; final BOM and price are confirmed after a free site survey.',
+        'Pricing is tailored to your site — book a free assessment and we confirm the final BOM and quote after survey.',
       ],
     },
     why_section: {
@@ -712,8 +712,9 @@ const DEFAULTS: PageDefaultsMap = {
       ],
       warranty_note:
         'Premium 16 kWh LiFePO₄ batteries · 5-year battery warranty (manufacturer) · 2-year workmanship on installation.',
-      validity_note: 'Prices valid until December 2026. Final design is confirmed after a free site survey.',
-      contact_cta_text: 'Request a formal quotation',
+      validity_note:
+        'Every project starts with a free site assessment — final design and pricing are confirmed after survey.',
+      contact_cta_text: 'Book free site assessment & quote',
     },
     tier_prices: {},
   },
@@ -889,7 +890,7 @@ const DEFAULTS: PageDefaultsMap = {
       {
         title: 'Quotes, pricing, and projects',
         body:
-          'Solar system sizing, pricing, and availability depend on site survey and engineering assessment. Published package prices, estimator outputs, and load calculator results are indicative only. Final quotations may differ after technical review.',
+          'Solar system sizing, pricing, and availability depend on site survey and engineering assessment. Package tiers, estimator outputs, and load calculator results are indicative only. Final quotations are provided after a free site assessment and may differ after technical review.',
       },
       {
         title: 'Shop and payments',

@@ -37,11 +37,7 @@ import PublicPageShell from '../../components/public/PublicPageShell';
 import PackageComparisonTable from '../../components/public/PackageComparisonTable';
 import { homeUi } from '../../theme/homeUi';
 import { publicUi } from '../../theme/publicUi';
-import {
-  LOAD_CEILING_HELP,
-  formatGhs,
-  resolveHybridPackages,
-} from '../../data/hybridPackages';
+import { HYBRID_PACKAGES, LOAD_CEILING_HELP } from '../../data/hybridPackages';
 
 const isExternalLink = (path: string) =>
   path.startsWith('http') || path.startsWith('tel:') || path.startsWith('mailto:');
@@ -51,10 +47,10 @@ const HybridPackages: React.FC = () => {
   const seo = resolveCmsSeo(sections, {
     title: 'Hybrid Lithium Solar Packages Ghana | Energy Precisions',
     description:
-      'Turnkey 6.5–20 kVA hybrid lithium solar packages from our Accra office — panels, installation, monitoring and competitive GHS pricing across Ghana.',
+      'Turnkey 6.5–20 kVA hybrid lithium solar packages from our Accra office — panels, installation, monitoring and free site assessment across Ghana.',
   });
   const { hero, packages_section: packagesSection, reading_guide: readingGuide, why_section: whySection } = sections;
-  const packages = resolveHybridPackages(sections.tier_prices);
+  const packages = HYBRID_PACKAGES;
   const [expanded, setExpanded] = useState<string | false>(packages[0]?.id ?? false);
 
   const secondaryCtaExternal = isExternalLink(hero.secondary_cta_link);
@@ -218,11 +214,11 @@ const HybridPackages: React.FC = () => {
                     <BoltIcon sx={{ color: colors.green, fontSize: 28, opacity: 0.9 }} />
                   </Box>
                   <Box sx={{ bgcolor: colors.green, color: colors.blueBlack, px: 2, py: 1.25 }}>
-                    <Typography variant="caption" sx={{ fontWeight: 700, textTransform: 'uppercase' }}>
-                      From
+                    <Typography variant="subtitle2" sx={{ fontWeight: 800, lineHeight: 1.25 }}>
+                      Free site assessment &amp; quote
                     </Typography>
-                    <Typography variant="h5" sx={{ fontWeight: 900, lineHeight: 1.1 }}>
-                      {formatGhs(pkg.priceGhs)}
+                    <Typography variant="caption" sx={{ display: 'block', mt: 0.25, opacity: 0.9 }}>
+                      Tailored BOM and pricing after we survey your site and confirm your load.
                     </Typography>
                   </Box>
                   <CardContent sx={{ flexGrow: 1, py: 2 }}>
@@ -290,7 +286,7 @@ const HybridPackages: React.FC = () => {
                       variant="outlined"
                       component={RouterLink}
                       to={`/contact?action=quote&topic=package&message=${encodeURIComponent(
-                        `I'm interested in the ${pkg.kvaLabel} hybrid package (${formatGhs(pkg.priceGhs)}).`
+                        `I'm interested in the ${pkg.kvaLabel} hybrid package. Please arrange a free site assessment and quote.`
                       )}`}
                       sx={{
                         borderColor: colors.blueBlack,
@@ -300,7 +296,7 @@ const HybridPackages: React.FC = () => {
                         '&:hover': { borderColor: colors.green, bgcolor: 'rgba(0,230,118,0.06)' },
                       }}
                     >
-                      Get quote for this package
+                      Request free quote
                     </Button>
                   </Box>
                 </Card>
@@ -434,7 +430,7 @@ const HybridPackages: React.FC = () => {
         </Container>
       </Box>
       </PublicPageShell>
-      <PublicStickyMobileCta label="Book free site survey" to="/contact?action=quote&topic=package" />
+      <PublicStickyMobileCta label="Book free site assessment" to="/contact?action=quote&topic=package" />
     </>
   );
 };

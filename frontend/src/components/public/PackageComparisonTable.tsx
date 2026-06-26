@@ -14,7 +14,7 @@ import {
   useTheme,
   useMediaQuery,
 } from '@mui/material';
-import { HYBRID_PACKAGES, formatGhs, type HybridPackage } from '../../data/hybridPackages';
+import { HYBRID_PACKAGES, type HybridPackage } from '../../data/hybridPackages';
 import { colors } from '../../theme/colors';
 import { homeUi } from '../../theme/homeUi';
 import { publicUi } from '../../theme/publicUi';
@@ -60,7 +60,7 @@ const PackageComparisonTable: React.FC<Props> = ({ packages = HYBRID_PACKAGES })
         Compare packages at a glance
       </Typography>
       <Typography sx={{ ...publicUi.mutedText, textAlign: 'center', mb: 2.5, fontSize: '0.875rem' }}>
-        Turnkey GHS prices from our Accra office — final BOM confirmed after site survey.
+        Compare load tiers, storage and panels — contact us for a free site assessment and tailored quote.
       </Typography>
 
       {isMobile ? (
@@ -68,14 +68,9 @@ const PackageComparisonTable: React.FC<Props> = ({ packages = HYBRID_PACKAGES })
           {packages.map((pkg) => (
             <Card key={pkg.id} sx={publicUi.card}>
               <CardContent sx={{ p: 2 }}>
-                <Box display="flex" justifyContent="space-between" alignItems="baseline" mb={1.5}>
-                  <Typography sx={{ fontWeight: 800, fontSize: '1rem', color: colors.blueBlack }}>
-                    {pkg.badge}
-                  </Typography>
-                  <Typography sx={{ fontWeight: 800, color: colors.greenDark, fontSize: '1rem' }}>
-                    {formatGhs(pkg.priceGhs)}
-                  </Typography>
-                </Box>
+                <Typography sx={{ fontWeight: 800, fontSize: '1rem', color: colors.blueBlack, mb: 1.5 }}>
+                  {pkg.badge}
+                </Typography>
                 {specRow('Load', pkg.kvaLabel)}
                 {specRow('Max watts', `${pkg.maxWatts} W`)}
                 {specRow('Battery', batterySummary(pkg.components))}
@@ -90,7 +85,7 @@ const PackageComparisonTable: React.FC<Props> = ({ packages = HYBRID_PACKAGES })
             <Table size="small" sx={{ minWidth: 640 }}>
               <TableHead>
                 <TableRow sx={{ bgcolor: colors.offWhite }}>
-                  {['Tier', 'Load (kVA)', 'Max W', 'Battery', 'Panels', 'From (GHS)'].map((h) => (
+                  {['Tier', 'Load (kVA)', 'Max W', 'Battery', 'Panels'].map((h) => (
                     <TableCell key={h} sx={{ fontWeight: 700, whiteSpace: 'nowrap', borderColor: colors.gray200 }}>
                       {h}
                     </TableCell>
@@ -107,9 +102,6 @@ const PackageComparisonTable: React.FC<Props> = ({ packages = HYBRID_PACKAGES })
                       {batterySummary(pkg.components)}
                     </TableCell>
                     <TableCell sx={{ borderColor: colors.gray200 }}>{panelCount(pkg.components)}</TableCell>
-                    <TableCell sx={{ fontWeight: 700, color: colors.greenDark, borderColor: colors.gray200, whiteSpace: 'nowrap' }}>
-                      {formatGhs(pkg.priceGhs)}
-                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
