@@ -50,6 +50,7 @@ class BlogPostPublic(BaseModel):
     display_date: str
     read_time: str
     category: str = "Ghana"
+    featured_image: str = ""
 
     class Config:
         from_attributes = True
@@ -161,6 +162,7 @@ class BlogPostAdmin(BaseModel):
     display_date: str = ""
     read_time: str = ""
     category: str = Field(default="Ghana", max_length=64)
+    featured_image: str = Field(default="", max_length=500)
     published: bool = False
     sort_order: int = 0
 

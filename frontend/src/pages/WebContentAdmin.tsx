@@ -48,6 +48,7 @@ interface BlogRow {
   display_date: string;
   read_time: string;
   category: string;
+  featured_image: string;
   published: boolean;
   sort_order: number;
 }
@@ -68,6 +69,7 @@ const emptyBlog: Omit<BlogRow, 'id'> = {
   display_date: '',
   read_time: '',
   category: 'Ghana',
+  featured_image: '',
   published: false,
   sort_order: 0,
 };
@@ -137,6 +139,7 @@ const WebContentAdmin: React.FC = () => {
       display_date: blogForm.display_date,
       read_time: blogForm.read_time,
       category: blogForm.category,
+      featured_image: blogForm.featured_image,
       published: blogForm.published,
       sort_order: blogForm.sort_order,
     };
@@ -332,6 +335,13 @@ const WebContentAdmin: React.FC = () => {
             </Select>
           </FormControl>
           <TextField label="Excerpt" value={blogForm.excerpt} onChange={(e) => setBlogForm({ ...blogForm, excerpt: e.target.value })} multiline minRows={2} />
+          <TextField
+            label="Featured image URL"
+            value={blogForm.featured_image}
+            onChange={(e) => setBlogForm({ ...blogForm, featured_image: e.target.value })}
+            placeholder="e.g. /portfolio/ep-install-01.jpg or /api/media/public/12"
+            helperText="Path under public folder or media library URL shown on blog cards and article page."
+          />
           <TextField label="Body" value={blogForm.body} onChange={(e) => setBlogForm({ ...blogForm, body: e.target.value })} multiline minRows={8} />
           <TextField label="Display date" value={blogForm.display_date} onChange={(e) => setBlogForm({ ...blogForm, display_date: e.target.value })} placeholder="e.g. 2026-04-01" />
           <TextField label="Read time" value={blogForm.read_time} onChange={(e) => setBlogForm({ ...blogForm, read_time: e.target.value })} placeholder="e.g. 5 min read" />
