@@ -25,7 +25,7 @@ import {
 } from '@mui/icons-material';
 import { Seo } from '../../components/Seo';
 import { colors } from '../../theme/colors';
-import { COMPANY } from '../../data/companyContact';
+import { useGlobalSiteConfig } from '../../hooks/useGlobalSiteConfig';
 import { useCmsPage } from '../../hooks/useCmsPage';
 import { resolveCmsSeo } from '../../hooks/useCmsSeo';
 import PublicStickyMobileCta from '../../components/public/PublicStickyMobileCta';
@@ -33,20 +33,21 @@ import PublicPageShell from '../../components/public/PublicPageShell';
 import PackageComparisonTable from '../../components/public/PackageComparisonTable';
 import { homeUi } from '../../theme/homeUi';
 import { publicUi } from '../../theme/publicUi';
-import { HYBRID_PACKAGES, LOAD_CEILING_HELP } from '../../data/hybridPackages';
+import { HYBRID_PACKAGES, LOAD_CEILING_HELP, resolveHybridPackages } from '../../data/hybridPackages';
 
 const isExternalLink = (path: string) =>
   path.startsWith('http') || path.startsWith('tel:') || path.startsWith('mailto:');
 
 const HybridPackages: React.FC = () => {
   const { sections } = useCmsPage('packages');
+  const { contact } = useGlobalSiteConfig();
   const seo = resolveCmsSeo(sections, {
     title: 'Hybrid Lithium Solar Packages Ghana | Energy Precisions',
     description:
       'Turnkey 6.5–20 kVA hybrid lithium solar packages from our Accra office — panels, installation, monitoring and free site assessment across Ghana.',
   });
-  const { hero, packages_section: packagesSection, reading_guide: readingGuide, why_section: whySection } = sections;
-  const packages = HYBRID_PACKAGES;
+  const { hero, packages_section: packagesSection, reading_guide: readingGuide, why_section: whySection, tier_prices: tierPrices } = sections;
+  const packages = resolveHybridPackages(tierPrices);
 
   const secondaryCtaExternal = isExternalLink(hero.secondary_cta_link);
 
@@ -373,50 +374,50 @@ const HybridPackages: React.FC = () => {
                 <Box display="flex" alignItems="center" gap={2} mb={2}>
                   <Box
                     component="img"
-                    src={COMPANY.logoSrc}
-                    alt={COMPANY.logoAlt}
+                    src={contact.logoSrc}
+                    alt={contact.logoAlt}
                     sx={{ height: 48, width: 'auto' }}
                   />
                   <Typography variant="h6" fontWeight={800} color={colors.blueBlack}>
-                    {COMPANY.name}
+                    {contact.name}
                   </Typography>
                 </Box>
                 <Typography variant="subtitle2" sx={{ color: colors.green, fontWeight: 700, mb: 0.5 }}>
-                  {COMPANY.officeHeading.toUpperCase()}
+                  {contact.officeHeading.toUpperCase()}
                 </Typography>
                 <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
-                  {COMPANY.addressFull}
+                  {contact.addressFull}
                 </Typography>
                 <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.8rem', lineHeight: 1.55 }}>
-                  {COMPANY.officeRegionNote}
+                  {contact.officeRegionNote}
                 </Typography>
                 <Stack spacing={1.5} sx={{ mt: 2 }}>
                   <Box display="flex" alignItems="center" gap={1}>
                     <PhoneIcon sx={{ color: colors.green }} />
                     <Typography
                       component="a"
-                      href={COMPANY.phoneHref}
+                      href={contact.phoneHref}
                       variant="body2"
                       sx={{ color: colors.blueBlack, textDecoration: 'none', fontWeight: 600 }}
                     >
-                      {COMPANY.phoneDisplay}
+                      {contact.phoneDisplay}
                     </Typography>
                   </Box>
                   <Box display="flex" alignItems="center" gap={1}>
                     <EmailIcon sx={{ color: colors.green }} />
                     <Typography
                       component="a"
-                      href={`mailto:${COMPANY.emailSales}`}
+                      href={`mailto:${contact.emailSales}`}
                       variant="body2"
                       sx={{ color: colors.blueBlack, textDecoration: 'none' }}
                     >
-                      {COMPANY.emailSales}
+                      {contact.emailSales}
                     </Typography>
                   </Box>
                   <Box display="flex" alignItems="flex-start" gap={1}>
                     <LocationIcon sx={{ color: colors.green, mt: 0.25 }} />
                     <Typography variant="body2" color="text.secondary">
-                      {COMPANY.addressFull}
+                      {contact.addressFull}
                     </Typography>
                   </Box>
                 </Stack>

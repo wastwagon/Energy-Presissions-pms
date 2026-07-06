@@ -22,11 +22,12 @@ import { colors } from '../../theme/colors';
 import { homeUi } from '../../theme/homeUi';
 import { publicUi } from '../../theme/publicUi';
 import { blogPosts, getBlogPost, resolveBlogFeaturedImage, type BlogPost } from '../../data/blogPosts';
-import { SITE_CTA } from '../../data/siteCta';
+import { useGlobalSiteConfig } from '../../hooks/useGlobalSiteConfig';
 import { resolveMediaUrl } from '../../utils/mediaUrl';
 import api from '../../services/api';
 
 const BlogPostPage: React.FC = () => {
+  const { cta } = useGlobalSiteConfig();
   const { slug } = useParams<{ slug: string }>();
   const [post, setPost] = useState<(BlogPost & { featuredImage: string }) | null>(null);
   const [loading, setLoading] = useState(true);
@@ -229,13 +230,13 @@ const BlogPostPage: React.FC = () => {
               </Typography>
               <Button
                 component={RouterLink}
-                to={SITE_CTA.quoteHref}
+                to={cta.quoteHref}
                 variant="contained"
                 fullWidth
                 endIcon={<ArrowForwardIcon sx={{ fontSize: 18 }} />}
                 sx={{ ...publicUi.primaryButton, ...homeUi.touchTarget, mb: 2 }}
               >
-                {SITE_CTA.consultation}
+                {cta.consultation}
               </Button>
               <Button
                 component={RouterLink}
@@ -304,7 +305,7 @@ const BlogPostPage: React.FC = () => {
           </Box>
         )}
       </PublicPageShell>
-      <PublicStickyMobileCta label={SITE_CTA.consultation} to={SITE_CTA.quoteHref} />
+      <PublicStickyMobileCta label={cta.consultation} to={cta.quoteHref} />
     </>
   );
 };

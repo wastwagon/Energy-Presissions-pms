@@ -35,12 +35,12 @@ import { useCmsPage } from '../../hooks/useCmsPage';
 import { resolveCmsSeo } from '../../hooks/useCmsSeo';
 import PublicPageShell from '../../components/public/PublicPageShell';
 import PublicStickyMobileCta from '../../components/public/PublicStickyMobileCta';
+import { useGlobalSiteConfig } from '../../hooks/useGlobalSiteConfig';
 import Link from '@mui/material/Link';
-import { COMPANY } from '../../data/companyContact';
-import { SITE_CTA } from '../../data/siteCta';
 
 const About: React.FC = () => {
   const { sections } = useCmsPage('about');
+  const { contact, cta, heroStats, impactStats } = useGlobalSiteConfig();
   const seo = resolveCmsSeo(sections, {
     title: 'About Energy Precisions | Ghana Solar Company',
     description:
@@ -93,10 +93,12 @@ const About: React.FC = () => {
     };
   }, [hero.hero_image]);
 
-  const heroStats =
-    hero.stats?.length > 0 ? (
+  const heroStatsDisplay =
+    heroStats.length > 0 ? heroStats : hero.stats?.length ? hero.stats : [];
+  const heroStatsBand =
+    heroStatsDisplay.length > 0 ? (
       <Stack direction="row" spacing={{ xs: 2, sm: 3 }} flexWrap="wrap" useFlexGap>
-        {hero.stats.map((s) => (
+        {heroStatsDisplay.map((s) => (
           <Box key={s.label}>
             <Typography sx={{ fontWeight: 800, color: colors.green, lineHeight: 1.1, fontSize: '1.25rem' }}>
               {s.value}
@@ -109,6 +111,13 @@ const About: React.FC = () => {
       </Stack>
     ) : undefined;
 
+  const impactSection =
+    impactStats.items.length > 0
+      ? impactStats
+      : sections.impact_stats?.items?.length
+        ? sections.impact_stats
+        : impactStats;
+
   return (
     <>
       <Seo title={seo.title} description={seo.description} path="/about" />
@@ -119,7 +128,7 @@ const About: React.FC = () => {
         description={hero.description}
         backgroundImage={aboutHero}
         headlineSize="prominent"
-        heroChildren={heroStats}
+        heroChildren={heroStatsBand}
         wrapContent={false}
       >
       {/* Mission & Vision */}
@@ -468,12 +477,12 @@ const About: React.FC = () => {
                 fontSize: { xs: '2.5rem', md: '3.5rem' },
               }}
             >
-              {sections.impact_stats?.title}
+              {impactSection.title}
             </Typography>
           </Box>
 
           <Grid container spacing={4}>
-            {(sections.impact_stats?.items || []).map((stat, index) => (
+            {(impactSection.items || []).map((stat, index) => (
               <Grid item xs={12} md={4} key={index}>
                 <Card
                   sx={{
@@ -571,7 +580,7 @@ const About: React.FC = () => {
                         {sections.visit_us?.location_title}
                       </Typography>
                       <Typography variant="body1" sx={{ color: colors.gray600 }}>
-                        {sections.visit_us?.location_address || COMPANY.addressFull}
+                        {sections.visit_us?.location_address || contact.addressFull}
                       </Typography>
                     </Box>
                   </Box>
@@ -604,12 +613,12 @@ const About: React.FC = () => {
                 <Stack spacing={2}>
                   <Box display="flex" alignItems="center" gap={2}>
                     <PhoneIcon sx={{ color: colors.green }} />
-                    <Typography variant="body1">{sections.visit_us?.phone || COMPANY.phoneDisplay}</Typography>
+                    <Typography variant="body1">{sections.visit_us?.phone || contact.phoneDisplay}</Typography>
                   </Box>
                   <Box display="flex" alignItems="center" gap={2}>
                     <EmailIcon sx={{ color: colors.green }} />
-                    <Link href={`mailto:${sections.visit_us?.email || COMPANY.emailPrimary}`} color="inherit" underline="hover">
-                      {sections.visit_us?.email || COMPANY.emailPrimary}
+                    <Link href={`mailto:${sections.visit_us?.email || contact.emailPrimary}`} color="inherit" underline="hover">
+                      {sections.visit_us?.email || contact.emailPrimary}
                     </Link>
                   </Box>
                 </Stack>
@@ -619,7 +628,7 @@ const About: React.FC = () => {
         </Container>
       </Box>
       </PublicPageShell>
-      <PublicStickyMobileCta label={SITE_CTA.consultation} to={SITE_CTA.quoteHref} />
+      <PublicStickyMobileCta label={cta.consultation} to={cta.quoteHref} />
     </>
   );
 };

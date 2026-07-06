@@ -23,7 +23,7 @@ import {
   Chat as ChatIcon,
 } from '@mui/icons-material';
 import { useLocation, useSearchParams } from 'react-router-dom';
-import { COMPANY } from '../../data/companyContact';
+import { useGlobalSiteConfig } from '../../hooks/useGlobalSiteConfig';
 import { Seo } from '../../components/Seo';
 import PublicPageShell from '../../components/public/PublicPageShell';
 import { useCmsPage } from '../../hooks/useCmsPage';
@@ -38,10 +38,10 @@ import { colors } from '../../theme/colors';
 import { publicUi } from '../../theme/publicUi';
 import { homeUi } from '../../theme/homeUi';
 import PublicStickyMobileCta from '../../components/public/PublicStickyMobileCta';
-import { SITE_CTA } from '../../data/siteCta';
 
 const Contact: React.FC = () => {
   const { sections } = useCmsPage('contact');
+  const { contact, cta } = useGlobalSiteConfig();
   const [searchParams] = useSearchParams();
   const { search } = useLocation();
   const isQuoteRequest = searchParams.get('action') === 'quote';
@@ -254,8 +254,8 @@ const Contact: React.FC = () => {
         </Grid>
       </PublicPageShell>
       <PublicStickyMobileCta
-        label={isQuoteRequest ? 'Submit quote request' : SITE_CTA.consultation}
-        to={isQuoteRequest ? '/contact?action=quote' : SITE_CTA.quoteHref}
+        label={isQuoteRequest ? 'Submit quote request' : cta.consultation}
+        to={isQuoteRequest ? '/contact?action=quote' : cta.quoteHref}
       />
     </>
   );
@@ -263,7 +263,9 @@ const Contact: React.FC = () => {
 
 const sidebarCardSx = { ...publicUi.card, mb: 2 };
 
-const StackCards: React.FC<{ sections: any }> = ({ sections }) => (
+const StackCards: React.FC<{ sections: any }> = ({ sections }) => {
+  const { contact } = useGlobalSiteConfig();
+  return (
   <Box>
     <Card sx={sidebarCardSx}>
       <CardContent>
@@ -271,8 +273,8 @@ const StackCards: React.FC<{ sections: any }> = ({ sections }) => (
           <PhoneIcon sx={{ color: colors.green, fontSize: '2rem' }} />
           <Box>
             <Typography sx={{ fontWeight: 700 }}>{sections.sidebar?.phone_label}</Typography>
-            <Link href={COMPANY.phoneHref} underline="none" sx={{ ...publicUi.mutedText, fontSize: '0.875rem' }}>
-              {COMPANY.phoneDisplay}
+            <Link href={contact.phoneHref} underline="none" sx={{ ...publicUi.mutedText, fontSize: '0.875rem' }}>
+              {contact.phoneDisplay}
             </Link>
           </Box>
         </Box>
@@ -284,8 +286,8 @@ const StackCards: React.FC<{ sections: any }> = ({ sections }) => (
           <ChatIcon sx={{ color: colors.green, fontSize: '2rem' }} />
           <Box>
             <Typography sx={{ fontWeight: 700 }}>WhatsApp</Typography>
-            <Link href={COMPANY.whatsappHref} target="_blank" rel="noopener noreferrer" underline="none" sx={{ ...publicUi.mutedText, fontSize: '0.875rem' }}>
-              {COMPANY.whatsappDisplay}
+            <Link href={contact.whatsappHref} target="_blank" rel="noopener noreferrer" underline="none" sx={{ ...publicUi.mutedText, fontSize: '0.875rem' }}>
+              {contact.whatsappDisplay}
             </Link>
           </Box>
         </Box>
@@ -297,8 +299,8 @@ const StackCards: React.FC<{ sections: any }> = ({ sections }) => (
           <EmailIcon sx={{ color: colors.green, fontSize: '2rem' }} />
           <Box>
             <Typography sx={{ fontWeight: 700 }}>{sections.sidebar?.email_label}</Typography>
-            <Link href={`mailto:${COMPANY.emailSales}`} underline="none" sx={{ ...publicUi.mutedText, fontSize: '0.875rem' }}>
-              {COMPANY.emailSales}
+            <Link href={`mailto:${contact.emailSales}`} underline="none" sx={{ ...publicUi.mutedText, fontSize: '0.875rem' }}>
+              {contact.emailSales}
             </Link>
           </Box>
         </Box>
@@ -310,7 +312,7 @@ const StackCards: React.FC<{ sections: any }> = ({ sections }) => (
           <LocationIcon sx={{ color: colors.green, fontSize: '2rem' }} />
           <Box>
             <Typography sx={{ fontWeight: 700 }}>{sections.sidebar?.location_label}</Typography>
-            <Typography sx={{ ...publicUi.mutedText, fontSize: '0.875rem' }}>{COMPANY.addressFull}</Typography>
+            <Typography sx={{ ...publicUi.mutedText, fontSize: '0.875rem' }}>{contact.addressFull}</Typography>
             <Typography sx={{ ...publicUi.mutedText, fontSize: '0.8125rem', mt: 1 }}>
               We typically respond within one business day.
             </Typography>
@@ -319,6 +321,7 @@ const StackCards: React.FC<{ sections: any }> = ({ sections }) => (
       </CardContent>
     </Card>
   </Box>
-);
+  );
+};
 
 export default Contact;

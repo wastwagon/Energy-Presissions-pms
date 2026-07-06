@@ -33,12 +33,26 @@ import api from '../../services/api';
 import { useCmsPage } from '../../hooks/useCmsPage';
 import { resolveCmsSeo } from '../../hooks/useCmsSeo';
 import PublicStickyMobileCta from '../../components/public/PublicStickyMobileCta';
-import { SITE_CTA } from '../../data/siteCta';
+import { useGlobalSiteConfig } from '../../hooks/useGlobalSiteConfig';
 import { resolveMediaUrl } from '../../utils/mediaUrl';
+
+const SERVICE_ANCHOR_BY_TITLE: Record<string, string> = {
+  'Residential Solar': 'residential',
+  'Commercial Solar': 'commercial',
+  'Industrial Solar': 'industrial',
+  'Agricultural & Productive Use': 'agricultural',
+  'Battery Storage': 'battery',
+};
+
+const serviceAnchorFor = (title: string, link?: string) => {
+  if (link?.startsWith('/services#')) return link.slice('/services#'.length);
+  return SERVICE_ANCHOR_BY_TITLE[title] || title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+};
 
 const Services: React.FC = () => {
   const { pathname } = useLocation();
   const { sections } = useCmsPage('services');
+  const { cta } = useGlobalSiteConfig();
   const seo = resolveCmsSeo(sections, {
     title: 'Solar Services Ghana | Residential, Commercial & Industrial',
     description:
@@ -88,8 +102,9 @@ const Services: React.FC = () => {
           <Grid container spacing={{ xs: 2, md: 3 }}>
             {(sections.service_cards?.items || []).map((service, index) => {
               const cardColor = serviceCardColors[index % 2];
+              const anchorId = serviceAnchorFor(service.title, service.link);
               return (
-              <Grid item xs={12} md={6} key={index}>
+              <Grid item xs={12} md={6} key={index} id={anchorId} sx={{ scrollMarginTop: { xs: 84, md: 112 } }}>
                 <Card
                   sx={{
                     height: '100%',
@@ -463,7 +478,7 @@ const Services: React.FC = () => {
         </Container>
       </Box>
       </PublicPageShell>
-      <PublicStickyMobileCta label={SITE_CTA.consultation} to={SITE_CTA.quoteHref} />
+      <PublicStickyMobileCta label={cta.consultation} to={cta.quoteHref} />
     </>
   );
 };

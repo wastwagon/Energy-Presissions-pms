@@ -218,6 +218,11 @@ export const HYBRID_PACKAGES: HybridPackage[] = [
   },
 ];
 
+/** Default brochure prices — editable via CMS packages → tier_prices on deploy sync. */
+export const HYBRID_PACKAGE_TIER_PRICE_DEFAULTS: Record<string, number> = Object.fromEntries(
+  HYBRID_PACKAGES.map((pkg) => [pkg.id, pkg.priceGhs]),
+);
+
 export const HYBRID_PACKAGE_FOOTER_POINTS = [
   'Hybrid systems combine solar, lithium storage, and ECG/grid (generator-ready where fitted). Full off-grid only when engineered on survey.',
   'Connected load ceilings use ~0.85 power factor. Stagger split AC, iron, kettle, and water heater — never assume all peaks run together.',

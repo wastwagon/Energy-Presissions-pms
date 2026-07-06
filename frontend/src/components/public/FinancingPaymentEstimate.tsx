@@ -15,7 +15,7 @@ import { Link as RouterLink } from 'react-router-dom';
 import { colors } from '../../theme/colors';
 import { homeUi } from '../../theme/homeUi';
 import { publicUi } from '../../theme/publicUi';
-import { SITE_CTA } from '../../data/siteCta';
+import { useGlobalSiteConfig } from '../../hooks/useGlobalSiteConfig';
 
 function monthlyPayment(principal: number, annualRatePct: number, months: number): number {
   if (months <= 0 || principal <= 0) return 0;
@@ -43,6 +43,7 @@ const FinancingPaymentEstimate: React.FC<Props> = ({
   title = 'Example monthly payment',
   subtitle = 'Indicative only — actual terms depend on project size, lender, and your quote. Request a formal proposal for binding numbers.',
 }) => {
+  const { cta } = useGlobalSiteConfig();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [projectGhs, setProjectGhs] = useState('150000');
@@ -121,7 +122,7 @@ const FinancingPaymentEstimate: React.FC<Props> = ({
         {!isMobile && (
           <Button
             component={RouterLink}
-            to={`${SITE_CTA.quoteHref}&topic=financing`}
+            to={`${cta.quoteHref}&topic=financing`}
             variant="contained"
             sx={{ ...publicUi.primaryButton, ...homeUi.touchTarget, mt: 2.5 }}
           >

@@ -301,12 +301,20 @@ def _run_init_and_seed():
                 check=False,
                 capture_output=True,
             )
-            if cr.returncode != 0:
-                logger.warning(
-                    "seed_cms_content exit=%s stderr=%s",
-                    cr.returncode,
-                    (cr.stderr or b"").decode("utf-8", errors="replace")[:800],
+            _log_subprocess_result("seed_cms_content", cr)
+            sync_cms = os.environ.get("AUTO_SYNC_CMS_PAGES")
+            if sync_cms is None:
+                sync_cms_enabled = os.environ.get("AUTO_SEED", "true").lower() in ("true", "1", "yes")
+            else:
+                sync_cms_enabled = sync_cms.lower() in ("true", "1", "yes")
+            if sync_cms_enabled:
+                sr = subprocess.run(
+                    [sys.executable, "-m", "app.scripts.sync_cms_pages"],
+                    cwd=str(backend_dir),
+                    check=False,
+                    capture_output=True,
                 )
+                _log_subprocess_result("sync_cms_pages", sr)
             if os.environ.get("AUTO_ASSIGN_PRODUCT_IMAGES", "").lower() in ("true", "1", "yes"):
                 ar = subprocess.run(
                     [sys.executable, "-m", "app.scripts.backfill_media_content", "--assign-products"],
@@ -321,7 +329,7 @@ def _run_init_and_seed():
                         (ar.stderr or b"").decode("utf-8", errors="replace")[:800],
                     )
             logger.info(
-                "Seed scripts completed (admin, ecommerce, proforma BOM, CMS blog/FAQ/portfolio)"
+                "Seed scripts completed (admin, ecommerce, proforma BOM, CMS blog/FAQ/portfolio, CMS page sync)"
             )
         except Exception as e:
             logger.warning("Seed skipped: %s", e)

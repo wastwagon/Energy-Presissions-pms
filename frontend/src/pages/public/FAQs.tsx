@@ -15,7 +15,7 @@ import { getDefaultFaqs } from '../../data/faqDefaults';
 import { Seo } from '../../components/Seo';
 import PublicPageShell from '../../components/public/PublicPageShell';
 import PublicStickyMobileCta from '../../components/public/PublicStickyMobileCta';
-import { SITE_CTA } from '../../data/siteCta';
+import { useGlobalSiteConfig } from '../../hooks/useGlobalSiteConfig';
 import { useCmsPage } from '../../hooks/useCmsPage';
 import { resolveCmsSeo } from '../../hooks/useCmsSeo';
 import api from '../../services/api';
@@ -27,6 +27,7 @@ import { homeUi } from '../../theme/homeUi';
 type Faq = { question: string; answer: string };
 
 const FAQs: React.FC = () => {
+  const { cta } = useGlobalSiteConfig();
   const { sections } = useCmsPage('faqs');
   const seo = resolveCmsSeo(sections, {
     title: 'Solar FAQs Ghana | Energy Precisions',
@@ -119,7 +120,7 @@ const FAQs: React.FC = () => {
           )}
         </Box>
       </PublicPageShell>
-      <PublicStickyMobileCta label={SITE_CTA.consultation} to={SITE_CTA.quoteHref} />
+      <PublicStickyMobileCta label={cta.consultation} to={cta.quoteHref} />
     </>
   );
 };

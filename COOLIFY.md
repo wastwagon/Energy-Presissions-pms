@@ -50,6 +50,8 @@ Copy from [`.env.coolify.example`](.env.coolify.example) into Coolify’s enviro
 | `SECRET_KEY` | Yes | Long random string for JWT |
 | `FRONTEND_URL` | Yes | Public site URL, e.g. `https://energyprecisions.com` |
 | `DEFAULT_ADMIN_PASSWORD` | First deploy | Used when `AUTO_SEED=true` |
+| `AUTO_SYNC_CMS_PAGES` | Recommended | `true` (default) — overwrites CMS pages from code on each backend restart (nav, contact, package prices). No manual admin edits needed. |
+| `AUTO_SEED` | First deploy only | `true` on first boot, then `false` — full seed (admin, products, blog). CMS still syncs when `AUTO_SYNC_CMS_PAGES=true`. |
 | `PAYSTACK_SECRET_KEY` | For checkout | Live keys from Paystack dashboard |
 
 `FRONTEND_URL` is used for:
@@ -85,8 +87,9 @@ In **Configuration → Advanced**, enable **Connect To Predefined Network** for 
 
 1. Save environment variables
 2. Click **Deploy**
-3. First boot runs Alembic migrations + `AUTO_SEED` scripts (idempotent)
-4. Verify:
+3. First boot runs Alembic migrations + seed scripts when `AUTO_SEED=true`
+4. On every backend restart, `AUTO_SYNC_CMS_PAGES=true` (default) refreshes all CMS page content from bundled defaults — nav, global contact/stats, package prices, etc.
+5. Verify:
    - `https://your-domain.com/health` → `healthy`
    - `https://your-domain.com/api/health` → `{"status":"healthy"}`
    - `https://your-domain.com/pms/admin` → staff login
@@ -157,8 +160,9 @@ Open `http://localhost` and `http://localhost/api/health`.
 | Restart | Coolify **Restart** or `docker compose restart` |
 | Backup DB | `docker exec <db> pg_dump -U energy_pms energy_pms > backup.sql` |
 | CMS parity check | `docker exec <backend> python -m app.scripts.check_cms_parity --strict` |
+| Force CMS sync now | `docker exec <backend> python -m app.scripts.sync_cms_pages` |
 
-Set `AUTO_SEED=false` after the first successful production deploy to avoid re-running seed scripts on every restart (optional).
+**Recommended env after first deploy:** `AUTO_SEED=false`, `AUTO_SYNC_CMS_PAGES=true` — keeps CMS in sync with code on every redeploy without re-running full product/admin seeds.
 
 ---
 

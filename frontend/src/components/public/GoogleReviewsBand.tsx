@@ -3,6 +3,7 @@ import { Box, Typography, Button, Stack, Rating, Link } from '@mui/material';
 import { Star as StarIcon, OpenInNew as OpenInNewIcon } from '@mui/icons-material';
 import { googleMapsEmbedUrl, googleMapsReadUrl, googleMapsWriteReviewUrl } from '../../utils/googleMaps';
 import { useCmsPage } from '../../hooks/useCmsPage';
+import { useGlobalSiteConfig } from '../../hooks/useGlobalSiteConfig';
 import { formatReviewCountLabel, resolveGoogleReviewDisplay } from '../../utils/googleReviewDisplay';
 import { colors } from '../../theme/colors';
 import { homeUi } from '../../theme/homeUi';
@@ -11,11 +12,12 @@ import { publicUi } from '../../theme/publicUi';
 const GoogleReviewsBand: React.FC = () => {
   const { sections: globalSections } = useCmsPage('global');
   const { sections: homeSections } = useCmsPage('home');
+  const { contact } = useGlobalSiteConfig();
   const googleReviews = globalSections.google_reviews;
   const display = resolveGoogleReviewDisplay(googleReviews, homeSections.testimonials?.items);
   const countLabel = formatReviewCountLabel(display.reviewCount, display.source);
   const placeId = googleReviews?.place_id;
-  const embedUrl = googleMapsEmbedUrl(placeId);
+  const embedUrl = googleMapsEmbedUrl(placeId, contact);
 
   return (
     <Box
@@ -71,7 +73,7 @@ const GoogleReviewsBand: React.FC = () => {
           <Stack direction="row" spacing={1.5} justifyContent={{ xs: 'center', lg: 'flex-start' }} sx={{ mt: 2 }}>
             <Button
               component="a"
-              href={googleMapsReadUrl(placeId)}
+              href={googleMapsReadUrl(placeId, contact)}
               target="_blank"
               rel="noopener noreferrer"
               variant="outlined"
@@ -82,7 +84,7 @@ const GoogleReviewsBand: React.FC = () => {
             </Button>
             <Button
               component="a"
-              href={googleMapsWriteReviewUrl(placeId)}
+              href={googleMapsWriteReviewUrl(placeId, contact)}
               target="_blank"
               rel="noopener noreferrer"
               variant="text"
@@ -117,7 +119,7 @@ const GoogleReviewsBand: React.FC = () => {
       </Stack>
       <Typography sx={{ ...publicUi.mutedText, fontSize: '0.75rem', mt: 2, textAlign: 'center' }}>
         Map data © Google ·{' '}
-        <Link href={googleMapsReadUrl(placeId)} target="_blank" rel="noopener noreferrer" sx={{ color: colors.gray600 }}>
+        <Link href={googleMapsReadUrl(placeId, contact)} target="_blank" rel="noopener noreferrer" sx={{ color: colors.gray600 }}>
           Open in Google Maps
         </Link>
       </Typography>

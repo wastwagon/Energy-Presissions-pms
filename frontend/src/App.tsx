@@ -1,5 +1,5 @@
 import React, { lazy, Suspense } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useParams } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { CircularProgress, Box } from '@mui/material';
@@ -65,6 +65,15 @@ const PageLoader = () => (
   </Box>
 );
 
+const SERVICE_ANCHOR_SLUGS = new Set(['residential', 'commercial', 'industrial', 'battery', 'agricultural']);
+
+const ServiceSlugRedirect: React.FC = () => {
+  const { slug } = useParams();
+  const normalizedSlug = (slug || '').toLowerCase();
+  const hash = SERVICE_ANCHOR_SLUGS.has(normalizedSlug) ? `#${normalizedSlug}` : '';
+  return <Navigate to={`/services${hash}`} replace />;
+};
+
 const theme = createTheme({
   palette: {
     primary: {
@@ -110,7 +119,7 @@ function App() {
               <Route index element={<Home />} />
               <Route path="about" element={<Suspense fallback={<PageLoader />}><About /></Suspense>} />
               <Route path="services" element={<Suspense fallback={<PageLoader />}><Services /></Suspense>} />
-              <Route path="services/:slug" element={<Suspense fallback={<PageLoader />}><Services /></Suspense>} />
+              <Route path="services/:slug" element={<ServiceSlugRedirect />} />
               <Route path="shop" element={<Suspense fallback={<PageLoader />}><Shop /></Suspense>} />
               <Route path="products" element={<Suspense fallback={<PageLoader />}><Shop /></Suspense>} />
               <Route path="products/:id" element={<Suspense fallback={<PageLoader />}><ProductDetail /></Suspense>} />

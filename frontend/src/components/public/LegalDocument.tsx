@@ -5,7 +5,6 @@ import PublicPageShell from './PublicPageShell';
 import PublicStickyMobileCta from './PublicStickyMobileCta';
 import { homeUi } from '../../theme/homeUi';
 import { colors } from '../../theme/colors';
-import { SITE_CTA } from '../../data/siteCta';
 
 type Section = {
   title: string;

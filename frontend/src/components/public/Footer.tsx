@@ -21,14 +21,13 @@ import {
 } from '@mui/icons-material';
 import api from '../../services/api';
 import { formatApiErrorDetail } from '../../utils/apiErrorMessage';
-import { SOCIAL_LINKS } from '../../data/socialLinks';
-import { COMPANY } from '../../data/companyContact';
 import {
   DEFAULT_FOOTER_LEGAL_LINKS,
   DEFAULT_FOOTER_TOOLS_LINKS,
   resolveFooterServiceLinks,
 } from '../../data/footerLinks';
 import { useCmsPage } from '../../hooks/useCmsPage';
+import { useGlobalSiteConfig } from '../../hooks/useGlobalSiteConfig';
 import { colors } from '../../theme/colors';
 import { homeUi } from '../../theme/homeUi';
 import { MOBILE_TAB_BAR_RESERVE } from '../../utils/mobileChrome';
@@ -120,6 +119,7 @@ const socialIconSx = {
 
 const Footer: React.FC = () => {
   const { sections } = useCmsPage('global');
+  const { contact, social } = useGlobalSiteConfig();
   const footer = sections.footer;
   const [email, setEmail] = useState('');
   const [honeypot, setHoneypot] = useState('');
@@ -266,17 +266,17 @@ const Footer: React.FC = () => {
               {footer.tagline}
             </Typography>
             <Stack spacing={0.35} sx={{ mb: 2.5 }}>
-              <Link href={COMPANY.phoneHref} underline="none" sx={linkSx}>
-                {COMPANY.phoneDisplay}
+              <Link href={contact.phoneHref} underline="none" sx={linkSx}>
+                {contact.phoneDisplay}
               </Link>
-              <Link href={COMPANY.whatsappHref} target="_blank" rel="noopener noreferrer" underline="none" sx={linkSx}>
-                {COMPANY.whatsappDisplay}
+              <Link href={contact.whatsappHref} target="_blank" rel="noopener noreferrer" underline="none" sx={linkSx}>
+                {contact.whatsappDisplay}
               </Link>
-              <Link href={`mailto:${COMPANY.emailSales}`} underline="none" sx={linkSx}>
-                {COMPANY.emailSales}
+              <Link href={`mailto:${contact.emailSales}`} underline="none" sx={linkSx}>
+                {contact.emailSales}
               </Link>
               <Typography sx={{ color: ft.body, fontSize: '0.875rem', lineHeight: 1.55, py: 0.4 }}>
-                {COMPANY.addressFull}
+                {contact.addressFull}
               </Typography>
             </Stack>
             <Button
@@ -346,7 +346,7 @@ const Footer: React.FC = () => {
 
           <Stack direction="row" spacing={0.75}>
             <Link
-              href={SOCIAL_LINKS.facebook}
+              href={social.facebook}
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Facebook"
@@ -355,7 +355,7 @@ const Footer: React.FC = () => {
               <FacebookIcon sx={{ fontSize: 18 }} />
             </Link>
             <Link
-              href={SOCIAL_LINKS.twitter}
+              href={social.twitter}
               target="_blank"
               rel="noopener noreferrer"
               aria-label="X (Twitter)"
@@ -364,7 +364,7 @@ const Footer: React.FC = () => {
               <TwitterIcon sx={{ fontSize: 18 }} />
             </Link>
             <Link
-              href={SOCIAL_LINKS.linkedin}
+              href={social.linkedin}
               target="_blank"
               rel="noopener noreferrer"
               aria-label="LinkedIn"
@@ -373,7 +373,7 @@ const Footer: React.FC = () => {
               <LinkedInIcon sx={{ fontSize: 18 }} />
             </Link>
             <Link
-              href={SOCIAL_LINKS.instagram}
+              href={social.instagram}
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Instagram"

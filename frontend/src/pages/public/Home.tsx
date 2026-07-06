@@ -13,12 +13,13 @@ import HomeServicesSection from '../../components/public/HomeServicesSection';
 import HomeTestimonialsSection from '../../components/public/HomeTestimonialsSection';
 import HomeToolsStrip from '../../components/public/HomeToolsStrip';
 import { useCmsPage } from '../../hooks/useCmsPage';
+import { useGlobalSiteConfig } from '../../hooks/useGlobalSiteConfig';
 import { resolveCmsSeo } from '../../hooks/useCmsSeo';
 import { localBusinessJsonLd } from '../../utils/jsonLd';
-import { SITE_CTA } from '../../data/siteCta';
 
 const Home: React.FC = () => {
   const { sections } = useCmsPage('home');
+  const { contact, cta } = useGlobalSiteConfig();
   const seo = resolveCmsSeo(sections, {
     title: 'Energy Precisions | Ghana Energy Transition · Solar & Hybrid Power',
     description:
@@ -29,7 +30,7 @@ const Home: React.FC = () => {
 
   return (
     <Box sx={{ bgcolor: homeUi.pageBg }}>
-      <Seo title={seo.title} description={seo.description} path="/" jsonLd={localBusinessJsonLd()} />
+      <Seo title={seo.title} description={seo.description} path="/" jsonLd={localBusinessJsonLd(contact)} />
 
       <HomeHero />
 
@@ -109,7 +110,7 @@ const Home: React.FC = () => {
             <Button
               variant="contained"
               component={Link}
-              to={sections.closing_cta?.primary_cta_link || SITE_CTA.quoteHref}
+              to={sections.closing_cta?.primary_cta_link || cta.quoteHref}
               endIcon={<ArrowForwardIcon sx={{ fontSize: 18 }} />}
               sx={{
                 ...homeUi.touchTarget,
@@ -124,7 +125,7 @@ const Home: React.FC = () => {
                 '&:hover': { bgcolor: colors.greenDark, boxShadow: 'none' },
               }}
             >
-              {sections.closing_cta?.primary_cta_text || SITE_CTA.consultation}
+              {sections.closing_cta?.primary_cta_text || cta.consultation}
             </Button>
             <Button
               variant="outlined"

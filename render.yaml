@@ -62,7 +62,9 @@ services:
       - key: PAYSTACK_PUBLIC_KEY
         sync: false
       - key: AUTO_SEED
-        value: "true"  # Each deploy/restart: seed_production, seed_ecommerce_products, seed_proforma_catalog_items, seed_cms_content (blog/FAQ/portfolio; all idempotent)
+        value: "true"  # Each deploy/restart: seed_production, ecommerce, proforma, CMS blog/FAQ/portfolio, sync_cms_pages (idempotent)
+      - key: AUTO_SYNC_CMS_PAGES
+        value: "true"  # Overwrite stored CMS page overrides with bundled defaults (nav, global settings, package prices)
       - key: AUTO_ASSIGN_PRODUCT_IMAGES
         sync: false  # Optional: set "true" once to backfill missing product image_url via backfill_media_content --assign-products
       - key: DEFAULT_ADMIN_EMAIL

@@ -35,6 +35,7 @@ import {
   Home as HomeIcon,
   Storefront as StorefrontIcon,
   SolarPower as SolarPowerIcon,
+  Bolt as BoltIcon,
   ContactMail as ContactIcon,
   Chat as ChatIcon,
 } from '@mui/icons-material';
@@ -44,9 +45,7 @@ import { homeUi } from '../../theme/homeUi';
 import { publicUi } from '../../theme/publicUi';
 import { useAuth } from '../../contexts/AuthContext';
 import { useCart } from '../../contexts/CartContext';
-import { SOCIAL_LINKS } from '../../data/socialLinks';
-import { COMPANY } from '../../data/companyContact';
-import { SITE_CTA } from '../../data/siteCta';
+import { useGlobalSiteConfig } from '../../hooks/useGlobalSiteConfig';
 import { UserRole } from '../../types';
 import { useCmsPage } from '../../hooks/useCmsPage';
 import { getCmsDefaults } from '../../data/cmsDefaults';
@@ -71,6 +70,7 @@ const Header: React.FC = () => {
   const navigate = useNavigate();
   const { isAuthenticated, user, logout } = useAuth();
   const { cartCount } = useCart();
+  const { contact, social, cta } = useGlobalSiteConfig();
   const { sections: globalSections } = useCmsPage('global');
   const defaultHeader = getCmsDefaults('global').header;
   const menuItems: CmsHeaderNavItem[] =
@@ -353,7 +353,9 @@ const Header: React.FC = () => {
       : {}),
   });
 
-  const mobileBottomActive = (key: 'home' | 'shop' | 'services' | 'cart' | 'contact') => {
+  type MobileBottomKey = 'home' | 'shop' | 'services' | 'packages' | 'cart' | 'contact';
+
+  const mobileBottomActive = (key: MobileBottomKey) => {
     const p = location.pathname;
     switch (key) {
       case 'home':
@@ -362,6 +364,8 @@ const Header: React.FC = () => {
         return p.startsWith('/shop') || p.startsWith('/products');
       case 'services':
         return p.startsWith('/services');
+      case 'packages':
+        return p.startsWith('/solar-packages');
       case 'cart':
         return p === '/cart';
       case 'contact':
@@ -372,7 +376,7 @@ const Header: React.FC = () => {
   };
 
   const bottomNavItem = (
-    key: 'home' | 'shop' | 'services' | 'cart' | 'contact',
+    key: MobileBottomKey,
     icon: React.ReactNode,
     label: string,
     to?: string,
@@ -491,35 +495,35 @@ const Header: React.FC = () => {
           <Container maxWidth="lg" sx={{ px: publicUi.containerPx }}>
             <Box display="flex" justifyContent="space-between" alignItems="center" gap={2}>
               <Box display="flex" flexWrap="wrap" gap={2.5} alignItems="center">
-                <Box component="a" href="tel:+233533611611" sx={topBarLinkSx}>
+                <Box component="a" href={contact.phoneHref} sx={topBarLinkSx}>
                   <PhoneIcon sx={{ fontSize: 17, color: colors.green }} />
-                  +233 533 611 611
+                  {contact.phoneDisplay}
                 </Box>
-                <Box component="a" href="mailto:info@energyprecisions.com" sx={topBarLinkSx}>
+                <Box component="a" href={`mailto:${contact.emailSales}`} sx={topBarLinkSx}>
                   <EmailIcon sx={{ fontSize: 17 }} />
-                  info@energyprecisions.com
+                  {contact.emailSales}
                 </Box>
-                <Box component="a" href={COMPANY.whatsappHref} target="_blank" rel="noopener noreferrer" sx={topBarLinkSx}>
+                <Box component="a" href={contact.whatsappHref} target="_blank" rel="noopener noreferrer" sx={topBarLinkSx}>
                   <ChatIcon sx={{ fontSize: 17, color: colors.green }} />
-                  WhatsApp
+                  {contact.whatsappDisplay}
                 </Box>
                 <Box display="flex" alignItems="center" gap={0.25}>
-                  <IconButton component="a" href={SOCIAL_LINKS.facebook} target="_blank" rel="noopener noreferrer" size="small" aria-label="Facebook" sx={socialIconSx}>
+                  <IconButton component="a" href={social.facebook} target="_blank" rel="noopener noreferrer" size="small" aria-label="Facebook" sx={socialIconSx}>
                     <FacebookIcon sx={{ fontSize: 18 }} />
                   </IconButton>
-                  <IconButton component="a" href={SOCIAL_LINKS.twitter} target="_blank" rel="noopener noreferrer" size="small" aria-label="X (Twitter)" sx={socialIconSx}>
+                  <IconButton component="a" href={social.twitter} target="_blank" rel="noopener noreferrer" size="small" aria-label="X (Twitter)" sx={socialIconSx}>
                     <TwitterIcon sx={{ fontSize: 18 }} />
                   </IconButton>
-                  <IconButton component="a" href={SOCIAL_LINKS.linkedin} target="_blank" rel="noopener noreferrer" size="small" aria-label="LinkedIn" sx={socialIconSx}>
+                  <IconButton component="a" href={social.linkedin} target="_blank" rel="noopener noreferrer" size="small" aria-label="LinkedIn" sx={socialIconSx}>
                     <LinkedInIcon sx={{ fontSize: 18 }} />
                   </IconButton>
-                  <IconButton component="a" href={SOCIAL_LINKS.instagram} target="_blank" rel="noopener noreferrer" size="small" aria-label="Instagram" sx={socialIconSx}>
+                  <IconButton component="a" href={social.instagram} target="_blank" rel="noopener noreferrer" size="small" aria-label="Instagram" sx={socialIconSx}>
                     <InstagramIcon sx={{ fontSize: 18 }} />
                   </IconButton>
                 </Box>
               </Box>
-              <Button size="small" disableElevation sx={quoteButtonSx} component={Link} to={SITE_CTA.quoteHref}>
-                {SITE_CTA.consultation}
+              <Button size="small" disableElevation sx={quoteButtonSx} component={Link} to={cta.quoteHref}>
+                {cta.consultation}
               </Button>
             </Box>
           </Container>
@@ -880,10 +884,10 @@ const Header: React.FC = () => {
               '/services'
             )}
             {bottomNavItem(
-              'cart',
-              <ShoppingCartIcon sx={{ fontSize: 24 }} />,
-              'Cart',
-              '/cart'
+              'packages',
+              <BoltIcon sx={{ fontSize: 24 }} />,
+              'Packages',
+              '/solar-packages'
             )}
             {bottomNavItem(
               'contact',

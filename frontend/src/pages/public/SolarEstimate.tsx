@@ -23,7 +23,7 @@ import { publicUi } from '../../theme/publicUi';
 import { homeUi } from '../../theme/homeUi';
 import { ballparkSizingFromMonthlyKwh } from '../../utils/solarSizingApprox';
 import PublicStickyMobileCta from '../../components/public/PublicStickyMobileCta';
-import { SITE_CTA } from '../../data/siteCta';
+import { useGlobalSiteConfig } from '../../hooks/useGlobalSiteConfig';
 
 const toggleSx = {
   '& .MuiToggleButton-root': {
@@ -37,6 +37,7 @@ const toggleSx = {
 
 const SolarEstimate: React.FC = () => {
   const { sections } = useCmsPage('solar_estimate');
+  const { cta } = useGlobalSiteConfig();
   const seo = resolveCmsSeo(sections, {
     title: 'Solar System Size Estimator Ghana | Ballpark kW | Energy Precisions',
     description:
@@ -204,7 +205,7 @@ const SolarEstimate: React.FC = () => {
         </Card>
       </PublicPageShell>
       <PublicStickyMobileCta
-        label={SITE_CTA.consultation}
+        label={cta.consultation}
         to="/contact?action=quote&topic=estimate"
       />
     </>

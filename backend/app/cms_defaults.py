@@ -52,14 +52,10 @@ _DEFAULTS: Dict[str, Dict[str, Any]] = {
                 "Hybrid backup",
                 "Monitoring",
             ],
-            "stats": [
-                {"value": "500+", "label": "Installations"},
-                {"value": "10+", "label": "Years Experience"},
-                {"value": "98%", "label": "Customer Satisfaction"},
-            ],
-            "primary_cta_text": "Get Free Quote",
+            "stats": [],
+            "primary_cta_text": "Get free consultation",
             "primary_cta_link": "/contact?action=quote",
-            "secondary_cta_text": "Browse Products",
+            "secondary_cta_text": "Browse products",
             "secondary_cta_link": "/shop",
             "link1_text": "Solar size estimator",
             "link1_url": "/solar-estimate",
@@ -77,9 +73,9 @@ _DEFAULTS: Dict[str, Dict[str, Any]] = {
                     ),
                     "hero_image": "/portfolio/ep-install-01.jpg",
                     "image_overlay": "Turnkey · Grid & generator ready",
-                    "primary_cta_text": "Get Free Quote",
+                    "primary_cta_text": "Get free consultation",
                     "primary_cta_link": "/contact?action=quote",
-                    "secondary_cta_text": "Browse Products",
+                    "secondary_cta_text": "Browse products",
                     "secondary_cta_link": "/shop",
                 },
                 {
@@ -107,7 +103,7 @@ _DEFAULTS: Dict[str, Dict[str, Any]] = {
                     ),
                     "hero_image": "/portfolio/ep-install-05.jpg",
                     "image_overlay": "Engineering-led · Nationwide",
-                    "primary_cta_text": "Request a consultation",
+                    "primary_cta_text": "Get free consultation",
                     "primary_cta_link": "/contact?action=quote",
                     "secondary_cta_text": "See our services",
                     "secondary_cta_link": "/services",
@@ -160,15 +156,15 @@ _DEFAULTS: Dict[str, Dict[str, Any]] = {
                 {
                     "title": "Expert Installation Team",
                     "description": (
-                        "Our certified technicians have installed over 500 solar systems across "
-                        "Ghana. Professional installation ensures maximum efficiency and longevity."
+                        "Certified technicians commission hybrid and grid-tied systems from our Accra "
+                        "team — with labelled handover and documented as-built records."
                     ),
                 },
                 {
-                    "title": "Comprehensive Warranty",
+                    "title": "Documented Warranty",
                     "description": (
-                        "10-year warranty on installations, 25-year panel warranty, and lifetime "
-                        "support. Your investment is protected with our comprehensive coverage."
+                        "Manufacturer coverage on equipment plus workmanship terms confirmed in your "
+                        "quotation (typically 2 years on hybrid installs). See our warranty page for details."
                     ),
                 },
                 {
@@ -189,8 +185,8 @@ _DEFAULTS: Dict[str, Dict[str, Any]] = {
                 {
                     "title": "Sustainable Future",
                     "description": (
-                        "Join thousands of Ghanaians reducing electricity costs and carbon footprint. "
-                        "Make a positive impact on Ghana's energy future."
+                        "Reduce grid dependence and diesel spend with solar sized to your real load — "
+                        "a practical step toward lower bills and cleaner power."
                     ),
                 },
             ],
@@ -220,7 +216,7 @@ _DEFAULTS: Dict[str, Dict[str, Any]] = {
                         "Maintenance Support",
                     ],
                     "image": "https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=800&q=80",
-                    "link": "/services/residential",
+                    "link": "/services#residential",
                     "button_text": "Learn More",
                 },
                 {
@@ -236,7 +232,7 @@ _DEFAULTS: Dict[str, Dict[str, Any]] = {
                         "Long-term Savings",
                     ],
                     "image": "/website_images/services-commercial-solar.png",
-                    "link": "/services/commercial",
+                    "link": "/services#commercial",
                     "button_text": "Learn More",
                 },
                 {
@@ -252,7 +248,7 @@ _DEFAULTS: Dict[str, Dict[str, Any]] = {
                         "24/7 Monitoring",
                     ],
                     "image": "/website_images/services-industrial-solar.png",
-                    "link": "/services/industrial",
+                    "link": "/services#industrial",
                     "button_text": "Learn More",
                 },
                 {
@@ -268,7 +264,7 @@ _DEFAULTS: Dict[str, Dict[str, Any]] = {
                         "Scalable for Cooperatives",
                     ],
                     "image": "/website_images/services-agricultural-productive-use.png",
-                    "link": "/contact?action=quote",
+                    "link": "/services#agricultural",
                     "button_text": "Learn More",
                 },
                 {
@@ -284,7 +280,7 @@ _DEFAULTS: Dict[str, Dict[str, Any]] = {
                         "Scalable Capacity",
                     ],
                     "image": "/website_images/services-battery-storage-solutions.png",
-                    "link": "/services/battery",
+                    "link": "/services#battery",
                     "button_text": "Learn More",
                 },
                 {
@@ -392,7 +388,7 @@ _DEFAULTS: Dict[str, Dict[str, Any]] = {
                 "Join thousands of satisfied customers across Ghana who have made the switch "
                 "to clean, affordable solar energy. Get your free quote today."
             ),
-            "primary_cta_text": "Get Free Consultation",
+            "primary_cta_text": "Get free consultation",
             "primary_cta_link": "/contact?action=quote",
             "secondary_cta_text": "Browse Products",
             "secondary_cta_link": "/shop",
@@ -418,12 +414,8 @@ _DEFAULTS: Dict[str, Dict[str, Any]] = {
             ),
             "hero_image": "/portfolio/ep-install-01.jpg",
             "image_overlay": "",
-            "stats": [
-                {"value": "500+", "label": "Installations"},
-                {"value": "10+", "label": "Years Experience"},
-                {"value": "98%", "label": "Satisfaction Rate"},
-            ],
-            "primary_cta_text": "Get Free Quote",
+            "stats": [],
+            "primary_cta_text": "Get free consultation",
             "primary_cta_link": "/contact?action=quote",
             "secondary_cta_text": "Our Services",
             "secondary_cta_link": "/services",
@@ -476,22 +468,22 @@ _DEFAULTS: Dict[str, Dict[str, Any]] = {
                 {
                     "title": "Trusted & Reliable",
                     "description": (
-                        "10+ years in business, 500+ successful installations, and 98% customer "
-                        "satisfaction. Your trust is our greatest asset."
+                        "Accra-based engineering and install coordination with documented handover, "
+                        "clear warranty terms, and responsive after-sales support."
                     ),
                 },
                 {
                     "title": "Proven Track Record",
                     "description": (
-                        "Trusted by residential, commercial, and industrial clients across Accra, "
-                        "Kumasi, Tamale, and beyond."
+                        "Residential, commercial, and light industrial projects across Greater Accra "
+                        "and other regions — see our portfolio for recent installs."
                     ),
                 },
                 {
                     "title": "Sustainable Future",
                     "description": (
-                        "Join thousands of Ghanaians reducing electricity costs and carbon footprint. "
-                        "Together, we build a greener Ghana."
+                        "Practical solar and hybrid backup sized to your load — lower bills and less "
+                        "diesel dependence where the grid is unreliable."
                     ),
                 },
             ],
@@ -511,30 +503,8 @@ _DEFAULTS: Dict[str, Dict[str, Any]] = {
             ],
         },
         "impact_stats": {
-            "title": "Our Impact in Numbers",
-            "items": [
-                {
-                    "value": "500+",
-                    "label": "Installations",
-                    "description": (
-                        "Solar systems delivered across Ghana — residential, commercial, and industrial."
-                    ),
-                },
-                {
-                    "value": "98%",
-                    "label": "Client Satisfaction",
-                    "description": (
-                        "Clients who recommend us for quality equipment, installation, and after-sales support."
-                    ),
-                },
-                {
-                    "value": "10+",
-                    "label": "Years Experience",
-                    "description": (
-                        "A decade of engineering, installation, and lifecycle support in the Ghana market."
-                    ),
-                },
-            ],
+            "title": "",
+            "items": [],
         },
         "visit_us": {
             "badge": "VISIT US",
@@ -736,20 +706,32 @@ _DEFAULTS: Dict[str, Dict[str, Any]] = {
             "subtitle": "",
             "items": [
                 {
-                    "title": "10-Year Installation Warranty",
-                    "desc": "Comprehensive warranty covering all installation work and system performance.",
+                    "title": "Workmanship warranty",
+                    "desc": (
+                        "Installation workmanship terms are listed in your project quotation — "
+                        "typically 2 years on hybrid package installs."
+                    ),
                 },
                 {
-                    "title": "25-Year Panel Warranty",
-                    "desc": "Manufacturer warranty on all solar panels, ensuring long-term performance.",
+                    "title": "Manufacturer equipment cover",
+                    "desc": (
+                        "Panels, inverters, and batteries carry manufacturer warranties as stated on "
+                        "your invoice (commonly 5–25 years by component)."
+                    ),
                 },
                 {
-                    "title": "Free Maintenance (First Year)",
-                    "desc": "Complimentary maintenance and system checks for the first year after installation.",
+                    "title": "Post-install support",
+                    "desc": (
+                        "Handover documentation, optional maintenance plans, and remote monitoring "
+                        "help protect uptime after commissioning."
+                    ),
                 },
                 {
-                    "title": "Performance Guarantee",
-                    "desc": "We guarantee your system will meet or exceed projected energy generation.",
+                    "title": "Engineering transparency",
+                    "desc": (
+                        "Load-led sizing with assumptions documented in your quote — so you know what "
+                        "the system is designed to carry."
+                    ),
                 },
             ],
         },
@@ -759,7 +741,7 @@ _DEFAULTS: Dict[str, Dict[str, Any]] = {
                 "Get a free consultation and quote today. Our team will assess your needs "
                 "and design the perfect solar solution for your home or business."
             ),
-            "primary_cta_text": "Get Free Consultation",
+            "primary_cta_text": "Get free consultation",
             "primary_cta_link": "/contact?action=quote",
             "secondary_cta_text": "",
             "secondary_cta_link": "",
@@ -811,6 +793,101 @@ _DEFAULTS: Dict[str, Dict[str, Any]] = {
         },
     },
     "global": {
+        "contact": {
+            "name": "Energy Precisions",
+            "tagline": "Seamless solar installation service you can trust",
+            "logo_src": "/website_images/Logo1-1-scaled-e1752479241874.png",
+            "logo_alt": "Energy Precisions logo",
+            "website": "https://energyprecisions.com",
+            "website_display": "www.energyprecisions.com",
+            "phone": "+233533611611",
+            "phone_display": "(+233) 533 611 611",
+            "whatsapp": "233533611611",
+            "whatsapp_display": "Chat on WhatsApp",
+            "email_primary": "info@energyprecisions.com",
+            "email_sales": "info@energyprecisions.com",
+            "address_line1": "Haatso, Ecomog",
+            "address_line2": "Accra, Ghana",
+            "address_full": "Haatso, Ecomog, Accra, Ghana",
+            "office_heading": "Accra office",
+            "office_region_note": (
+                "We operate from our Accra office. Site surveys and installations are arranged "
+                "across Greater Accra and other regions by appointment."
+            ),
+            "google_maps_review_url": (
+                "https://www.google.com/maps/search/?api=1&query=Energy+Precisions+Haatso+Ecomog+Accra+Ghana"
+            ),
+            "google_maps_write_review_url": (
+                "https://www.google.com/maps/search/?api=1&query=Energy+Precisions+Haatso+Ecomog+Accra+Ghana"
+            ),
+            "google_maps_embed_url": (
+                "https://maps.google.com/maps?q=Energy+Precisions+Haatso+Ecomog+Accra+Ghana&hl=en&z=15&output=embed"
+            ),
+        },
+        "social": {
+            "facebook": "https://www.facebook.com/energyprecisions",
+            "twitter": "https://twitter.com/energyprecisions",
+            "linkedin": "https://www.linkedin.com/company/energyprecisions",
+            "instagram": "https://www.instagram.com/energyprecisions",
+        },
+        "cta": {
+            "consultation": "Get free consultation",
+            "quote": "Get free consultation",
+            "quote_href": "/contact?action=quote",
+            "survey_href": "/contact?action=quote&topic=package",
+        },
+        "hero_stats": {
+            "items": [
+                {"value": "6.5–20 kVA", "label": "Hybrid package range"},
+                {"value": "16 kWh", "label": "LiFePO₄ storage modules"},
+                {"value": "Accra HQ", "label": "Ghana-wide installs"},
+            ],
+        },
+        "impact_stats": {
+            "title": "What we deliver",
+            "items": [
+                {
+                    "value": "6",
+                    "label": "Package tiers",
+                    "description": (
+                        "Published hybrid tiers from 6.5 kVA essential homes through 20 kVA light "
+                        "commercial — each with defined load ceilings."
+                    ),
+                },
+                {
+                    "value": "16 kWh",
+                    "label": "LiFePO₄ modules",
+                    "description": (
+                        "Stocked lithium battery blocks used across our hybrid package line; module "
+                        "count confirmed on site survey."
+                    ),
+                },
+                {
+                    "value": "1",
+                    "label": "Accra office",
+                    "description": (
+                        "Haatso, Ecomog headquarters — engineering, quotes, and install scheduling "
+                        "for projects across Ghana."
+                    ),
+                },
+            ],
+        },
+        "warranty_summary": {
+            "headline": "Documented warranty coverage",
+            "workmanship": (
+                "Installation workmanship terms are confirmed in your project quotation — typically "
+                "2 years on hybrid package installs."
+            ),
+            "equipment": (
+                "Panels, inverters, and lithium batteries carry manufacturer warranties (commonly "
+                "5–25 years depending on model). Final coverage is listed on your invoice."
+            ),
+            "shop_note": (
+                "Shop purchases without installation include manufacturer warranty only; extended "
+                "workmanship requires a signed install agreement."
+            ),
+            "details_path": "/warranty",
+        },
         "header": {
             "menu_items": [
                 {"label": "Home", "path": "/"},
@@ -819,10 +896,11 @@ _DEFAULTS: Dict[str, Dict[str, Any]] = {
                     "label": "Services",
                     "path": "/services",
                     "submenu": [
-                        {"label": "Residential Solar", "path": "/services/residential"},
-                        {"label": "Commercial Solar", "path": "/services/commercial"},
-                        {"label": "Battery Storage", "path": "/services/battery"},
-                        {"label": "Solar Packages", "path": "/solar-packages"},
+                        {"label": "Residential Solar", "path": "/services#residential"},
+                        {"label": "Commercial Solar", "path": "/services#commercial"},
+                        {"label": "Industrial Solar", "path": "/services#industrial"},
+                        {"label": "Agricultural Solar", "path": "/services#agricultural"},
+                        {"label": "Battery Storage", "path": "/services#battery"},
                         {"label": "FAQs", "path": "/faqs"},
                     ],
                 },
@@ -873,11 +951,11 @@ _DEFAULTS: Dict[str, Dict[str, Any]] = {
             "service_links_title": "Services",
             "service_links": [
                 {"label": "All services", "path": "/services"},
-                {"label": "Residential solar", "path": "/services/residential"},
-                {"label": "Commercial solar", "path": "/services/commercial"},
-                {"label": "Industrial solar", "path": "/services/industrial"},
-                {"label": "Battery storage", "path": "/services/battery"},
-                {"label": "Agricultural solar", "path": "/contact?action=quote"},
+                {"label": "Residential solar", "path": "/services#residential"},
+                {"label": "Commercial solar", "path": "/services#commercial"},
+                {"label": "Industrial solar", "path": "/services#industrial"},
+                {"label": "Battery storage", "path": "/services#battery"},
+                {"label": "Agricultural solar", "path": "/services#agricultural"},
                 {"label": "Maintenance", "path": "/services"},
             ],
             "tools_links_title": "Tools & resources",
@@ -966,7 +1044,14 @@ _DEFAULTS: Dict[str, Dict[str, Any]] = {
             ),
             "contact_cta_text": "Book free site assessment & quote",
         },
-        "tier_prices": {},
+        "tier_prices": {
+            "ep-6.5kva": 140900,
+            "ep-8kva": 194900,
+            "ep-10kva": 229900,
+            "ep-12kva": 286900,
+            "ep-15kva": 353900,
+            "ep-20kva": 447900,
+        },
     },
     "financing": {
         "seo": {

@@ -15,6 +15,8 @@ import type {
 } from '../types/cms';
 import { DEFAULT_CMS_PORTFOLIO_ITEMS } from './portfolioCms';
 import { getDefaultLocationCmsItems } from './locationCms';
+import { DEFAULT_CMS_CONTACT, DEFAULT_CMS_CTA, DEFAULT_CMS_HERO_STATS, DEFAULT_CMS_IMPACT_STATS, DEFAULT_CMS_SOCIAL, DEFAULT_CMS_WARRANTY_SUMMARY } from './siteConfigDefaults';
+import { HYBRID_PACKAGE_TIER_PRICE_DEFAULTS } from './hybridPackages';
 
 type PageDefaultsMap = {
   home: HomePageSections;
@@ -54,14 +56,10 @@ const DEFAULTS: PageDefaultsMap = {
       hero_image: '/portfolio/ep-install-01.jpg',
       image_overlay: 'Turnkey · Grid & generator ready',
       pillars: ['Solar generation', 'Lithium storage', 'Hybrid backup', 'Monitoring'],
-      stats: [
-        { value: '500+', label: 'Installations' },
-        { value: '10+', label: 'Years Experience' },
-        { value: '98%', label: 'Customer Satisfaction' },
-      ],
-      primary_cta_text: 'Get Free Quote',
+      stats: [],
+      primary_cta_text: 'Get free consultation',
       primary_cta_link: '/contact?action=quote',
-      secondary_cta_text: 'Browse Products',
+      secondary_cta_text: 'Browse products',
       secondary_cta_link: '/shop',
       link1_text: 'Solar size estimator',
       link1_url: '/solar-estimate',
@@ -77,9 +75,9 @@ const DEFAULTS: PageDefaultsMap = {
             'Turnkey solar for homes and businesses across Ghana — engineering, equipment, installation and maintenance.',
           hero_image: '/portfolio/ep-install-01.jpg',
           image_overlay: 'Turnkey · Grid & generator ready',
-          primary_cta_text: 'Get Free Quote',
+          primary_cta_text: 'Get free consultation',
           primary_cta_link: '/contact?action=quote',
-          secondary_cta_text: 'Browse Products',
+          secondary_cta_text: 'Browse products',
           secondary_cta_link: '/shop',
         },
         {
@@ -103,7 +101,7 @@ const DEFAULTS: PageDefaultsMap = {
             'Load-led sizing and premium equipment for offices, factories, and farms — with maintenance that keeps you generating.',
           hero_image: '/portfolio/ep-install-05.jpg',
           image_overlay: 'Engineering-led · Nationwide',
-          primary_cta_text: 'Request a consultation',
+          primary_cta_text: 'Get free consultation',
           primary_cta_link: '/contact?action=quote',
           secondary_cta_text: 'See our services',
           secondary_cta_link: '/services',
@@ -145,12 +143,12 @@ const DEFAULTS: PageDefaultsMap = {
         {
           title: 'Expert Installation Team',
           description:
-            'Our certified technicians have installed over 500 solar systems across Ghana. Professional installation ensures maximum efficiency and longevity.',
+            'Certified technicians commission hybrid and grid-tied systems from our Accra team — with labelled handover and documented as-built records.',
         },
         {
-          title: 'Comprehensive Warranty',
+          title: 'Documented Warranty',
           description:
-            '10-year warranty on installations, 25-year panel warranty, and lifetime support. Your investment is protected with our comprehensive coverage.',
+            'Manufacturer coverage on equipment plus workmanship terms confirmed in your quotation (typically 2 years on hybrid installs). See our warranty page for details.',
         },
         {
           title: 'Local Partner, Full Lifecycle',
@@ -165,7 +163,7 @@ const DEFAULTS: PageDefaultsMap = {
         {
           title: 'Sustainable Future',
           description:
-            "Join thousands of Ghanaians reducing electricity costs and carbon footprint. Make a positive impact on Ghana's energy future.",
+            'Reduce grid dependence and diesel spend with solar sized to your real load — a practical step toward lower bills and cleaner power.',
         },
       ],
     },
@@ -185,7 +183,7 @@ const DEFAULTS: PageDefaultsMap = {
             'Home systems with optional battery backup — cut ECG bills and keep essentials running when the grid drops.',
           features: ['Grid-tied & off-grid', 'Battery storage', 'Smart monitoring', 'Maintenance'],
           image: '/portfolio/ep-install-01.jpg',
-          link: '/services/residential',
+          link: '/services#residential',
           button_text: 'Learn more',
         },
         {
@@ -194,7 +192,7 @@ const DEFAULTS: PageDefaultsMap = {
             'Office and retail arrays sized to your load — lower operating costs with minimal business disruption.',
           features: ['Custom design', 'ROI analysis', 'Phased install', 'Long-term savings'],
           image: '/portfolio/ep-install-02.jpg',
-          link: '/services/commercial',
+          link: '/services#commercial',
           button_text: 'Learn more',
         },
         {
@@ -203,7 +201,7 @@ const DEFAULTS: PageDefaultsMap = {
             'High-capacity systems for factories and plants — reliable power where uptime matters.',
           features: ['Heavy-duty equipment', 'Custom engineering', 'Hybrid backup', 'Monitoring'],
           image: '/portfolio/ep-install-05.jpg',
-          link: '/services/industrial',
+          link: '/services#industrial',
           button_text: 'Learn more',
         },
         {
@@ -212,7 +210,7 @@ const DEFAULTS: PageDefaultsMap = {
             'Solar for irrigation, cold chain and processing — cut diesel spend where the grid is weak.',
           features: ['Irrigation & pumping', 'Off-grid hybrid', 'Cooperative scale', 'Site survey'],
           image: '/portfolio/ep-install-03.jpg',
-          link: '/contact?action=quote',
+          link: '/services#agricultural',
           button_text: 'Learn more',
         },
         {
@@ -221,7 +219,7 @@ const DEFAULTS: PageDefaultsMap = {
             'LiFePO₄ battery systems for backup and independence — store solar for outages and peak hours.',
           features: ['Hybrid backup', 'LiFePO₄ modules', 'Smart BMS', 'Scalable capacity'],
           image: '/website_images/services-battery-storage-solutions.png',
-          link: '/services/battery',
+          link: '/services#battery',
           button_text: 'Learn more',
         },
         {
@@ -318,9 +316,9 @@ const DEFAULTS: PageDefaultsMap = {
       title: 'Ready for a free site assessment?',
       subtitle:
         'Tell us about your property and load — we will respond with a clear next step, not a hard sell.',
-      primary_cta_text: 'Get Free Consultation',
+      primary_cta_text: 'Get free consultation',
       primary_cta_link: '/contact?action=quote',
-      secondary_cta_text: 'Browse Products',
+      secondary_cta_text: 'Browse products',
       secondary_cta_link: '/shop',
     },
   },
@@ -338,12 +336,8 @@ const DEFAULTS: PageDefaultsMap = {
         "Energy Precisions is Ghana's leading solar energy solutions provider, delivering turnkey systems from premium equipment and expert engineering to professional installation and long-term maintenance. We serve homes, businesses, and industry nationwide.",
       hero_image: '/portfolio/ep-install-01.jpg',
       image_overlay: '',
-      stats: [
-        { value: '500+', label: 'Installations' },
-        { value: '10+', label: 'Years Experience' },
-        { value: '98%', label: 'Satisfaction Rate' },
-      ],
-      primary_cta_text: 'Get Free Quote',
+      stats: [],
+      primary_cta_text: 'Get free consultation',
       primary_cta_link: '/contact?action=quote',
       secondary_cta_text: 'Our Services',
       secondary_cta_link: '/services',
@@ -369,9 +363,9 @@ const DEFAULTS: PageDefaultsMap = {
         { title: 'Based in Ghana, For Ghana', description: "We understand Ghana's unique energy challenges and climate. Our solutions are specifically designed for Ghanaian homes and businesses." },
         { title: 'Complete Solutions Provider', description: 'From equipment sales to installation, maintenance, and support — we provide end-to-end solar solutions under one roof.' },
         { title: 'Expert Team', description: 'Our certified technicians have years of experience installing solar systems across Ghana. Continuous training ensures we stay ahead.' },
-        { title: 'Trusted & Reliable', description: '10+ years in business, 500+ successful installations, and 98% customer satisfaction. Your trust is our greatest asset.' },
-        { title: 'Proven Track Record', description: 'Trusted by residential, commercial, and industrial clients across Accra, Kumasi, Tamale, and beyond.' },
-        { title: 'Sustainable Future', description: 'Join thousands of Ghanaians reducing electricity costs and carbon footprint. Together, we build a greener Ghana.' },
+        { title: 'Trusted & Reliable', description: 'Accra-based engineering and install coordination with documented handover, clear warranty terms, and responsive after-sales support.' },
+        { title: 'Proven Track Record', description: 'Residential, commercial, and light industrial projects across Greater Accra and other regions — see our portfolio for recent installs.' },
+        { title: 'Sustainable Future', description: 'Practical solar and hybrid backup sized to your load — lower bills and less diesel dependence where the grid is unreliable.' },
       ],
     },
     specialties: {
@@ -382,24 +376,8 @@ const DEFAULTS: PageDefaultsMap = {
       items: ['Lower Energy Costs', 'Environmentally Friendly', 'Solar Scalability', 'Energy Independence'],
     },
     impact_stats: {
-      title: 'Our Impact in Numbers',
-      items: [
-        {
-          value: '500+',
-          label: 'Installations',
-          description: 'Solar systems delivered across Ghana — residential, commercial, and industrial.',
-        },
-        {
-          value: '98%',
-          label: 'Client Satisfaction',
-          description: 'Clients who recommend us for quality equipment, installation, and after-sales support.',
-        },
-        {
-          value: '10+',
-          label: 'Years Experience',
-          description: 'A decade of engineering, installation, and lifecycle support in the Ghana market.',
-        },
-      ],
+      title: '',
+      items: [],
     },
     visit_us: {
       badge: 'VISIT US',
@@ -431,7 +409,7 @@ const DEFAULTS: PageDefaultsMap = {
       hero_image: '',
       image_overlay: '',
       stats: [],
-      primary_cta_text: 'Get Free Quote',
+      primary_cta_text: 'Get free consultation',
       primary_cta_link: '/contact?action=quote',
       secondary_cta_text: 'Browse Packages',
       secondary_cta_link: '/solar-packages',
@@ -516,17 +494,17 @@ const DEFAULTS: PageDefaultsMap = {
       title: 'Your Investment is Protected',
       subtitle: '',
       items: [
-        { title: '10-Year Installation Warranty', desc: 'Comprehensive warranty covering all installation work and system performance.' },
-        { title: '25-Year Panel Warranty', desc: 'Manufacturer warranty on all solar panels, ensuring long-term performance.' },
-        { title: 'Free Maintenance (First Year)', desc: 'Complimentary maintenance and system checks for the first year after installation.' },
-        { title: 'Performance Guarantee', desc: 'We guarantee your system will meet or exceed projected energy generation.' },
+        { title: 'Workmanship warranty', desc: 'Installation workmanship terms are listed in your project quotation — typically 2 years on hybrid package installs.' },
+        { title: 'Manufacturer equipment cover', desc: 'Panels, inverters, and batteries carry manufacturer warranties as stated on your invoice (commonly 5–25 years by component).' },
+        { title: 'Post-install support', desc: 'Handover documentation, optional maintenance plans, and remote monitoring help protect uptime after commissioning.' },
+        { title: 'Engineering transparency', desc: 'Load-led sizing with assumptions documented in your quote — so you know what the system is designed to carry.' },
       ],
     },
     closing_cta: {
       title: 'Ready to Start Your Solar Journey?',
       subtitle:
         'Get a free consultation and quote today. Our team will assess your needs and design the perfect solar solution for your home or business.',
-      primary_cta_text: 'Get Free Consultation',
+      primary_cta_text: 'Get free consultation',
       primary_cta_link: '/contact?action=quote',
       secondary_cta_text: '',
       secondary_cta_link: '',
@@ -572,6 +550,12 @@ const DEFAULTS: PageDefaultsMap = {
     },
   },
   global: {
+    contact: DEFAULT_CMS_CONTACT,
+    social: DEFAULT_CMS_SOCIAL,
+    cta: DEFAULT_CMS_CTA,
+    hero_stats: DEFAULT_CMS_HERO_STATS,
+    impact_stats: DEFAULT_CMS_IMPACT_STATS,
+    warranty_summary: DEFAULT_CMS_WARRANTY_SUMMARY,
     header: {
       menu_items: [
         { label: 'Home', path: '/' },
@@ -580,10 +564,11 @@ const DEFAULTS: PageDefaultsMap = {
           label: 'Services',
           path: '/services',
           submenu: [
-            { label: 'Residential Solar', path: '/services/residential' },
-            { label: 'Commercial Solar', path: '/services/commercial' },
-            { label: 'Battery Storage', path: '/services/battery' },
-            { label: 'Solar Packages', path: '/solar-packages' },
+            { label: 'Residential Solar', path: '/services#residential' },
+            { label: 'Commercial Solar', path: '/services#commercial' },
+            { label: 'Industrial Solar', path: '/services#industrial' },
+            { label: 'Agricultural Solar', path: '/services#agricultural' },
+            { label: 'Battery Storage', path: '/services#battery' },
             { label: 'FAQs', path: '/faqs' },
           ],
         },
@@ -632,11 +617,11 @@ const DEFAULTS: PageDefaultsMap = {
       service_links_title: 'Services',
       service_links: [
         { label: 'All services', path: '/services' },
-        { label: 'Residential solar', path: '/services/residential' },
-        { label: 'Commercial solar', path: '/services/commercial' },
-        { label: 'Industrial solar', path: '/services/industrial' },
-        { label: 'Battery storage', path: '/services/battery' },
-        { label: 'Agricultural solar', path: '/contact?action=quote' },
+        { label: 'Residential solar', path: '/services#residential' },
+        { label: 'Commercial solar', path: '/services#commercial' },
+        { label: 'Industrial solar', path: '/services#industrial' },
+        { label: 'Battery storage', path: '/services#battery' },
+        { label: 'Agricultural solar', path: '/services#agricultural' },
         { label: 'Maintenance', path: '/services' },
       ],
       tools_links_title: 'Tools & resources',
@@ -715,7 +700,7 @@ const DEFAULTS: PageDefaultsMap = {
         'Every project starts with a free site assessment — final design and pricing are confirmed after survey.',
       contact_cta_text: 'Book free site assessment & quote',
     },
-    tier_prices: {},
+    tier_prices: { ...HYBRID_PACKAGE_TIER_PRICE_DEFAULTS },
   },
   financing: {
     seo: {

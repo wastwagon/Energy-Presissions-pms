@@ -1,23 +1,23 @@
-import { COMPANY } from '../data/companyContact';
+import type { SiteContact } from './resolveSiteConfig';
 import { SITE_ORIGIN } from '../components/Seo';
 
-export function localBusinessJsonLd() {
+export function localBusinessJsonLd(contact: SiteContact) {
   return {
     '@context': 'https://schema.org',
     '@type': 'LocalBusiness',
-    name: COMPANY.name,
-    description: COMPANY.tagline,
-    url: COMPANY.website,
-    telephone: COMPANY.phone,
-    email: COMPANY.emailPrimary,
+    name: contact.name,
+    description: contact.tagline,
+    url: contact.website,
+    telephone: contact.phone,
+    email: contact.emailPrimary,
     address: {
       '@type': 'PostalAddress',
-      streetAddress: COMPANY.addressLine1,
+      streetAddress: contact.addressLine1,
       addressLocality: 'Accra',
       addressCountry: 'GH',
     },
     areaServed: { '@type': 'Country', name: 'Ghana' },
-    image: `${SITE_ORIGIN}${COMPANY.logoSrc}`,
+    image: `${SITE_ORIGIN}${contact.logoSrc}`,
   };
 }
 

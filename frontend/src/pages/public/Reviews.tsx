@@ -11,9 +11,10 @@ import { resolveCmsSeo } from '../../hooks/useCmsSeo';
 import { colors } from '../../theme/colors';
 import { homeUi } from '../../theme/homeUi';
 import { publicUi } from '../../theme/publicUi';
-import { SITE_CTA } from '../../data/siteCta';
+import { useGlobalSiteConfig } from '../../hooks/useGlobalSiteConfig';
 
 const Reviews: React.FC = () => {
+  const { cta } = useGlobalSiteConfig();
   const { sections: homeSections } = useCmsPage('home');
   const { sections } = useCmsPage('reviews');
   const items = homeSections.testimonials?.items || [];
@@ -61,16 +62,16 @@ const Reviews: React.FC = () => {
           </Typography>
           <Button
             component={RouterLink}
-            to={SITE_CTA.quoteHref}
+            to={cta.quoteHref}
             variant="contained"
             endIcon={<ArrowForwardIcon sx={{ fontSize: 18 }} />}
             sx={{ ...publicUi.primaryButton, ...homeUi.touchTarget, px: 3 }}
           >
-            {SITE_CTA.consultation}
+            {cta.consultation}
           </Button>
         </Stack>
       </PublicPageShell>
-      <PublicStickyMobileCta label={SITE_CTA.consultation} to={SITE_CTA.quoteHref} />
+      <PublicStickyMobileCta label={cta.consultation} to={cta.quoteHref} />
     </>
   );
 };

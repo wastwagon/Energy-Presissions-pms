@@ -10,7 +10,7 @@ import { publicUi } from '../../theme/publicUi';
 import { useCmsPage } from '../../hooks/useCmsPage';
 import { resolveCmsSeo } from '../../hooks/useCmsSeo';
 import PublicStickyMobileCta from '../../components/public/PublicStickyMobileCta';
-import { SITE_CTA } from '../../data/siteCta';
+import { useGlobalSiteConfig } from '../../hooks/useGlobalSiteConfig';
 
 function mapLocalToListPost(p: (typeof blogPosts)[number]): BlogCardPost {
   return {
@@ -64,6 +64,7 @@ function mergeBlogPosts(apiRows: Array<Parameters<typeof mapApiToListPost>[0]>):
 }
 
 const Blog: React.FC = () => {
+  const { cta } = useGlobalSiteConfig();
   const { sections } = useCmsPage('blog');
   const seo = resolveCmsSeo(sections, {
     title: 'Solar Resources & Insights | Energy Precisions Ghana',
@@ -150,7 +151,7 @@ const Blog: React.FC = () => {
           </Typography>
         )}
       </PublicPageShell>
-      <PublicStickyMobileCta label={SITE_CTA.consultation} to={SITE_CTA.quoteHref} />
+      <PublicStickyMobileCta label={cta.consultation} to={cta.quoteHref} />
     </>
   );
 };

@@ -14,13 +14,14 @@ import PublicPageShell from '../../components/public/PublicPageShell';
 import PublicStickyMobileCta from '../../components/public/PublicStickyMobileCta';
 import { useCmsPage } from '../../hooks/useCmsPage';
 import { getPortfolioItemByIdFromCms, resolvePortfolioItems } from '../../data/portfolioCms';
-import { SITE_CTA } from '../../data/siteCta';
+import { useGlobalSiteConfig } from '../../hooks/useGlobalSiteConfig';
 import { resolveMediaUrl } from '../../utils/mediaUrl';
 import { colors } from '../../theme/colors';
 import { homeUi } from '../../theme/homeUi';
 import { publicUi } from '../../theme/publicUi';
 
 const PortfolioCaseStudy: React.FC = () => {
+  const { cta } = useGlobalSiteConfig();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { sections } = useCmsPage('portfolio');
@@ -41,8 +42,8 @@ const PortfolioCaseStudy: React.FC = () => {
             <Button component={RouterLink} to="/portfolio" variant="contained" sx={{ ...publicUi.primaryButton, ...homeUi.touchTarget }}>
               View all projects
             </Button>
-            <Button component={RouterLink} to={SITE_CTA.quoteHref} variant="outlined" sx={{ ...publicUi.secondaryButton, ...homeUi.touchTarget }}>
-              {SITE_CTA.consultation}
+            <Button component={RouterLink} to={cta.quoteHref} variant="outlined" sx={{ ...publicUi.secondaryButton, ...homeUi.touchTarget }}>
+              {cta.consultation}
             </Button>
           </Stack>
         </PublicPageShell>
@@ -121,7 +122,7 @@ const PortfolioCaseStudy: React.FC = () => {
 
         <Button
           component={RouterLink}
-          to={SITE_CTA.quoteHref}
+          to={cta.quoteHref}
           variant="contained"
           endIcon={<ArrowForwardIcon sx={{ fontSize: 18 }} />}
           sx={{
@@ -131,7 +132,7 @@ const PortfolioCaseStudy: React.FC = () => {
             display: { xs: 'none', md: 'inline-flex' },
           }}
         >
-          {SITE_CTA.consultation}
+          {cta.consultation}
         </Button>
 
         {related.length > 0 && (
@@ -155,7 +156,7 @@ const PortfolioCaseStudy: React.FC = () => {
           </>
         )}
       </PublicPageShell>
-      <PublicStickyMobileCta label={SITE_CTA.consultation} to={SITE_CTA.quoteHref} />
+      <PublicStickyMobileCta label={cta.consultation} to={cta.quoteHref} />
     </>
   );
 };

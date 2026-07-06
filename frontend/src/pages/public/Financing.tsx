@@ -28,12 +28,13 @@ import { publicUi } from '../../theme/publicUi';
 import { useCmsPage } from '../../hooks/useCmsPage';
 import { resolveCmsSeo } from '../../hooks/useCmsSeo';
 import FinancingPaymentEstimate from '../../components/public/FinancingPaymentEstimate';
-import { SITE_CTA } from '../../data/siteCta';
+import { useGlobalSiteConfig } from '../../hooks/useGlobalSiteConfig';
 
 const HERO_CARD_ICONS = [HandshakeIcon, AccountBalanceIcon];
 
 const Financing: React.FC = () => {
   const { sections } = useCmsPage('financing');
+  const { cta } = useGlobalSiteConfig();
   const seo = resolveCmsSeo(sections, {
     title: 'Solar Financing Ghana | Payment Options | Energy Precisions',
     description:
@@ -172,7 +173,7 @@ const Financing: React.FC = () => {
           </CardContent>
         </Card>
       </PublicPageShell>
-      <PublicStickyMobileCta label={SITE_CTA.consultation} to={SITE_CTA.quoteHref} />
+      <PublicStickyMobileCta label={cta.consultation} to={cta.quoteHref} />
     </>
   );
 };

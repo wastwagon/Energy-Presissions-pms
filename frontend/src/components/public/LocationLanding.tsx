@@ -22,8 +22,7 @@ import { Seo } from '../Seo';
 import PublicPageShell from './PublicPageShell';
 import PublicStickyMobileCta from './PublicStickyMobileCta';
 import type { LocationPageData } from '../../data/locationPages';
-import { COMPANY } from '../../data/companyContact';
-import { SITE_CTA } from '../../data/siteCta';
+import { useGlobalSiteConfig } from '../../hooks/useGlobalSiteConfig';
 import { colors } from '../../theme/colors';
 import { homeUi } from '../../theme/homeUi';
 import { publicUi } from '../../theme/publicUi';
@@ -34,9 +33,10 @@ type Props = {
 };
 
 const LocationLanding: React.FC<Props> = ({ page }) => {
+  const { contact, cta } = useGlobalSiteConfig();
   const path = `/${page.slug}`;
   const jsonLd = {
-    ...localBusinessJsonLd(),
+    ...localBusinessJsonLd(contact),
     areaServed: { '@type': 'City', name: page.city },
     description: page.description,
   };
@@ -52,16 +52,16 @@ const LocationLanding: React.FC<Props> = ({ page }) => {
           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5}>
             <Button
               component={RouterLink}
-              to={`${SITE_CTA.quoteHref}&city=${encodeURIComponent(page.city)}`}
+              to={`${cta.quoteHref}&city=${encodeURIComponent(page.city)}`}
               variant="contained"
               endIcon={<ArrowForwardIcon sx={{ fontSize: 18 }} />}
               sx={{ ...publicUi.primaryButton, ...homeUi.touchTarget, px: 3 }}
             >
-              {SITE_CTA.consultation}
+              {cta.consultation}
             </Button>
             <Button
               component="a"
-              href={COMPANY.phoneHref}
+              href={contact.phoneHref}
               variant="outlined"
               startIcon={<PhoneIcon />}
               sx={{
@@ -73,7 +73,7 @@ const LocationLanding: React.FC<Props> = ({ page }) => {
                 '&:hover': { borderColor: 'white', bgcolor: 'rgba(255,255,255,0.06)' },
               }}
             >
-              {COMPANY.phoneDisplay}
+              {contact.phoneDisplay}
             </Button>
           </Stack>
         }
@@ -125,19 +125,19 @@ const LocationLanding: React.FC<Props> = ({ page }) => {
 
         <Box sx={{ textAlign: 'center', display: { xs: 'none', md: 'block' } }}>
           <Typography sx={{ ...publicUi.mutedText, mb: 2, maxWidth: 520, mx: 'auto' }}>
-            {COMPANY.officeRegionNote}
+            {contact.officeRegionNote}
           </Typography>
           <Button
             component={RouterLink}
-            to={SITE_CTA.quoteHref}
+            to={cta.quoteHref}
             variant="contained"
             sx={{ ...publicUi.primaryButton, ...homeUi.touchTarget, px: 3 }}
           >
-            {SITE_CTA.consultation}
+            {cta.consultation}
           </Button>
         </Box>
       </PublicPageShell>
-      <PublicStickyMobileCta label={SITE_CTA.consultation} to={SITE_CTA.quoteHref} />
+      <PublicStickyMobileCta label={cta.consultation} to={cta.quoteHref} />
     </>
   );
 };

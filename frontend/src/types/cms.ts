@@ -185,7 +185,71 @@ export interface CmsGoogleReviews {
   place_id?: string;
 }
 
+/** Site-wide contact — editable under global CMS (Phase 1) */
+export interface CmsSiteContact {
+  name: string;
+  tagline: string;
+  logo_src: string;
+  logo_alt: string;
+  website: string;
+  website_display: string;
+  phone: string;
+  phone_display: string;
+  whatsapp: string;
+  whatsapp_display: string;
+  email_primary: string;
+  email_sales: string;
+  address_line1: string;
+  address_line2: string;
+  address_full: string;
+  office_heading: string;
+  office_region_note: string;
+  google_maps_review_url: string;
+  google_maps_write_review_url: string;
+  google_maps_embed_url: string;
+}
+
+export interface CmsSocialLinks {
+  facebook: string;
+  twitter: string;
+  linkedin: string;
+  instagram: string;
+}
+
+export interface CmsSiteCta {
+  consultation: string;
+  quote: string;
+  quote_href: string;
+  survey_href: string;
+}
+
+/** Canonical site-wide impact figures — edit once under global CMS */
+export interface CmsGlobalImpactStats {
+  title: string;
+  items: CmsImpactStat[];
+}
+
+/** Short hero stat strip (value + label) */
+export interface CmsGlobalHeroStats {
+  items: CmsStat[];
+}
+
+/** Marketing-safe warranty messaging aligned with /warranty legal page */
+export interface CmsWarrantySummary {
+  headline: string;
+  workmanship: string;
+  equipment: string;
+  shop_note: string;
+  details_path: string;
+}
+
 export interface GlobalPageSections {
+  contact?: CmsSiteContact;
+  social?: CmsSocialLinks;
+  cta?: CmsSiteCta;
+  hero_stats?: CmsGlobalHeroStats;
+  impact_stats?: CmsGlobalImpactStats;
+  warranty_summary?: CmsWarrantySummary;
   header: CmsHeader;
   footer: CmsFooter;
   google_reviews?: CmsGoogleReviews;

@@ -13,6 +13,7 @@ import { Link } from 'react-router-dom';
 import { colors } from '../../theme/colors';
 import { homePageImages } from '../../data/homePageMedia';
 import { useCmsPage } from '../../hooks/useCmsPage';
+import { useGlobalSiteConfig } from '../../hooks/useGlobalSiteConfig';
 import api from '../../services/api';
 import { heroAutoplayMs, resolveHeroSlides } from '../../utils/heroSlides';
 import type { CmsHeroSlide } from '../../types/cms';
@@ -125,6 +126,7 @@ const SlideBackground: React.FC<{
 
 const HomeHero: React.FC = () => {
   const { sections } = useCmsPage('home');
+  const { heroStats } = useGlobalSiteConfig();
   const hero = sections.hero;
   const slides = useMemo(() => resolveHeroSlides(hero), [hero]);
   const autoplayMs = heroAutoplayMs(hero);
@@ -329,6 +331,34 @@ const HomeHero: React.FC = () => {
                   </Button>
                 )}
               </Stack>
+
+              {heroStats.length > 0 && (
+                <Stack
+                  direction="row"
+                  spacing={{ xs: 2, sm: 3 }}
+                  flexWrap="wrap"
+                  useFlexGap
+                  sx={{ mt: 3 }}
+                >
+                  {heroStats.map((stat) => (
+                    <Box key={stat.label}>
+                      <Typography
+                        sx={{
+                          fontWeight: 800,
+                          color: colors.green,
+                          lineHeight: 1.1,
+                          fontSize: { xs: '1.1rem', md: '1.25rem' },
+                        }}
+                      >
+                        {stat.value}
+                      </Typography>
+                      <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.72)' }}>
+                        {stat.label}
+                      </Typography>
+                    </Box>
+                  ))}
+                </Stack>
+              )}
             </Box>
           </Fade>
         </Box>

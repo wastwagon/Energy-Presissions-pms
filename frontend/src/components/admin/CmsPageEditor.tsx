@@ -18,6 +18,7 @@ import { Save as SaveIcon } from '@mui/icons-material';
 import api from '../../services/api';
 import { CMS_PAGE_LABELS, getCmsDefaults } from '../../data/cmsDefaults';
 import { DEFAULT_CMS_PORTFOLIO_ITEMS } from '../../data/portfolioCms';
+import { HYBRID_PACKAGES } from '../../data/hybridPackages';
 import type {
   CmsFooter,
   CmsHeaderNavItem,
@@ -319,6 +320,66 @@ const CmsPageEditor: React.FC = () => {
     }));
   };
 
+  const setSiteContactField = (field: string, value: string) => {
+    setSections((s) => ({
+      ...s,
+      contact: { ...(s.contact as Record<string, string>), [field]: value },
+    }));
+  };
+
+  const setSiteSocialField = (field: string, value: string) => {
+    setSections((s) => ({
+      ...s,
+      social: { ...(s.social as Record<string, string>), [field]: value },
+    }));
+  };
+
+  const setSiteCtaField = (field: string, value: string) => {
+    setSections((s) => ({
+      ...s,
+      cta: { ...(s.cta as Record<string, string>), [field]: value },
+    }));
+  };
+
+  const setGlobalHeroStat = (index: number, field: 'value' | 'label', value: string) => {
+    setSections((s) => {
+      const block = (s.hero_stats as { items: { value: string; label: string }[] }) || { items: [] };
+      const items = [...(block.items || [])];
+      items[index] = { ...(items[index] || { value: '', label: '' }), [field]: value };
+      return { ...s, hero_stats: { items } };
+    });
+  };
+
+  const setGlobalImpactTitle = (value: string) => {
+    setSections((s) => ({
+      ...s,
+      impact_stats: { ...(s.impact_stats as object), title: value },
+    }));
+  };
+
+  const setGlobalImpactStat = (
+    index: number,
+    field: 'value' | 'label' | 'description',
+    value: string,
+  ) => {
+    setSections((s) => {
+      const block = (s.impact_stats as { title?: string; items: Record<string, string>[] }) || {
+        title: '',
+        items: [],
+      };
+      const items = [...(block.items || [])];
+      items[index] = { ...(items[index] || {}), [field]: value };
+      return { ...s, impact_stats: { ...block, items } };
+    });
+  };
+
+  const setWarrantySummaryField = (field: string, value: string) => {
+    setSections((s) => ({
+      ...s,
+      warranty_summary: { ...(s.warranty_summary as Record<string, string>), [field]: value },
+    }));
+  };
+
   const setGoogleReviewsField = (field: 'rating' | 'review_count' | 'place_id', value: string) => {
     setSections((s) => {
       const current = (s.google_reviews as { rating: number; review_count: number; place_id?: string }) || {
@@ -471,6 +532,19 @@ const CmsPageEditor: React.FC = () => {
     }));
   };
 
+  const setTierPrice = (packageId: string, value: string) => {
+    const parsed = Number(value.replace(/,/g, ''));
+    setSections((s) => {
+      const current = { ...((s.tier_prices as Record<string, number>) || {}) };
+      if (!value.trim() || Number.isNaN(parsed) || parsed <= 0) {
+        delete current[packageId];
+      } else {
+        current[packageId] = Math.round(parsed);
+      }
+      return { ...s, tier_prices: current };
+    });
+  };
+
   const save = async () => {
     setSaving(true);
     setMessage(null);
@@ -595,6 +669,7 @@ const CmsPageEditor: React.FC = () => {
     validity_note: string;
     contact_cta_text: string;
   };
+  const tierPrices = (sections.tier_prices || {}) as Record<string, number>;
   const portfolioGalleryItems = (sections.items || []) as CmsPortfolioGalleryItem[];
 
   if (loading) {
@@ -744,6 +819,76 @@ const CmsPageEditor: React.FC = () => {
 
       {page === 'global' && (
         <>
+        <Paper variant="outlined" sx={{ p: 2.5, mb: 2 }}>
+          <Typography variant="subtitle1" sx={{ fontWeight: 800, mb: 1 }}>Site settings</Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            Contact details, social profiles, and primary call-to-action — used in the header, footer, contact page, and across the site.
+          </Typography>
+          <Typography variant="overline" sx={{ display: 'block', mb: 1 }}>Contact</Typography>
+          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} sx={{ mb: 1.5 }}>
+            <TextField size="small" label="Company name" value={(sections.contact as { name?: string })?.name || ''} onChange={(e) => setSiteContactField('name', e.target.value)} sx={{ flex: 1 }} />
+            <TextField size="small" label="Tagline" value={(sections.contact as { tagline?: string })?.tagline || ''} onChange={(e) => setSiteContactField('tagline', e.target.value)} sx={{ flex: 2 }} />
+          </Stack>
+          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} sx={{ mb: 1.5 }}>
+            <TextField size="small" label="Phone (E.164)" value={(sections.contact as { phone?: string })?.phone || ''} onChange={(e) => setSiteContactField('phone', e.target.value)} sx={{ flex: 1 }} helperText="e.g. +233533611611" />
+            <TextField size="small" label="Phone display" value={(sections.contact as { phone_display?: string })?.phone_display || ''} onChange={(e) => setSiteContactField('phone_display', e.target.value)} sx={{ flex: 1 }} />
+          </Stack>
+          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} sx={{ mb: 1.5 }}>
+            <TextField size="small" label="WhatsApp (digits)" value={(sections.contact as { whatsapp?: string })?.whatsapp || ''} onChange={(e) => setSiteContactField('whatsapp', e.target.value)} sx={{ flex: 1 }} />
+            <TextField size="small" label="WhatsApp label" value={(sections.contact as { whatsapp_display?: string })?.whatsapp_display || ''} onChange={(e) => setSiteContactField('whatsapp_display', e.target.value)} sx={{ flex: 1 }} />
+          </Stack>
+          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} sx={{ mb: 1.5 }}>
+            <TextField size="small" label="Email (primary)" value={(sections.contact as { email_primary?: string })?.email_primary || ''} onChange={(e) => setSiteContactField('email_primary', e.target.value)} sx={{ flex: 1 }} />
+            <TextField size="small" label="Email (sales)" value={(sections.contact as { email_sales?: string })?.email_sales || ''} onChange={(e) => setSiteContactField('email_sales', e.target.value)} sx={{ flex: 1 }} />
+          </Stack>
+          <TextField size="small" fullWidth sx={{ mb: 1.5 }} label="Full address" value={(sections.contact as { address_full?: string })?.address_full || ''} onChange={(e) => setSiteContactField('address_full', e.target.value)} />
+          <TextField size="small" fullWidth sx={{ mb: 1.5 }} label="Office region note" value={(sections.contact as { office_region_note?: string })?.office_region_note || ''} onChange={(e) => setSiteContactField('office_region_note', e.target.value)} multiline minRows={2} />
+          <Typography variant="overline" sx={{ display: 'block', mb: 1, mt: 2 }}>Social profiles</Typography>
+          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} sx={{ mb: 1.5 }}>
+            <TextField size="small" label="Facebook URL" value={(sections.social as { facebook?: string })?.facebook || ''} onChange={(e) => setSiteSocialField('facebook', e.target.value)} sx={{ flex: 1 }} />
+            <TextField size="small" label="X (Twitter) URL" value={(sections.social as { twitter?: string })?.twitter || ''} onChange={(e) => setSiteSocialField('twitter', e.target.value)} sx={{ flex: 1 }} />
+          </Stack>
+          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} sx={{ mb: 1.5 }}>
+            <TextField size="small" label="LinkedIn URL" value={(sections.social as { linkedin?: string })?.linkedin || ''} onChange={(e) => setSiteSocialField('linkedin', e.target.value)} sx={{ flex: 1 }} />
+            <TextField size="small" label="Instagram URL" value={(sections.social as { instagram?: string })?.instagram || ''} onChange={(e) => setSiteSocialField('instagram', e.target.value)} sx={{ flex: 1 }} />
+          </Stack>
+          <Typography variant="overline" sx={{ display: 'block', mb: 1, mt: 2 }}>Primary CTA</Typography>
+          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} sx={{ mb: 1.5 }}>
+            <TextField size="small" label="Button label" value={(sections.cta as { consultation?: string })?.consultation || ''} onChange={(e) => setSiteCtaField('consultation', e.target.value)} sx={{ flex: 1 }} />
+            <TextField size="small" label="Quote link" value={(sections.cta as { quote_href?: string })?.quote_href || ''} onChange={(e) => setSiteCtaField('quote_href', e.target.value)} sx={{ flex: 1 }} />
+          </Stack>
+          <TextField size="small" fullWidth label="Package survey link" value={(sections.cta as { survey_href?: string })?.survey_href || ''} onChange={(e) => setSiteCtaField('survey_href', e.target.value)} helperText="Used for package and site-assessment CTAs" />
+          <Typography variant="overline" sx={{ display: 'block', mb: 1, mt: 2 }}>Hero stat strip</Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
+            Short figures shown on the home hero and about page header. Use verifiable product or capability stats — not inflated vanity metrics.
+          </Typography>
+          {((sections.hero_stats as { items?: { value: string; label: string }[] })?.items || []).map((stat, i) => (
+            <Stack key={`hero-stat-${i}`} direction={{ xs: 'column', sm: 'row' }} spacing={1} sx={{ mb: 1 }}>
+              <TextField size="small" label="Value" value={stat.value || ''} onChange={(e) => setGlobalHeroStat(i, 'value', e.target.value)} sx={{ flex: 1 }} />
+              <TextField size="small" label="Label" value={stat.label || ''} onChange={(e) => setGlobalHeroStat(i, 'label', e.target.value)} sx={{ flex: 2 }} />
+            </Stack>
+          ))}
+          <Typography variant="overline" sx={{ display: 'block', mb: 1, mt: 2 }}>Impact stats (about page)</Typography>
+          <TextField size="small" fullWidth sx={{ mb: 1.5 }} label="Section title" value={(sections.impact_stats as { title?: string })?.title || ''} onChange={(e) => setGlobalImpactTitle(e.target.value)} />
+          {((sections.impact_stats as { items?: { value: string; label: string; description: string }[] })?.items || []).map((stat, i) => (
+            <Box key={`impact-stat-${i}`} sx={{ mb: 2, pb: 2, borderBottom: '1px solid', borderColor: 'divider' }}>
+              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} sx={{ mb: 1 }}>
+                <TextField size="small" label="Value" value={stat.value || ''} onChange={(e) => setGlobalImpactStat(i, 'value', e.target.value)} sx={{ flex: 1 }} />
+                <TextField size="small" label="Label" value={stat.label || ''} onChange={(e) => setGlobalImpactStat(i, 'label', e.target.value)} sx={{ flex: 2 }} />
+              </Stack>
+              <TextField size="small" fullWidth label="Description" value={stat.description || ''} onChange={(e) => setGlobalImpactStat(i, 'description', e.target.value)} multiline minRows={2} />
+            </Box>
+          ))}
+          <Typography variant="overline" sx={{ display: 'block', mb: 1, mt: 2 }}>Warranty summary</Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
+            Canonical marketing copy for warranty — keep aligned with the /warranty legal page and hybrid package cards.
+          </Typography>
+          <TextField size="small" fullWidth sx={{ mb: 1.5 }} label="Headline" value={(sections.warranty_summary as { headline?: string })?.headline || ''} onChange={(e) => setWarrantySummaryField('headline', e.target.value)} />
+          <TextField size="small" fullWidth sx={{ mb: 1.5 }} label="Workmanship" value={(sections.warranty_summary as { workmanship?: string })?.workmanship || ''} onChange={(e) => setWarrantySummaryField('workmanship', e.target.value)} multiline minRows={2} />
+          <TextField size="small" fullWidth sx={{ mb: 1.5 }} label="Equipment" value={(sections.warranty_summary as { equipment?: string })?.equipment || ''} onChange={(e) => setWarrantySummaryField('equipment', e.target.value)} multiline minRows={2} />
+          <TextField size="small" fullWidth sx={{ mb: 1.5 }} label="Shop note" value={(sections.warranty_summary as { shop_note?: string })?.shop_note || ''} onChange={(e) => setWarrantySummaryField('shop_note', e.target.value)} multiline minRows={2} />
+          <TextField size="small" fullWidth label="Details page path" value={(sections.warranty_summary as { details_path?: string })?.details_path || ''} onChange={(e) => setWarrantySummaryField('details_path', e.target.value)} />
+        </Paper>
         <Paper variant="outlined" sx={{ p: 2.5, mb: 2 }}>
           <Typography variant="subtitle1" sx={{ fontWeight: 800, mb: 1 }}>Google reviews band</Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
@@ -984,6 +1129,26 @@ const CmsPageEditor: React.FC = () => {
             <TextField size="small" fullWidth sx={{ mb: 1.5 }} label="Warranty note" value={whySection.warranty_note || ''} onChange={(e) => setWhySection('warranty_note', e.target.value)} multiline minRows={2} />
             <TextField size="small" fullWidth sx={{ mb: 1.5 }} label="Site assessment note" value={whySection.validity_note || ''} onChange={(e) => setWhySection('validity_note', e.target.value)} />
             <TextField size="small" fullWidth label="Contact CTA text" value={whySection.contact_cta_text || ''} onChange={(e) => setWhySection('contact_cta_text', e.target.value)} />
+          </Paper>
+          <Paper variant="outlined" sx={{ p: 2.5, mb: 2 }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 800, mb: 1 }}>Package tier prices (GHS)</Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+              Brochure prices shown on package cards. Leave blank to use bundled defaults from code on deploy sync.
+            </Typography>
+            <Stack spacing={1.5}>
+              {HYBRID_PACKAGES.map((pkg) => (
+                <TextField
+                  key={pkg.id}
+                  size="small"
+                  fullWidth
+                  type="number"
+                  label={`${pkg.kvaLabel} (${pkg.badge})`}
+                  value={tierPrices[pkg.id] ?? ''}
+                  onChange={(e) => setTierPrice(pkg.id, e.target.value)}
+                  inputProps={{ min: 0, step: 100 }}
+                />
+              ))}
+            </Stack>
           </Paper>
         </>
       )}

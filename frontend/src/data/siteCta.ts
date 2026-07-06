@@ -1,7 +1,6 @@
-/** Primary conversion CTA — keep wording consistent site-wide */
-export const SITE_CTA = {
-  consultation: 'Get free consultation',
-  quote: 'Get free consultation',
-  quoteHref: '/contact?action=quote',
-  surveyHref: '/contact?action=quote&topic=package',
-} as const;
+/**
+ * Static fallback CTA copy — prefer `useGlobalSiteConfig()` on public pages.
+ */
+import { resolveSiteCta } from '../utils/resolveSiteConfig';
+
+export const SITE_CTA = resolveSiteCta();

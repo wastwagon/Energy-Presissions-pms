@@ -3,11 +3,11 @@ import type { CmsLink } from '../types/cms';
 /** Fallback footer links when CMS global footer is missing fields */
 export const DEFAULT_FOOTER_SERVICE_LINKS: CmsLink[] = [
   { label: 'All services', path: '/services' },
-  { label: 'Residential solar', path: '/services/residential' },
-  { label: 'Commercial solar', path: '/services/commercial' },
-  { label: 'Industrial solar', path: '/services/industrial' },
-  { label: 'Battery storage', path: '/services/battery' },
-  { label: 'Agricultural solar', path: '/contact?action=quote' },
+  { label: 'Residential solar', path: '/services#residential' },
+  { label: 'Commercial solar', path: '/services#commercial' },
+  { label: 'Industrial solar', path: '/services#industrial' },
+  { label: 'Battery storage', path: '/services#battery' },
+  { label: 'Agricultural solar', path: '/services#agricultural' },
   { label: 'Maintenance', path: '/services' },
 ];
 
@@ -25,11 +25,11 @@ export const DEFAULT_FOOTER_LEGAL_LINKS: CmsLink[] = [
 ];
 
 const LEGACY_SERVICE_PATHS: Record<string, string> = {
-  'Residential solar': '/services/residential',
-  'Commercial solar': '/services/commercial',
-  'Industrial solar': '/services/industrial',
-  'Energy storage': '/services/battery',
-  'Battery storage': '/services/battery',
+  'Residential solar': '/services#residential',
+  'Commercial solar': '/services#commercial',
+  'Industrial solar': '/services#industrial',
+  'Energy storage': '/services#battery',
+  'Battery storage': '/services#battery',
   'Maintenance & monitoring': '/services',
   Maintenance: '/services',
 };

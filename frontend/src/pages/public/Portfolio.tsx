@@ -23,11 +23,12 @@ import FilterChip from '../../components/public/FilterChip';
 import { useCmsPage } from '../../hooks/useCmsPage';
 import { resolveCmsSeo } from '../../hooks/useCmsSeo';
 import { getPortfolioCategoriesFromItems, resolvePortfolioItems } from '../../data/portfolioCms';
-import { SITE_CTA } from '../../data/siteCta';
+import { useGlobalSiteConfig } from '../../hooks/useGlobalSiteConfig';
 import { resolveMediaUrl } from '../../utils/mediaUrl';
 import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion';
 
 const Portfolio: React.FC = () => {
+  const { cta } = useGlobalSiteConfig();
   const { sections } = useCmsPage('portfolio');
   const reducedMotion = usePrefersReducedMotion();
   const seo = resolveCmsSeo(sections, {
@@ -178,16 +179,16 @@ const Portfolio: React.FC = () => {
           <Button
             variant="contained"
             component={Link}
-            to={closingCta.primary_cta_link || SITE_CTA.quoteHref}
+            to={closingCta.primary_cta_link || cta.quoteHref}
             endIcon={<ArrowForwardIcon sx={{ fontSize: 18 }} />}
             sx={{ ...publicUi.primaryButton, ...homeUi.touchTarget, px: 3.5 }}
           >
-            {closingCta.primary_cta_text || SITE_CTA.consultation}
+            {closingCta.primary_cta_text || cta.consultation}
           </Button>
         </Container>
       </Box>
 
-      <PublicStickyMobileCta label={SITE_CTA.consultation} to={SITE_CTA.quoteHref} />
+      <PublicStickyMobileCta label={cta.consultation} to={cta.quoteHref} />
     </>
   );
 };
