@@ -283,6 +283,26 @@ export interface PortfolioPageSections {
   closing_cta: CmsCta;
 }
 
+export interface CmsPackageTierSpecs {
+  inverter: string;
+  storage: string;
+  panels: string;
+  solar_kw: string;
+}
+
+export interface CmsPackageTier {
+  id: string;
+  badge: string;
+  kva_label: string;
+  max_watts: string;
+  customer_note: string;
+  inverter_headroom?: string;
+  specs: CmsPackageTierSpecs;
+  highlights: string[];
+  components: string[];
+  appliances: string;
+}
+
 export interface PackagesPageSections {
   seo: CmsSeo;
   hero: CmsSimpleHero;
@@ -298,6 +318,8 @@ export interface PackagesPageSections {
   };
   /** Optional GHS price overrides keyed by package id (e.g. ep-8kva) */
   tier_prices?: Record<string, number>;
+  /** Full tier BOM — synced from bundled defaults on deploy when empty in admin */
+  package_tiers?: CmsPackageTier[];
 }
 
 /** Hero + SEO for marketing pages (blog, reviews, referral) */
@@ -442,11 +464,27 @@ export interface ShopPageSections {
   hero: ShopHero;
 }
 
+/** Cart, checkout, and order confirmation copy */
+export interface EcommerceFlowPageSections {
+  seo?: CmsSeo;
+  hero: ShopHero;
+  empty_state?: {
+    title: string;
+    cta_text: string;
+  };
+  footer_note?: string;
+  confirmation_body?: string;
+  next_steps_title?: string;
+}
+
 export type CmsPageSlug =
   | 'home'
   | 'about'
   | 'services'
   | 'shop'
+  | 'cart'
+  | 'checkout'
+  | 'checkout_success'
   | 'contact'
   | 'global'
   | 'packages'

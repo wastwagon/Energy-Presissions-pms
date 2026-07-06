@@ -9,9 +9,9 @@ import {
   TextField,
   InputAdornment,
   Link,
+  CircularProgress,
 } from '@mui/material';
 import { ExpandMore as ExpandMoreIcon, Search as SearchIcon } from '@mui/icons-material';
-import { getDefaultFaqs } from '../../data/faqDefaults';
 import { Seo } from '../../components/Seo';
 import PublicPageShell from '../../components/public/PublicPageShell';
 import PublicStickyMobileCta from '../../components/public/PublicStickyMobileCta';
@@ -35,19 +35,26 @@ const FAQs: React.FC = () => {
       'Answers to common questions about solar panels, installation, batteries, costs and maintenance in Ghana — from Energy Precisions.',
   });
   const { hero } = sections;
-  const [faqs, setFaqs] = useState<Faq[]>(getDefaultFaqs());
+  const [faqs, setFaqs] = useState<Faq[]>([]);
+  const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState('');
 
   useEffect(() => {
     let cancelled = false;
+    setLoading(true);
     api
       .get<Faq[]>('/content/faqs')
       .then((res) => {
-        if (!cancelled && Array.isArray(res.data) && res.data.length > 0) {
+        if (!cancelled && Array.isArray(res.data)) {
           setFaqs(res.data);
         }
       })
-      .catch(() => {});
+      .catch(() => {
+        if (!cancelled) setFaqs([]);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
     return () => {
       cancelled = true;
     };
@@ -93,6 +100,12 @@ const FAQs: React.FC = () => {
         </Typography>
 
         <Box sx={{ maxWidth: 800, mx: 'auto' }}>
+          {loading ? (
+            <Box sx={{ py: 6, display: 'flex', justifyContent: 'center' }}>
+              <CircularProgress size={36} />
+            </Box>
+          ) : (
+            <>
           {filtered.map((faq, index) => (
             <Accordion
               key={`${faq.question}-${index}`}
@@ -109,14 +122,18 @@ const FAQs: React.FC = () => {
               </AccordionDetails>
             </Accordion>
           ))}
-          {filtered.length === 0 && (
+          {filtered.length === 0 && !loading && (
             <Typography sx={{ ...publicUi.mutedText, textAlign: 'center', py: 4 }}>
-              No FAQs match your search.{' '}
+              {faqs.length === 0
+                ? 'FAQs will appear here once published.'
+                : 'No FAQs match your search.'}{' '}
               <Link component={RouterLink} to="/contact" sx={publicUi.inlineLink}>
                 Contact us
               </Link>{' '}
               instead.
             </Typography>
+          )}
+            </>
           )}
         </Box>
       </PublicPageShell>

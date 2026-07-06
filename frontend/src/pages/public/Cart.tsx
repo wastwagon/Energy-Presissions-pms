@@ -31,6 +31,8 @@ import { catalogLineUnitPrice } from '../../utils/catalogPrice';
 import { Seo } from '../../components/Seo';
 import PublicPageShell from '../../components/public/PublicPageShell';
 import ProductImage from '../../components/public/ProductImage';
+import { useCmsPage } from '../../hooks/useCmsPage';
+import { resolveCmsSeo } from '../../hooks/useCmsSeo';
 import { colors } from '../../theme/colors';
 import { publicUi } from '../../theme/publicUi';
 import { homeUi } from '../../theme/homeUi';
@@ -130,6 +132,12 @@ const Cart: React.FC = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const navigate = useNavigate();
   const { cartItems, cartTotal, removeFromCart, updateCartItem, loading } = useCart();
+  const { sections } = useCmsPage('cart');
+  const seo = resolveCmsSeo(sections, {
+    title: 'Shopping Cart | Energy Precisions',
+    description: 'Review your solar equipment order before checkout.',
+  });
+  const { hero, empty_state: emptyState, footer_note: footerNote } = sections;
 
   const handleQuantityChange = async (itemId: number, newQuantity: number) => {
     if (newQuantity < 1) {
@@ -184,24 +192,21 @@ const Cart: React.FC = () => {
   if (cartItems.length === 0) {
     return (
       <>
-        <Seo
-          title="Shopping Cart"
-          description="Your Energy Precisions cart — solar equipment checkout."
-          path="/cart"
-          noIndex
-        />
-        <PublicPageShell badge="Shop" headline="Shopping cart" description="Review equipment before checkout.">
+        <Seo title={seo.title} description={seo.description} path="/cart" noIndex />
+        <PublicPageShell badge={hero.badge} headline={hero.headline} description={hero.description}>
           <Card sx={publicUi.card}>
             <CardContent sx={{ textAlign: 'center', py: { xs: 5, md: 6 } }}>
               <ShoppingCartIcon sx={{ fontSize: 64, color: colors.gray400, mb: 1.5 }} />
-              <Typography sx={{ ...publicUi.mutedText, mb: 2 }}>Your cart is empty</Typography>
+              <Typography sx={{ ...publicUi.mutedText, mb: 2 }}>
+                {emptyState?.title || 'Your cart is empty'}
+              </Typography>
               <Button
                 variant="contained"
                 component={RouterLink}
                 to="/shop"
                 sx={{ ...publicUi.primaryButton, ...homeUi.touchTarget }}
               >
-                Continue shopping
+                {emptyState?.cta_text || 'Continue shopping'}
               </Button>
             </CardContent>
           </Card>
@@ -212,13 +217,8 @@ const Cart: React.FC = () => {
 
   return (
     <>
-      <Seo
-        title="Shopping Cart"
-        description="Review your solar equipment order before checkout."
-        path="/cart"
-        noIndex
-      />
-      <PublicPageShell badge="Shop" headline="Shopping cart" description="Review items and proceed to secure checkout.">
+      <Seo title={seo.title} description={seo.description} path="/cart" noIndex />
+      <PublicPageShell badge={hero.badge} headline={hero.headline} description={hero.description}>
         <Grid container spacing={{ xs: 2, md: 3 }}>
           <Grid item xs={12} md={8}>
             {isMobile ? (
@@ -329,7 +329,7 @@ const Cart: React.FC = () => {
               </TableContainer>
             )}
             <Typography sx={{ ...publicUi.mutedText, fontSize: '0.8125rem', mt: 2 }}>
-              Need installation?{' '}
+              {footerNote || 'Need installation?'}{' '}
               <Link component={RouterLink} to="/contact?action=quote&topic=shop" sx={publicUi.inlineLink}>
                 Request a site survey
               </Link>{' '}

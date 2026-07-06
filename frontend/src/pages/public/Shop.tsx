@@ -35,6 +35,7 @@ import { catalogLineUnitPrice } from '../../utils/catalogPrice';
 import { trackAddToCart } from '../../utils/analytics';
 import { useCmsPage } from '../../hooks/useCmsPage';
 import { resolveCmsSeo } from '../../hooks/useCmsSeo';
+import { useGlobalSiteConfig } from '../../hooks/useGlobalSiteConfig';
 import PublicPageShell from '../../components/public/PublicPageShell';
 import PublicStickyMobileCta from '../../components/public/PublicStickyMobileCta';
 import FilterChip from '../../components/public/FilterChip';
@@ -47,6 +48,7 @@ import { publicUi } from '../../theme/publicUi';
 
 const Shop: React.FC = () => {
   const { sections } = useCmsPage('shop');
+  const { warrantySummary } = useGlobalSiteConfig();
   const seo = resolveCmsSeo(sections, {
     title: 'Shop Solar Equipment Ghana | Panels, Inverters & Batteries',
     description:
@@ -564,7 +566,11 @@ const Shop: React.FC = () => {
         <Box sx={{ ...publicUi.card, mt: 8, p: 4 }}>
           <Grid container spacing={4} alignItems="center">
             {[
-              { icon: <SecurityIcon />, title: 'Warranty Guaranteed', desc: 'All products come with manufacturer warranty' },
+              {
+                icon: <SecurityIcon />,
+                title: 'Warranty coverage',
+                desc: warrantySummary.shop_note || 'Manufacturer warranty on all equipment',
+              },
               { icon: <ShippingIcon />, title: 'Free Delivery', desc: 'Free delivery across Ghana for orders over GHS 5,000' },
               { icon: <CheckCircleIcon />, title: 'Quality Assured', desc: 'Only premium, certified equipment' },
               { icon: <TrendingUpIcon />, title: 'Expert Support', desc: 'Free consultation and installation support' },

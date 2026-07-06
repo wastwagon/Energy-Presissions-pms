@@ -1,67 +1,17 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Typography, Grid, Stack, Box } from '@mui/material';
+import { Typography, Grid, Stack, Box, CircularProgress } from '@mui/material';
 import { Seo } from '../../components/Seo';
 import PublicPageShell from '../../components/public/PublicPageShell';
 import FilterChip from '../../components/public/FilterChip';
 import BlogCard, { type BlogCardPost } from '../../components/public/BlogCard';
-import { BLOG_CATEGORIES, blogPosts, resolveBlogFeaturedImage } from '../../data/blogPosts';
+import { BLOG_CATEGORIES } from '../../data/blogPosts';
 import api from '../../services/api';
 import { publicUi } from '../../theme/publicUi';
 import { useCmsPage } from '../../hooks/useCmsPage';
 import { resolveCmsSeo } from '../../hooks/useCmsSeo';
 import PublicStickyMobileCta from '../../components/public/PublicStickyMobileCta';
 import { useGlobalSiteConfig } from '../../hooks/useGlobalSiteConfig';
-
-function mapLocalToListPost(p: (typeof blogPosts)[number]): BlogCardPost {
-  return {
-    slug: p.slug,
-    title: p.title,
-    excerpt: p.excerpt,
-    category: p.category,
-    date: p.date,
-    readTime: p.readTime,
-    featuredImage: p.featuredImage,
-  };
-}
-
-function mapApiToListPost(row: {
-  slug: string;
-  title: string;
-  excerpt: string;
-  display_date: string;
-  read_time: string;
-  category?: string;
-  featured_image?: string;
-}): BlogCardPost {
-  return {
-    slug: row.slug,
-    title: row.title,
-    excerpt: row.excerpt,
-    category: row.category || 'Ghana',
-    date: row.display_date,
-    readTime: row.read_time,
-    featuredImage: resolveBlogFeaturedImage(row.slug, row.featured_image),
-  };
-}
-
-function mergeBlogPosts(apiRows: Array<Parameters<typeof mapApiToListPost>[0]>): BlogCardPost[] {
-  const apiBySlug = new Map(apiRows.map((row) => [row.slug, mapApiToListPost(row)]));
-  const localSlugs = new Set(blogPosts.map((p) => p.slug));
-
-  const merged: BlogCardPost[] = blogPosts.map((local) => {
-    const fromApi = apiBySlug.get(local.slug);
-    if (fromApi) return fromApi;
-    return mapLocalToListPost(local);
-  });
-
-  for (const row of apiRows) {
-    if (!localSlugs.has(row.slug)) {
-      merged.push(mapApiToListPost(row));
-    }
-  }
-
-  return merged.sort((a, b) => (a.date < b.date ? 1 : -1));
-}
+import { mapApiBlogListRow, sortBlogPostsNewestFirst, type ApiBlogRow, type BlogListItem } from '../../utils/blogApi';
 
 const Blog: React.FC = () => {
   const { cta } = useGlobalSiteConfig();
@@ -73,21 +23,27 @@ const Blog: React.FC = () => {
   });
   const { hero } = sections;
   const [activeCategory, setActiveCategory] = useState<string>('All');
-  const [posts, setPosts] = useState<BlogCardPost[]>(() =>
-    [...blogPosts].map(mapLocalToListPost).sort((a, b) => (a.date < b.date ? 1 : -1)),
-  );
+  const [posts, setPosts] = useState<BlogListItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
+    setLoading(true);
+    setLoadError(false);
     api
-      .get('/content/blog')
+      .get<ApiBlogRow[]>('/content/blog')
       .then((res) => {
-        const rows = res.data as Array<Parameters<typeof mapApiToListPost>[0]>;
-        if (!cancelled && Array.isArray(rows) && rows.length > 0) {
-          setPosts(mergeBlogPosts(rows));
-        }
+        if (cancelled) return;
+        const rows = Array.isArray(res.data) ? res.data : [];
+        setPosts(sortBlogPostsNewestFirst(rows.map(mapApiBlogListRow)));
       })
-      .catch(() => {});
+      .catch(() => {
+        if (!cancelled) setLoadError(true);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
     return () => {
       cancelled = true;
     };
@@ -135,20 +91,38 @@ const Blog: React.FC = () => {
           </Stack>
         </Box>
 
-        {featured && activeCategory === 'All' && <BlogCard post={featured} variant="featured" />}
-
-        {gridPosts.length > 0 ? (
-          <Grid container spacing={{ xs: 2, md: 2.5 }}>
-            {gridPosts.map((post) => (
-              <Grid item xs={12} sm={6} lg={4} key={post.slug}>
-                <BlogCard post={post} />
-              </Grid>
-            ))}
-          </Grid>
-        ) : (
+        {loading ? (
+          <Box sx={{ py: 6, display: 'flex', justifyContent: 'center' }}>
+            <CircularProgress size={36} />
+          </Box>
+        ) : loadError ? (
           <Typography sx={{ ...publicUi.mutedText, py: 4, textAlign: 'center' }}>
-            No articles in this category yet.
+            Unable to load articles right now. Please try again shortly.
           </Typography>
+        ) : posts.length === 0 ? (
+          <Typography sx={{ ...publicUi.mutedText, py: 4, textAlign: 'center' }}>
+            New articles will appear here soon.
+          </Typography>
+        ) : (
+          <>
+            {featured && activeCategory === 'All' && (
+              <BlogCard post={featured as BlogCardPost} variant="featured" />
+            )}
+
+            {gridPosts.length > 0 ? (
+              <Grid container spacing={{ xs: 2, md: 2.5 }}>
+                {gridPosts.map((post) => (
+                  <Grid item xs={12} sm={6} lg={4} key={post.slug}>
+                    <BlogCard post={post as BlogCardPost} />
+                  </Grid>
+                ))}
+              </Grid>
+            ) : (
+              <Typography sx={{ ...publicUi.mutedText, py: 4, textAlign: 'center' }}>
+                No articles in this category yet.
+              </Typography>
+            )}
+          </>
         )}
       </PublicPageShell>
       <PublicStickyMobileCta label={cta.consultation} to={cta.quoteHref} />

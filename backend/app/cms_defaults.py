@@ -9,6 +9,9 @@ CMS_PAGES = (
     "about",
     "services",
     "shop",
+    "cart",
+    "checkout",
+    "checkout_success",
     "contact",
     "global",
     "packages",
@@ -620,7 +623,7 @@ _DEFAULTS: Dict[str, Dict[str, Any]] = {
                     ),
                     "features": [
                         "LiFePO4 Battery Technology",
-                        "Long Lifespan (10+ years)",
+                        "Long cycle life (LiFePO₄)",
                         "Fast Charging",
                         "Smart Management Systems",
                         "Backup Power Solutions",
@@ -767,6 +770,56 @@ _DEFAULTS: Dict[str, Dict[str, Any]] = {
                 "All products come with warranty and expert installation support."
             ),
         },
+    },
+    "cart": {
+        "seo": {
+            "title": "Shopping Cart | Energy Precisions",
+            "description": "Review your solar equipment order before secure checkout with Energy Precisions.",
+        },
+        "hero": {
+            "badge": "Shop",
+            "headline": "Shopping cart",
+            "description": "Review items and proceed to secure checkout.",
+        },
+        "empty_state": {
+            "title": "Your cart is empty",
+            "cta_text": "Continue shopping",
+        },
+        "footer_note": "Need installation?",
+    },
+    "checkout": {
+        "seo": {
+            "title": "Checkout | Energy Precisions",
+            "description": (
+                "Shipping, payment and order confirmation for Energy Precisions solar equipment."
+            ),
+        },
+        "hero": {
+            "badge": "Shop",
+            "headline": "Checkout",
+            "description": (
+                "Secure payment via Paystack — card, mobile money, or bank transfer."
+            ),
+        },
+        "empty_state": {
+            "title": "Add products from our shop before checkout.",
+            "cta_text": "Browse shop",
+        },
+    },
+    "checkout_success": {
+        "seo": {
+            "title": "Thank you for your order | Energy Precisions",
+            "description": "Your Energy Precisions order confirmation.",
+        },
+        "hero": {
+            "badge": "Order confirmed",
+            "headline": "Payment successful",
+            "description": "Thank you for choosing Energy Precisions.",
+        },
+        "confirmation_body": (
+            "A confirmation email is on its way. Our team will update you on dispatch and delivery."
+        ),
+        "next_steps_title": "What's next?",
     },
     "contact": {
         "seo": {
@@ -1052,6 +1105,7 @@ _DEFAULTS: Dict[str, Dict[str, Any]] = {
             "ep-15kva": 353900,
             "ep-20kva": 447900,
         },
+        "package_tiers": [],
     },
     "financing": {
         "seo": {
@@ -1473,6 +1527,12 @@ def get_page_defaults(page: str) -> Dict[str, Any]:
         bundled = get_default_location_items()
         if bundled and not result.get("items"):
             result["items"] = bundled
+    if page == "packages":
+        from app.package_tier_defaults import get_default_package_tiers
+
+        bundled = get_default_package_tiers()
+        if bundled and not result.get("package_tiers"):
+            result["package_tiers"] = bundled
     return result
 
 
@@ -1486,4 +1546,6 @@ def merge_page_sections(page: str, stored: Dict[str, Any] | None) -> Dict[str, A
         merged["items"] = defaults.get("items", [])
     if page == "locations" and stored.get("items") == []:
         merged["items"] = defaults.get("items", [])
+    if page == "packages" and stored.get("package_tiers") == []:
+        merged["package_tiers"] = defaults.get("package_tiers", [])
     return merged

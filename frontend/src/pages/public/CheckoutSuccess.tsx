@@ -24,6 +24,8 @@ import { useCart } from '../../contexts/CartContext';
 import { Seo } from '../../components/Seo';
 import PublicPageShell from '../../components/public/PublicPageShell';
 import PublicStickyMobileCta from '../../components/public/PublicStickyMobileCta';
+import { useCmsPage } from '../../hooks/useCmsPage';
+import { resolveCmsSeo } from '../../hooks/useCmsSeo';
 import { trackPurchase } from '../../utils/analytics';
 import { colors } from '../../theme/colors';
 import { publicUi } from '../../theme/publicUi';
@@ -43,6 +45,12 @@ const CheckoutSuccess: React.FC = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [searchParams] = useSearchParams();
   const { clearCart } = useCart();
+  const { sections } = useCmsPage('checkout_success');
+  const seo = resolveCmsSeo(sections, {
+    title: 'Thank you for your order | Energy Precisions',
+    description: 'Your Energy Precisions order confirmation.',
+  });
+  const { hero, confirmation_body: confirmationBody, next_steps_title: nextStepsTitle } = sections;
   const orderNumber = searchParams.get('order');
   const [order, setOrder] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -103,7 +111,7 @@ const CheckoutSuccess: React.FC = () => {
 
   if (loading) {
     return (
-      <PublicPageShell badge="Shop" headline="Confirming payment" description="Please wait while we verify your order.">
+      <PublicPageShell badge={hero.badge} headline="Confirming payment" description="Please wait while we verify your order.">
         <Box textAlign="center" py={4}>
           <CircularProgress sx={{ color: colors.green }} />
           <Typography sx={{ mt: 2, ...publicUi.mutedText }}>Verifying your payment…</Typography>
@@ -116,7 +124,7 @@ const CheckoutSuccess: React.FC = () => {
     return (
       <>
         <Seo title="Order verification" description="Payment verification issue." path="/checkout/success" noIndex />
-        <PublicPageShell badge="Shop" headline="Verification issue" description="We could not confirm your payment automatically.">
+        <PublicPageShell badge={hero.badge} headline="Verification issue" description="We could not confirm your payment automatically.">
           <Alert severity="error" sx={{ mb: 3 }}>
             {error}
           </Alert>
@@ -135,23 +143,23 @@ const CheckoutSuccess: React.FC = () => {
 
   return (
     <>
-      <Seo
-        title="Thank you for your order"
-        description="Your Energy Precisions order confirmation."
-        path="/checkout/success"
-        noIndex
-      />
+      <Seo title={seo.title} description={seo.description} path="/checkout/success" noIndex />
       <PublicPageShell
-        badge="Order confirmed"
-        headline="Payment successful"
-        description={`Order ${order?.order_number} — thank you for choosing Energy Precisions.`}
+        badge={hero.badge}
+        headline={hero.headline}
+        description={
+          order?.order_number
+            ? `Order ${order.order_number} — ${hero.description}`
+            : hero.description
+        }
         heroAlign="center"
       >
         <Card sx={{ ...publicUi.card, maxWidth: 640, mx: 'auto' }}>
           <CardContent sx={{ p: { xs: 3, md: 4 }, textAlign: 'center' }}>
             <CheckCircleIcon sx={{ fontSize: { xs: 52, md: 56 }, color: colors.green, mb: 1.5 }} />
             <Typography sx={{ ...publicUi.mutedText, mb: 3, lineHeight: 1.65 }}>
-              A confirmation email is on its way. Our team will update you on dispatch and delivery.
+              {confirmationBody ||
+                'A confirmation email is on its way. Our team will update you on dispatch and delivery.'}
             </Typography>
 
             {order && (
@@ -173,7 +181,7 @@ const CheckoutSuccess: React.FC = () => {
             )}
 
             <Typography sx={{ fontWeight: 700, mb: 2, fontSize: '0.9375rem', textAlign: 'left' }}>
-              What&apos;s next?
+              {nextStepsTitle || "What's next?"}
             </Typography>
             <Stack spacing={1.25} sx={{ mb: 3 }}>
               <Button

@@ -33,21 +33,23 @@ import PublicPageShell from '../../components/public/PublicPageShell';
 import PackageComparisonTable from '../../components/public/PackageComparisonTable';
 import { homeUi } from '../../theme/homeUi';
 import { publicUi } from '../../theme/publicUi';
-import { HYBRID_PACKAGES, LOAD_CEILING_HELP, resolveHybridPackages } from '../../data/hybridPackages';
+import { LOAD_CEILING_HELP } from '../../data/hybridPackages';
+import { formatHybridWarrantyNote, resolvePackageTiers } from '../../utils/packageTiers';
 
 const isExternalLink = (path: string) =>
   path.startsWith('http') || path.startsWith('tel:') || path.startsWith('mailto:');
 
 const HybridPackages: React.FC = () => {
   const { sections } = useCmsPage('packages');
-  const { contact } = useGlobalSiteConfig();
+  const { contact, warrantySummary } = useGlobalSiteConfig();
   const seo = resolveCmsSeo(sections, {
     title: 'Hybrid Lithium Solar Packages Ghana | Energy Precisions',
     description:
       'Turnkey 6.5–20 kVA hybrid lithium solar packages from our Accra office — panels, installation, monitoring and free site assessment across Ghana.',
   });
-  const { hero, packages_section: packagesSection, reading_guide: readingGuide, why_section: whySection, tier_prices: tierPrices } = sections;
-  const packages = resolveHybridPackages(tierPrices);
+  const { hero, packages_section: packagesSection, reading_guide: readingGuide, why_section: whySection, tier_prices: tierPrices, package_tiers: packageTiers } = sections;
+  const packages = resolvePackageTiers(packageTiers, tierPrices);
+  const warrantyNote = formatHybridWarrantyNote(whySection.warranty_note, warrantySummary);
 
   const secondaryCtaExternal = isExternalLink(hero.secondary_cta_link);
 
@@ -355,7 +357,7 @@ const HybridPackages: React.FC = () => {
                 ))}
               </List>
               <Typography variant="caption" sx={{ color: colors.gray600, display: 'block', mt: 2 }}>
-                {whySection.warranty_note}
+                {warrantyNote}
               </Typography>
               <Typography variant="caption" sx={{ color: colors.gray600, display: 'block', mt: 0.5 }}>
                 {whySection.validity_note}

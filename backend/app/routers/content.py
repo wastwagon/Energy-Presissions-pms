@@ -7,7 +7,6 @@ from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from app.cms_defaults import CMS_PAGES, merge_page_sections
-from app.faq_defaults import get_default_faqs
 from app.database import get_db
 from app.models import User, UserRole
 from app.models_content import SiteSetting, CmsBlogPost, CmsFaqItem, CmsPageContent
@@ -104,9 +103,9 @@ async def list_faqs_public(db: Session = Depends(get_db)):
         .order_by(CmsFaqItem.sort_order.asc(), CmsFaqItem.id.asc())
         .all()
     )
-    if rows:
-        return rows
-    return [FaqPublic(**row) for row in get_default_faqs()]
+    if not rows:
+        return []
+    return rows
 
 
 @router.get("/settings/public")

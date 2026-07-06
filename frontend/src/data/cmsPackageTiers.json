@@ -1,0 +1,161 @@
+[
+  {
+    "id": "ep-6.5kva",
+    "badge": "Essential",
+    "kva_label": "6.5 KVA",
+    "max_watts": "5,500",
+    "customer_note": "6.5 KVA tier with a matching 6.5 kW inverter. Fifteen panels are sized for this load — no air conditioning in this tier; upgrade if you need AC.",
+    "specs": {
+      "inverter": "6.5 kW hybrid (1)",
+      "storage": "16 kWh LiFePO₄ (1 module)",
+      "panels": "15 × 570W tier-1",
+      "solar_kw": "8.55 kW DC"
+    },
+    "highlights": [
+      "Entry tier · flats & small homes"
+    ],
+    "components": [
+      "6.5 kW hybrid inverter (1)",
+      "16 kWh LiFePO₄ lithium battery (1)",
+      "Battery management & monitoring (1)",
+      "570W tier-1 solar panels (15)",
+      "DC protection, changeover & AC distribution",
+      "Roof mounting structure",
+      "Cables, MC4, earthing & commissioning"
+    ],
+    "appliances": "Fridge, TV, standing fans, router, 15–20 LED lights, phone and laptop charging, blender or kettle (one at a time). No air conditioning — add a higher tier for AC."
+  },
+  {
+    "id": "ep-8kva",
+    "badge": "Home",
+    "kva_label": "8 KVA",
+    "max_watts": "6,800",
+    "customer_note": "Badge is 8 KVA (~6,800 W planned use). We install one 10 kW inverter (stocked) for AC starts — still plan within ~6,800 W continuous. Nineteen panels match the 8 KVA tier, not 10 kW maximum.",
+    "inverter_headroom": "+25% inverter headroom · AC motor starts",
+    "specs": {
+      "inverter": "10 kW hybrid (1)",
+      "storage": "32 kWh LiFePO₄ (2 modules)",
+      "panels": "19 × 570W tier-1",
+      "solar_kw": "10.83 kW DC"
+    },
+    "highlights": [
+      "Popular family home"
+    ],
+    "components": [
+      "10 kW hybrid inverter (1)",
+      "16 kWh LiFePO₄ lithium batteries (2)",
+      "Battery management & monitoring (1)",
+      "570W tier-1 solar panels (19)",
+      "DC protection, changeover & AC distribution",
+      "Roof mounting structure",
+      "Cables, MC4, earthing & commissioning"
+    ],
+    "appliances": "Fridge, rice cooker, blender, iron (staggered), 1 split AC (1–1.5 hp), 25 LED bulbs, 4–5 fans, 2 TVs, home Wi‑Fi, 2–3 laptops or computers, printer."
+  },
+  {
+    "id": "ep-10kva",
+    "badge": "Plus",
+    "kva_label": "10 KVA",
+    "max_watts": "8,500",
+    "customer_note": "10 KVA tier with one 10 kW inverter — aligned. Run up to ~8,500 W continuous; do not run two split AC units on full cool at the same time.",
+    "specs": {
+      "inverter": "10 kW hybrid (1)",
+      "storage": "48 kWh LiFePO₄ (3 modules)",
+      "panels": "23 × 570W tier-1",
+      "solar_kw": "13.11 kW DC"
+    },
+    "highlights": [
+      "Large home or small office"
+    ],
+    "components": [
+      "10 kW hybrid inverter (1)",
+      "16 kWh LiFePO₄ lithium batteries (3)",
+      "Battery management & monitoring (1)",
+      "570W tier-1 solar panels (23)",
+      "DC protection, changeover & AC distribution",
+      "Roof mounting structure",
+      "Cables, MC4, earthing & commissioning"
+    ],
+    "appliances": "2 fridges or fridge + freezer, rice cooker or microwave, blender, iron (staggered), up to 2 split AC (1–1.5 hp, not together on full cool), 30 LED bulbs, 4–5 fans, 2 TVs, small office (PCs, printer, router)."
+  },
+  {
+    "id": "ep-12kva",
+    "badge": "Pro",
+    "kva_label": "12 KVA",
+    "max_watts": "10,200",
+    "customer_note": "12 KVA tier (~10,200 W planned use). Two 6.5 kW inverters work together (~13 kW available). Twenty-eight panels are sized for 12 KVA load, not 13 kW inverter maximum.",
+    "inverter_headroom": "+8% inverter headroom · dual 6.5 kW sync",
+    "specs": {
+      "inverter": "2 × 6.5 kW hybrid (~13 kW sync)",
+      "storage": "64 kWh LiFePO₄ (4 modules)",
+      "panels": "28 × 570W Jinko / Longi",
+      "solar_kw": "15.96 kW DC"
+    },
+    "highlights": [
+      "Executive home · boutique office"
+    ],
+    "components": [
+      "6.5 kW hybrid inverters (2, synchronized)",
+      "16 kWh LiFePO₄ lithium batteries (4)",
+      "Battery management & monitoring (1)",
+      "570W Jinko / Longi solar panels (28)",
+      "DC protection, dual MPPT where required, changeover",
+      "Roof mounting structure",
+      "Cables, MC4, earthing & commissioning"
+    ],
+    "appliances": "2 fridges/freezers, kitchen blender, rice cooker, iron and heater (staggered), 2–3 split AC (1–1.5 hp — alternate with kitchen peaks, not all on full cool), 30+ LED bulbs, 4–5 fans, 2–3 TVs, home office or shop POS and computers."
+  },
+  {
+    "id": "ep-15kva",
+    "badge": "Commercial",
+    "kva_label": "15 KVA",
+    "max_watts": "12,800",
+    "customer_note": "15 KVA tier (~12,800 W planned use). Two 10 kW inverters (synchronized, stocked) handle peaks; thirty-five panels are sized for 15 KVA — less solar than the 20 KVA tier on the same inverter pair.",
+    "inverter_headroom": "+33% inverter headroom · dual 10 kW sync",
+    "specs": {
+      "inverter": "2 × 10 kW hybrid (20 kW sync)",
+      "storage": "80 kWh LiFePO₄ (5 modules)",
+      "panels": "35 × 570W tier-1",
+      "solar_kw": "19.95 kW DC"
+    },
+    "highlights": [
+      "Guest house · shop · church hall"
+    ],
+    "components": [
+      "10 kW hybrid inverters (2, synchronized)",
+      "16 kWh LiFePO₄ lithium batteries (5)",
+      "Battery management & monitoring (1)",
+      "570W tier-1 solar panels (35)",
+      "AC/DC distribution boards & changeover",
+      "Roof mounting structure",
+      "Cables, MC4, earthing & commissioning"
+    ],
+    "appliances": "Several guest rooms, commercial fridge, kitchen appliances (staggered), up to 4 split AC (1–1.5 hp) with load management, sound system, reception PCs, security and corridor lighting, small water pump or booster (if within survey load)."
+  },
+  {
+    "id": "ep-20kva",
+    "badge": "Power",
+    "kva_label": "20 KVA",
+    "max_watts": "17,000",
+    "customer_note": "20 KVA tier (~17,000 W planned use) with two 10 kW inverters. Forty-six panels match this load; guest-house and hotel loads need a written load schedule on survey.",
+    "specs": {
+      "inverter": "2 × 10 kW hybrid (20 kW sync)",
+      "storage": "96 kWh LiFePO₄ (6 modules)",
+      "panels": "46 × 570W tier-1",
+      "solar_kw": "26.22 kW DC"
+    },
+    "highlights": [
+      "Hotel wing · office block · multi-tenant"
+    ],
+    "components": [
+      "10 kW hybrid inverters (2, synchronized)",
+      "16 kWh LiFePO₄ lithium batteries (6)",
+      "Battery management & monitoring (1)",
+      "570W tier-1 solar panels (46)",
+      "AC/DC distribution boards & changeover",
+      "Roof mounting structure",
+      "Cables, MC4, earthing & commissioning"
+    ],
+    "appliances": "Multiple guest-room AC (1–1.5 hp, staggered across rooms), commercial kitchen peaks, laundry alternated with AC, fridges, IT/server room on dedicated circuit, event or hall lighting — engineered load schedule on survey."
+  }
+]

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Box,
   Container,
@@ -34,6 +34,7 @@ import { useCmsPage } from '../../hooks/useCmsPage';
 import { resolveCmsSeo } from '../../hooks/useCmsSeo';
 import PublicStickyMobileCta from '../../components/public/PublicStickyMobileCta';
 import { useGlobalSiteConfig } from '../../hooks/useGlobalSiteConfig';
+import { mergeGuaranteeItems } from '../../utils/resolveSiteConfig';
 import { resolveMediaUrl } from '../../utils/mediaUrl';
 
 const SERVICE_ANCHOR_BY_TITLE: Record<string, string> = {
@@ -52,7 +53,11 @@ const serviceAnchorFor = (title: string, link?: string) => {
 const Services: React.FC = () => {
   const { pathname } = useLocation();
   const { sections } = useCmsPage('services');
-  const { cta } = useGlobalSiteConfig();
+  const { cta, warrantySummary } = useGlobalSiteConfig();
+  const guaranteeItems = useMemo(
+    () => mergeGuaranteeItems(sections.guarantees?.items || [], warrantySummary),
+    [sections.guarantees?.items, warrantySummary],
+  );
   const seo = resolveCmsSeo(sections, {
     title: 'Solar Services Ghana | Residential, Commercial & Industrial',
     description:
@@ -354,7 +359,7 @@ const Services: React.FC = () => {
           />
 
           <Grid container spacing={{ xs: 2, md: 2.5 }}>
-            {(sections.guarantees?.items || []).map((guarantee, index) => (
+            {guaranteeItems.map((guarantee, index) => (
               <Grid item xs={12} sm={6} md={3} key={index}>
                 <Card
                   sx={{

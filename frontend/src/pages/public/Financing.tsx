@@ -34,7 +34,7 @@ const HERO_CARD_ICONS = [HandshakeIcon, AccountBalanceIcon];
 
 const Financing: React.FC = () => {
   const { sections } = useCmsPage('financing');
-  const { cta } = useGlobalSiteConfig();
+  const { cta, warrantySummary } = useGlobalSiteConfig();
   const seo = resolveCmsSeo(sections, {
     title: 'Solar Financing Ghana | Payment Options | Energy Precisions',
     description:
@@ -170,6 +170,28 @@ const Financing: React.FC = () => {
             <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.7 }}>
               {content.payg_footer}
             </Typography>
+          </CardContent>
+        </Card>
+
+        <Card variant="outlined" sx={{ mt: 3 }}>
+          <CardContent>
+            <Typography variant="subtitle1" fontWeight={800} sx={{ mb: 1 }}>
+              {warrantySummary.headline}
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.7, mb: 1 }}>
+              {warrantySummary.workmanship}
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.7, mb: 1.5 }}>
+              {warrantySummary.equipment}
+            </Typography>
+            <Button
+              component={RouterLink}
+              to={warrantySummary.details_path}
+              size="small"
+              sx={{ textTransform: 'none', px: 0 }}
+            >
+              Read full warranty policy
+            </Button>
           </CardContent>
         </Card>
       </PublicPageShell>

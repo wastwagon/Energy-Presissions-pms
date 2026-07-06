@@ -15,6 +15,7 @@ import type {
   PortfolioPageSections,
   ServicesPageSections,
   ShopPageSections,
+  EcommerceFlowPageSections,
 } from '../types/cms';
 
 type PageSectionsMap = {
@@ -22,6 +23,9 @@ type PageSectionsMap = {
   about: AboutPageSections;
   services: ServicesPageSections;
   shop: ShopPageSections;
+  cart: EcommerceFlowPageSections;
+  checkout: EcommerceFlowPageSections;
+  checkout_success: EcommerceFlowPageSections;
   contact: ContactPageSections;
   global: GlobalPageSections;
   packages: PackagesPageSections;

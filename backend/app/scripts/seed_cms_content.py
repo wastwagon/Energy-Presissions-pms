@@ -187,25 +187,34 @@ BLOG_SEED = [
 
 
 def seed_faqs(db: Session) -> int:
-    if db.query(CmsFaqItem).count() > 0:
-        print("ℹ️  FAQs already exist — skipping")
-        return 0
     faqs = get_default_faqs()
     if not faqs:
         print("⚠️  No bundled FAQs found — skipping")
         return 0
-    for i, row in enumerate(faqs):
+    added = 0
+    existing = {row.question.strip() for row in db.query(CmsFaqItem).all()}
+    next_order = db.query(CmsFaqItem).count()
+    for row in faqs:
+        question = row["question"].strip()
+        if question in existing:
+            continue
         db.add(
             CmsFaqItem(
-                question=row["question"],
+                question=question,
                 answer=row["answer"],
-                sort_order=i,
+                sort_order=next_order,
                 published=True,
             )
         )
-    db.commit()
-    print(f"✅ Seeded {len(faqs)} FAQ items")
-    return len(faqs)
+        existing.add(question)
+        next_order += 1
+        added += 1
+    if added:
+        db.commit()
+        print(f"✅ Seeded {added} FAQ items")
+    else:
+        print("ℹ️  All bundled FAQs already exist — skipping")
+    return added
 
 
 def seed_blog(db: Session) -> int:

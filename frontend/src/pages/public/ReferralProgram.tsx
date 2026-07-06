@@ -16,6 +16,7 @@ import { publicUi } from '../../theme/publicUi';
 import { homeUi } from '../../theme/homeUi';
 import { useCmsPage } from '../../hooks/useCmsPage';
 import { resolveCmsSeo } from '../../hooks/useCmsSeo';
+import { useGlobalSiteConfig } from '../../hooks/useGlobalSiteConfig';
 import {
   buildWhatsAppShareUrl,
   REFERRAL_LEAD_WHATSAPP_TEMPLATE,
@@ -24,6 +25,7 @@ import {
 
 const ReferralProgram: React.FC = () => {
   const { sections } = useCmsPage('referral');
+  const { contact } = useGlobalSiteConfig();
   const seo = resolveCmsSeo(sections, {
     title: 'Solar Champions Referral Program | Energy Precisions',
     description:
@@ -57,7 +59,7 @@ const ReferralProgram: React.FC = () => {
           </Button>
           <Button
             component="a"
-            href={buildWhatsAppShareUrl(REFERRAL_WHATSAPP_MESSAGE)}
+            href={buildWhatsAppShareUrl(REFERRAL_WHATSAPP_MESSAGE, contact.whatsappHref)}
             target="_blank"
             rel="noopener noreferrer"
             variant="outlined"
@@ -117,7 +119,7 @@ const ReferralProgram: React.FC = () => {
             </Stack>
             <Button
               component="a"
-              href={buildWhatsAppShareUrl(REFERRAL_LEAD_WHATSAPP_TEMPLATE)}
+              href={buildWhatsAppShareUrl(REFERRAL_LEAD_WHATSAPP_TEMPLATE, contact.whatsappHref)}
               target="_blank"
               rel="noopener noreferrer"
               variant="contained"

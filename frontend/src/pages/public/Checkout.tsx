@@ -38,6 +38,8 @@ import api from '../../services/api';
 import { catalogLineUnitPrice } from '../../utils/catalogPrice';
 import { Seo } from '../../components/Seo';
 import PublicPageShell from '../../components/public/PublicPageShell';
+import { useCmsPage } from '../../hooks/useCmsPage';
+import { resolveCmsSeo } from '../../hooks/useCmsSeo';
 import { trackBeginCheckout } from '../../utils/analytics';
 import { formatApiErrorDetail } from '../../utils/apiErrorMessage';
 import { colors } from '../../theme/colors';
@@ -64,6 +66,12 @@ const Checkout: React.FC = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const { cartItems, cartTotal, clearCart } = useCart();
+  const { sections } = useCmsPage('checkout');
+  const seo = resolveCmsSeo(sections, {
+    title: 'Checkout | Energy Precisions',
+    description: 'Shipping, payment and order confirmation for Energy Precisions.',
+  });
+  const { hero, empty_state: emptyState } = sections;
   const [activeStep, setActiveStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -212,15 +220,10 @@ const Checkout: React.FC = () => {
   if (cartItems.length === 0) {
     return (
       <>
-        <Seo
-          title="Checkout"
-          description="Complete your Energy Precisions order."
-          path="/checkout"
-          noIndex
-        />
-        <PublicPageShell badge="Shop" headline="Checkout" description="Your cart is empty.">
+        <Seo title={seo.title} description={seo.description} path="/checkout" noIndex />
+        <PublicPageShell badge={hero.badge} headline={hero.headline} description={hero.description}>
           <Alert severity="warning" sx={{ mb: 2 }}>
-            Add products from our shop before checkout.
+            {emptyState?.title || 'Add products from our shop before checkout.'}
           </Alert>
           <Button
             variant="contained"
@@ -228,7 +231,7 @@ const Checkout: React.FC = () => {
             to="/shop"
             sx={{ ...publicUi.primaryButton, ...homeUi.touchTarget }}
           >
-            Browse shop
+            {emptyState?.cta_text || 'Browse shop'}
           </Button>
         </PublicPageShell>
       </>
@@ -452,16 +455,11 @@ const Checkout: React.FC = () => {
 
   return (
     <>
-      <Seo
-        title="Checkout"
-        description="Shipping, payment and order confirmation for Energy Precisions."
-        path="/checkout"
-        noIndex
-      />
+      <Seo title={seo.title} description={seo.description} path="/checkout" noIndex />
       <PublicPageShell
-        badge="Shop"
-        headline="Checkout"
-        description="Secure payment via Paystack — card, mobile money, or bank transfer."
+        badge={hero.badge}
+        headline={hero.headline}
+        description={hero.description}
         contentPy={{ xs: 3, md: 5 }}
       >
         <Stepper activeStep={activeStep} sx={{ mb: 3, display: { xs: 'none', md: 'flex' } }}>

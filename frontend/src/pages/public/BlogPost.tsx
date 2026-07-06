@@ -21,15 +21,17 @@ import PublicStickyMobileCta from '../../components/public/PublicStickyMobileCta
 import { colors } from '../../theme/colors';
 import { homeUi } from '../../theme/homeUi';
 import { publicUi } from '../../theme/publicUi';
-import { blogPosts, getBlogPost, resolveBlogFeaturedImage, type BlogPost } from '../../data/blogPosts';
+import { type BlogPost } from '../../data/blogPosts';
 import { useGlobalSiteConfig } from '../../hooks/useGlobalSiteConfig';
 import { resolveMediaUrl } from '../../utils/mediaUrl';
 import api from '../../services/api';
+import { mapApiBlogArticle, mapApiBlogListRow, sortBlogPostsNewestFirst, type ApiBlogRow, type BlogListItem } from '../../utils/blogApi';
 
 const BlogPostPage: React.FC = () => {
   const { cta } = useGlobalSiteConfig();
   const { slug } = useParams<{ slug: string }>();
-  const [post, setPost] = useState<(BlogPost & { featuredImage: string }) | null>(null);
+  const [post, setPost] = useState<BlogPost | null>(null);
+  const [related, setRelated] = useState<BlogListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [missing, setMissing] = useState(false);
 
@@ -42,34 +44,21 @@ const BlogPostPage: React.FC = () => {
     let cancelled = false;
     (async () => {
       try {
-        const res = await api.get<{
-          slug: string;
-          title: string;
-          excerpt: string;
-          body: string;
-          display_date: string;
-          read_time: string;
-          category?: string;
-          featured_image?: string;
-        }>(`/content/blog/${encodeURIComponent(slug)}`);
+        const res = await api.get<ApiBlogRow>(`/content/blog/${encodeURIComponent(slug)}`);
         if (cancelled) return;
-        const body = res.data.body || '';
-        const paragraphs = body.split(/\n\n+/).map((p) => p.trim()).filter(Boolean);
-        setPost({
-          slug: res.data.slug,
-          title: res.data.title,
-          excerpt: res.data.excerpt,
-          category: res.data.category || 'Ghana',
-          date: res.data.display_date,
-          readTime: res.data.read_time,
-          featuredImage: resolveBlogFeaturedImage(res.data.slug, res.data.featured_image),
-          paragraphs: paragraphs.length ? paragraphs : [body.trim() || res.data.excerpt],
-        });
+        const article = mapApiBlogArticle(res.data);
+        setPost(article);
+
+        const listRes = await api.get<ApiBlogRow[]>('/content/blog');
+        if (cancelled) return;
+        const peers = sortBlogPostsNewestFirst(
+          (Array.isArray(listRes.data) ? listRes.data : [])
+            .map(mapApiBlogListRow)
+            .filter((p) => p.slug !== article.slug && p.category === article.category),
+        ).slice(0, 3);
+        setRelated(peers);
       } catch {
-        if (cancelled) return;
-        const local = getBlogPost(slug);
-        if (local) setPost(local);
-        else setMissing(true);
+        if (!cancelled) setMissing(true);
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -79,12 +68,10 @@ const BlogPostPage: React.FC = () => {
     };
   }, [slug]);
 
-  const related = useMemo(() => {
-    if (!post) return [];
-    return blogPosts
-      .filter((p) => p.slug !== post.slug && p.category === post.category)
-      .slice(0, 3);
-  }, [post]);
+  const heroImage = useMemo(
+    () => (post ? resolveMediaUrl(post.featuredImage) : ''),
+    [post],
+  );
 
   if (!slug || missing || (!loading && !post)) {
     return <Navigate to="/blog" replace />;
@@ -97,8 +84,6 @@ const BlogPostPage: React.FC = () => {
       </Box>
     );
   }
-
-  const heroImage = resolveMediaUrl(post.featuredImage);
 
   return (
     <>
@@ -234,7 +219,7 @@ const BlogPostPage: React.FC = () => {
                 variant="contained"
                 fullWidth
                 endIcon={<ArrowForwardIcon sx={{ fontSize: 18 }} />}
-                sx={{ ...publicUi.primaryButton, ...homeUi.touchTarget, mb: 2 }}
+                sx={{ ...publicUi.primaryButton, ...homeUi.touchTarget, mb: 1.25 }}
               >
                 {cta.consultation}
               </Button>
@@ -287,12 +272,8 @@ const BlogPostPage: React.FC = () => {
                         sx={{
                           fontWeight: 700,
                           fontSize: '0.875rem',
+                          lineHeight: 1.4,
                           color: colors.blueBlack,
-                          lineHeight: 1.35,
-                          display: '-webkit-box',
-                          WebkitLineClamp: 2,
-                          WebkitBoxOrient: 'vertical',
-                          overflow: 'hidden',
                         }}
                       >
                         {rel.title}

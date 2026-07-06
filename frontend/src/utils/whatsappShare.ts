@@ -1,7 +1,8 @@
-import { COMPANY } from '../data/companyContact';
+import { resolveSiteContact } from './resolveSiteConfig';
 
-export function buildWhatsAppShareUrl(message: string): string {
-  return `${COMPANY.whatsappHref}?text=${encodeURIComponent(message)}`;
+export function buildWhatsAppShareUrl(message: string, whatsappHref?: string): string {
+  const href = whatsappHref || resolveSiteContact().whatsappHref;
+  return `${href}?text=${encodeURIComponent(message)}`;
 }
 
 export const REFERRAL_WHATSAPP_MESSAGE =

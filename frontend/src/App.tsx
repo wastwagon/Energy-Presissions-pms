@@ -121,7 +121,7 @@ function App() {
               <Route path="services" element={<Suspense fallback={<PageLoader />}><Services /></Suspense>} />
               <Route path="services/:slug" element={<ServiceSlugRedirect />} />
               <Route path="shop" element={<Suspense fallback={<PageLoader />}><Shop /></Suspense>} />
-              <Route path="products" element={<Suspense fallback={<PageLoader />}><Shop /></Suspense>} />
+              <Route path="products" element={<Navigate to="/shop" replace />} />
               <Route path="products/:id" element={<Suspense fallback={<PageLoader />}><ProductDetail /></Suspense>} />
               <Route path="cart" element={<Suspense fallback={<PageLoader />}><Cart /></Suspense>} />
               <Route path="checkout" element={<Suspense fallback={<PageLoader />}><Checkout /></Suspense>} />

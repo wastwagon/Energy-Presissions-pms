@@ -222,3 +222,20 @@ export function resolveSiteSocial(global?: Partial<GlobalPageSections>): SiteSoc
 export function resolveSiteCta(global?: Partial<GlobalPageSections>): SiteCta {
   return resolveSiteConfig(global).cta;
 }
+
+/** Overlay global warranty copy onto services guarantee cards when titles match. */
+export function mergeGuaranteeItems(
+  items: { title: string; desc: string }[],
+  warranty: CmsWarrantySummary,
+): { title: string; desc: string }[] {
+  return items.map((item) => {
+    const key = item.title.toLowerCase();
+    if (key.includes('workmanship')) {
+      return { ...item, desc: warranty.workmanship };
+    }
+    if (key.includes('manufacturer') || key.includes('equipment')) {
+      return { ...item, desc: warranty.equipment };
+    }
+    return item;
+  });
+}

@@ -26,6 +26,7 @@ import type {
   CmsHeroSlide,
   CmsLink,
   CmsPageSlug,
+  CmsPackageTier,
   CmsPortfolioGalleryItem,
   CmsServiceCard,
   CmsSeo,
@@ -40,6 +41,9 @@ const PAGES: CmsPageSlug[] = [
   'about',
   'services',
   'shop',
+  'cart',
+  'checkout',
+  'checkout_success',
   'contact',
   'global',
   'packages',
@@ -532,6 +536,17 @@ const CmsPageEditor: React.FC = () => {
     }));
   };
 
+  const setEcommerceField = (field: string, value: string) => {
+    setSections((s) => ({ ...s, [field]: value }));
+  };
+
+  const setEmptyStateField = (field: 'title' | 'cta_text', value: string) => {
+    setSections((s) => ({
+      ...s,
+      empty_state: { ...((s.empty_state as Record<string, string>) || {}), [field]: value },
+    }));
+  };
+
   const setTierPrice = (packageId: string, value: string) => {
     const parsed = Number(value.replace(/,/g, ''));
     setSections((s) => {
@@ -542,6 +557,40 @@ const CmsPageEditor: React.FC = () => {
         current[packageId] = Math.round(parsed);
       }
       return { ...s, tier_prices: current };
+    });
+  };
+
+  const setPackageTierField = (index: number, field: keyof CmsPackageTier, value: string) => {
+    setSections((s) => {
+      const tiers = [...((s.package_tiers as CmsPackageTier[]) || [])];
+      if (!tiers[index]) return s;
+      tiers[index] = { ...tiers[index], [field]: value };
+      return { ...s, package_tiers: tiers };
+    });
+  };
+
+  const setPackageTierSpec = (
+    index: number,
+    field: 'inverter' | 'storage' | 'panels' | 'solar_kw',
+    value: string,
+  ) => {
+    setSections((s) => {
+      const tiers = [...((s.package_tiers as CmsPackageTier[]) || [])];
+      if (!tiers[index]) return s;
+      tiers[index] = {
+        ...tiers[index],
+        specs: { ...tiers[index].specs, [field]: value },
+      };
+      return { ...s, package_tiers: tiers };
+    });
+  };
+
+  const setPackageTierLines = (index: number, field: 'highlights' | 'components', text: string) => {
+    setSections((s) => {
+      const tiers = [...((s.package_tiers as CmsPackageTier[]) || [])];
+      if (!tiers[index]) return s;
+      tiers[index] = { ...tiers[index], [field]: textToFeatures(text) };
+      return { ...s, package_tiers: tiers };
     });
   };
 
@@ -670,6 +719,8 @@ const CmsPageEditor: React.FC = () => {
     contact_cta_text: string;
   };
   const tierPrices = (sections.tier_prices || {}) as Record<string, number>;
+  const packageTiers = (sections.package_tiers || []) as CmsPackageTier[];
+  const emptyState = (sections.empty_state || {}) as { title?: string; cta_text?: string };
   const portfolioGalleryItems = (sections.items || []) as CmsPortfolioGalleryItem[];
 
   if (loading) {
@@ -721,7 +772,7 @@ const CmsPageEditor: React.FC = () => {
               <TextField size="small" label="Quote request title" value={contactHero.quote_title || ''} onChange={(e) => setContactBlock('hero', 'quote_title', e.target.value)} />
               <TextField size="small" label="Subtitle" value={contactHero.subtitle || ''} onChange={(e) => setContactBlock('hero', 'subtitle', e.target.value)} multiline minRows={2} />
             </>
-          ) : page === 'shop' || page === 'portfolio' || page === 'blog' || page === 'reviews' || page === 'referral' || page === 'privacy' || page === 'terms' || page === 'warranty' || page === 'faqs' || page === 'solar_estimate' || page === 'load_calculator' ? (
+          ) : page === 'shop' || page === 'portfolio' || page === 'blog' || page === 'reviews' || page === 'referral' || page === 'privacy' || page === 'terms' || page === 'warranty' || page === 'faqs' || page === 'solar_estimate' || page === 'load_calculator' || page === 'cart' || page === 'checkout' || page === 'checkout_success' ? (
             <>
               <TextField size="small" label="Badge" value={shopHero.badge || ''} onChange={(e) => setShopHero('badge', e.target.value)} />
               <TextField size="small" label="Headline" value={shopHero.headline || ''} onChange={(e) => setShopHero('headline', e.target.value)} />
@@ -1150,7 +1201,96 @@ const CmsPageEditor: React.FC = () => {
               ))}
             </Stack>
           </Paper>
+          <Paper variant="outlined" sx={{ p: 2.5, mb: 2 }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 800, mb: 1 }}>Package tiers (BOM)</Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+              Full tier specs shown on /solar-packages. Deploy sync restores bundled defaults when tiers are cleared.
+            </Typography>
+            <Stack spacing={2}>
+              {packageTiers.map((tier, index) => (
+                <Box key={tier.id || index} sx={{ p: 1.5, bgcolor: 'grey.50', borderRadius: 1 }}>
+                  <Typography variant="caption" sx={{ fontWeight: 700 }}>
+                    {tier.kva_label || tier.id || `Tier ${index + 1}`}
+                  </Typography>
+                  <TextField size="small" fullWidth sx={{ mt: 1, mb: 1 }} label="Badge" value={tier.badge || ''} onChange={(e) => setPackageTierField(index, 'badge', e.target.value)} />
+                  <TextField size="small" fullWidth sx={{ mb: 1 }} label="KVA label" value={tier.kva_label || ''} onChange={(e) => setPackageTierField(index, 'kva_label', e.target.value)} />
+                  <TextField size="small" fullWidth sx={{ mb: 1 }} label="Max watts" value={tier.max_watts || ''} onChange={(e) => setPackageTierField(index, 'max_watts', e.target.value)} />
+                  <TextField size="small" fullWidth sx={{ mb: 1 }} label="Customer note" value={tier.customer_note || ''} onChange={(e) => setPackageTierField(index, 'customer_note', e.target.value)} multiline minRows={2} />
+                  <TextField size="small" fullWidth sx={{ mb: 1 }} label="Inverter headroom (optional)" value={tier.inverter_headroom || ''} onChange={(e) => setPackageTierField(index, 'inverter_headroom', e.target.value)} />
+                  <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} sx={{ mb: 1 }}>
+                    <TextField size="small" label="Inverter" value={tier.specs?.inverter || ''} onChange={(e) => setPackageTierSpec(index, 'inverter', e.target.value)} sx={{ flex: 1 }} />
+                    <TextField size="small" label="Storage" value={tier.specs?.storage || ''} onChange={(e) => setPackageTierSpec(index, 'storage', e.target.value)} sx={{ flex: 1 }} />
+                  </Stack>
+                  <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} sx={{ mb: 1 }}>
+                    <TextField size="small" label="Panels" value={tier.specs?.panels || ''} onChange={(e) => setPackageTierSpec(index, 'panels', e.target.value)} sx={{ flex: 1 }} />
+                    <TextField size="small" label="PV array" value={tier.specs?.solar_kw || ''} onChange={(e) => setPackageTierSpec(index, 'solar_kw', e.target.value)} sx={{ flex: 1 }} />
+                  </Stack>
+                  <TextField size="small" fullWidth sx={{ mb: 1 }} label="Highlights (one per line)" value={featuresToText(tier.highlights)} onChange={(e) => setPackageTierLines(index, 'highlights', e.target.value)} multiline minRows={2} />
+                  <TextField size="small" fullWidth sx={{ mb: 1 }} label="Components (one per line)" value={featuresToText(tier.components)} onChange={(e) => setPackageTierLines(index, 'components', e.target.value)} multiline minRows={4} />
+                  <TextField size="small" fullWidth label="Typical appliances" value={tier.appliances || ''} onChange={(e) => setPackageTierField(index, 'appliances', e.target.value)} multiline minRows={2} />
+                </Box>
+              ))}
+            </Stack>
+          </Paper>
         </>
+      )}
+
+      {(page === 'cart' || page === 'checkout' || page === 'checkout_success') && (
+        <Paper variant="outlined" sx={{ p: 2.5, mb: 2 }}>
+          <Typography variant="subtitle1" sx={{ fontWeight: 800, mb: 2 }}>
+            {page === 'checkout_success' ? 'Confirmation copy' : 'Empty state'}
+          </Typography>
+          {page !== 'checkout_success' ? (
+            <>
+              <TextField
+                size="small"
+                fullWidth
+                sx={{ mb: 1.5 }}
+                label="Empty message"
+                value={emptyState.title || ''}
+                onChange={(e) => setEmptyStateField('title', e.target.value)}
+              />
+              <TextField
+                size="small"
+                fullWidth
+                label="Empty CTA text"
+                value={emptyState.cta_text || ''}
+                onChange={(e) => setEmptyStateField('cta_text', e.target.value)}
+              />
+            </>
+          ) : (
+            <>
+              <TextField
+                size="small"
+                fullWidth
+                sx={{ mb: 1.5 }}
+                label="Confirmation body"
+                value={(sections.confirmation_body as string) || ''}
+                onChange={(e) => setEcommerceField('confirmation_body', e.target.value)}
+                multiline
+                minRows={2}
+              />
+              <TextField
+                size="small"
+                fullWidth
+                label="Next steps heading"
+                value={(sections.next_steps_title as string) || ''}
+                onChange={(e) => setEcommerceField('next_steps_title', e.target.value)}
+              />
+            </>
+          )}
+          {page === 'cart' && (
+            <TextField
+              size="small"
+              fullWidth
+              sx={{ mt: 1.5 }}
+              label="Install note prefix"
+              value={(sections.footer_note as string) || ''}
+              onChange={(e) => setEcommerceField('footer_note', e.target.value)}
+              helperText='Shown before the "Request a site survey" link'
+            />
+          )}
+        </Paper>
       )}
 
       {(page === 'privacy' || page === 'terms' || page === 'warranty') && (

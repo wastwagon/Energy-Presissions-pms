@@ -12,17 +12,22 @@ import type {
   PortfolioPageSections,
   ServicesPageSections,
   ShopPageSections,
+  EcommerceFlowPageSections,
 } from '../types/cms';
 import { DEFAULT_CMS_PORTFOLIO_ITEMS } from './portfolioCms';
 import { getDefaultLocationCmsItems } from './locationCms';
 import { DEFAULT_CMS_CONTACT, DEFAULT_CMS_CTA, DEFAULT_CMS_HERO_STATS, DEFAULT_CMS_IMPACT_STATS, DEFAULT_CMS_SOCIAL, DEFAULT_CMS_WARRANTY_SUMMARY } from './siteConfigDefaults';
 import { HYBRID_PACKAGE_TIER_PRICE_DEFAULTS } from './hybridPackages';
+import { DEFAULT_CMS_PACKAGE_TIERS } from '../utils/packageTiers';
 
 type PageDefaultsMap = {
   home: HomePageSections;
   about: AboutPageSections;
   services: ServicesPageSections;
   shop: ShopPageSections;
+  cart: EcommerceFlowPageSections;
+  checkout: EcommerceFlowPageSections;
+  checkout_success: EcommerceFlowPageSections;
   contact: ContactPageSections;
   global: GlobalPageSections;
   packages: PackagesPageSections;
@@ -452,7 +457,7 @@ const DEFAULTS: PageDefaultsMap = {
           title: 'Battery Storage Solutions',
           description:
             'Advanced battery storage systems for energy independence. Store solar energy for use during power outages and peak hours.',
-          features: ['LiFePO4 Battery Technology', 'Long Lifespan (10+ years)', 'Fast Charging', 'Smart Management Systems', 'Backup Power Solutions', 'Grid Independence'],
+          features: ['LiFePO4 Battery Technology', 'Long cycle life (LiFePO₄)', 'Fast Charging', 'Smart Management Systems', 'Backup Power Solutions', 'Grid Independence'],
           image: '/website_images/services-battery-storage-solutions.png',
           link: '/contact?action=quote',
           button_text: 'Get a Quote',
@@ -526,6 +531,51 @@ const DEFAULTS: PageDefaultsMap = {
       description:
         "Shop Ghana's finest selection of solar panels, inverters, batteries, and accessories. All products come with warranty and expert installation support.",
     },
+  },
+  cart: {
+    seo: {
+      title: 'Shopping Cart | Energy Precisions',
+      description: 'Review your solar equipment order before secure checkout with Energy Precisions.',
+    },
+    hero: {
+      badge: 'Shop',
+      headline: 'Shopping cart',
+      description: 'Review items and proceed to secure checkout.',
+    },
+    empty_state: {
+      title: 'Your cart is empty',
+      cta_text: 'Continue shopping',
+    },
+    footer_note: 'Need installation?',
+  },
+  checkout: {
+    seo: {
+      title: 'Checkout | Energy Precisions',
+      description: 'Shipping, payment and order confirmation for Energy Precisions solar equipment.',
+    },
+    hero: {
+      badge: 'Shop',
+      headline: 'Checkout',
+      description: 'Secure payment via Paystack — card, mobile money, or bank transfer.',
+    },
+    empty_state: {
+      title: 'Add products from our shop before checkout.',
+      cta_text: 'Browse shop',
+    },
+  },
+  checkout_success: {
+    seo: {
+      title: 'Thank you for your order | Energy Precisions',
+      description: 'Your Energy Precisions order confirmation.',
+    },
+    hero: {
+      badge: 'Order confirmed',
+      headline: 'Payment successful',
+      description: 'Thank you for choosing Energy Precisions.',
+    },
+    confirmation_body:
+      'A confirmation email is on its way. Our team will update you on dispatch and delivery.',
+    next_steps_title: "What's next?",
   },
   contact: {
     seo: {
@@ -701,6 +751,12 @@ const DEFAULTS: PageDefaultsMap = {
       contact_cta_text: 'Book free site assessment & quote',
     },
     tier_prices: { ...HYBRID_PACKAGE_TIER_PRICE_DEFAULTS },
+    package_tiers: DEFAULT_CMS_PACKAGE_TIERS.map((tier) => ({
+      ...tier,
+      specs: { ...tier.specs },
+      highlights: [...tier.highlights],
+      components: [...tier.components],
+    })),
   },
   financing: {
     seo: {
@@ -1028,6 +1084,13 @@ export function mergeCmsSections<P extends CmsPageSlug>(
       items: (defaults as PageDefaultsMap['locations']).items,
     } as PageDefaultsMap[P];
   }
+  const storedTiers = (stored as Record<string, unknown>).package_tiers;
+  if (page === 'packages' && Array.isArray(storedTiers) && storedTiers.length === 0) {
+    return {
+      ...merged,
+      package_tiers: (defaults as PageDefaultsMap['packages']).package_tiers,
+    } as PageDefaultsMap[P];
+  }
   return merged;
 }
 
@@ -1036,6 +1099,9 @@ export const CMS_PAGE_LABELS: Record<CmsPageSlug, string> = {
   about: 'About page',
   services: 'Services page',
   shop: 'Shop page',
+  cart: 'Shopping cart',
+  checkout: 'Checkout',
+  checkout_success: 'Order confirmation',
   contact: 'Contact page',
   global: 'Global (header & footer)',
   packages: 'Hybrid packages page',
