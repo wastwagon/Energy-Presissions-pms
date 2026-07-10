@@ -20,8 +20,9 @@ import {
   FormControlLabel,
   Switch,
   Chip,
+  InputAdornment,
 } from '@mui/material';
-import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon, CloudUpload as UploadIcon, PhotoLibrary as LibraryIcon } from '@mui/icons-material';
+import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon, CloudUpload as UploadIcon, PhotoLibrary as LibraryIcon, Search as SearchIcon } from '@mui/icons-material';
 import api from '../services/api';
 import { Product, ProductType } from '../types';
 import MediaPicker from '../components/MediaPicker';
@@ -42,6 +43,7 @@ const Products: React.FC = () => {
     return priceType.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ');
   };
   const [products, setProducts] = useState<Product[]>([]);
+  const [search, setSearch] = useState('');
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Product | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -167,6 +169,31 @@ const Products: React.FC = () => {
     }
   };
 
+  const filteredProducts = products.filter((product) => {
+    if (!search.trim()) return true;
+    const q = search.toLowerCase();
+    const capacityLabel = product.wattage
+      ? `${product.wattage}w`
+      : product.capacity_kw
+        ? `${product.capacity_kw}kw`
+        : product.capacity_kwh
+          ? `${product.capacity_kwh}kwh`
+          : '';
+    return (
+      formatProductType(product.product_type).toLowerCase().includes(q) ||
+      (product.brand && product.brand.toLowerCase().includes(q)) ||
+      (product.model && product.model.toLowerCase().includes(q)) ||
+      (product.category && product.category.toLowerCase().includes(q)) ||
+      capacityLabel.includes(q) ||
+      formatPriceType(product.price_type).toLowerCase().includes(q) ||
+      String(product.stock_quantity ?? 0).includes(q) ||
+      product.base_price.toFixed(2).includes(q) ||
+      String(product.catalog_unit_price ?? product.base_price).includes(q) ||
+      (product.is_active ? 'yes' : 'no').includes(q) ||
+      String(product.id).includes(q)
+    );
+  });
+
   if (!isAdmin) {
     return (
       <Box>
@@ -187,6 +214,28 @@ const Products: React.FC = () => {
         </Button>
       </Box>
 
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 2, alignItems: 'center' }}>
+        <TextField
+          size="small"
+          placeholder="Search type, brand, model, category..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon fontSize="small" />
+              </InputAdornment>
+            ),
+          }}
+          sx={{ flex: 1, minWidth: 260, maxWidth: 480 }}
+        />
+        {search.trim() && (
+          <Typography variant="body2" color="text.secondary">
+            {filteredProducts.length} of {products.length} products
+          </Typography>
+        )}
+      </Box>
+
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
@@ -205,7 +254,14 @@ const Products: React.FC = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {products.map((product) => (
+            {filteredProducts.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={11} align="center" sx={{ py: 4, color: 'text.secondary' }}>
+                  {search.trim() ? 'No products match your search.' : 'No products yet.'}
+                </TableCell>
+              </TableRow>
+            ) : (
+              filteredProducts.map((product) => (
               <TableRow key={product.id} sx={{ opacity: product.is_active ? 1 : 0.6 }}>
                 <TableCell>{formatProductType(product.product_type)}</TableCell>
                 <TableCell>{product.brand || '-'}</TableCell>
@@ -247,7 +303,8 @@ const Products: React.FC = () => {
                   </IconButton>
                 </TableCell>
               </TableRow>
-            ))}
+              ))
+            )}
           </TableBody>
         </Table>
       </TableContainer>
