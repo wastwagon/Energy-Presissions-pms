@@ -341,7 +341,7 @@ const ProductDetail: React.FC = () => {
                           py={1.25}
                           borderBottom={index < specs.length - 1 ? homeUi.cardBorder : 'none'}
                         >
-                          <Typography sx={{ fontWeight: 600, ...homeUi.navLink, flexShrink: 0 }}>
+                          <Typography sx={{ ...homeUi.navLink, fontWeight: 600, flexShrink: 0 }}>
                             {row.label}
                           </Typography>
                           <Typography sx={{ ...publicUi.mutedText, ...homeUi.navLink, textAlign: 'right' }}>

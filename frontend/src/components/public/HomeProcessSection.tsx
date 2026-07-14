@@ -76,7 +76,7 @@ const ProcessStepCard: React.FC<{ item: CmsProcessStep; index: number }> = ({ it
           mb: 1.5,
         }}
       >
-        <Typography sx={{ fontWeight: 800, ...homeUi.caption, color: theme.accent, lineHeight: 1 }}>
+        <Typography sx={{ ...homeUi.caption, fontWeight: 800, color: theme.accent, lineHeight: 1 }}>
           {item.step}
         </Typography>
       </Box>

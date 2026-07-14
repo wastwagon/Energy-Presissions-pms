@@ -283,8 +283,8 @@ const HomePortfolioSection: React.FC<Props> = ({
                     alignItems: 'center',
                     gap: 0.35,
                     color: colors.green,
-                    fontWeight: 600,
                     ...homeUi.navLink,
+                    fontWeight: 600,
                     mt: 'auto',
                   }}
                 >

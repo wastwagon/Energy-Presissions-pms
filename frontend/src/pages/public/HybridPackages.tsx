@@ -263,11 +263,11 @@ const HybridPackages: React.FC = () => {
                           >
                             <Typography
                               variant="caption"
-                              sx={{ color: colors.gray600, fontWeight: 700, textTransform: 'uppercase', ...homeUi.chip }}
+                              sx={{ ...homeUi.chip, color: colors.gray600, fontWeight: 700, textTransform: 'uppercase' }}
                             >
                               {spec.label}
                             </Typography>
-                            <Typography variant="body2" sx={{ fontWeight: 700, ...homeUi.bodySm, lineHeight: 1.4, mt: 0.25 }}>
+                            <Typography variant="body2" sx={{ ...homeUi.bodySm, fontWeight: 700, lineHeight: 1.4, mt: 0.25 }}>
                               {spec.value}
                             </Typography>
                           </Box>

@@ -173,7 +173,7 @@ const Portfolio: React.FC = () => {
           <Typography sx={{ fontWeight: 800, mb: 1.5, fontSize: { xs: '1.5rem', md: '1.75rem' } }}>
             {closingCta.title}
           </Typography>
-          <Typography sx={{ color: 'rgba(255,255,255,0.88)', mb: 2.5, lineHeight: 1.6, ...homeUi.body }}>
+          <Typography sx={{ ...homeUi.body, color: 'rgba(255,255,255,0.88)', mb: 2.5, lineHeight: 1.6 }}>
             {closingCta.subtitle}
           </Typography>
           <Button

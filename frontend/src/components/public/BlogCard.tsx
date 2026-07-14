@@ -116,7 +116,7 @@ const BlogCard: React.FC<Props> = ({ post, variant = 'grid' }) => {
             {post.excerpt}
           </Typography>
           <Stack direction="row" spacing={1} alignItems="center" sx={{ color: colors.green }}>
-            <Typography sx={{ fontWeight: 600, ...homeUi.navLink }}>Read featured article</Typography>
+            <Typography sx={{ ...homeUi.navLink, fontWeight: 600 }}>Read featured article</Typography>
             <ArrowForwardIcon sx={{ fontSize: 18 }} />
           </Stack>
         </CardContent>
@@ -194,7 +194,7 @@ const BlogCard: React.FC<Props> = ({ post, variant = 'grid' }) => {
           {post.excerpt}
         </Typography>
         <Stack direction="row" spacing={0.5} alignItems="center" className="blog-card-cta" sx={{ color: colors.green, mt: 'auto' }}>
-          <Typography sx={{ fontWeight: 600, ...homeUi.caption }}>Read article</Typography>
+          <Typography sx={{ ...homeUi.caption, fontWeight: 600 }}>Read article</Typography>
           <ArrowForwardIcon sx={{ fontSize: 16 }} />
         </Stack>
       </CardContent>

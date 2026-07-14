@@ -54,7 +54,7 @@ const GoogleReviewsBand: React.FC = () => {
               sx={{ mb: 1 }}
             >
               <Rating value={display.rating} readOnly precision={0.1} size="small" sx={{ color: colors.green }} />
-              <Typography sx={{ fontWeight: 600, ...homeUi.navLink, color: colors.blueBlack }}>
+              <Typography sx={{ ...homeUi.navLink, fontWeight: 600, color: colors.blueBlack }}>
                 {display.rating.toFixed(1)}
               </Typography>
             </Stack>

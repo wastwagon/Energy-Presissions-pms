@@ -206,7 +206,7 @@ const BlogPostPage: React.FC = () => {
                 mb: { xs: 4, md: 0 },
               }}
             >
-              <Typography sx={{ fontWeight: 800, color: colors.blueBlack, mb: 1, ...homeUi.body }}>
+              <Typography sx={{ ...homeUi.body, fontWeight: 800, color: colors.blueBlack, mb: 1 }}>
                 Need help sizing your system?
               </Typography>
               <Typography sx={{ ...publicUi.mutedText, mb: 2, lineHeight: 1.6 }}>

@@ -55,7 +55,7 @@ const PackageComparisonTable: React.FC<Props> = ({ packages = HYBRID_PACKAGES })
           {packages.map((pkg) => (
             <Card key={pkg.id} sx={publicUi.card}>
               <CardContent sx={{ p: 2 }}>
-                <Typography sx={{ fontWeight: 800, ...homeUi.body, color: colors.blueBlack, mb: 1.5 }}>
+                <Typography sx={{ ...homeUi.body, fontWeight: 800, color: colors.blueBlack, mb: 1.5 }}>
                   {pkg.badge}
                 </Typography>
                 {specRow('Load', pkg.kvaLabel)}

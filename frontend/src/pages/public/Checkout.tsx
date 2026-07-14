@@ -485,7 +485,7 @@ const Checkout: React.FC = () => {
               nextButton={<span />}
               backButton={<span />}
             />
-            <Typography sx={{ textAlign: 'center', fontWeight: 600, ...homeUi.navLink, mt: 0.5 }}>
+            <Typography sx={{ textAlign: 'center', ...homeUi.navLink, fontWeight: 600, mt: 0.5 }}>
               Step {activeStep + 1} of {steps.length} — {steps[activeStep]}
             </Typography>
           </Box>
