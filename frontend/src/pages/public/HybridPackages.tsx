@@ -149,9 +149,9 @@ const HybridPackages: React.FC = () => {
 
           <PackageComparisonTable packages={packages} />
 
-          <Grid container spacing={2} alignItems="stretch">
+          <Grid container spacing={3} alignItems="stretch">
             {packages.map((pkg) => (
-              <Grid item xs={12} sm={6} lg={4} key={pkg.id}>
+              <Grid item xs={12} md={6} key={pkg.id}>
                 <Card
                   sx={{
                     height: '100%',
@@ -222,8 +222,8 @@ const HybridPackages: React.FC = () => {
                     <Typography
                       variant="body2"
                       sx={{
-                        fontSize: '0.78rem',
-                        lineHeight: 1.45,
+                        fontSize: '0.875rem',
+                        lineHeight: 1.5,
                         color: colors.gray600,
                         bgcolor: 'rgba(0,230,118,0.08)',
                         borderLeft: `3px solid ${colors.green}`,
@@ -239,7 +239,7 @@ const HybridPackages: React.FC = () => {
                         key={h}
                         label={h}
                         size="small"
-                        sx={{ mb: 1.5, mr: 0.5, fontWeight: 600, fontSize: '0.7rem' }}
+                        sx={{ mb: 1.5, mr: 0.5, fontWeight: 600, fontSize: '0.75rem' }}
                       />
                     ))}
                     <Grid container spacing={1} sx={{ mb: 1.5 }}>
@@ -264,11 +264,11 @@ const HybridPackages: React.FC = () => {
                           >
                             <Typography
                               variant="caption"
-                              sx={{ color: colors.gray600, fontWeight: 700, textTransform: 'uppercase', fontSize: '0.62rem' }}
+                              sx={{ color: colors.gray600, fontWeight: 700, textTransform: 'uppercase', fontSize: '0.7rem' }}
                             >
                               {spec.label}
                             </Typography>
-                            <Typography variant="body2" sx={{ fontWeight: 700, fontSize: '0.78rem', lineHeight: 1.35, mt: 0.25 }}>
+                            <Typography variant="body2" sx={{ fontWeight: 700, fontSize: '0.875rem', lineHeight: 1.4, mt: 0.25 }}>
                               {spec.value}
                             </Typography>
                           </Box>
@@ -286,12 +286,12 @@ const HybridPackages: React.FC = () => {
                           </ListItemIcon>
                           <ListItemText
                             primary={line}
-                            primaryTypographyProps={{ variant: 'body2', fontSize: '0.8rem' }}
+                            primaryTypographyProps={{ variant: 'body2', fontSize: '0.875rem' }}
                           />
                         </ListItem>
                       ))}
                     </List>
-                    <Typography variant="caption" sx={{ color: colors.gray600, display: 'block', mt: 1 }}>
+                    <Typography variant="body2" sx={{ color: colors.gray600, display: 'block', mt: 1 }}>
                       <strong>Typical loads (stagger heavy items):</strong> {pkg.appliances}
                     </Typography>
                   </CardContent>

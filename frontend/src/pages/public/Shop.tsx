@@ -300,7 +300,7 @@ const Shop: React.FC = () => {
                         bgcolor: colors.offWhite,
                         flexShrink: 0,
                         width: viewMode === 'list' ? { xs: 112, sm: 200, md: 220 } : '100%',
-                        height: viewMode === 'list' ? { xs: 'auto', sm: 'auto' } : 250,
+                        height: viewMode === 'list' ? { xs: 'auto', sm: 'auto' } : { xs: 220, sm: 280 },
                         alignSelf: viewMode === 'list' ? 'stretch' : undefined,
                         minHeight: viewMode === 'list' ? { xs: 112, sm: 180 } : undefined,
                         overflow: 'hidden',
@@ -309,12 +309,12 @@ const Shop: React.FC = () => {
                       <ProductImage
                         product={product}
                         alt={product.name || `${product.brand} ${product.model}`}
+                        objectFit="contain"
                         sx={{
                           position: 'absolute',
                           inset: 0,
                           width: '100%',
                           height: '100%',
-                          transform: 'scale(1.08)',
                         }}
                       />
                       {/* Badge */}
