@@ -137,12 +137,39 @@ export const typeScale = {
   },
 };
 
+type ResponsiveFontSize = {
+  xs?: string;
+  sm?: string;
+  md?: string;
+  lg?: string;
+};
+
+/** MUI theme typography only accepts scalar fontSize — pick desktop-first default. */
+function muiFontSize(value: string | ResponsiveFontSize): string {
+  if (typeof value === 'string') return value;
+  return value.md ?? value.sm ?? value.xs ?? '1rem';
+}
+
+function muiTypographyVariant(token: {
+  fontSize?: string | ResponsiveFontSize;
+  fontWeight?: number;
+  lineHeight?: number;
+  letterSpacing?: string;
+  textTransform?: 'uppercase';
+}) {
+  const { fontSize, ...rest } = token;
+  return {
+    ...rest,
+    ...(fontSize !== undefined ? { fontSize: muiFontSize(fontSize) } : {}),
+  };
+}
+
 /** MUI theme typography — keeps variant sizes predictable across admin + public. */
 export function buildMuiTypography() {
   return {
     fontFamily,
-    h1: { ...typeScale.display },
-    h2: { ...typeScale.headingMd },
+    h1: muiTypographyVariant(typeScale.display),
+    h2: muiTypographyVariant(typeScale.headingMd),
     h3: { fontSize: '1.5rem', fontWeight: fontWeight.bold, lineHeight: 1.25 },
     h4: { fontSize: '1.25rem', fontWeight: fontWeight.semibold, lineHeight: 1.3 },
     h5: { fontSize: '1.125rem', fontWeight: fontWeight.semibold, lineHeight: 1.35 },
