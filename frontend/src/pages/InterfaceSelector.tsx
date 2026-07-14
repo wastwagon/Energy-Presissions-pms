@@ -34,7 +34,7 @@ const InterfaceSelector: React.FC = () => {
           variant="h2"
           align="center"
           gutterBottom
-          sx={{ color: 'white', mb: 2, fontWeight: 'bold' }}
+          sx={{ color: 'white', mb: 2, fontWeight: 700 }}
         >
           Energy Precisions
         </Typography>

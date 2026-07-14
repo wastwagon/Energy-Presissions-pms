@@ -151,9 +151,8 @@ const Services: React.FC = () => {
                       variant="h6"
                       sx={{
                         mb: 1.25,
-                        fontWeight: 700,
+                        ...homeUi.cardTitle,
                         color: colors.blueBlack,
-                        fontSize: '1.1rem',
                       }}
                     >
                       {service.title}
@@ -162,9 +161,8 @@ const Services: React.FC = () => {
                       variant="body2"
                       sx={{
                         mb: 2,
+                        ...homeUi.body,
                         color: colors.gray600,
-                        lineHeight: 1.65,
-                        fontSize: '0.9rem',
                       }}
                     >
                       {service.description}
@@ -200,7 +198,7 @@ const Services: React.FC = () => {
                         py: 1,
                         fontWeight: 600,
                         textTransform: 'none',
-                        fontSize: '0.9rem',
+                        fontSize: homeUi.bodySm.fontSize,
                         '&:hover': {
                           bgcolor: cardColor === colors.green ? colors.greenDark : colors.blueBlackLight,
                         },
@@ -328,17 +326,17 @@ const Services: React.FC = () => {
                         justifyContent: 'center',
                         mx: 'auto',
                         mb: 1.5,
-                        fontSize: '1.1rem',
+                        ...homeUi.bodySm,
                         fontWeight: 800,
                       }}
                     >
                       {item.step}
                     </Box>
                     <Box sx={{ color: colors.blueNavy, mb: 1.25, fontSize: '1.85rem', display: 'flex', justifyContent: 'center' }}>{processStepIcons[index]}</Box>
-                    <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 700, color: colors.blueNavy, fontSize: '0.95rem' }}>
+                    <Typography variant="subtitle1" sx={{ mb: 1, ...homeUi.cardTitle, color: colors.blueNavy, fontSize: homeUi.bodySm.fontSize }}>
                       {item.title}
                     </Typography>
-                    <Typography variant="body2" sx={{ color: colors.gray600, lineHeight: 1.55, fontSize: '0.8rem' }}>
+                    <Typography variant="body2" sx={{ ...homeUi.bodySm, color: colors.gray600 }}>
                       {item.desc}
                     </Typography>
                   </Card>
@@ -376,10 +374,10 @@ const Services: React.FC = () => {
                   }}
                 >
                   <Box sx={{ color: colors.green, fontSize: '2.25rem', mb: 1.5 }}>{guaranteeIcons[index]}</Box>
-                  <Typography variant="subtitle1" sx={{ mb: 1.25, fontWeight: 700, color: colors.blueNavy, fontSize: '0.95rem' }}>
+                  <Typography variant="subtitle1" sx={{ mb: 1.25, ...homeUi.cardTitle, color: colors.blueNavy, fontSize: homeUi.bodySm.fontSize }}>
                     {guarantee.title}
                   </Typography>
-                  <Typography variant="body2" sx={{ color: colors.gray600, lineHeight: 1.6, fontSize: '0.85rem' }}>
+                  <Typography variant="body2" sx={{ ...homeUi.bodySm, color: colors.gray600, lineHeight: 1.6 }}>
                     {guarantee.desc}
                   </Typography>
                 </Card>
@@ -402,10 +400,8 @@ const Services: React.FC = () => {
             <Typography
               variant="h2"
               sx={{
-                ...homeUi.title,
+                ...homeUi.sectionTitle,
                 mb: 1.5,
-                fontSize: { xs: '1.625rem', md: '2rem' },
-                lineHeight: 1.2,
               }}
             >
               {sections.closing_cta?.title}
@@ -413,10 +409,10 @@ const Services: React.FC = () => {
             <Typography
               sx={{
                 mb: 2.5,
+                ...homeUi.body,
                 color: publicUi.hero.subtitle,
                 maxWidth: 480,
                 lineHeight: 1.6,
-                fontSize: '0.9375rem',
               }}
             >
               {sections.closing_cta?.subtitle}
@@ -430,7 +426,7 @@ const Services: React.FC = () => {
                 ...publicUi.primaryButton,
                 ...homeUi.touchTarget,
                 px: 3.5,
-                fontSize: '0.9375rem',
+                fontSize: homeUi.body.fontSize,
               }}
             >
               {sections.closing_cta?.primary_cta_text}

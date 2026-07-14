@@ -38,8 +38,7 @@ const LegalDocument: React.FC<Props> = ({
           <Stack key={section.title} spacing={1}>
             <Typography
               sx={{
-                ...homeUi.title,
-                fontSize: { xs: '1.0625rem', md: '1.125rem' },
+                ...homeUi.headingSm,
                 color: colors.blueBlack,
               }}
             >

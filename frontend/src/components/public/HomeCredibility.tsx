@@ -76,10 +76,9 @@ const HomeCredibility: React.FC<Props> = ({ data }) => {
                 </Box>
                 <Typography
                   sx={{
+                    ...homeUi.prose,
                     fontWeight: 700,
                     color: colors.blueBlack,
-                    fontSize: '1.0625rem',
-                    letterSpacing: '-0.02em',
                     mb: 1,
                   }}
                 >

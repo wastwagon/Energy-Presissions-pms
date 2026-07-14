@@ -26,7 +26,6 @@ import { useCart } from '../../contexts/CartContext';
 import { catalogLineUnitPrice } from '../../utils/catalogPrice';
 import { Seo } from '../../components/Seo';
 import PublicPageShell from '../../components/public/PublicPageShell';
-import ProductImage from '../../components/public/ProductImage';
 import { trackViewItem, trackAddToCart } from '../../utils/analytics';
 import { resolveCatalogImageUrl } from '../../utils/catalogImage';
 import { formatApiErrorDetail } from '../../utils/apiErrorMessage';
@@ -36,6 +35,8 @@ import { homeUi } from '../../theme/homeUi';
 import { publicUi } from '../../theme/publicUi';
 import { mobileFixedAboveTabBar } from '../../utils/mobileChrome';
 import { hapticTap } from '../../utils/haptics';
+import { productImageUrls } from '../../utils/productGallery';
+import { resolveMediaUrl } from '../../utils/mediaUrl';
 
 const ProductDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -47,6 +48,7 @@ const ProductDetail: React.FC = () => {
   const [related, setRelated] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
   useEffect(() => {
     const load = async () => {
@@ -59,6 +61,7 @@ const ProductDetail: React.FC = () => {
         setLoading(true);
         const res = await api.get(`/ecommerce/products/${id}`);
         setProduct(res.data);
+        setSelectedImageIndex(0);
         setError(null);
         if (res.data?.product_type) {
           api
@@ -132,9 +135,16 @@ const ProductDetail: React.FC = () => {
 
   const title = product.name || `${product.brand || ''} ${product.model || ''}`.trim() || 'Product';
   const unit = catalogLineUnitPrice(product);
-  const img = resolveCatalogImageUrl(product);
-  const desc = product.description || product.short_description || 'Premium solar equipment from Energy Precisions catalog.';
-  const ogImage = /^https?:\/\//i.test(img) ? img : undefined;
+  const imageUrls = productImageUrls(product);
+  const activeImageUrl = imageUrls[selectedImageIndex] || resolveCatalogImageUrl(product);
+  const shortDesc =
+    product.short_description?.trim() ||
+    product.description?.trim()?.slice(0, 160) ||
+    'Premium solar equipment from Energy Precisions catalog.';
+  const fullDesc = product.description?.trim() || '';
+  const showFullDescription = Boolean(fullDesc && fullDesc !== product.short_description?.trim());
+  const seoDesc = (product.short_description || fullDesc || shortDesc).slice(0, 160);
+  const ogImage = /^https?:\/\//i.test(activeImageUrl) ? activeImageUrl : undefined;
   const inStock = product.in_stock !== false;
   const typeLabel = product.product_type
     ? String(product.product_type).charAt(0).toUpperCase() + String(product.product_type).slice(1)
@@ -165,20 +175,20 @@ const ProductDetail: React.FC = () => {
     <>
       <Seo
         title={title}
-        description={desc.slice(0, 160)}
+        description={seoDesc}
         path={productPath}
         ogImage={ogImage}
         jsonLd={productJsonLd({
           id: product.id,
           name: title,
-          description: desc,
-          image: img,
+          description: seoDesc,
+          image: activeImageUrl,
           price: unit,
           inStock,
           brand: product.brand,
         })}
       />
-      <PublicPageShell badge={typeLabel} headline={title} description={product.short_description || desc.slice(0, 120)}>
+      <PublicPageShell badge={typeLabel} headline={title} description={shortDesc}>
         <Button
           startIcon={<ArrowBackIcon />}
           onClick={() => navigate('/shop')}
@@ -200,13 +210,55 @@ const ProductDetail: React.FC = () => {
                   p: 2,
                 }}
               >
-                <ProductImage
-                  product={product}
+                <Box
+                  component="img"
+                  src={resolveMediaUrl(activeImageUrl) || activeImageUrl}
                   alt={title}
-                  objectFit="contain"
-                  sx={{ maxWidth: '100%', maxHeight: 340 }}
+                  sx={{ maxWidth: '100%', maxHeight: 340, objectFit: 'contain', objectPosition: 'center' }}
+                  onError={(e) => {
+                    const fallback = resolveCatalogImageUrl({ ...product, image_url: null });
+                    (e.target as HTMLImageElement).src = fallback;
+                  }}
                 />
               </Box>
+              {imageUrls.length > 1 && (
+                <Stack
+                  direction="row"
+                  spacing={1}
+                  sx={{ p: 1.5, borderTop: homeUi.cardBorder, overflowX: 'auto' }}
+                >
+                  {imageUrls.map((url, index) => (
+                    <Box
+                      key={`${url}-${index}`}
+                      component="button"
+                      type="button"
+                      onClick={() => setSelectedImageIndex(index)}
+                      aria-label={`View image ${index + 1}`}
+                      sx={{
+                        flexShrink: 0,
+                        width: 72,
+                        height: 72,
+                        p: 0,
+                        border:
+                          index === selectedImageIndex
+                            ? `2px solid ${colors.green}`
+                            : `1px solid ${colors.gray200}`,
+                        borderRadius: 1,
+                        overflow: 'hidden',
+                        cursor: 'pointer',
+                        bgcolor: colors.offWhite,
+                      }}
+                    >
+                      <Box
+                        component="img"
+                        src={resolveMediaUrl(url) || url}
+                        alt=""
+                        sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      />
+                    </Box>
+                  ))}
+                </Stack>
+              )}
             </Card>
           </Grid>
 
@@ -223,16 +275,33 @@ const ProductDetail: React.FC = () => {
               />
             </Stack>
 
-            <Typography sx={{ ...homeUi.title, fontSize: { xs: '1.5rem', md: '1.75rem' }, color: colors.blueBlack, mb: 1 }}>
+            <Typography sx={{ ...homeUi.price, color: colors.blueBlack, mb: 1 }}>
               GHS {unit.toLocaleString()}
             </Typography>
             {product.price_type && product.price_type !== 'fixed' && (
-              <Typography sx={{ ...publicUi.mutedText, fontSize: '0.8125rem', mb: 2 }}>
+              <Typography sx={{ ...publicUi.mutedText, ...homeUi.caption, mb: 2 }}>
                 Pricing: {product.price_type.replace(/_/g, ' ')}
               </Typography>
             )}
 
-            <Typography sx={{ ...homeUi.body, ...publicUi.mutedText, mb: 3 }}>{desc}</Typography>
+            <Typography sx={{ ...homeUi.body, ...publicUi.mutedText, mb: showFullDescription ? 2 : 3 }}>
+              {shortDesc}
+            </Typography>
+
+            {showFullDescription && (
+              <Box sx={{ mb: 3 }}>
+                <Typography sx={{ fontWeight: 700, mb: 1 }}>Product details</Typography>
+                <Typography
+                  sx={{
+                    ...homeUi.body,
+                    ...publicUi.mutedText,
+                    whiteSpace: 'pre-line',
+                  }}
+                >
+                  {fullDesc}
+                </Typography>
+              </Box>
+            )}
 
             {!isMobile && (
               <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5}>
@@ -272,10 +341,10 @@ const ProductDetail: React.FC = () => {
                           py={1.25}
                           borderBottom={index < specs.length - 1 ? homeUi.cardBorder : 'none'}
                         >
-                          <Typography sx={{ fontWeight: 600, fontSize: '0.875rem', flexShrink: 0 }}>
+                          <Typography sx={{ fontWeight: 600, ...homeUi.navLink, flexShrink: 0 }}>
                             {row.label}
                           </Typography>
-                          <Typography sx={{ ...publicUi.mutedText, fontSize: '0.875rem', textAlign: 'right' }}>
+                          <Typography sx={{ ...publicUi.mutedText, ...homeUi.navLink, textAlign: 'right' }}>
                             {row.value}
                           </Typography>
                         </Box>
@@ -297,7 +366,7 @@ const ProductDetail: React.FC = () => {
               </Box>
             )}
 
-            <Typography sx={{ ...publicUi.mutedText, fontSize: '0.8125rem', mt: 2 }}>
+            <Typography sx={{ ...homeUi.caption, ...publicUi.mutedText, mt: 2 }}>
               <RouterLink to="/warranty" style={{ color: colors.greenDark, fontWeight: 600, textDecoration: 'none' }}>
                 Warranty information
               </RouterLink>
@@ -307,7 +376,7 @@ const ProductDetail: React.FC = () => {
 
         {related.length > 0 && (
           <Box sx={{ mt: { xs: 5, md: 7 } }}>
-            <Typography sx={{ ...homeUi.title, fontSize: '1.125rem', mb: 2 }}>Related products</Typography>
+            <Typography sx={{ ...homeUi.headingSm, mb: 2 }}>Related products</Typography>
             <Grid container spacing={2}>
               {related.map((p) => (
                 <Grid item xs={12} sm={4} key={p.id}>

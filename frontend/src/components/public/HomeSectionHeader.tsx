@@ -31,11 +31,8 @@ const HomeSectionHeader: React.FC<Props> = ({
       <Typography
         component="p"
         sx={{
+          ...homeUi.badge,
           color: dark ? colors.green : colors.gray600,
-          fontWeight: 600,
-          fontSize: '0.6875rem',
-          letterSpacing: '0.08em',
-          textTransform: 'uppercase',
           mb: 1.25,
         }}
       >

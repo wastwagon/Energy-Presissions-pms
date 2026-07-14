@@ -54,18 +54,18 @@ const GoogleReviewsBand: React.FC = () => {
               sx={{ mb: 1 }}
             >
               <Rating value={display.rating} readOnly precision={0.1} size="small" sx={{ color: colors.green }} />
-              <Typography sx={{ fontWeight: 600, fontSize: '0.875rem', color: colors.blueBlack }}>
+              <Typography sx={{ fontWeight: 600, ...homeUi.navLink, color: colors.blueBlack }}>
                 {display.rating.toFixed(1)}
               </Typography>
             </Stack>
           )}
           {countLabel && (
-            <Typography sx={{ ...publicUi.mutedText, fontSize: '0.8125rem', mb: 1 }}>
+            <Typography sx={{ ...homeUi.caption, ...publicUi.mutedText, mb: 1 }}>
               {countLabel}
               {display.source === 'testimonials' ? ' on this site' : ''}
             </Typography>
           )}
-          <Typography sx={{ ...publicUi.mutedText, fontSize: '0.875rem', maxWidth: 480, mx: { xs: 'auto', lg: 0 } }}>
+          <Typography sx={{ ...publicUi.mutedText, maxWidth: 480, mx: { xs: 'auto', lg: 0 } }}>
             {display.source === 'google'
               ? 'See what customers say on Google Maps, or leave a review after your project — it helps other Ghanaians find reliable solar installers.'
               : 'Read verified feedback on our reviews page, or share your experience on Google Maps after your project.'}
@@ -117,7 +117,7 @@ const GoogleReviewsBand: React.FC = () => {
           </Box>
         )}
       </Stack>
-      <Typography sx={{ ...publicUi.mutedText, fontSize: '0.75rem', mt: 2, textAlign: 'center' }}>
+      <Typography sx={{ ...publicUi.mutedText, ...homeUi.chip, mt: 2, textAlign: 'center' }}>
         Map data © Google ·{' '}
         <Link href={googleMapsReadUrl(placeId, contact)} target="_blank" rel="noopener noreferrer" sx={{ color: colors.gray600 }}>
           Open in Google Maps

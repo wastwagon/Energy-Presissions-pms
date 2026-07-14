@@ -29,7 +29,7 @@ const PublicPageHero: React.FC<Props> = ({
 }) => {
   const headlineFontSize =
     headlineSize === 'prominent'
-      ? { xs: '1.75rem', sm: '2.25rem', md: '2.75rem' }
+      ? homeUi.headingLg.fontSize
       : homeUi.sectionTitle.fontSize;
   const heroBg = backgroundImage ? resolveMediaUrl(backgroundImage) : '';
   return (
@@ -68,10 +68,7 @@ const PublicPageHero: React.FC<Props> = ({
             component="p"
             sx={{
               color: colors.green,
-              fontWeight: 600,
-              fontSize: '0.6875rem',
-              letterSpacing: '0.08em',
-              textTransform: 'uppercase',
+              ...homeUi.badge,
               mb: 1.25,
             }}
           >

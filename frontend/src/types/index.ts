@@ -303,6 +303,9 @@ export interface Product {
   image_url?: string;
   category?: string;
   name?: string;
+  description?: string;
+  short_description?: string;
+  gallery_images?: string[] | null;
   is_active: boolean;
   stock_quantity?: number;
   manage_stock?: boolean;

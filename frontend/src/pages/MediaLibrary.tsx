@@ -196,7 +196,7 @@ const MediaLibrary: React.FC = () => {
 
   return (
     <Box>
-      <Typography variant="h4" gutterBottom fontWeight="bold">
+      <Typography variant="h4" gutterBottom fontWeight={700}>
         Media Library
       </Typography>
       <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>

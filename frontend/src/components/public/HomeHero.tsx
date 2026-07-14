@@ -11,6 +11,7 @@ import {
 import { ArrowForward as ArrowForwardIcon } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
 import { colors } from '../../theme/colors';
+import { homeUi } from '../../theme/homeUi';
 import { homePageImages } from '../../data/homePageMedia';
 import { useCmsPage } from '../../hooks/useCmsPage';
 import { useGlobalSiteConfig } from '../../hooks/useGlobalSiteConfig';
@@ -229,7 +230,7 @@ const HomeHero: React.FC = () => {
                     fontWeight: 700,
                     mb: 2,
                     height: 30,
-                    fontSize: '0.68rem',
+                    ...homeUi.badge,
                     letterSpacing: '0.12em',
                     backdropFilter: 'blur(8px)',
                   }}
@@ -239,11 +240,8 @@ const HomeHero: React.FC = () => {
               <Typography
                 variant="h1"
                 sx={{
-                  fontSize: { xs: '2rem', sm: '2.5rem', md: '3.25rem', lg: '3.5rem' },
-                  fontWeight: 800,
+                  ...homeUi.homeHeroTitle,
                   mb: 2,
-                  lineHeight: 1.08,
-                  letterSpacing: '-0.03em',
                   textShadow: '0 2px 24px rgba(0,0,0,0.35)',
                 }}
               >
@@ -267,8 +265,7 @@ const HomeHero: React.FC = () => {
                   sx={{
                     mb: 3,
                     color: 'rgba(255,255,255,0.88)',
-                    lineHeight: 1.65,
-                    fontSize: { xs: '1rem', md: '1.125rem' },
+                    ...homeUi.homeHeroBody,
                     maxWidth: 520,
                     textShadow: '0 1px 12px rgba(0,0,0,0.4)',
                   }}
@@ -290,8 +287,7 @@ const HomeHero: React.FC = () => {
                       color: colors.blueBlack,
                       px: 3.5,
                       py: 1.35,
-                      fontWeight: 700,
-                      fontSize: '0.95rem',
+                      ...homeUi.ctaButton,
                       textTransform: 'none',
                       borderRadius: 2,
                       boxShadow: `0 8px 32px rgba(0, 230, 118, 0.35)`,
@@ -316,7 +312,7 @@ const HomeHero: React.FC = () => {
                       px: 3,
                       py: 1.35,
                       fontWeight: 600,
-                      fontSize: '0.95rem',
+                      ...homeUi.ctaButton,
                       textTransform: 'none',
                       borderRadius: 2,
                       backdropFilter: 'blur(6px)',
@@ -342,14 +338,7 @@ const HomeHero: React.FC = () => {
                 >
                   {heroStats.map((stat) => (
                     <Box key={stat.label}>
-                      <Typography
-                        sx={{
-                          fontWeight: 800,
-                          color: colors.green,
-                          lineHeight: 1.1,
-                          fontSize: { xs: '1.1rem', md: '1.25rem' },
-                        }}
-                      >
+                      <Typography sx={{ ...homeUi.heroStat, color: colors.green }}>
                         {stat.value}
                       </Typography>
                       <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.72)' }}>

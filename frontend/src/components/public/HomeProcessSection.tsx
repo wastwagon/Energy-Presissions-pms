@@ -76,25 +76,24 @@ const ProcessStepCard: React.FC<{ item: CmsProcessStep; index: number }> = ({ it
           mb: 1.5,
         }}
       >
-        <Typography sx={{ fontWeight: 800, fontSize: '0.8125rem', color: theme.accent, lineHeight: 1 }}>
+        <Typography sx={{ fontWeight: 800, ...homeUi.caption, color: theme.accent, lineHeight: 1 }}>
           {item.step}
         </Typography>
       </Box>
 
       <Typography
         sx={{
-          fontWeight: 700,
+          ...homeUi.cardTitle,
           color: colors.blueBlack,
           fontSize: { xs: '0.9375rem', md: '0.975rem' },
           letterSpacing: '-0.018em',
-          lineHeight: 1.25,
           mb: 0.75,
         }}
       >
         {item.title}
       </Typography>
 
-      <Typography sx={{ ...homeUi.body, color: colors.gray600, fontSize: '0.8125rem', lineHeight: 1.5 }}>
+      <Typography sx={{ ...homeUi.caption, color: colors.gray600, lineHeight: 1.5 }}>
         {item.desc}
       </Typography>
     </Box>

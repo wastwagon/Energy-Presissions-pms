@@ -115,7 +115,7 @@ const FAQs: React.FC = () => {
                 expandIcon={<ExpandMoreIcon />}
                 sx={{ minHeight: 48, '& .MuiAccordionSummary-content': { my: 1 } }}
               >
-                <Typography sx={{ fontWeight: 700, fontSize: '0.9375rem' }}>{faq.question}</Typography>
+                <Typography sx={{ ...homeUi.body, fontWeight: 700 }}>{faq.question}</Typography>
               </AccordionSummary>
               <AccordionDetails>
                 <Typography sx={{ ...homeUi.body, ...publicUi.mutedText }}>{faq.answer}</Typography>

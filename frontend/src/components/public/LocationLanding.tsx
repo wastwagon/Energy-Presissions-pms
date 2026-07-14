@@ -102,7 +102,7 @@ const LocationLanding: React.FC<Props> = ({ page }) => {
                 <Typography sx={{ fontWeight: 700, mb: 2 }}>Popular in {page.region}</Typography>
                 <Stack spacing={1}>
                   {page.services.map((s) => (
-                    <Typography key={s} sx={{ ...publicUi.mutedText, fontSize: '0.875rem' }}>
+                    <Typography key={s} sx={{ ...publicUi.mutedText }}>
                       · {s}
                     </Typography>
                   ))}

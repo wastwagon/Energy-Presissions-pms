@@ -31,7 +31,7 @@ const toggleSx = {
     minHeight: 48,
     textTransform: 'none' as const,
     fontWeight: 600,
-    fontSize: '0.875rem',
+    fontSize: homeUi.bodySm.fontSize,
   },
 };
 

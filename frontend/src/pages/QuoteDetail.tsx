@@ -1198,10 +1198,10 @@ const QuoteDetail: React.FC = () => {
                 <Typography>{formatCurrency(displayServices)}</Typography>
               </Box>
               <Box display="flex" justifyContent="space-between" mb={2}>
-                <Typography variant="body2" fontWeight="bold">
+                <Typography variant="body2" fontWeight={700}>
                   Subtotal:
                 </Typography>
-                <Typography variant="body2" fontWeight="bold">
+                <Typography variant="body2" fontWeight={700}>
                   {formatCurrency(subtotal)}
                 </Typography>
               </Box>
@@ -1372,7 +1372,7 @@ const QuoteDetail: React.FC = () => {
             <Typography variant="body2" color="text.secondary" gutterBottom>
               Calculated Total:
             </Typography>
-            <Typography variant="h6" color="primary" fontWeight="bold">
+            <Typography variant="h6" color="primary" fontWeight={700}>
               {formatCurrency(itemForm.quantity * itemForm.unit_price)} GHS
             </Typography>
             <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>

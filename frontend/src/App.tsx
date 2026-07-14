@@ -11,6 +11,7 @@ import Layout from './components/Layout';
 import WebAdminLayout from './components/WebAdminLayout';
 import AnalyticsRouteListener from './components/AnalyticsRouteListener';
 import ScrollToTop from './components/ScrollToTop';
+import { buildMuiTypography } from './theme/typography';
 
 // Eager-load critical above-the-fold pages
 import Home from './pages/public/Home';
@@ -83,17 +84,7 @@ const theme = createTheme({
       main: '#00E676',
     },
   },
-  typography: {
-    fontFamily:
-      '-apple-system, BlinkMacSystemFont, "Plus Jakarta Sans", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-    h1: { fontWeight: 800, letterSpacing: '-0.02em' },
-    h2: { fontWeight: 700, letterSpacing: '-0.02em' },
-    h3: { fontWeight: 700 },
-    h4: { fontWeight: 600 },
-    h5: { fontWeight: 600 },
-    h6: { fontWeight: 600 },
-    button: { fontWeight: 600, textTransform: 'none' },
-  },
+  typography: buildMuiTypography(),
 });
 
 function App() {

@@ -1,5 +1,6 @@
 import { colors } from './colors';
 import { homeUi } from './homeUi';
+import { typeScale } from './typography';
 
 /** Shared tokens for public site chrome — header, heroes, inner pages */
 export const publicUi = {
@@ -74,6 +75,7 @@ export const publicUi = {
   mutedText: {
     color: colors.gray600,
     lineHeight: 1.65,
+    fontSize: typeScale.bodySm.fontSize,
   },
 
   card: {

@@ -21,13 +21,36 @@ import {
   Switch,
   Chip,
   InputAdornment,
+  Stack,
+  Divider,
 } from '@mui/material';
-import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon, CloudUpload as UploadIcon, PhotoLibrary as LibraryIcon, Search as SearchIcon } from '@mui/icons-material';
+import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon, CloudUpload as UploadIcon, PhotoLibrary as LibraryIcon, Search as SearchIcon, Close as CloseIcon } from '@mui/icons-material';
 import api from '../services/api';
 import { Product, ProductType } from '../types';
 import MediaPicker from '../components/MediaPicker';
 import { useAuth } from '../contexts/AuthContext';
 import { resolveMediaUrl } from '../utils/mediaUrl';
+import { parseGalleryImages } from '../utils/productGallery';
+
+const emptyForm = {
+  product_type: ProductType.PANEL,
+  name: '',
+  brand: '',
+  model: '',
+  short_description: '',
+  description: '',
+  wattage: 0,
+  capacity_kw: 0,
+  capacity_kwh: 0,
+  price_type: 'fixed',
+  base_price: 0,
+  image_url: '',
+  gallery_images: [] as string[],
+  category: '',
+  is_active: true,
+  stock_quantity: 0,
+  manage_stock: false,
+};
 
 const Products: React.FC = () => {
   const { user } = useAuth();
@@ -47,22 +70,11 @@ const Products: React.FC = () => {
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Product | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [galleryUploading, setGalleryUploading] = useState(false);
   const [mediaPickerOpen, setMediaPickerOpen] = useState(false);
-  const [formData, setFormData] = useState({
-    product_type: ProductType.PANEL,
-    brand: '',
-    model: '',
-    wattage: 0,
-    capacity_kw: 0,
-    capacity_kwh: 0,
-    price_type: 'fixed',
-    base_price: 0,
-    image_url: '',
-    category: '',
-    is_active: true,
-    stock_quantity: 0,
-    manage_stock: false,
-  });
+  const [galleryPickerOpen, setGalleryPickerOpen] = useState(false);
+  const [galleryUrlInput, setGalleryUrlInput] = useState('');
+  const [formData, setFormData] = useState(emptyForm);
 
   useEffect(() => {
     fetchProducts();
@@ -82,14 +94,18 @@ const Products: React.FC = () => {
       setEditing(product);
       setFormData({
         product_type: product.product_type,
+        name: product.name || '',
         brand: product.brand || '',
         model: product.model || '',
+        short_description: product.short_description || '',
+        description: product.description || '',
         wattage: product.wattage || 0,
         capacity_kw: product.capacity_kw || 0,
         capacity_kwh: product.capacity_kwh || 0,
         price_type: product.price_type,
         base_price: product.base_price || 0,
         image_url: product.image_url || '',
+        gallery_images: parseGalleryImages(product.gallery_images),
         category: product.category || '',
         is_active: product.is_active ?? true,
         stock_quantity: product.stock_quantity ?? 0,
@@ -97,22 +113,9 @@ const Products: React.FC = () => {
       });
     } else {
       setEditing(null);
-      setFormData({
-        product_type: ProductType.PANEL,
-        brand: '',
-        model: '',
-        wattage: 0,
-        capacity_kw: 0,
-        capacity_kwh: 0,
-        price_type: 'fixed',
-        base_price: 0,
-        image_url: '',
-        category: '',
-        is_active: true,
-        stock_quantity: 0,
-        manage_stock: false,
-      });
+      setFormData({ ...emptyForm, product_type: ProductType.PANEL });
     }
+    setGalleryUrlInput('');
     setOpen(true);
   };
 
@@ -123,10 +126,17 @@ const Products: React.FC = () => {
 
   const handleSubmit = async () => {
     try {
+      const payload = {
+        ...formData,
+        gallery_images: formData.gallery_images.length > 0 ? formData.gallery_images : null,
+        short_description: formData.short_description.trim() || null,
+        description: formData.description.trim() || null,
+        name: formData.name.trim() || null,
+      };
       if (editing) {
-        await api.put(`/products/${editing.id}`, formData);
+        await api.put(`/products/${editing.id}`, payload);
       } else {
-        await api.post('/products/', formData);
+        await api.post('/products/', payload);
       }
       fetchProducts();
       handleClose();
@@ -158,6 +168,56 @@ const Products: React.FC = () => {
     }
   };
 
+  const uploadGalleryImage = async (file: File) => {
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file (jpg, png, gif, webp)');
+      return;
+    }
+    try {
+      setGalleryUploading(true);
+      const formDataUpload = new FormData();
+      formDataUpload.append('file', file);
+      const response = await api.post('/products/upload-image', formDataUpload);
+      const url = response.data?.url;
+      if (url) {
+        setFormData((prev) => ({
+          ...prev,
+          gallery_images: prev.gallery_images.includes(url)
+            ? prev.gallery_images
+            : [...prev.gallery_images, url],
+        }));
+      }
+    } catch (err: any) {
+      console.error('Gallery upload failed:', err);
+      alert(err.response?.data?.detail || 'Upload failed');
+    } finally {
+      setGalleryUploading(false);
+    }
+  };
+
+  const handleGalleryUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) await uploadGalleryImage(file);
+    e.target.value = '';
+  };
+
+  const addGalleryUrl = () => {
+    const url = galleryUrlInput.trim();
+    if (!url) return;
+    setFormData((prev) => ({
+      ...prev,
+      gallery_images: prev.gallery_images.includes(url) ? prev.gallery_images : [...prev.gallery_images, url],
+    }));
+    setGalleryUrlInput('');
+  };
+
+  const removeGalleryImage = (url: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      gallery_images: prev.gallery_images.filter((item) => item !== url),
+    }));
+  };
+
   const handleDelete = async (id: number) => {
     if (window.confirm('Are you sure you want to delete this product?')) {
       try {
@@ -184,6 +244,8 @@ const Products: React.FC = () => {
       (product.brand && product.brand.toLowerCase().includes(q)) ||
       (product.model && product.model.toLowerCase().includes(q)) ||
       (product.name && product.name.toLowerCase().includes(q)) ||
+      (product.short_description && product.short_description.toLowerCase().includes(q)) ||
+      (product.description && product.description.toLowerCase().includes(q)) ||
       (product.category && product.category.toLowerCase().includes(q)) ||
       capacityLabel.includes(q) ||
       formatPriceType(product.price_type).toLowerCase().includes(q) ||
@@ -329,7 +391,36 @@ const Products: React.FC = () => {
               </MenuItem>
             ))}
           </TextField>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mt: 2 }}>
+          <TextField
+            fullWidth
+            label="Shop display name"
+            value={formData.name}
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            margin="normal"
+            helperText="Shown on the shop and product page. Leave blank to use brand + model."
+          />
+          <TextField
+            fullWidth
+            label="Short description"
+            value={formData.short_description}
+            onChange={(e) => setFormData({ ...formData, short_description: e.target.value })}
+            margin="normal"
+            multiline
+            minRows={2}
+            helperText="Brief summary for shop cards and the product hero."
+          />
+          <TextField
+            fullWidth
+            label="Full description"
+            value={formData.description}
+            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+            margin="normal"
+            multiline
+            minRows={4}
+            helperText="Extra product details shown on the product page."
+          />
+          <Divider sx={{ my: 2 }} />
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mt: 1 }}>
             <Typography variant="subtitle2" color="text.secondary">
               Featured Image
             </Typography>
@@ -377,6 +468,98 @@ const Products: React.FC = () => {
               />
             )}
           </Box>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, mt: 3 }}>
+            <Typography variant="subtitle2" color="text.secondary">
+              Gallery images
+            </Typography>
+            <Typography variant="caption" color="text.secondary">
+              Additional photos shown on the product page. The featured image above is always shown first.
+            </Typography>
+            <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+              <TextField
+                size="small"
+                label="Add image URL"
+                placeholder="Paste URL and click Add"
+                value={galleryUrlInput}
+                onChange={(e) => setGalleryUrlInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    addGalleryUrl();
+                  }
+                }}
+                sx={{ flex: 1, minWidth: 200 }}
+              />
+              <Button variant="outlined" onClick={addGalleryUrl} disabled={!galleryUrlInput.trim()}>
+                Add
+              </Button>
+              <Button variant="outlined" startIcon={<LibraryIcon />} onClick={() => setGalleryPickerOpen(true)}>
+                Library
+              </Button>
+              <Button variant="outlined" component="label" startIcon={<UploadIcon />} disabled={galleryUploading}>
+                {galleryUploading ? 'Uploading...' : 'Upload'}
+                <input type="file" hidden accept="image/*" onChange={handleGalleryUpload} />
+              </Button>
+            </Stack>
+            <MediaPicker
+              open={galleryPickerOpen}
+              onClose={() => setGalleryPickerOpen(false)}
+              onSelect={(url) => {
+                setFormData((prev) => ({
+                  ...prev,
+                  gallery_images: prev.gallery_images.includes(url)
+                    ? prev.gallery_images
+                    : [...prev.gallery_images, url],
+                }));
+                setGalleryPickerOpen(false);
+              }}
+            />
+            {formData.gallery_images.length > 0 ? (
+              <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+                {formData.gallery_images.map((url) => (
+                  <Box
+                    key={url}
+                    sx={{
+                      position: 'relative',
+                      width: 88,
+                      height: 88,
+                      border: '1px solid #ddd',
+                      borderRadius: 1,
+                      overflow: 'hidden',
+                    }}
+                  >
+                    <Box
+                      component="img"
+                      src={resolveMediaUrl(url)}
+                      alt="Gallery"
+                      sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
+                    <IconButton
+                      size="small"
+                      aria-label="Remove gallery image"
+                      onClick={() => removeGalleryImage(url)}
+                      sx={{
+                        position: 'absolute',
+                        top: 2,
+                        right: 2,
+                        bgcolor: 'rgba(0,0,0,0.55)',
+                        color: 'white',
+                        '&:hover': { bgcolor: 'rgba(0,0,0,0.75)' },
+                        p: 0.25,
+                      }}
+                    >
+                      <CloseIcon sx={{ fontSize: 16 }} />
+                    </IconButton>
+                  </Box>
+                ))}
+              </Stack>
+            ) : (
+              <Typography variant="body2" color="text.secondary">
+                No gallery images yet.
+              </Typography>
+            )}
+          </Box>
+          <Divider sx={{ my: 2 }} />
           <TextField
             fullWidth
             label="Brand"

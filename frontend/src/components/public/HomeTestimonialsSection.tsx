@@ -56,16 +56,16 @@ const HomeTestimonialsSection: React.FC<Props> = ({ badge, title, subtitle, item
                 “{testimonial.text}”
               </Typography>
               <Divider sx={{ borderColor: 'rgba(0,0,0,0.06)', mb: 2 }} />
-              <Typography sx={{ fontWeight: 700, color: colors.blueBlack, fontSize: '0.9375rem' }}>
+              <Typography sx={{ ...homeUi.body, fontWeight: 700, color: colors.blueBlack }}>
                 {testimonial.name}
               </Typography>
-              <Typography sx={{ color: colors.gray600, fontSize: '0.8125rem', mt: 0.25 }}>
+              <Typography sx={{ ...homeUi.caption, color: colors.gray600, mt: 0.25 }}>
                 {testimonial.role}
               </Typography>
               <Typography
                 sx={{
+                  ...homeUi.caption,
                   color: colors.gray400,
-                  fontSize: '0.8125rem',
                   display: 'flex',
                   alignItems: 'center',
                   gap: 0.35,

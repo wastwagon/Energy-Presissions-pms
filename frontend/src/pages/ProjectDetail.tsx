@@ -1098,7 +1098,7 @@ const ProjectDetail: React.FC = () => {
               <Box>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                   <SolarPowerIcon sx={{ fontSize: 32, mr: 1.5 }} />
-                  <Typography variant="h4" fontWeight="bold">
+                  <Typography variant="h4" fontWeight={700}>
                     System Sizing
                   </Typography>
                 </Box>
@@ -1109,7 +1109,7 @@ const ProjectDetail: React.FC = () => {
                     sx={{ 
                       bgcolor: 'rgba(255, 255, 255, 0.2)',
                       color: 'white',
-                      fontWeight: 'bold',
+                      fontWeight: 700,
                       fontSize: '0.9rem',
                       height: 32
                     }}
@@ -1121,7 +1121,7 @@ const ProjectDetail: React.FC = () => {
                       sx={{ 
                         bgcolor: 'rgba(76, 175, 80, 0.9)',
                         color: 'white',
-                        fontWeight: 'bold',
+                        fontWeight: 700,
                         fontSize: '0.9rem',
                         height: 32
                       }}
@@ -1138,7 +1138,7 @@ const ProjectDetail: React.FC = () => {
                   sx={{
                     borderColor: 'rgba(255,255,255,0.8)',
                     color: 'white',
-                    fontWeight: 'bold',
+                    fontWeight: 700,
                     px: 2,
                     py: 1.5,
                     '&:hover': { borderColor: 'white', bgcolor: 'rgba(255,255,255,0.1)' },
@@ -1155,7 +1155,7 @@ const ProjectDetail: React.FC = () => {
                     sx={{
                       borderColor: 'rgba(255,255,255,0.8)',
                       color: 'white',
-                      fontWeight: 'bold',
+                      fontWeight: 700,
                       px: 2,
                       py: 1.5,
                       '&:hover': { borderColor: 'white', bgcolor: 'rgba(255,255,255,0.1)' },
@@ -1173,7 +1173,7 @@ const ProjectDetail: React.FC = () => {
                     sx={{
                       borderColor: 'rgba(255,255,255,0.8)',
                       color: 'white',
-                      fontWeight: 'bold',
+                      fontWeight: 700,
                       px: 2,
                       py: 1.5,
                       '&:hover': { borderColor: 'white', bgcolor: 'rgba(255,255,255,0.1)' },
@@ -1191,7 +1191,7 @@ const ProjectDetail: React.FC = () => {
                     sx={{
                       borderColor: 'rgba(255,255,255,0.8)',
                       color: 'white',
-                      fontWeight: 'bold',
+                      fontWeight: 700,
                       px: 2,
                       py: 1.5,
                       '&:hover': { borderColor: 'white', bgcolor: 'rgba(255,255,255,0.1)' },
@@ -1210,7 +1210,7 @@ const ProjectDetail: React.FC = () => {
                     sx={{
                       bgcolor: '#00E676',
                       color: '#000',
-                      fontWeight: 'bold',
+                      fontWeight: 700,
                       px: 3,
                       py: 1.5,
                       '&:hover': {
@@ -1233,7 +1233,7 @@ const ProjectDetail: React.FC = () => {
                   sx={{
                     bgcolor: 'white',
                     color: 'primary.main',
-                    fontWeight: 'bold',
+                    fontWeight: 700,
                     px: 3,
                     py: 1.5,
                     '&:hover': {
@@ -1275,7 +1275,7 @@ const ProjectDetail: React.FC = () => {
               sx={{ mb: 3 }}
               icon={<FactCheckIcon />}
             >
-              <Typography variant="body2" fontWeight="bold" gutterBottom>
+              <Typography variant="body2" fontWeight={700} gutterBottom>
                 BOM preview ({bomPreview.expected_line_count ?? 0} lines from sizing)
               </Typography>
               <Typography variant="body2">{bomPreview.message}</Typography>
@@ -1313,7 +1313,7 @@ const ProjectDetail: React.FC = () => {
                       }}>
                         <SettingsIcon sx={{ color: 'white', fontSize: 28 }} />
                       </Box>
-                      <Typography variant="h5" fontWeight="bold" color="primary">
+                      <Typography variant="h5" fontWeight={700} color="primary">
                         Input Parameters
                       </Typography>
                     </Box>
@@ -1336,7 +1336,7 @@ const ProjectDetail: React.FC = () => {
                               Daily Energy
                             </Typography>
                           </Box>
-                          <Typography variant="h4" fontWeight="bold" color="primary" sx={{ mb: 0.5 }}>
+                          <Typography variant="h4" fontWeight={700} color="primary" sx={{ mb: 0.5 }}>
                             {totalDailyKwhWithDiversity !== null ? totalDailyKwhWithDiversity.toFixed(2) : sizingResult.total_daily_kwh.toFixed(2)}
                           </Typography>
                           <Typography variant="body1" color="text.secondary" fontWeight="500">
@@ -1366,7 +1366,7 @@ const ProjectDetail: React.FC = () => {
                               Location
                             </Typography>
                           </Box>
-                          <Typography variant="h5" fontWeight="bold" sx={{ mb: 0.5 }}>
+                          <Typography variant="h5" fontWeight={700} sx={{ mb: 0.5 }}>
                             {sizingResult.location && sizingResult.location.trim() && sizingResult.location !== '0' 
                               ? sizingResult.location 
                               : 'Not specified'}
@@ -1398,7 +1398,7 @@ const ProjectDetail: React.FC = () => {
                               Peak Sun Hours
                             </Typography>
                           </Box>
-                          <Typography variant="h4" fontWeight="bold" color="#4caf50" sx={{ mb: 0.5 }}>
+                          <Typography variant="h4" fontWeight={700} color="#4caf50" sx={{ mb: 0.5 }}>
                             {sizingResult.peak_sun_hours?.toFixed(1) || '-'}
                           </Typography>
                           <Typography variant="body1" color="text.secondary" fontWeight="500">
@@ -1423,7 +1423,7 @@ const ProjectDetail: React.FC = () => {
                               Panel Brand
                             </Typography>
                           </Box>
-                          <Typography variant="h5" fontWeight="bold" color="#2196f3" sx={{ mb: 0.5 }}>
+                          <Typography variant="h5" fontWeight={700} color="#2196f3" sx={{ mb: 0.5 }}>
                             {sizingResult.panel_brand}
                           </Typography>
                           <Typography variant="body1" color="text.secondary" fontWeight="500">
@@ -1450,7 +1450,7 @@ const ProjectDetail: React.FC = () => {
                                   Backup Hours
                                 </Typography>
                               </Box>
-                              <Typography variant="h4" fontWeight="bold" color="#9c27b0" sx={{ mb: 0.5 }}>
+                              <Typography variant="h4" fontWeight={700} color="#9c27b0" sx={{ mb: 0.5 }}>
                                 {sizingResult.backup_hours}
                               </Typography>
                               <Typography variant="body1" color="text.secondary" fontWeight="500">
@@ -1475,7 +1475,7 @@ const ProjectDetail: React.FC = () => {
                                   Essential Load
                                 </Typography>
                               </Box>
-                              <Typography variant="h4" fontWeight="bold" color="#f44336" sx={{ mb: 0.5 }}>
+                              <Typography variant="h4" fontWeight={700} color="#f44336" sx={{ mb: 0.5 }}>
                                 {sizingResult.essential_load_percent ? (sizingResult.essential_load_percent * 100).toFixed(0) : 0}%
                               </Typography>
                               <Typography variant="body1" color="text.secondary" fontWeight="500">
@@ -1519,7 +1519,7 @@ const ProjectDetail: React.FC = () => {
                       }}>
                         <SolarPowerIcon sx={{ color: 'white', fontSize: 28 }} />
                       </Box>
-                      <Typography variant="h5" fontWeight="bold" color="primary">
+                      <Typography variant="h5" fontWeight={700} color="primary">
                         System Specifications
                       </Typography>
                     </Box>
@@ -1538,7 +1538,7 @@ const ProjectDetail: React.FC = () => {
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                           <Box>
                             <Typography variant="body1" color="text.secondary" fontWeight="600" sx={{ mb: 1 }}>PV System Capacity</Typography>
-                            <Typography variant="h3" fontWeight="bold" color="primary">
+                            <Typography variant="h3" fontWeight={700} color="primary">
                               {sizingResult.system_size_kw?.toFixed(2)} <Typography component="span" variant="h5" color="text.secondary" fontWeight="500">kW</Typography>
                             </Typography>
                           </Box>
@@ -1559,7 +1559,7 @@ const ProjectDetail: React.FC = () => {
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                           <Box>
                             <Typography variant="body1" color="text.secondary" fontWeight="600" sx={{ mb: 1 }}>Number of Panels</Typography>
-                            <Typography variant="h3" fontWeight="bold" color="#2196f3">
+                            <Typography variant="h3" fontWeight={700} color="#2196f3">
                               {sizingResult.number_of_panels} <Typography component="span" variant="h6" color="text.secondary" fontWeight="500">panels</Typography>
                             </Typography>
                             <Typography variant="body2" color="text.secondary" fontWeight="500" sx={{ mt: 0.5, display: 'block' }}>
@@ -1586,7 +1586,7 @@ const ProjectDetail: React.FC = () => {
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                           <Box>
                             <Typography variant="body1" color="text.secondary" fontWeight="600" sx={{ mb: 1 }}>Inverter Size</Typography>
-                            <Typography variant="h3" fontWeight="bold" color="#ffa500">
+                            <Typography variant="h3" fontWeight={700} color="#ffa500">
                               {sizingResult.min_inverter_kw?.toFixed(1) || sizingResult.inverter_size_kw?.toFixed(1)} <Typography component="span" variant="h5" color="text.secondary" fontWeight="500">kW</Typography>
                             </Typography>
                             {sizingResult.min_inverter_kw && sizingResult.inverter_size_kw && Math.abs(sizingResult.min_inverter_kw - sizingResult.inverter_size_kw) > 0.01 && (
@@ -1613,7 +1613,7 @@ const ProjectDetail: React.FC = () => {
                           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <Box>
                               <Typography variant="body1" color="text.secondary" fontWeight="600" sx={{ mb: 1 }}>Battery Capacity</Typography>
-                              <Typography variant="h3" fontWeight="bold" color="#4caf50">
+                              <Typography variant="h3" fontWeight={700} color="#4caf50">
                                 {sizingResult.battery_capacity_kwh?.toFixed(1)} <Typography component="span" variant="h5" color="text.secondary" fontWeight="500">kWh</Typography>
                               </Typography>
                             </Box>
@@ -1635,7 +1635,7 @@ const ProjectDetail: React.FC = () => {
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                           <Box>
                             <Typography variant="body1" color="text.secondary" fontWeight="600" sx={{ mb: 1 }}>Required Roof Area</Typography>
-                            <Typography variant="h3" fontWeight="bold" color="#9c27b0">
+                            <Typography variant="h3" fontWeight={700} color="#9c27b0">
                               {sizingResult.roof_area_m2?.toFixed(1)} <Typography component="span" variant="h5" color="text.secondary" fontWeight="500">m²</Typography>
                             </Typography>
                           </Box>
@@ -1660,7 +1660,7 @@ const ProjectDetail: React.FC = () => {
                               <Typography variant="body1" color="text.secondary" fontWeight="600" sx={{ mb: 1 }}>
                                 Mounting rails (planning est.)
                               </Typography>
-                              <Typography variant="h3" fontWeight="bold" color="#795548">
+                              <Typography variant="h3" fontWeight={700} color="#795548">
                                 {sizingResult.mounting_rails_estimate}{' '}
                                 <Typography component="span" variant="h5" color="text.secondary" fontWeight="500">
                                   sticks
@@ -1711,7 +1711,7 @@ const ProjectDetail: React.FC = () => {
                       }}>
                         <SettingsIcon sx={{ color: 'white', fontSize: 28 }} />
                       </Box>
-                      <Typography variant="h5" fontWeight="bold" color="secondary.main">
+                      <Typography variant="h5" fontWeight={700} color="secondary.main">
                         Design Factors & Calculations
                       </Typography>
                     </Box>
@@ -1732,7 +1732,7 @@ const ProjectDetail: React.FC = () => {
                             <Typography variant="body1" color="text.secondary" fontWeight="600" sx={{ mb: 1.5 }}>
                               System Efficiency
                             </Typography>
-                            <Typography variant="h3" fontWeight="bold" color="primary">
+                            <Typography variant="h3" fontWeight={700} color="primary">
                               {((sizingResult.system_efficiency || 0) * 100).toFixed(0)}%
                             </Typography>
                           </Box>
@@ -1765,7 +1765,7 @@ const ProjectDetail: React.FC = () => {
                             <Typography variant="body1" color="text.secondary" fontWeight="600" sx={{ mb: 1.5 }}>
                               DC/AC Ratio
                             </Typography>
-                            <Typography variant="h3" fontWeight="bold" color="#2196f3">
+                            <Typography variant="h3" fontWeight={700} color="#2196f3">
                               {sizingResult.dc_ac_ratio?.toFixed(2)}
                             </Typography>
                           </Box>
@@ -1798,7 +1798,7 @@ const ProjectDetail: React.FC = () => {
                             <Typography variant="body1" color="text.secondary" fontWeight="600" sx={{ mb: 1.5 }}>
                               Design Factor (Safety Margin)
                             </Typography>
-                            <Typography variant="h3" fontWeight="bold" color="#4caf50">
+                            <Typography variant="h3" fontWeight={700} color="#4caf50">
                               {Math.round(((sizingResult.design_factor || 1) - 1) * 100)}%
                             </Typography>
                           </Box>
@@ -1831,7 +1831,7 @@ const ProjectDetail: React.FC = () => {
                             <Typography variant="body1" color="text.secondary" fontWeight="600" sx={{ mb: 1.5 }}>
                               Load Diversity Factor
                             </Typography>
-                            <Typography variant="h3" fontWeight="bold" color="#9c27b0">
+                            <Typography variant="h3" fontWeight={700} color="#9c27b0">
                               {diversityFactor !== null ? (diversityFactor * 100).toFixed(0) : '100'}%
                             </Typography>
                           </Box>
@@ -1860,7 +1860,7 @@ const ProjectDetail: React.FC = () => {
                     <Box>
                       <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                         <CalculateIcon sx={{ color: 'primary.main', mr: 1 }} />
-                        <Typography variant="h6" fontWeight="bold" color="primary">
+                        <Typography variant="h6" fontWeight={700} color="primary">
                           Calculation Summary
                         </Typography>
                       </Box>
@@ -1876,7 +1876,7 @@ const ProjectDetail: React.FC = () => {
                         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pb: 2, borderBottom: '1px solid rgba(0,0,0,0.08)' }}>
                             <Typography variant="body1" color="text.secondary" fontWeight="500">Effective Daily Energy (after losses)</Typography>
-                            <Typography variant="h6" fontWeight="bold" color="primary">
+                            <Typography variant="h6" fontWeight={700} color="primary">
                               {sizingResult.effective_daily_kwh 
                                 ? sizingResult.effective_daily_kwh.toFixed(2)
                                 : ((totalDailyKwhWithDiversity !== null ? totalDailyKwhWithDiversity : sizingResult.total_daily_kwh) / (sizingResult.system_efficiency || 0.72)).toFixed(2)} kWh
@@ -1884,19 +1884,19 @@ const ProjectDetail: React.FC = () => {
                           </Box>
                           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pb: 2, borderBottom: '1px solid rgba(0,0,0,0.08)' }}>
                             <Typography variant="body1" color="text.secondary" fontWeight="500">System Size</Typography>
-                            <Typography variant="h6" fontWeight="bold" color="primary">
+                            <Typography variant="h6" fontWeight={700} color="primary">
                               {sizingResult.system_size_kw?.toFixed(2)} kW
                             </Typography>
                           </Box>
                           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pb: 2, borderBottom: '1px solid rgba(0,0,0,0.08)' }}>
                             <Typography variant="body1" color="text.secondary" fontWeight="500">Panel Array</Typography>
-                            <Typography variant="h6" fontWeight="bold" color="primary">
+                            <Typography variant="h6" fontWeight={700} color="primary">
                               {sizingResult.number_of_panels} × {sizingResult.panel_wattage}W = {((sizingResult.number_of_panels || 0) * (sizingResult.panel_wattage || 0) / 1000).toFixed(2)} kW
                             </Typography>
                           </Box>
                           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <Typography variant="body1" color="text.secondary" fontWeight="500">Inverter</Typography>
-                            <Typography variant="h6" fontWeight="bold" color="primary">
+                            <Typography variant="h6" fontWeight={700} color="primary">
                               {sizingResult.min_inverter_kw?.toFixed(1) || sizingResult.inverter_size_kw?.toFixed(1)} kW <Typography component="span" variant="body2" color="text.secondary" fontWeight="400">(DC/AC: {sizingResult.dc_ac_ratio?.toFixed(2)})</Typography>
                               {sizingResult.min_inverter_kw && sizingResult.inverter_size_kw && Math.abs(sizingResult.min_inverter_kw - sizingResult.inverter_size_kw) > 0.01 && (
                                 <Typography component="span" variant="body2" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
@@ -1935,7 +1935,7 @@ const ProjectDetail: React.FC = () => {
                       }}>
                         <InfoIcon sx={{ color: 'white', fontSize: 28 }} />
                       </Box>
-                      <Typography variant="h5" fontWeight="bold" color="info.main">
+                      <Typography variant="h5" fontWeight={700} color="info.main">
                         Notes & Recommendations
                       </Typography>
                     </Box>
@@ -1953,7 +1953,7 @@ const ProjectDetail: React.FC = () => {
                         }
                       }}
                     >
-                      <Typography variant="subtitle2" fontWeight="bold" gutterBottom sx={{ mb: 1.5 }}>
+                      <Typography variant="subtitle2" fontWeight={700} gutterBottom sx={{ mb: 1.5 }}>
                         System Design Notes
                       </Typography>
                       <Box component="ul" sx={{ pl: 3, mb: 0, mt: 0 }}>
@@ -2061,7 +2061,7 @@ const ProjectDetail: React.FC = () => {
                     }}
                     onClick={() => handleTemplateSelect(template)}
                   >
-                    <Typography variant="body2" fontWeight="bold">
+                    <Typography variant="body2" fontWeight={700}>
                       {template.name}
                     </Typography>
                     <Typography variant="caption" color="text.secondary">

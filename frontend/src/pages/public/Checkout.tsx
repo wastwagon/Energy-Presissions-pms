@@ -485,7 +485,7 @@ const Checkout: React.FC = () => {
               nextButton={<span />}
               backButton={<span />}
             />
-            <Typography sx={{ textAlign: 'center', fontWeight: 600, fontSize: '0.875rem', mt: 0.5 }}>
+            <Typography sx={{ textAlign: 'center', fontWeight: 600, ...homeUi.navLink, mt: 0.5 }}>
               Step {activeStep + 1} of {steps.length} — {steps[activeStep]}
             </Typography>
           </Box>
@@ -641,7 +641,7 @@ const Checkout: React.FC = () => {
                         sx={paymentOptionSx}
                         label={
                           <Box>
-                            <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
+                            <Typography variant="body1" sx={{ fontWeight: 700 }}>
                               Paystack (Card, Mobile Money, Bank Transfer)
                             </Typography>
                             <Typography variant="body2" sx={{ color: colors.gray600 }}>
@@ -656,7 +656,7 @@ const Checkout: React.FC = () => {
                         sx={paymentOptionSx}
                         label={
                           <Box>
-                            <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
+                            <Typography variant="body1" sx={{ fontWeight: 700 }}>
                               Cash on Delivery
                             </Typography>
                             <Typography variant="body2" sx={{ color: colors.gray600 }}>
@@ -678,9 +678,9 @@ const Checkout: React.FC = () => {
                       { icon: <VerifiedIcon fontSize="small" />, text: 'Manufacturer warranty on equipment' },
                       { icon: <ShippingIcon fontSize="small" />, text: 'Delivery across Ghana' },
                     ].map((item) => (
-                      <Stack key={item.text} direction="row" spacing={1} alignItems="center" sx={{ color: colors.gray600, fontSize: '0.8125rem' }}>
+                      <Stack key={item.text} direction="row" spacing={1} alignItems="center" sx={{ color: colors.gray600, ...homeUi.caption }}>
                         <Box sx={{ color: colors.green, display: 'flex' }}>{item.icon}</Box>
-                        <Typography variant="body2" sx={{ fontSize: '0.8125rem' }}>{item.text}</Typography>
+                        <Typography variant="body2" sx={homeUi.caption}>{item.text}</Typography>
                       </Stack>
                     ))}
                   </Stack>
@@ -714,7 +714,7 @@ const Checkout: React.FC = () => {
             {activeStep === 2 && (
               <Card sx={publicUi.card}>
                 <CardContent sx={{ p: { xs: 2.5, md: 3 }, textAlign: 'center' }}>
-                  <Typography sx={{ mb: 1.5, color: colors.greenDark, fontWeight: 800, fontSize: '1.25rem' }}>
+                  <Typography sx={{ mb: 1.5, color: colors.greenDark, ...homeUi.headingSm }}>
                     Order confirmed!
                   </Typography>
                   <Typography sx={{ mb: 2, ...publicUi.mutedText }}>
@@ -797,8 +797,8 @@ const Checkout: React.FC = () => {
             }}
           >
             <Box display="flex" justifyContent="space-between" alignItems="baseline" mb={1}>
-              <Typography sx={{ fontSize: '0.8125rem', color: colors.gray600 }}>Total</Typography>
-              <Typography sx={{ fontWeight: 800, fontSize: '1.0625rem', color: colors.greenDark }}>
+              <Typography sx={{ ...homeUi.caption, color: colors.gray600 }}>Total</Typography>
+              <Typography sx={{ ...homeUi.prose, fontWeight: 800, color: colors.greenDark }}>
                 GHS {total.toLocaleString()}
               </Typography>
             </Box>

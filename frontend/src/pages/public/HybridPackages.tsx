@@ -25,13 +25,13 @@ import {
 } from '@mui/icons-material';
 import { Seo } from '../../components/Seo';
 import { colors } from '../../theme/colors';
+import { homeUi } from '../../theme/homeUi';
 import { useGlobalSiteConfig } from '../../hooks/useGlobalSiteConfig';
 import { useCmsPage } from '../../hooks/useCmsPage';
 import { resolveCmsSeo } from '../../hooks/useCmsSeo';
 import PublicStickyMobileCta from '../../components/public/PublicStickyMobileCta';
 import PublicPageShell from '../../components/public/PublicPageShell';
 import PackageComparisonTable from '../../components/public/PackageComparisonTable';
-import { homeUi } from '../../theme/homeUi';
 import { publicUi } from '../../theme/publicUi';
 import { LOAD_CEILING_HELP } from '../../data/hybridPackages';
 import { formatHybridWarrantyNote, resolvePackageTiers } from '../../utils/packageTiers';
@@ -101,17 +101,16 @@ const HybridPackages: React.FC = () => {
             variant="h2"
             sx={{
               textAlign: 'center',
-              fontWeight: 800,
+              ...homeUi.sectionTitle,
               color: colors.blueBlack,
               mb: 1,
-              fontSize: { xs: '1.5rem', md: '1.85rem' },
             }}
           >
             {packagesSection.title}
           </Typography>
           <Typography
             variant="body2"
-            sx={{ textAlign: 'center', color: colors.gray600, mb: 3, maxWidth: 640, mx: 'auto' }}
+            sx={{ textAlign: 'center', ...publicUi.mutedText, mb: 3, maxWidth: 640, mx: 'auto' }}
           >
             {packagesSection.subtitle}
           </Typography>
@@ -192,8 +191,8 @@ const HybridPackages: React.FC = () => {
                           size="small"
                           sx={{
                             mt: 0.5,
-                            height: 20,
-                            fontSize: '0.62rem',
+                            height: 22,
+                            ...homeUi.chip,
                             fontWeight: 800,
                             bgcolor: '#ffd54f',
                             color: colors.blueBlack,
@@ -204,7 +203,7 @@ const HybridPackages: React.FC = () => {
                       <Typography variant="caption" sx={{ opacity: 0.9, display: 'block', mt: 0.5 }}>
                         Planned continuous load ~{pkg.maxWatts} W
                       </Typography>
-                      <Typography variant="caption" sx={{ opacity: 0.75, fontSize: '0.65rem', lineHeight: 1.3 }}>
+                      <Typography variant="caption" sx={{ opacity: 0.75, ...homeUi.caption, lineHeight: 1.3 }}>
                         {LOAD_CEILING_HELP}
                       </Typography>
                     </Box>
@@ -222,7 +221,7 @@ const HybridPackages: React.FC = () => {
                     <Typography
                       variant="body2"
                       sx={{
-                        fontSize: '0.875rem',
+                        ...homeUi.bodySm,
                         lineHeight: 1.5,
                         color: colors.gray600,
                         bgcolor: 'rgba(0,230,118,0.08)',
@@ -239,7 +238,7 @@ const HybridPackages: React.FC = () => {
                         key={h}
                         label={h}
                         size="small"
-                        sx={{ mb: 1.5, mr: 0.5, fontWeight: 600, fontSize: '0.75rem' }}
+                        sx={{ mb: 1.5, mr: 0.5, ...homeUi.chip }}
                       />
                     ))}
                     <Grid container spacing={1} sx={{ mb: 1.5 }}>
@@ -264,11 +263,11 @@ const HybridPackages: React.FC = () => {
                           >
                             <Typography
                               variant="caption"
-                              sx={{ color: colors.gray600, fontWeight: 700, textTransform: 'uppercase', fontSize: '0.7rem' }}
+                              sx={{ color: colors.gray600, fontWeight: 700, textTransform: 'uppercase', ...homeUi.chip }}
                             >
                               {spec.label}
                             </Typography>
-                            <Typography variant="body2" sx={{ fontWeight: 700, fontSize: '0.875rem', lineHeight: 1.4, mt: 0.25 }}>
+                            <Typography variant="body2" sx={{ fontWeight: 700, ...homeUi.bodySm, lineHeight: 1.4, mt: 0.25 }}>
                               {spec.value}
                             </Typography>
                           </Box>
@@ -286,12 +285,12 @@ const HybridPackages: React.FC = () => {
                           </ListItemIcon>
                           <ListItemText
                             primary={line}
-                            primaryTypographyProps={{ variant: 'body2', fontSize: '0.875rem' }}
+                            primaryTypographyProps={{ variant: 'body2', sx: homeUi.bodySm }}
                           />
                         </ListItem>
                       ))}
                     </List>
-                    <Typography variant="body2" sx={{ color: colors.gray600, display: 'block', mt: 1 }}>
+                    <Typography variant="body2" sx={{ ...publicUi.mutedText, display: 'block', mt: 1 }}>
                       <strong>Typical loads (stagger heavy items):</strong> {pkg.appliances}
                     </Typography>
                   </CardContent>
@@ -326,7 +325,7 @@ const HybridPackages: React.FC = () => {
         <Container maxWidth="lg">
           <Grid container spacing={4}>
             <Grid item xs={12} md={6}>
-              <Typography variant="h2" sx={{ fontWeight: 800, color: colors.blueBlack, mb: 2, fontSize: '1.5rem' }}>
+              <Typography variant="h2" sx={{ ...homeUi.headingSm, color: colors.blueBlack, mb: 2 }}>
                 {whySection.title}
               </Typography>
               <Grid container spacing={2}>
@@ -390,7 +389,7 @@ const HybridPackages: React.FC = () => {
                 <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
                   {contact.addressFull}
                 </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.8rem', lineHeight: 1.55 }}>
+                <Typography variant="body2" color="text.secondary" sx={{ ...homeUi.bodySm, lineHeight: 1.55 }}>
                   {contact.officeRegionNote}
                 </Typography>
                 <Stack spacing={1.5} sx={{ mt: 2 }}>

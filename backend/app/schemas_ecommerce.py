@@ -26,7 +26,7 @@ class ProductPublic(BaseModel):
     capacity_kw: Optional[float] = None
     capacity_kwh: Optional[float] = None
     image_url: Optional[str] = None
-    gallery_images: Optional[dict] = None
+    gallery_images: Optional[List[str]] = None
     stock_quantity: int = 0
     manage_stock: bool = False
     in_stock: bool = True

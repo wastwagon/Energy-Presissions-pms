@@ -174,16 +174,15 @@ const BlogPostPage: React.FC = () => {
               sx={{
                 '& p': {
                   mb: 2.5,
-                  fontSize: { xs: '1.0625rem', md: '1.125rem' },
-                  lineHeight: 1.75,
+                  ...homeUi.prose,
                   color: colors.gray600,
                   letterSpacing: '-0.01em',
                 },
                 '& p:first-of-type': {
+                  ...homeUi.bodyLg,
                   fontSize: { xs: '1.125rem', md: '1.2rem' },
                   color: colors.blueBlack,
                   fontWeight: 500,
-                  lineHeight: 1.65,
                 },
               }}
             >
@@ -207,10 +206,10 @@ const BlogPostPage: React.FC = () => {
                 mb: { xs: 4, md: 0 },
               }}
             >
-              <Typography sx={{ fontWeight: 800, color: colors.blueBlack, mb: 1, fontSize: '1rem' }}>
+              <Typography sx={{ fontWeight: 800, color: colors.blueBlack, mb: 1, ...homeUi.body }}>
                 Need help sizing your system?
               </Typography>
-              <Typography sx={{ ...publicUi.mutedText, mb: 2, lineHeight: 1.6, fontSize: '0.875rem' }}>
+              <Typography sx={{ ...publicUi.mutedText, mb: 2, lineHeight: 1.6 }}>
                 Share your bills and site details — we will recommend a design tied to your loads and tariff in Ghana.
               </Typography>
               <Button
@@ -238,7 +237,7 @@ const BlogPostPage: React.FC = () => {
 
         {related.length > 0 && (
           <Box sx={{ mt: { xs: 4, md: 6 }, pt: 4, borderTop: homeUi.cardBorder }}>
-            <Typography sx={{ ...homeUi.title, fontSize: '1.25rem', mb: 2.5 }}>
+            <Typography sx={{ ...homeUi.headingSm, mb: 2.5 }}>
               More in {post.category}
             </Typography>
             <Grid container spacing={2}>
@@ -270,8 +269,8 @@ const BlogPostPage: React.FC = () => {
                     <Box sx={{ p: 1.75, flexGrow: 1 }}>
                       <Typography
                         sx={{
+                          ...homeUi.navLink,
                           fontWeight: 700,
-                          fontSize: '0.875rem',
                           lineHeight: 1.4,
                           color: colors.blueBlack,
                         }}

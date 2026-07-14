@@ -103,13 +103,13 @@ const PortfolioCaseStudy: React.FC = () => {
           <Grid container spacing={2} sx={{ mb: 3, maxWidth: 640 }}>
             {item.projectType && (
               <Grid item xs={12} sm={6}>
-                <Typography sx={{ fontWeight: 700, fontSize: '0.8125rem', color: colors.gray600, mb: 0.5 }}>Project type</Typography>
+                <Typography sx={{ ...homeUi.caption, fontWeight: 700, color: colors.gray600, mb: 0.5 }}>Project type</Typography>
                 <Typography sx={{ ...homeUi.body, color: colors.blueBlack }}>{item.projectType}</Typography>
               </Grid>
             )}
             {item.savingsNote && (
               <Grid item xs={12} sm={6}>
-                <Typography sx={{ fontWeight: 700, fontSize: '0.8125rem', color: colors.gray600, mb: 0.5 }}>Outcome</Typography>
+                <Typography sx={{ ...homeUi.caption, fontWeight: 700, color: colors.gray600, mb: 0.5 }}>Outcome</Typography>
                 <Typography sx={{ ...homeUi.body, color: colors.blueBlack }}>{item.savingsNote}</Typography>
               </Grid>
             )}
@@ -137,7 +137,7 @@ const PortfolioCaseStudy: React.FC = () => {
 
         {related.length > 0 && (
           <>
-            <Typography sx={{ ...homeUi.title, fontSize: '1.125rem', mb: 2 }}>More in {item.category}</Typography>
+            <Typography sx={{ ...homeUi.headingSm, mb: 2 }}>More in {item.category}</Typography>
             <Grid container spacing={2}>
               {related.map((rel) => (
                 <Grid item xs={12} sm={4} key={rel.id}>

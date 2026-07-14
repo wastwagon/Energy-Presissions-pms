@@ -273,7 +273,7 @@ const StackCards: React.FC<{ sections: any }> = ({ sections }) => {
           <PhoneIcon sx={{ color: colors.green, fontSize: '2rem' }} />
           <Box>
             <Typography sx={{ fontWeight: 700 }}>{sections.sidebar?.phone_label}</Typography>
-            <Link href={contact.phoneHref} underline="none" sx={{ ...publicUi.mutedText, fontSize: '0.875rem' }}>
+            <Link href={contact.phoneHref} underline="none" sx={{ ...publicUi.mutedText }}>
               {contact.phoneDisplay}
             </Link>
           </Box>
@@ -286,7 +286,7 @@ const StackCards: React.FC<{ sections: any }> = ({ sections }) => {
           <ChatIcon sx={{ color: colors.green, fontSize: '2rem' }} />
           <Box>
             <Typography sx={{ fontWeight: 700 }}>WhatsApp</Typography>
-            <Link href={contact.whatsappHref} target="_blank" rel="noopener noreferrer" underline="none" sx={{ ...publicUi.mutedText, fontSize: '0.875rem' }}>
+            <Link href={contact.whatsappHref} target="_blank" rel="noopener noreferrer" underline="none" sx={{ ...publicUi.mutedText }}>
               {contact.whatsappDisplay}
             </Link>
           </Box>
@@ -299,7 +299,7 @@ const StackCards: React.FC<{ sections: any }> = ({ sections }) => {
           <EmailIcon sx={{ color: colors.green, fontSize: '2rem' }} />
           <Box>
             <Typography sx={{ fontWeight: 700 }}>{sections.sidebar?.email_label}</Typography>
-            <Link href={`mailto:${contact.emailSales}`} underline="none" sx={{ ...publicUi.mutedText, fontSize: '0.875rem' }}>
+            <Link href={`mailto:${contact.emailSales}`} underline="none" sx={{ ...publicUi.mutedText }}>
               {contact.emailSales}
             </Link>
           </Box>
@@ -312,8 +312,8 @@ const StackCards: React.FC<{ sections: any }> = ({ sections }) => {
           <LocationIcon sx={{ color: colors.green, fontSize: '2rem' }} />
           <Box>
             <Typography sx={{ fontWeight: 700 }}>{sections.sidebar?.location_label}</Typography>
-            <Typography sx={{ ...publicUi.mutedText, fontSize: '0.875rem' }}>{contact.addressFull}</Typography>
-            <Typography sx={{ ...publicUi.mutedText, fontSize: '0.8125rem', mt: 1 }}>
+            <Typography sx={{ ...publicUi.mutedText }}>{contact.addressFull}</Typography>
+            <Typography sx={{ ...publicUi.mutedText, ...homeUi.caption, mt: 1 }}>
               We typically respond within one business day.
             </Typography>
           </Box>

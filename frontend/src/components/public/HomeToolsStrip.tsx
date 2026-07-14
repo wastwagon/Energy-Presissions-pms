@@ -37,8 +37,7 @@ const HomeToolsStrip: React.FC<Props> = ({
       <Container maxWidth="lg" sx={{ px: homeUi.containerPx }}>
         <Typography
           sx={{
-            ...homeUi.title,
-            fontSize: { xs: '1.25rem', md: '1.375rem' },
+            ...homeUi.headingSm,
             color: colors.blueBlack,
             textAlign: 'center',
             mb: 0.75,
@@ -114,7 +113,7 @@ const HomeToolsStrip: React.FC<Props> = ({
                 sx={{
                   flex: 1,
                   fontWeight: 600,
-                  fontSize: '0.9375rem',
+                  fontSize: homeUi.body.fontSize,
                   color: colors.blueBlack,
                   letterSpacing: '-0.01em',
                 }}

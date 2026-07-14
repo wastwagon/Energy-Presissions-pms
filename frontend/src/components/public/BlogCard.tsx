@@ -109,14 +109,14 @@ const BlogCard: React.FC<Props> = ({ post, variant = 'grid' }) => {
               {post.date} · {post.readTime}
             </Typography>
           </Stack>
-          <Typography sx={{ ...homeUi.title, fontSize: { xs: '1.25rem', md: '1.5rem' }, mb: 1.25, color: 'white' }}>
+          <Typography sx={{ ...homeUi.headingSm, mb: 1.25, color: 'white' }}>
             {post.title}
           </Typography>
           <Typography sx={{ color: 'rgba(255,255,255,0.82)', mb: 2.5, maxWidth: 560, lineHeight: 1.65, flexGrow: 1 }}>
             {post.excerpt}
           </Typography>
           <Stack direction="row" spacing={1} alignItems="center" sx={{ color: colors.green }}>
-            <Typography sx={{ fontWeight: 600, fontSize: '0.875rem' }}>Read featured article</Typography>
+            <Typography sx={{ fontWeight: 600, ...homeUi.navLink }}>Read featured article</Typography>
             <ArrowForwardIcon sx={{ fontSize: 18 }} />
           </Stack>
         </CardContent>
@@ -161,18 +161,16 @@ const BlogCard: React.FC<Props> = ({ post, variant = 'grid' }) => {
       </Box>
       <CardContent sx={{ flexGrow: 1, p: { xs: 2, md: 2.25 }, display: 'flex', flexDirection: 'column' }}>
         <Stack direction="row" spacing={0.75} sx={{ mb: 1 }} flexWrap="wrap" useFlexGap>
-          <Chip label={post.category} size="small" sx={{ height: 22, fontSize: '0.65rem', fontWeight: 600 }} />
+          <Chip label={post.category} size="small" sx={{ height: 22, ...homeUi.chip }} />
           <Typography variant="caption" sx={{ ...publicUi.mutedText, alignSelf: 'center' }}>
             {post.date} · {post.readTime}
           </Typography>
         </Stack>
         <Typography
           sx={{
-            fontWeight: 700,
+            ...homeUi.cardTitle,
             color: colors.blueBlack,
             mb: 0.75,
-            lineHeight: 1.35,
-            fontSize: { xs: '0.95rem', md: '1rem' },
             display: '-webkit-box',
             WebkitLineClamp: 2,
             WebkitBoxOrient: 'vertical',
@@ -187,7 +185,6 @@ const BlogCard: React.FC<Props> = ({ post, variant = 'grid' }) => {
             flexGrow: 1,
             mb: 1.5,
             lineHeight: 1.6,
-            fontSize: '0.875rem',
             display: '-webkit-box',
             WebkitLineClamp: 3,
             WebkitBoxOrient: 'vertical',
@@ -197,7 +194,7 @@ const BlogCard: React.FC<Props> = ({ post, variant = 'grid' }) => {
           {post.excerpt}
         </Typography>
         <Stack direction="row" spacing={0.5} alignItems="center" className="blog-card-cta" sx={{ color: colors.green, mt: 'auto' }}>
-          <Typography sx={{ fontWeight: 600, fontSize: '0.8125rem' }}>Read article</Typography>
+          <Typography sx={{ fontWeight: 600, ...homeUi.caption }}>Read article</Typography>
           <ArrowForwardIcon sx={{ fontSize: 16 }} />
         </Stack>
       </CardContent>

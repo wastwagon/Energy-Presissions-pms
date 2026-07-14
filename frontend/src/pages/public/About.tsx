@@ -100,10 +100,10 @@ const About: React.FC = () => {
       <Stack direction="row" spacing={{ xs: 2, sm: 3 }} flexWrap="wrap" useFlexGap>
         {heroStatsDisplay.map((s) => (
           <Box key={s.label}>
-            <Typography sx={{ fontWeight: 800, color: colors.green, lineHeight: 1.1, fontSize: '1.25rem' }}>
+            <Typography sx={{ ...homeUi.heroStat, color: colors.green }}>
               {s.value}
             </Typography>
-            <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.78)' }}>
+            <Typography variant="caption" sx={{ ...homeUi.caption, color: 'rgba(255,255,255,0.78)' }}>
               {s.label}
             </Typography>
           </Box>
@@ -156,13 +156,14 @@ const About: React.FC = () => {
                   variant="h3"
                   sx={{
                     mb: 3,
+                    ...homeUi.title,
                     fontWeight: 800,
                     color: colors.blueBlack,
                   }}
                 >
                   {sections.mission_vision?.mission_title}
                 </Typography>
-                <Typography variant="body1" sx={{ color: colors.gray600, lineHeight: 1.8, fontSize: '1.1rem' }}>
+                <Typography variant="body1" sx={{ ...homeUi.bodyLg, color: colors.gray600 }}>
                   {sections.mission_vision?.mission_text}
                 </Typography>
               </Card>
@@ -189,7 +190,7 @@ const About: React.FC = () => {
                 >
                   {sections.mission_vision?.vision_title}
                 </Typography>
-                <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.9)', lineHeight: 1.8, fontSize: '1.1rem' }}>
+                <Typography variant="body1" sx={{ ...homeUi.bodyLg, color: 'rgba(255,255,255,0.9)' }}>
                   {sections.mission_vision?.vision_text}
                 </Typography>
               </Card>
@@ -213,10 +214,8 @@ const About: React.FC = () => {
               sx={{
                 mt: 2,
                 mb: 3,
-                fontWeight: 800,
+                ...homeUi.display,
                 color: colors.blueBlack,
-                fontSize: { xs: '2.05rem', md: '3.15rem' },
-                lineHeight: 1.15,
               }}
             >
               {sections.why_choose?.title}
@@ -311,14 +310,13 @@ const About: React.FC = () => {
                     variant="h5"
                     sx={{
                       mb: 1.25,
-                      fontWeight: 700,
+                      ...homeUi.cardTitle,
                       color: colors.blueNavy,
-                      fontSize: { xs: '1.5rem', md: '1.35rem' },
                     }}
                   >
                     {feature.title}
                   </Typography>
-                  <Typography variant="body1" sx={{ color: colors.gray600, lineHeight: 1.65, fontSize: '0.98rem' }}>
+                  <Typography variant="body1" sx={{ ...homeUi.body, color: colors.gray600 }}>
                     {feature.description}
                   </Typography>
                 </Card>
@@ -346,7 +344,7 @@ const About: React.FC = () => {
               sx={{
                 bgcolor: colors.green,
                 color: 'white',
-                fontWeight: 'bold',
+                fontWeight: 700,
                 mb: 2,
                 px: 2,
               }}
@@ -356,10 +354,8 @@ const About: React.FC = () => {
               sx={{
                 mt: 2,
                 mb: 1.5,
-                fontWeight: 800,
+                ...homeUi.display,
                 color: colors.blueBlack,
-                fontSize: { xs: '1.9rem', md: '2.8rem' },
-                lineHeight: 1.16,
               }}
             >
               {sections.specialties?.title}
@@ -369,9 +365,7 @@ const About: React.FC = () => {
               sx={{
                 maxWidth: 680,
                 mx: 'auto',
-                color: '#667085',
-                fontSize: { xs: '0.95rem', md: '1rem' },
-                lineHeight: 1.75,
+                ...publicUi.mutedText,
               }}
             >
               {sections.specialties?.subtitle}
@@ -421,7 +415,7 @@ const About: React.FC = () => {
                         display: 'inline-flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        fontSize: '0.82rem',
+                        ...homeUi.caption,
                         fontWeight: 800,
                         color: colors.blueNavy,
                         bgcolor: 'rgba(0, 230, 118, 0.12)',
@@ -434,9 +428,7 @@ const About: React.FC = () => {
                       variant="h6"
                       sx={{
                         color: colors.blueNavy,
-                        fontWeight: 700,
-                        fontSize: { xs: '1.25rem', md: '1.55rem' },
-                        lineHeight: 1.3,
+                        ...homeUi.headingSm,
                       }}
                     >
                       {specialty}
@@ -473,8 +465,8 @@ const About: React.FC = () => {
               variant="h2"
               sx={{
                 mb: 3,
-                fontWeight: 800,
-                fontSize: { xs: '2.5rem', md: '3.5rem' },
+                ...homeUi.stat,
+                color: 'white',
               }}
             >
               {impactSection.title}
@@ -498,8 +490,7 @@ const About: React.FC = () => {
                   <Typography
                     variant="h1"
                     sx={{
-                      fontSize: { xs: '3rem', md: '5rem' },
-                      fontWeight: 800,
+                      ...homeUi.stat,
                       color: colors.green,
                       mb: 2,
                     }}
@@ -547,7 +538,7 @@ const About: React.FC = () => {
               sx={{
                 bgcolor: colors.green,
                 color: 'white',
-                fontWeight: 'bold',
+                fontWeight: 700,
                 mb: 2,
                 px: 2,
               }}
@@ -557,14 +548,13 @@ const About: React.FC = () => {
               sx={{
                 mt: 2,
                 mb: 3,
-                fontWeight: 800,
+                ...homeUi.display,
                 color: colors.blueBlack,
-                fontSize: { xs: '2.5rem', md: '3.5rem' },
               }}
             >
               {sections.visit_us?.title}
             </Typography>
-            <Typography variant="h6" sx={{ color: colors.gray600, fontWeight: 400 }}>
+            <Typography variant="h6" sx={{ ...publicUi.mutedText, fontWeight: 400 }}>
               {sections.visit_us?.subtitle}
             </Typography>
           </Box>

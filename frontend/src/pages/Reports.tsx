@@ -523,7 +523,7 @@ const Reports: React.FC = () => {
 
           {/* Calculation Insights Section */}
           <Paper sx={{ p: 3, mb: 3, bgcolor: '#f0f8ff', borderLeft: '4px solid #00E676' }}>
-            <Typography variant="h6" gutterBottom sx={{ color: '#00E676', fontWeight: 'bold' }}>
+            <Typography variant="h6" gutterBottom sx={{ color: '#00E676', fontWeight: 700 }}>
               📊 Calculation Insights
             </Typography>
             <Box sx={{ mt: 2 }}>

@@ -35,6 +35,8 @@ import { Helmet } from 'react-helmet-async';
 import { useAuth } from '../contexts/AuthContext';
 import { UserRole } from '../types';
 import { WEB_ADMIN_NAV } from '../config/adminNav';
+import { adminUi } from '../theme/adminUi';
+import { fontWeight } from '../theme/typography';
 
 const drawerWidth = 220;
 
@@ -96,7 +98,10 @@ const WebAdminLayout: React.FC = () => {
               </ListItemIcon>
               <ListItemText
                 primary={item.text}
-                primaryTypographyProps={{ fontSize: '0.8125rem', fontWeight: isNavSelected(item.path) ? 600 : 400 }}
+                primaryTypographyProps={{
+                  ...adminUi.navItem,
+                  fontWeight: isNavSelected(item.path) ? fontWeight.semibold : fontWeight.regular,
+                }}
               />
             </ListItemButton>
           </ListItem>
@@ -107,7 +112,7 @@ const WebAdminLayout: React.FC = () => {
               <ListItemIcon sx={{ minWidth: 36 }}>
                 <OpenInNewIcon sx={{ fontSize: '1.1rem' }} />
               </ListItemIcon>
-              <ListItemText primary="Full PMS" primaryTypographyProps={{ fontSize: '0.8125rem' }} />
+              <ListItemText primary="Full PMS" primaryTypographyProps={adminUi.navItem} />
             </ListItemButton>
           </ListItem>
         )}
@@ -141,11 +146,11 @@ const WebAdminLayout: React.FC = () => {
           >
             <MenuIcon fontSize="small" />
           </IconButton>
-          <Typography variant="subtitle1" sx={{ flexGrow: 1, fontWeight: 600, fontSize: '0.95rem' }} noWrap>
+          <Typography variant="subtitle1" sx={{ flexGrow: 1, ...adminUi.appBarTitle }} noWrap>
             {title}
           </Typography>
           <IconButton onClick={handleMenuClick} size="small" sx={{ p: 0 }}>
-            <Avatar sx={{ width: 32, height: 32, fontSize: '0.8rem', bgcolor: 'secondary.main' }}>
+            <Avatar sx={{ width: 32, height: 32, bgcolor: 'secondary.main', ...adminUi.avatar }}>
               {user?.full_name?.charAt(0).toUpperCase() ?? '?'}
             </Avatar>
           </IconButton>

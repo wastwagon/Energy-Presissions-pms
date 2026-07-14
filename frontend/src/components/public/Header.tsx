@@ -133,7 +133,7 @@ const Header: React.FC = () => {
 
   const quoteButtonSx = {
     ...publicUi.topBarQuoteButton,
-    fontSize: '0.8125rem',
+    ...homeUi.nav,
     px: 2.5,
     py: 0.55,
     minHeight: 36,
@@ -145,7 +145,7 @@ const Header: React.FC = () => {
     gap: 0.75,
     color: publicUi.topBar.text,
     textDecoration: 'none',
-    fontSize: '0.875rem',
+    ...homeUi.navLink,
     transition: 'color 0.2s ease',
     '&:hover': { color: colors.green },
   };
@@ -185,10 +185,10 @@ const Header: React.FC = () => {
         }}
       >
         <Box>
-          <Typography sx={{ fontWeight: 700, letterSpacing: '-0.02em', fontSize: '1.0625rem' }}>
+          <Typography sx={{ ...homeUi.prose, fontWeight: 700, letterSpacing: '-0.02em' }}>
             Menu
           </Typography>
-          <Typography sx={{ color: colors.gray600, fontSize: '0.8125rem', mt: 0.25 }}>
+          <Typography sx={{ ...homeUi.caption, color: colors.gray600, mt: 0.25 }}>
             Energy Precisions
           </Typography>
         </Box>
@@ -237,7 +237,7 @@ const Header: React.FC = () => {
                   >
                     <ListItemText
                       primary={item.label}
-                      primaryTypographyProps={{ fontWeight: 700, color: colors.blueBlack, fontSize: '0.95rem' }}
+                      primaryTypographyProps={{ color: colors.blueBlack, ...homeUi.drawerItem }}
                     />
                   </ListItemButton>
                 </ListItem>
@@ -261,7 +261,7 @@ const Header: React.FC = () => {
                     >
                       <ListItemText
                         primary={sub.label}
-                        primaryTypographyProps={{ fontWeight: 500, color: colors.gray600, fontSize: '0.875rem' }}
+                        primaryTypographyProps={{ color: colors.gray600, ...homeUi.drawerSubItem }}
                       />
                     </ListItemButton>
                   </ListItem>
@@ -287,7 +287,7 @@ const Header: React.FC = () => {
                 >
                   <ListItemText
                     primary={item.label}
-                    primaryTypographyProps={{ fontWeight: 600, color: colors.blueBlack, fontSize: '0.95rem' }}
+                    primaryTypographyProps={{ color: colors.blueBlack, ...homeUi.drawerItem, fontWeight: 600 }}
                   />
                 </ListItemButton>
               </ListItem>
@@ -301,8 +301,7 @@ const Header: React.FC = () => {
   const navButtonSx = {
     color: colors.blueBlack,
     textTransform: 'none' as const,
-    fontWeight: 600,
-    fontSize: '0.8125rem',
+    ...homeUi.nav,
     px: 1.65,
     py: 0.85,
     borderRadius: 2,
@@ -335,7 +334,7 @@ const Header: React.FC = () => {
     px: 1.5,
     py: 1,
     borderRadius: 1.5,
-    fontSize: '0.875rem',
+    ...homeUi.navLink,
     fontWeight: active ? 600 : 500,
     color: active ? colors.blueBlack : colors.gray600,
     textDecoration: 'none',
@@ -402,7 +401,7 @@ const Header: React.FC = () => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontSize: '0.65rem',
+                fontSize: homeUi.chip.fontSize,
                 fontWeight: 800,
                 lineHeight: 1,
               }}
@@ -415,7 +414,8 @@ const Header: React.FC = () => {
           variant="caption"
           sx={{
             mt: 0.35,
-            fontSize: '0.6875rem',
+            ...homeUi.badge,
+            textTransform: 'none',
             fontWeight: active ? 600 : 500,
             color: active ? publicUi.bottomNav.active : publicUi.bottomNav.inactive,
             letterSpacing: 0.1,
@@ -671,10 +671,7 @@ const Header: React.FC = () => {
                                 px: 1.5,
                                 pb: 0.75,
                                 mb: 0.5,
-                                fontSize: '0.6875rem',
-                                fontWeight: 600,
-                                letterSpacing: '0.08em',
-                                textTransform: 'uppercase',
+                                ...homeUi.badge,
                                 color: colors.gray400,
                                 borderBottom: homeUi.cardBorder,
                               }}
@@ -773,7 +770,7 @@ const Header: React.FC = () => {
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      fontSize: '0.6875rem',
+                      ...homeUi.badge,
                       fontWeight: 800,
                     }}
                   >

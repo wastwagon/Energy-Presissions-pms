@@ -254,11 +254,9 @@ const HomePortfolioSection: React.FC<Props> = ({
               <Box sx={{ px: { xs: 0.5, md: 0.75 }, pb: { xs: 0.5, md: 0.75 }, textAlign: 'left', flex: 1 }}>
                 <Typography
                   sx={{
+                    ...homeUi.prose,
                     fontWeight: 700,
                     color: colors.blueBlack,
-                    fontSize: { xs: '1.0625rem', md: '1.125rem' },
-                    letterSpacing: '-0.022em',
-                    lineHeight: 1.3,
                     mb: 0.75,
                   }}
                 >
@@ -267,9 +265,8 @@ const HomePortfolioSection: React.FC<Props> = ({
                 {project.alt && (
                   <Typography
                     sx={{
+                      ...homeUi.caption,
                       color: colors.gray600,
-                      fontSize: '0.8125rem',
-                      lineHeight: 1.55,
                       mb: 1.25,
                       display: '-webkit-box',
                       WebkitLineClamp: 2,
@@ -287,7 +284,7 @@ const HomePortfolioSection: React.FC<Props> = ({
                     gap: 0.35,
                     color: colors.green,
                     fontWeight: 600,
-                    fontSize: '0.875rem',
+                    ...homeUi.navLink,
                     mt: 'auto',
                   }}
                 >
@@ -356,7 +353,7 @@ const HomePortfolioSection: React.FC<Props> = ({
             px: 3,
             textTransform: 'none',
             fontWeight: 600,
-            fontSize: '0.9375rem',
+            fontSize: homeUi.body.fontSize,
             color: colors.blueBlack,
             bgcolor: homeUi.cardBg,
             border: homeUi.cardBorder,

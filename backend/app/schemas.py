@@ -262,6 +262,9 @@ class ProductBase(BaseModel):
     image_url: Optional[str] = None
     category: Optional[str] = None
     name: Optional[str] = None
+    description: Optional[str] = None
+    short_description: Optional[str] = None
+    gallery_images: Optional[List[str]] = None
     stock_quantity: Optional[int] = 0
     manage_stock: Optional[bool] = False
     in_stock: Optional[bool] = True
@@ -283,6 +286,9 @@ class ProductUpdate(BaseModel):
     image_url: Optional[str] = None
     category: Optional[str] = None
     name: Optional[str] = None
+    description: Optional[str] = None
+    short_description: Optional[str] = None
+    gallery_images: Optional[List[str]] = None
     is_active: Optional[bool] = None
     stock_quantity: Optional[int] = None
     manage_stock: Optional[bool] = None

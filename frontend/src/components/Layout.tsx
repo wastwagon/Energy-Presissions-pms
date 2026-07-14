@@ -39,6 +39,8 @@ import {
 import { Helmet } from 'react-helmet-async';
 import { useAuth } from '../contexts/AuthContext';
 import { canManageWebsite, filterPmsNav } from '../config/adminNav';
+import { adminUi } from '../theme/adminUi';
+import { fontWeight } from '../theme/typography';
 
 const drawerWidth = 220;
 
@@ -146,8 +148,8 @@ const Layout: React.FC = () => {
               <ListItemText
                 primary={item.text}
                 primaryTypographyProps={{
-                  fontSize: '0.8125rem',
-                  fontWeight: location.pathname === item.path ? 600 : 400,
+                  ...adminUi.navItem,
+                  fontWeight: location.pathname === item.path ? fontWeight.semibold : fontWeight.regular,
                 }}
               />
             </ListItemButton>
@@ -167,7 +169,7 @@ const Layout: React.FC = () => {
                 <ListItemIcon sx={{ minWidth: 36, '& .MuiSvgIcon-root': { fontSize: '1.15rem' } }}>
                   <OpenInNewIcon />
                 </ListItemIcon>
-                <ListItemText primary="Website admin" primaryTypographyProps={{ fontSize: '0.8125rem' }} />
+                <ListItemText primary="Website admin" primaryTypographyProps={adminUi.navItem} />
               </ListItemButton>
             </ListItem>
           </>
@@ -201,11 +203,11 @@ const Layout: React.FC = () => {
           >
             <MenuIcon fontSize="small" />
           </IconButton>
-          <Typography variant="subtitle1" noWrap component="div" sx={{ flexGrow: 1, fontWeight: 600, fontSize: '0.95rem' }}>
+          <Typography variant="subtitle1" noWrap component="div" sx={{ flexGrow: 1, ...adminUi.appBarTitle }}>
             {visibleMenu.find((item) => item.path === location.pathname)?.text || 'Energy Precision PMS'}
           </Typography>
           <IconButton onClick={handleMenuClick} sx={{ p: 0 }} size="small">
-            <Avatar sx={{ bgcolor: 'secondary.main', width: 32, height: 32, fontSize: '0.8rem' }}>
+            <Avatar sx={{ bgcolor: 'secondary.main', width: 32, height: 32, ...adminUi.avatar }}>
               {user?.full_name.charAt(0).toUpperCase()}
             </Avatar>
           </IconButton>

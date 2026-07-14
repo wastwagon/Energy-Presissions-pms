@@ -5,6 +5,7 @@ import { ArrowForward as ArrowForwardIcon } from '@mui/icons-material';
 import { hapticTap } from '../../utils/haptics';
 import { mobileFixedAboveTabBar } from '../../utils/mobileChrome';
 import { publicUi } from '../../theme/publicUi';
+import { homeUi } from '../../theme/homeUi';
 
 type Props = {
   label: string;
@@ -35,7 +36,7 @@ const PublicStickyMobileCta: React.FC<Props> = ({
   const buttonSx = {
     ...publicUi.primaryButton,
     ...publicUi.touchTarget,
-    fontSize: '0.9375rem',
+    fontSize: homeUi.body.fontSize,
   };
 
   return (

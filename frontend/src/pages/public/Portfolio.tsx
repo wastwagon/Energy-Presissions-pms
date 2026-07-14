@@ -142,18 +142,18 @@ const Portfolio: React.FC = () => {
                 </Box>
                 <CardContent sx={{ flexGrow: 1, p: { xs: 2, md: 2.25 } }}>
                   <Stack direction="row" spacing={0.75} sx={{ mb: 1 }} flexWrap="wrap" useFlexGap>
-                    <Chip label={item.category} size="small" sx={{ height: 22, fontSize: '0.65rem' }} />
+                    <Chip label={item.category} size="small" sx={{ height: 22, ...homeUi.chip }} />
                     {item.systemSize && (
-                      <Chip label={item.systemSize} size="small" variant="outlined" sx={{ height: 22, fontSize: '0.65rem' }} />
+                      <Chip label={item.systemSize} size="small" variant="outlined" sx={{ height: 22, ...homeUi.chip }} />
                     )}
                   </Stack>
-                  <Typography sx={{ fontWeight: 700, color: colors.blueBlack, mb: 0.75, lineHeight: 1.3, fontSize: '0.95rem' }}>
+                  <Typography sx={{ ...homeUi.cardTitle, color: colors.blueBlack, mb: 0.75 }}>
                     {item.title}
                   </Typography>
                   <Typography variant="caption" sx={{ color: colors.gray600, mb: 1, display: 'block' }}>
                     {item.location}
                   </Typography>
-                  <Typography sx={{ ...publicUi.mutedText, fontSize: '0.82rem' }}>{item.description}</Typography>
+                  <Typography sx={{ ...publicUi.mutedText, ...homeUi.caption }}>{item.description}</Typography>
                 </CardContent>
               </Card>
             </Grid>
@@ -173,7 +173,7 @@ const Portfolio: React.FC = () => {
           <Typography sx={{ fontWeight: 800, mb: 1.5, fontSize: { xs: '1.5rem', md: '1.75rem' } }}>
             {closingCta.title}
           </Typography>
-          <Typography sx={{ color: 'rgba(255,255,255,0.88)', mb: 2.5, lineHeight: 1.6, fontSize: '0.9375rem' }}>
+          <Typography sx={{ color: 'rgba(255,255,255,0.88)', mb: 2.5, lineHeight: 1.6, ...homeUi.body }}>
             {closingCta.subtitle}
           </Typography>
           <Button

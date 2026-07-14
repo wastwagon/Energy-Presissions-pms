@@ -62,7 +62,7 @@ const FinancingPaymentEstimate: React.FC<Props> = ({
     <Card sx={{ ...publicUi.card, mt: 4 }}>
       <CardContent sx={{ p: { xs: 2.5, md: 3 } }}>
         <Typography sx={{ fontWeight: 700, mb: 0.5 }}>{title}</Typography>
-        <Typography sx={{ ...publicUi.mutedText, fontSize: '0.875rem', mb: 2.5 }}>{subtitle}</Typography>
+        <Typography sx={{ ...publicUi.mutedText, mb: 2.5 }}>{subtitle}</Typography>
 
         <Grid container spacing={2}>
           <Grid item xs={12} sm={6}>
@@ -111,10 +111,10 @@ const FinancingPaymentEstimate: React.FC<Props> = ({
         </Grid>
 
         <Box sx={{ mt: 3, p: 2, borderRadius: homeUi.innerRadius, bgcolor: colors.offWhite, border: homeUi.cardBorder }}>
-          <Typography sx={{ fontSize: '0.8125rem', ...publicUi.mutedText, mb: 0.5 }}>
+          <Typography sx={{ ...homeUi.caption, ...publicUi.mutedText, mb: 0.5 }}>
             Financed amount: GHS {Math.round(result.financed).toLocaleString()}
           </Typography>
-          <Typography sx={{ fontWeight: 800, fontSize: { xs: '1.5rem', md: '1.35rem' }, color: colors.blueBlack }}>
+          <Typography sx={{ ...homeUi.headingSm, color: colors.blueBlack }}>
             ≈ GHS {Math.round(result.monthly).toLocaleString()} / month
           </Typography>
         </Box>

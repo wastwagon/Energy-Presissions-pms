@@ -104,7 +104,7 @@ const AppliancesCatalog: React.FC = () => {
 
   return (
     <Box>
-      <Typography variant="h4" gutterBottom fontWeight="bold">
+      <Typography variant="h4" gutterBottom fontWeight={700}>
         Appliances Catalog
       </Typography>
       <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>

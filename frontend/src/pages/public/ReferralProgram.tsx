@@ -93,7 +93,7 @@ const ReferralProgram: React.FC = () => {
                 <CardContent sx={{ p: { xs: 2.5, md: 3 } }}>
                   <Box sx={{ mb: 1.5 }}>{item.icon}</Box>
                   <Typography sx={{ fontWeight: 700, mb: 1 }}>{item.title}</Typography>
-                  <Typography sx={{ ...publicUi.mutedText, fontSize: '0.875rem', lineHeight: 1.6 }}>{item.body}</Typography>
+                  <Typography sx={{ ...publicUi.mutedText, lineHeight: 1.6 }}>{item.body}</Typography>
                 </CardContent>
               </Card>
             </Grid>
@@ -102,7 +102,7 @@ const ReferralProgram: React.FC = () => {
 
         <Card sx={{ ...publicUi.card, bgcolor: colors.blueBlack, color: 'white' }}>
           <CardContent sx={{ p: { xs: 2.5, md: 3.5 } }}>
-            <Typography sx={{ fontWeight: 800, mb: 1.5, fontSize: { xs: '1.125rem', md: '1.25rem' } }}>
+            <Typography sx={{ ...homeUi.headingSm, fontWeight: 800, mb: 1.5 }}>
               How it works
             </Typography>
             <Stack spacing={1.5}>
@@ -113,7 +113,7 @@ const ReferralProgram: React.FC = () => {
               ].map((step) => (
                 <Stack key={step} direction="row" spacing={1.5} alignItems="flex-start">
                   <CheckIcon sx={{ color: colors.green, fontSize: 20, mt: 0.25 }} />
-                  <Typography sx={{ fontSize: '0.9375rem', lineHeight: 1.6, color: 'rgba(255,255,255,0.9)' }}>{step}</Typography>
+                  <Typography sx={{ ...homeUi.body, lineHeight: 1.6, color: 'rgba(255,255,255,0.9)' }}>{step}</Typography>
                 </Stack>
               ))}
             </Stack>

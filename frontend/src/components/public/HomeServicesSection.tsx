@@ -82,11 +82,8 @@ const ServiceCard: React.FC<{ service: CmsServiceCard; eagerImage?: boolean }> =
     >
       <Typography
         sx={{
-          fontWeight: 700,
+          ...homeUi.headingSm,
           color: colors.blueBlack,
-          fontSize: { xs: '1.125rem', md: '1.2rem' },
-          letterSpacing: '-0.022em',
-          lineHeight: 1.25,
           mb: 1,
         }}
       >
@@ -110,7 +107,7 @@ const ServiceCard: React.FC<{ service: CmsServiceCard; eagerImage?: boolean }> =
           gap: 0.35,
           color: colors.green,
           fontWeight: 600,
-          fontSize: '0.9375rem',
+          fontSize: homeUi.body.fontSize,
           transition: 'color 0.2s ease',
         }}
       >
@@ -155,7 +152,7 @@ const HomeServicesSection: React.FC<Props> = ({
             px: 3,
             textTransform: 'none',
             fontWeight: 600,
-            fontSize: '0.9375rem',
+            fontSize: homeUi.body.fontSize,
             color: colors.blueBlack,
             bgcolor: homeUi.cardBg,
             border: homeUi.cardBorder,

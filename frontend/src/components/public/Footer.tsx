@@ -49,7 +49,7 @@ const ft = {
 const linkSx = {
   display: 'block',
   color: ft.body,
-  fontSize: '0.875rem',
+  ...homeUi.navLink,
   lineHeight: 1.5,
   textDecoration: 'none',
   py: 0.4,
@@ -59,10 +59,7 @@ const linkSx = {
 
 const columnLabelSx = {
   color: ft.muted,
-  fontWeight: 600,
-  fontSize: '0.6875rem',
-  letterSpacing: '0.08em',
-  textTransform: 'uppercase',
+  ...homeUi.badge,
   mb: 1.25,
 };
 
@@ -180,7 +177,7 @@ const Footer: React.FC = () => {
             <Typography component="p" sx={{ ...columnLabelSx, mb: 0.75 }}>
               {footer.newsletter_title}
             </Typography>
-            <Typography sx={{ color: ft.body, fontSize: '0.9375rem', lineHeight: 1.55, maxWidth: 440 }}>
+            <Typography sx={{ color: ft.body, ...homeUi.body, maxWidth: 440 }}>
               {footer.newsletter_text}
             </Typography>
           </Box>
@@ -211,7 +208,7 @@ const Footer: React.FC = () => {
                     borderRadius: 999,
                     bgcolor: ft.inputBg,
                     color: ft.text,
-                    fontSize: '0.9375rem',
+                    fontSize: homeUi.body.fontSize,
                     minHeight: 48,
                     '& fieldset': { borderColor: ft.inputBorder },
                     '&:hover fieldset': { borderColor: ft.inputBorderHover },
@@ -229,7 +226,7 @@ const Footer: React.FC = () => {
                   ...publicUi.topBarQuoteButton,
                   minWidth: { xs: '100%', sm: 128 },
                   flexShrink: 0,
-                  fontSize: '0.9375rem',
+                  fontSize: homeUi.body.fontSize,
                 }}
               >
                 {loading ? <CircularProgress size={22} sx={{ color: colors.blueBlack }} /> : footer.subscribe_button}
@@ -239,7 +236,7 @@ const Footer: React.FC = () => {
               <Typography
                 sx={{
                   mt: 1,
-                  fontSize: '0.8125rem',
+                  ...homeUi.caption,
                   color: message.type === 'success' ? colors.green : '#fecaca',
                 }}
               >
@@ -254,15 +251,13 @@ const Footer: React.FC = () => {
           <Grid item xs={12} lg={3}>
             <Typography
               sx={{
-                fontWeight: 700,
-                fontSize: '1.125rem',
-                letterSpacing: '-0.022em',
+                ...homeUi.footerTitle,
                 mb: 1,
               }}
             >
               {footer.company_name}
             </Typography>
-            <Typography sx={{ color: ft.body, fontSize: '0.875rem', lineHeight: 1.65, mb: 2.5, maxWidth: 320 }}>
+            <Typography sx={{ color: ft.body, ...homeUi.navLink, lineHeight: 1.65, mb: 2.5, maxWidth: 320 }}>
               {footer.tagline}
             </Typography>
             <Stack spacing={0.35} sx={{ mb: 2.5 }}>
@@ -275,7 +270,7 @@ const Footer: React.FC = () => {
               <Link href={`mailto:${contact.emailSales}`} underline="none" sx={linkSx}>
                 {contact.emailSales}
               </Link>
-              <Typography sx={{ color: ft.body, fontSize: '0.875rem', lineHeight: 1.55, py: 0.4 }}>
+              <Typography sx={{ color: ft.body, ...homeUi.navLink, lineHeight: 1.55, py: 0.4 }}>
                 {contact.addressFull}
               </Typography>
             </Stack>
@@ -287,7 +282,7 @@ const Footer: React.FC = () => {
                 ...publicUi.topBarQuoteButton,
                 px: 2.5,
                 py: 0.85,
-                fontSize: '0.875rem',
+                ...homeUi.navLink,
               }}
             >
               Get a quote
@@ -336,7 +331,7 @@ const Footer: React.FC = () => {
           justifyContent="space-between"
           spacing={{ xs: 2, md: 2.5 }}
         >
-          <Typography sx={{ color: ft.faint, fontSize: '0.8125rem' }}>{copyright}</Typography>
+          <Typography sx={{ color: ft.faint, ...homeUi.caption }}>{copyright}</Typography>
 
           <Stack direction="row" flexWrap="wrap" gap={{ xs: 1.5, sm: 2 }} sx={{ py: 0.25 }}>
             {legalLinks.map((link) => (

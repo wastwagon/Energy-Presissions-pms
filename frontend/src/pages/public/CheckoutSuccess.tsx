@@ -180,7 +180,7 @@ const CheckoutSuccess: React.FC = () => {
               </Box>
             )}
 
-            <Typography sx={{ fontWeight: 700, mb: 2, fontSize: '0.9375rem', textAlign: 'left' }}>
+            <Typography sx={{ ...homeUi.body, fontWeight: 700, mb: 2, textAlign: 'left' }}>
               {nextStepsTitle || "What's next?"}
             </Typography>
             <Stack spacing={1.25} sx={{ mb: 3 }}>

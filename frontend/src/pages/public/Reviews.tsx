@@ -40,7 +40,7 @@ const Reviews: React.FC = () => {
                     “{item.text}”
                   </Typography>
                   <Typography sx={{ fontWeight: 700, color: colors.blueBlack }}>{item.name}</Typography>
-                  <Typography sx={{ ...publicUi.mutedText, fontSize: '0.8125rem' }}>
+                  <Typography sx={{ ...publicUi.mutedText, ...homeUi.caption }}>
                     {item.role}
                     {item.location ? ` · ${item.location}` : ''}
                   </Typography>

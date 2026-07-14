@@ -56,7 +56,7 @@ const Financing: React.FC = () => {
                       <Icon sx={{ color: colors.green }} />
                       <Typography sx={{ fontWeight: 700 }}>{card.title}</Typography>
                     </Stack>
-                    <Typography sx={{ ...publicUi.mutedText, fontSize: '0.875rem' }}>{card.body}</Typography>
+                    <Typography sx={{ ...publicUi.mutedText }}>{card.body}</Typography>
                   </CardContent>
                 </Card>
               </Grid>

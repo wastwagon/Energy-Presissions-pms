@@ -249,7 +249,7 @@ const Shop: React.FC = () => {
               <Chip
                 label={`${filteredProducts.length} Products Found`}
                 size="small"
-                sx={{ bgcolor: colors.green, color: 'white', fontWeight: 'bold' }}
+                sx={{ bgcolor: colors.green, color: 'white', fontWeight: 700 }}
               />
             )}
           </Box>
@@ -328,7 +328,7 @@ const Shop: React.FC = () => {
                             right: 12,
                             bgcolor: colors.green,
                             color: 'white',
-                            fontWeight: 'bold',
+                            fontWeight: 700,
                           }}
                         />
                       )}
@@ -359,8 +359,8 @@ const Shop: React.FC = () => {
                           bgcolor: colors.blueNavy,
                           color: 'white',
                           mb: 1.5,
-                          fontSize: '0.7rem',
-                          fontWeight: 'bold',
+                          fontSize: homeUi.chip.fontSize,
+                          fontWeight: 700,
                         }}
                       />
 
@@ -415,14 +415,14 @@ const Shop: React.FC = () => {
                           label="Warranty"
                           size="small"
                           variant="outlined"
-                          sx={{ fontSize: '0.7rem' }}
+                          sx={{ ...homeUi.chip }}
                         />
                         <Chip
                           icon={<ShippingIcon sx={{ fontSize: '1rem' }} />}
                           label="Free Delivery"
                           size="small"
                           variant="outlined"
-                          sx={{ fontSize: '0.7rem' }}
+                          sx={{ ...homeUi.chip }}
                         />
                       </Stack>
                       )}
@@ -434,10 +434,9 @@ const Shop: React.FC = () => {
                       <Typography
                           variant="h4"
                           sx={{
-                            fontWeight: 800,
+                            ...homeUi.price,
                             color: colors.blueNavy,
                             mb: 0.5,
-                            fontSize: viewMode === 'list' ? { xs: '1.25rem', sm: '1.5rem' } : undefined,
                           }}
                       >
                         GHS {catalogLineUnitPrice(product).toLocaleString()}

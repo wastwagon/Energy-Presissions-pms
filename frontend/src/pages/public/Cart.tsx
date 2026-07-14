@@ -76,13 +76,13 @@ const CartLineMobile: React.FC<CartLineProps> = ({ item, loading, onQuantityChan
             )}
           </Box>
           <Box flex={1} minWidth={0}>
-            <Typography sx={{ fontWeight: 700, fontSize: '0.9375rem', lineHeight: 1.3 }}>
+            <Typography sx={{ ...homeUi.body, fontWeight: 700, lineHeight: 1.3 }}>
               {item.product?.name || 'Product'}
             </Typography>
-            <Typography sx={{ ...publicUi.mutedText, fontSize: '0.8125rem', mt: 0.25 }}>
+            <Typography sx={{ ...homeUi.caption, ...publicUi.mutedText, mt: 0.25 }}>
               GHS {price.toLocaleString()} each
             </Typography>
-            <Typography sx={{ fontWeight: 700, fontSize: '0.9375rem', mt: 1, color: colors.greenDark }}>
+            <Typography sx={{ ...homeUi.body, fontWeight: 700, mt: 1, color: colors.greenDark }}>
               GHS {total.toLocaleString()}
             </Typography>
           </Box>
@@ -97,7 +97,7 @@ const CartLineMobile: React.FC<CartLineProps> = ({ item, loading, onQuantityChan
           </IconButton>
         </Box>
         <Box display="flex" alignItems="center" justifyContent="space-between" mt={2}>
-          <Typography sx={{ fontSize: '0.8125rem', fontWeight: 600, color: colors.gray600 }}>
+          <Typography sx={{ ...homeUi.caption, fontWeight: 600, color: colors.gray600 }}>
             Quantity
           </Typography>
           <Box display="flex" alignItems="center" gap={0.5}>
@@ -276,10 +276,10 @@ const Cart: React.FC = () => {
                                 )}
                               </Box>
                               <Box>
-                                <Typography sx={{ fontWeight: 700, fontSize: '0.9375rem' }}>
+                                <Typography sx={{ ...homeUi.body, fontWeight: 700 }}>
                                   {item.product?.name || 'Product'}
                                 </Typography>
-                                <Typography sx={{ ...publicUi.mutedText, fontSize: '0.8125rem' }}>
+                                <Typography sx={{ ...homeUi.caption, ...publicUi.mutedText }}>
                                   GHS {price.toLocaleString()} each
                                 </Typography>
                               </Box>
@@ -328,7 +328,7 @@ const Cart: React.FC = () => {
                 </Table>
               </TableContainer>
             )}
-            <Typography sx={{ ...publicUi.mutedText, fontSize: '0.8125rem', mt: 2 }}>
+            <Typography sx={{ ...homeUi.caption, ...publicUi.mutedText, mt: 2 }}>
               {footerNote || 'Need installation?'}{' '}
               <Link component={RouterLink} to="/contact?action=quote&topic=shop" sx={publicUi.inlineLink}>
                 Request a site survey
