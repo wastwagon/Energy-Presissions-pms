@@ -302,6 +302,7 @@ export interface Product {
   catalog_unit_price?: number;
   image_url?: string;
   category?: string;
+  name?: string;
   is_active: boolean;
   stock_quantity?: number;
   manage_stock?: boolean;

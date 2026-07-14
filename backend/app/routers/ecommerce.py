@@ -5,7 +5,7 @@ Public-facing e-commerce endpoints and admin order management
 from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, status, Request, Query
 from sqlalchemy.orm import Session, joinedload
-from sqlalchemy import or_, desc
+from sqlalchemy import or_, desc, asc
 from app.database import get_db
 from app.models import Product, ProductType, Customer, User, UserRole
 from app.models_ecommerce import Order, OrderItem, CartItem, Coupon
@@ -48,7 +48,7 @@ async def get_public_products(
     search: Optional[str] = None,
     product_type: Optional[ProductType] = None,
     skip: int = 0,
-    limit: int = 100,
+    limit: int = Query(5000, ge=1, le=10000),
     db: Session = Depends(get_db)
 ):
     """Get products for public website/e-commerce (no auth required)"""
@@ -59,7 +59,7 @@ async def get_public_products(
             Product.price_type.is_(None),
             Product.price_type != "percentage",
         ),
-    )
+    ).order_by(asc(Product.id))
     
     if category:
         if category in _ECOM_CATEGORY_AS_PRODUCT_TYPE:

@@ -1,7 +1,8 @@
-from typing import List
+from typing import List, Optional
 from pathlib import Path
-from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
+from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Query
 from sqlalchemy.orm import Session
+from sqlalchemy import asc
 from app.database import get_db
 from app.auth import get_current_active_user, require_role
 from app.models import User, Product, ProductType
@@ -15,12 +16,12 @@ router = APIRouter(prefix="/products", tags=["products"])
 async def list_products(
     product_type: ProductType = None,
     skip: int = 0,
-    limit: int = 100,
+    limit: int = Query(5000, ge=1, le=10000),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_user)
 ):
     """List all products (admin sees all including inactive; shop filters by is_active)"""
-    query = db.query(Product)
+    query = db.query(Product).order_by(asc(Product.id))
     if product_type:
         query = query.filter(Product.product_type == product_type)
     products = query.offset(skip).limit(limit).all()

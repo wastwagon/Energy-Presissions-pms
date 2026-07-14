@@ -31,7 +31,7 @@ import { resolveMediaUrl } from '../utils/mediaUrl';
 
 const Products: React.FC = () => {
   const { user } = useAuth();
-  const isAdmin = user?.role === 'admin';
+  const canManageProducts = user?.role === 'admin' || user?.role === 'website_admin';
   
   // Helper function to format product type with uppercase first letter of each word
   const formatProductType = (type: string): string => {
@@ -70,7 +70,7 @@ const Products: React.FC = () => {
 
   const fetchProducts = async () => {
     try {
-      const response = await api.get('/products/');
+      const response = await api.get('/products/', { params: { limit: 5000 } });
       setProducts(response.data);
     } catch (error) {
       console.error('Error fetching products:', error);
@@ -183,6 +183,7 @@ const Products: React.FC = () => {
       formatProductType(product.product_type).toLowerCase().includes(q) ||
       (product.brand && product.brand.toLowerCase().includes(q)) ||
       (product.model && product.model.toLowerCase().includes(q)) ||
+      (product.name && product.name.toLowerCase().includes(q)) ||
       (product.category && product.category.toLowerCase().includes(q)) ||
       capacityLabel.includes(q) ||
       formatPriceType(product.price_type).toLowerCase().includes(q) ||
@@ -194,7 +195,7 @@ const Products: React.FC = () => {
     );
   });
 
-  if (!isAdmin) {
+  if (!canManageProducts) {
     return (
       <Box>
         <Typography variant="h4" gutterBottom>

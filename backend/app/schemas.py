@@ -261,6 +261,7 @@ class ProductBase(BaseModel):
     base_price: float
     image_url: Optional[str] = None
     category: Optional[str] = None
+    name: Optional[str] = None
     stock_quantity: Optional[int] = 0
     manage_stock: Optional[bool] = False
     in_stock: Optional[bool] = True
@@ -281,6 +282,7 @@ class ProductUpdate(BaseModel):
     base_price: Optional[float] = None
     image_url: Optional[str] = None
     category: Optional[str] = None
+    name: Optional[str] = None
     is_active: Optional[bool] = None
     stock_quantity: Optional[int] = None
     manage_stock: Optional[bool] = None
