@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Box, Container, Typography, Button, Stack } from '@mui/material';
 import { ArrowForward as ArrowForwardIcon } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
@@ -15,10 +15,12 @@ import HomeToolsStrip from '../../components/public/HomeToolsStrip';
 import { useCmsPage } from '../../hooks/useCmsPage';
 import { useGlobalSiteConfig } from '../../hooks/useGlobalSiteConfig';
 import { resolveCmsSeo } from '../../hooks/useCmsSeo';
+import { featuredPortfolioToHomeTeasers } from '../../data/portfolioCms';
 import { localBusinessJsonLd } from '../../utils/jsonLd';
 
 const Home: React.FC = () => {
   const { sections } = useCmsPage('home');
+  const { sections: portfolioSections } = useCmsPage('portfolio');
   const { contact, cta } = useGlobalSiteConfig();
   const seo = resolveCmsSeo(sections, {
     title: 'Energy Precisions | Ghana Energy Transition · Solar & Hybrid Power',
@@ -27,6 +29,11 @@ const Home: React.FC = () => {
   });
 
   const hero = sections.hero;
+  const portfolioTeaserItems = useMemo(() => {
+    const featured = featuredPortfolioToHomeTeasers(portfolioSections.items);
+    if (featured.length > 0) return featured;
+    return sections.portfolio?.items || [];
+  }, [portfolioSections.items, sections.portfolio?.items]);
 
   return (
     <Box sx={{ bgcolor: homeUi.pageBg }}>
@@ -49,7 +56,7 @@ const Home: React.FC = () => {
         badge={sections.portfolio?.badge}
         title={sections.portfolio?.title}
         subtitle={sections.portfolio?.subtitle}
-        items={sections.portfolio?.items || []}
+        items={portfolioTeaserItems}
         ctaText={sections.portfolio?.cta_text}
         ctaLink={sections.portfolio?.cta_link}
       />

@@ -13,11 +13,24 @@ import {
   Alert,
   CircularProgress,
   Stack,
+  IconButton,
+  FormControlLabel,
+  Switch,
+  Tooltip,
 } from '@mui/material';
-import { Save as SaveIcon } from '@mui/icons-material';
+import {
+  Save as SaveIcon,
+  Add as AddIcon,
+  Delete as DeleteIcon,
+  ArrowUpward as ArrowUpwardIcon,
+  ArrowDownward as ArrowDownwardIcon,
+  ContentCopy as ContentCopyIcon,
+  DragIndicator as DragIndicatorIcon,
+  Visibility as VisibilityIcon,
+} from '@mui/icons-material';
 import api from '../../services/api';
 import { CMS_PAGE_LABELS, getCmsDefaults } from '../../data/cmsDefaults';
-import { DEFAULT_CMS_PORTFOLIO_ITEMS } from '../../data/portfolioCms';
+import { DEFAULT_CMS_PORTFOLIO_ITEMS, ensureUniquePortfolioSlug, slugifyPortfolioTitle } from '../../data/portfolioCms';
 import { HYBRID_PACKAGES } from '../../data/hybridPackages';
 import type {
   CmsFooter,
@@ -35,6 +48,8 @@ import type {
 } from '../../types/cms';
 import { resolveHeroSlides } from '../../utils/heroSlides';
 import CmsImageField from './CmsImageField';
+import PortfolioBodyEditor from './PortfolioBodyEditor';
+import PortfolioItemPreviewDialog from './PortfolioItemPreviewDialog';
 
 const PAGES: CmsPageSlug[] = [
   'home',
@@ -76,6 +91,9 @@ const CmsPageEditor: React.FC = () => {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [portfolioDragIndex, setPortfolioDragIndex] = useState<number | null>(null);
+  const [portfolioDragOverIndex, setPortfolioDragOverIndex] = useState<number | null>(null);
+  const [portfolioPreviewIndex, setPortfolioPreviewIndex] = useState<number | null>(null);
 
   const loadPage = async (slug: CmsPageSlug) => {
     setLoading(true);
@@ -209,6 +227,103 @@ const CmsPageEditor: React.FC = () => {
       items[index] = { ...items[index], [field]: value };
       return { ...s, items };
     });
+  };
+
+  const patchPortfolioGalleryItem = (index: number, patch: Partial<CmsPortfolioGalleryItem>) => {
+    setSections((s) => {
+      const items = [...((s.items as CmsPortfolioGalleryItem[]) || [])];
+      items[index] = { ...items[index], ...patch };
+      return { ...s, items };
+    });
+  };
+
+  const nextPortfolioGalleryId = (items: CmsPortfolioGalleryItem[]) => {
+    const maxId = items.reduce((max, item) => Math.max(max, Number(item.id) || 0), 200);
+    return maxId + 1;
+  };
+
+  const blankPortfolioGalleryItem = (items: CmsPortfolioGalleryItem[]): CmsPortfolioGalleryItem => {
+    const id = nextPortfolioGalleryId(items);
+    const title = 'New project';
+    return {
+      id,
+      title,
+      category: 'Installation',
+      description: '',
+      image: '',
+      location: 'Ghana',
+      media_type: 'image',
+      system_size: '',
+      project_type: '',
+      savings_note: '',
+      published: true,
+      slug: ensureUniquePortfolioSlug(title, items),
+      body: '',
+      gallery_images: [],
+      featured: false,
+    };
+  };
+
+  const addPortfolioGalleryItem = () => {
+    setSections((s) => {
+      const items = [...((s.items as CmsPortfolioGalleryItem[]) || [])];
+      items.push(blankPortfolioGalleryItem(items));
+      return { ...s, items };
+    });
+  };
+
+  const duplicatePortfolioGalleryItem = (index: number) => {
+    setSections((s) => {
+      const items = [...((s.items as CmsPortfolioGalleryItem[]) || [])];
+      const source = items[index];
+      if (!source) return s;
+      const copy: CmsPortfolioGalleryItem = {
+        ...source,
+        id: nextPortfolioGalleryId(items),
+        title: source.title ? `${source.title} (copy)` : 'New project',
+        published: source.published !== false,
+        slug: ensureUniquePortfolioSlug(
+          source.slug || source.title || 'project',
+          items,
+        ),
+        featured: false,
+      };
+      items.splice(index + 1, 0, copy);
+      return { ...s, items };
+    });
+  };
+
+  const removePortfolioGalleryItem = (index: number) => {
+    setSections((s) => {
+      const items = [...((s.items as CmsPortfolioGalleryItem[]) || [])];
+      items.splice(index, 1);
+      return { ...s, items };
+    });
+  };
+
+  const movePortfolioGalleryItem = (index: number, direction: -1 | 1) => {
+    setSections((s) => {
+      const items = [...((s.items as CmsPortfolioGalleryItem[]) || [])];
+      const target = index + direction;
+      if (target < 0 || target >= items.length) return s;
+      const [moved] = items.splice(index, 1);
+      items.splice(target, 0, moved);
+      return { ...s, items };
+    });
+  };
+
+  const reorderPortfolioGalleryItem = (from: number, to: number) => {
+    setSections((s) => {
+      const items = [...((s.items as CmsPortfolioGalleryItem[]) || [])];
+      if (from === to || from < 0 || to < 0 || from >= items.length || to >= items.length) return s;
+      const [moved] = items.splice(from, 1);
+      items.splice(to, 0, moved);
+      return { ...s, items };
+    });
+  };
+
+  const clearPortfolioGalleryItems = () => {
+    setSections((s) => ({ ...s, items: [] }));
   };
 
   const loadBundledPortfolioItems = () => {
@@ -722,6 +837,11 @@ const CmsPageEditor: React.FC = () => {
   const packageTiers = (sections.package_tiers || []) as CmsPackageTier[];
   const emptyState = (sections.empty_state || {}) as { title?: string; cta_text?: string };
   const portfolioGalleryItems = (sections.items || []) as CmsPortfolioGalleryItem[];
+  const storedPortfolioGalleryItems = (Array.isArray(storedSections.items)
+    ? storedSections.items
+    : []) as CmsPortfolioGalleryItem[];
+  const hasStoredPortfolioGallery = storedPortfolioGalleryItems.length > 0;
+  const publishedPortfolioCount = portfolioGalleryItems.filter((item) => item.published !== false).length;
 
   if (loading) {
     return (
@@ -1106,42 +1226,311 @@ const CmsPageEditor: React.FC = () => {
 
       {page === 'portfolio' && (
         <>
+          <Alert
+            severity={hasStoredPortfolioGallery ? 'success' : 'info'}
+            sx={{ mb: 2 }}
+          >
+            {hasStoredPortfolioGallery ? (
+              <>
+                Public site is using your <strong>saved CMS gallery</strong> (
+                {storedPortfolioGalleryItems.length} items
+                {storedPortfolioGalleryItems.filter((item) => item.published !== false).length !==
+                storedPortfolioGalleryItems.length
+                  ? `, ${storedPortfolioGalleryItems.filter((item) => item.published !== false).length} published`
+                  : ''}
+                ). Edit below and Save page to update.
+              </>
+            ) : (
+              <>
+                Public site is using the <strong>bundled install photos</strong> (no CMS gallery saved yet).
+                Add projects or load the bundled gallery, then Save page to take over.
+              </>
+            )}
+          </Alert>
+          {!hasStoredPortfolioGallery && portfolioGalleryItems.length > 0 && (
+            <Alert severity="warning" sx={{ mb: 2 }}>
+              You have {portfolioGalleryItems.length} item(s) in the editor that are not saved yet. Click Save page
+              to publish this gallery to the live site.
+            </Alert>
+          )}
           <Paper variant="outlined" sx={{ p: 2.5, mb: 2 }}>
             <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} alignItems={{ sm: 'center' }} sx={{ mb: 2 }}>
               <Typography variant="subtitle1" sx={{ fontWeight: 800, flex: 1 }}>
                 Gallery items ({portfolioGalleryItems.length})
+                {portfolioGalleryItems.length > 0 && (
+                  <Typography component="span" variant="body2" color="text.secondary" sx={{ ml: 1, fontWeight: 500 }}>
+                    · {publishedPortfolioCount} published
+                  </Typography>
+                )}
               </Typography>
+              <Button size="small" variant="contained" startIcon={<AddIcon />} onClick={addPortfolioGalleryItem}>
+                Add project
+              </Button>
               <Button size="small" variant="outlined" onClick={loadBundledPortfolioItems}>
                 Load bundled gallery
               </Button>
+              <Button
+                size="small"
+                variant="outlined"
+                color="inherit"
+                disabled={portfolioGalleryItems.length === 0}
+                onClick={clearPortfolioGalleryItems}
+              >
+                Clear list
+              </Button>
             </Stack>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-              Leave empty to use bundled install photos on the public site. Save a full list here to override titles, categories, and metadata.
+              Leave empty to use bundled install photos on the public site. Save a non-empty list to override the gallery.
+              Drag the handle to reorder, or use the arrows. Mark Featured to pin projects and drive the home teaser.
+              Use Preview to check a case study before saving.
             </Typography>
-            {portfolioGalleryItems.map((item, i) => (
-              <Box key={item.id ?? i} sx={{ mb: 2, p: 1.5, bgcolor: 'grey.50', borderRadius: 1 }}>
-                <Typography variant="caption" sx={{ fontWeight: 700 }}>
-                  Item {i + 1} · ID {item.id}
-                </Typography>
-                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} sx={{ mt: 1, mb: 1 }}>
-                  <TextField size="small" label="ID" type="number" value={item.id ?? ''} onChange={(e) => setPortfolioGalleryItem(i, 'id', Number(e.target.value) || 0)} sx={{ maxWidth: 100 }} />
-                  <TextField size="small" label="Title" value={item.title || ''} onChange={(e) => setPortfolioGalleryItem(i, 'title', e.target.value)} sx={{ flex: 2 }} />
-                  <TextField size="small" label="Category" value={item.category || ''} onChange={(e) => setPortfolioGalleryItem(i, 'category', e.target.value)} sx={{ flex: 1 }} />
+            {portfolioGalleryItems.length === 0 && (
+              <Alert severity="info" sx={{ mb: 2 }}>
+                No gallery items in the editor. Add a project or load the bundled gallery, then Save page.
+              </Alert>
+            )}
+            {portfolioGalleryItems.map((item, i) => {
+              const isPublished = item.published !== false;
+              const itemMediaType = item.media_type === 'video' ? 'video' : 'image';
+              const isDragging = portfolioDragIndex === i;
+              const isDragOver = portfolioDragOverIndex === i && portfolioDragIndex !== i;
+              return (
+              <Box
+                key={`${item.id}-${i}`}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  if (portfolioDragOverIndex !== i) setPortfolioDragOverIndex(i);
+                }}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  if (portfolioDragIndex != null) reorderPortfolioGalleryItem(portfolioDragIndex, i);
+                  setPortfolioDragIndex(null);
+                  setPortfolioDragOverIndex(null);
+                }}
+                sx={{
+                  mb: 2,
+                  p: 1.5,
+                  bgcolor: isDragOver ? 'action.hover' : 'grey.50',
+                  borderRadius: 1,
+                  border: '1px solid',
+                  borderColor: isDragOver ? 'primary.main' : isPublished ? 'divider' : 'warning.light',
+                  opacity: isDragging ? 0.55 : isPublished ? 1 : 0.85,
+                }}
+              >
+                <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
+                  <Tooltip title="Drag to reorder">
+                    <Box
+                      component="span"
+                      draggable
+                      onDragStart={(e) => {
+                        e.dataTransfer.effectAllowed = 'move';
+                        setPortfolioDragIndex(i);
+                      }}
+                      onDragEnd={() => {
+                        setPortfolioDragIndex(null);
+                        setPortfolioDragOverIndex(null);
+                      }}
+                      sx={{ display: 'inline-flex', cursor: 'grab', touchAction: 'none' }}
+                    >
+                      <DragIndicatorIcon fontSize="small" sx={{ color: 'text.secondary' }} />
+                    </Box>
+                  </Tooltip>
+                  <Typography variant="caption" sx={{ fontWeight: 700, flex: 1 }}>
+                    Item {i + 1} · ID {item.id}
+                    {item.featured && (
+                      <Typography component="span" variant="caption" color="primary.main" sx={{ ml: 1, fontWeight: 700 }}>
+                        Featured
+                      </Typography>
+                    )}
+                    {!isPublished && (
+                      <Typography component="span" variant="caption" color="warning.main" sx={{ ml: 1, fontWeight: 700 }}>
+                        Draft
+                      </Typography>
+                    )}
+                  </Typography>
+                  <Tooltip title="Preview case study">
+                    <IconButton size="small" onClick={() => setPortfolioPreviewIndex(i)} aria-label="Preview">
+                      <VisibilityIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        size="small"
+                        checked={Boolean(item.featured)}
+                        onChange={(_, checked) => setPortfolioGalleryItem(i, 'featured', checked)}
+                      />
+                    }
+                    label="Featured"
+                    sx={{ mr: 0.5 }}
+                  />
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        size="small"
+                        checked={isPublished}
+                        onChange={(_, checked) => setPortfolioGalleryItem(i, 'published', checked)}
+                      />
+                    }
+                    label="Published"
+                    sx={{ mr: 1 }}
+                  />
+                  <Tooltip title="Move up">
+                    <span>
+                      <IconButton size="small" disabled={i === 0} onClick={() => movePortfolioGalleryItem(i, -1)} aria-label="Move up">
+                        <ArrowUpwardIcon fontSize="small" />
+                      </IconButton>
+                    </span>
+                  </Tooltip>
+                  <Tooltip title="Move down">
+                    <span>
+                      <IconButton
+                        size="small"
+                        disabled={i === portfolioGalleryItems.length - 1}
+                        onClick={() => movePortfolioGalleryItem(i, 1)}
+                        aria-label="Move down"
+                      >
+                        <ArrowDownwardIcon fontSize="small" />
+                      </IconButton>
+                    </span>
+                  </Tooltip>
+                  <Tooltip title="Duplicate">
+                    <IconButton size="small" onClick={() => duplicatePortfolioGalleryItem(i)} aria-label="Duplicate">
+                      <ContentCopyIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title="Delete">
+                    <IconButton size="small" color="error" onClick={() => removePortfolioGalleryItem(i)} aria-label="Delete">
+                      <DeleteIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
                 </Stack>
-                <TextField size="small" fullWidth sx={{ mb: 1 }} label="Description" value={item.description || ''} onChange={(e) => setPortfolioGalleryItem(i, 'description', e.target.value)} multiline minRows={2} />
-                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} sx={{ mb: 1 }}>
-                  <TextField size="small" label="Location" value={item.location || ''} onChange={(e) => setPortfolioGalleryItem(i, 'location', e.target.value)} sx={{ flex: 1 }} />
-                  <TextField size="small" label="Media type" value={item.media_type || 'image'} onChange={(e) => setPortfolioGalleryItem(i, 'media_type', e.target.value)} sx={{ maxWidth: 140 }} />
+                <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} alignItems={{ md: 'flex-start' }}>
+                  <Box sx={{ width: { xs: '100%', md: 200 }, flexShrink: 0 }}>
+                    <CmsImageField
+                      label="Cover image / video"
+                      value={item.image || ''}
+                      onChange={(v) => {
+                        const looksVideo = /\.(mp4|webm|ogg|mov|m4v)(\?|#|$)/i.test(v);
+                        patchPortfolioGalleryItem(i, {
+                          image: v,
+                          ...(looksVideo ? { media_type: 'video' as const } : {}),
+                        });
+                      }}
+                      mediaType={itemMediaType}
+                      acceptVideo
+                      previewSize="md"
+                      helperText="Upload or browse Media library"
+                    />
+                  </Box>
+                  <Box sx={{ flex: 1, minWidth: 0 }}>
+                    <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} sx={{ mb: 1 }}>
+                      <TextField size="small" label="ID" type="number" value={item.id ?? ''} onChange={(e) => setPortfolioGalleryItem(i, 'id', Number(e.target.value) || 0)} sx={{ maxWidth: 100 }} />
+                      <TextField
+                        size="small"
+                        label="Title"
+                        value={item.title || ''}
+                        onChange={(e) => {
+                          const title = e.target.value;
+                          const shouldRefreshSlug =
+                            !item.slug || item.slug === slugifyPortfolioTitle(item.title || '');
+                          patchPortfolioGalleryItem(i, {
+                            title,
+                            ...(shouldRefreshSlug
+                              ? {
+                                  slug: ensureUniquePortfolioSlug(
+                                    title || `project-${item.id}`,
+                                    portfolioGalleryItems,
+                                    item.id,
+                                  ),
+                                }
+                              : {}),
+                          });
+                        }}
+                        sx={{ flex: 2 }}
+                      />
+                      <TextField size="small" label="Category" value={item.category || ''} onChange={(e) => setPortfolioGalleryItem(i, 'category', e.target.value)} sx={{ flex: 1 }} />
+                    </Stack>
+                    <TextField
+                      size="small"
+                      fullWidth
+                      sx={{ mb: 1 }}
+                      label="URL slug"
+                      value={item.slug || ''}
+                      onChange={(e) =>
+                        setPortfolioGalleryItem(
+                          i,
+                          'slug',
+                          slugifyPortfolioTitle(e.target.value || item.title || `project-${item.id}`),
+                        )
+                      }
+                      helperText={`Public link: /portfolio/${item.slug || item.id || '…'}`}
+                    />
+                    <TextField size="small" fullWidth sx={{ mb: 1 }} label="Short description" value={item.description || ''} onChange={(e) => setPortfolioGalleryItem(i, 'description', e.target.value)} multiline minRows={2} />
+                    <PortfolioBodyEditor
+                      value={item.body || ''}
+                      onChange={(v) => setPortfolioGalleryItem(i, 'body', v)}
+                    />
+                    <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} sx={{ mb: 1 }}>
+                      <TextField size="small" label="Location" value={item.location || ''} onChange={(e) => setPortfolioGalleryItem(i, 'location', e.target.value)} sx={{ flex: 1 }} />
+                      <FormControl size="small" sx={{ minWidth: 140 }}>
+                        <InputLabel>Media type</InputLabel>
+                        <Select
+                          label="Media type"
+                          value={itemMediaType}
+                          onChange={(e) => setPortfolioGalleryItem(i, 'media_type', e.target.value)}
+                        >
+                          <MenuItem value="image">image</MenuItem>
+                          <MenuItem value="video">video</MenuItem>
+                        </Select>
+                      </FormControl>
+                    </Stack>
+                    <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} sx={{ mb: 1 }}>
+                      <TextField size="small" label="System size" value={item.system_size || ''} onChange={(e) => setPortfolioGalleryItem(i, 'system_size', e.target.value)} sx={{ flex: 1 }} />
+                      <TextField size="small" label="Project type" value={item.project_type || ''} onChange={(e) => setPortfolioGalleryItem(i, 'project_type', e.target.value)} sx={{ flex: 1 }} />
+                    </Stack>
+                    <TextField size="small" fullWidth sx={{ mb: 1 }} label="Outcome / savings note" value={item.savings_note || ''} onChange={(e) => setPortfolioGalleryItem(i, 'savings_note', e.target.value)} />
+                    <TextField
+                      size="small"
+                      fullWidth
+                      label="Extra gallery images (one URL per line)"
+                      value={featuresToText(item.gallery_images || [])}
+                      onChange={(e) =>
+                        patchPortfolioGalleryItem(i, { gallery_images: textToFeatures(e.target.value) })
+                      }
+                      multiline
+                      minRows={3}
+                      helperText="Optional additional photos for the case study. Cover image stays above."
+                    />
+                    <Box sx={{ mt: 1.5 }}>
+                      <CmsImageField
+                        label="Append gallery image"
+                        value=""
+                        onChange={(v) => {
+                          if (!v) return;
+                          const current = item.gallery_images || [];
+                          if (current.includes(v)) return;
+                          patchPortfolioGalleryItem(i, { gallery_images: [...current, v] });
+                        }}
+                        helperText="Pick/upload to append a URL to the gallery list above"
+                      />
+                    </Box>
+                  </Box>
                 </Stack>
-                <CmsImageField label="Image / video URL" value={item.image || ''} onChange={(v) => setPortfolioGalleryItem(i, 'image', v)} />
-                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} sx={{ mt: 1 }}>
-                  <TextField size="small" label="System size" value={item.system_size || ''} onChange={(e) => setPortfolioGalleryItem(i, 'system_size', e.target.value)} sx={{ flex: 1 }} />
-                  <TextField size="small" label="Project type" value={item.project_type || ''} onChange={(e) => setPortfolioGalleryItem(i, 'project_type', e.target.value)} sx={{ flex: 1 }} />
-                </Stack>
-                <TextField size="small" fullWidth sx={{ mt: 1 }} label="Outcome / savings note" value={item.savings_note || ''} onChange={(e) => setPortfolioGalleryItem(i, 'savings_note', e.target.value)} />
               </Box>
-            ))}
+              );
+            })}
+            {portfolioGalleryItems.length > 0 && (
+              <Button size="small" variant="outlined" startIcon={<AddIcon />} onClick={addPortfolioGalleryItem} sx={{ mt: 0.5 }}>
+                Add another project
+              </Button>
+            )}
           </Paper>
+          <PortfolioItemPreviewDialog
+            open={portfolioPreviewIndex != null}
+            item={portfolioPreviewIndex != null ? portfolioGalleryItems[portfolioPreviewIndex] || null : null}
+            onClose={() => setPortfolioPreviewIndex(null)}
+          />
           <Paper variant="outlined" sx={{ p: 2.5, mb: 2 }}>
             <Typography variant="subtitle1" sx={{ fontWeight: 800, mb: 2 }}>Closing CTA</Typography>
             <TextField size="small" fullWidth sx={{ mb: 1.5 }} label="Title" value={closingCta.title || ''} onChange={(e) => setCtaField('title', e.target.value)} />

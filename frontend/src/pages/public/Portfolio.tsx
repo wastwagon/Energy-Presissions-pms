@@ -22,7 +22,7 @@ import PublicStickyMobileCta from '../../components/public/PublicStickyMobileCta
 import FilterChip from '../../components/public/FilterChip';
 import { useCmsPage } from '../../hooks/useCmsPage';
 import { resolveCmsSeo } from '../../hooks/useCmsSeo';
-import { getPortfolioCategoriesFromItems, resolvePortfolioItems } from '../../data/portfolioCms';
+import { getPortfolioCategoriesFromItems, getPortfolioItemPath, resolvePortfolioItems } from '../../data/portfolioCms';
 import { useGlobalSiteConfig } from '../../hooks/useGlobalSiteConfig';
 import { resolveMediaUrl } from '../../utils/mediaUrl';
 import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion';
@@ -90,7 +90,7 @@ const Portfolio: React.FC = () => {
             <Grid item xs={12} sm={6} md={4} key={item.id}>
               <Card
                 component={Link}
-                to={`/portfolio/${item.id}`}
+                to={getPortfolioItemPath(item)}
                 sx={{
                   height: '100%',
                   display: 'flex',
@@ -117,6 +117,7 @@ const Portfolio: React.FC = () => {
                     height: { xs: 200, sm: 220 },
                     overflow: 'hidden',
                     bgcolor: colors.gray200,
+                    position: 'relative',
                   }}
                 >
                   {item.mediaType === 'video' ? (
@@ -137,6 +138,21 @@ const Portfolio: React.FC = () => {
                       alt={item.title}
                       className="portfolio-image"
                       sx={{ height: '100%', objectFit: 'cover', transition: 'transform 0.5s ease' }}
+                    />
+                  )}
+                  {item.featured && (
+                    <Chip
+                      label="Featured"
+                      size="small"
+                      sx={{
+                        position: 'absolute',
+                        top: 10,
+                        left: 10,
+                        height: 22,
+                        bgcolor: colors.blueBlack,
+                        color: 'white',
+                        fontWeight: 700,
+                      }}
                     />
                   )}
                 </Box>

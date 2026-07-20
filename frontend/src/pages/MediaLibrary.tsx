@@ -200,7 +200,7 @@ const MediaLibrary: React.FC = () => {
         Media Library
       </Typography>
       <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-        Upload and manage images. Reuse them across products, services, and portfolio.
+        Upload and manage images and videos. Reuse them across products, services, and portfolio.
       </Typography>
 
       <Box sx={{ display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap' }}>
@@ -225,7 +225,7 @@ const MediaLibrary: React.FC = () => {
           disabled={uploading}
         >
           {uploading ? 'Uploading...' : 'Add New'}
-          <input type="file" hidden accept="image/*,.pdf" onChange={handleUpload} />
+          <input type="file" hidden accept="image/*,video/*,.pdf" onChange={handleUpload} />
         </Button>
       </Box>
 
@@ -246,7 +246,7 @@ const MediaLibrary: React.FC = () => {
             sx={{ mt: 2 }}
           >
             Upload
-            <input type="file" hidden accept="image/*,.pdf" onChange={handleUpload} />
+            <input type="file" hidden accept="image/*,video/*,.pdf" onChange={handleUpload} />
           </Button>
         </Paper>
       ) : (

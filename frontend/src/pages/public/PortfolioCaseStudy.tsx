@@ -13,9 +13,14 @@ import { Seo } from '../../components/Seo';
 import PublicPageShell from '../../components/public/PublicPageShell';
 import PublicStickyMobileCta from '../../components/public/PublicStickyMobileCta';
 import { useCmsPage } from '../../hooks/useCmsPage';
-import { getPortfolioItemByIdFromCms, resolvePortfolioItems } from '../../data/portfolioCms';
+import {
+  getPortfolioItemByParamFromCms,
+  getPortfolioItemPath,
+  resolvePortfolioItems,
+} from '../../data/portfolioCms';
 import { useGlobalSiteConfig } from '../../hooks/useGlobalSiteConfig';
 import { resolveMediaUrl } from '../../utils/mediaUrl';
+import { PortfolioBodyView } from '../../utils/portfolioBody';
 import { colors } from '../../theme/colors';
 import { homeUi } from '../../theme/homeUi';
 import { publicUi } from '../../theme/publicUi';
@@ -26,7 +31,7 @@ const PortfolioCaseStudy: React.FC = () => {
   const navigate = useNavigate();
   const { sections } = useCmsPage('portfolio');
   const items = useMemo(() => resolvePortfolioItems(sections.items), [sections.items]);
-  const item = getPortfolioItemByIdFromCms(id, sections.items);
+  const item = getPortfolioItemByParamFromCms(id, sections.items);
 
   if (!item) {
     return (
@@ -52,13 +57,18 @@ const PortfolioCaseStudy: React.FC = () => {
   }
 
   const related = items.filter((p) => p.id !== item.id && p.category === item.category).slice(0, 3);
+  const fallbackBody = `${item.description} Energy Precisions delivers turnkey design, installation, and lifecycle support for projects like this across Ghana.`;
+  const galleryUrls = [item.image, ...(item.galleryImages || [])].filter(Boolean);
+  const uniqueGallery = galleryUrls.filter((url, index) => galleryUrls.indexOf(url) === index);
+  const extraGallery = uniqueGallery.slice(1);
+  const itemPath = getPortfolioItemPath(item);
 
   return (
     <>
       <Seo
         title={`${item.title} | Portfolio | Energy Precisions`}
         description={item.description}
-        path={`/portfolio/${item.id}`}
+        path={itemPath}
         ogImage={item.mediaType !== 'video' ? resolveMediaUrl(item.image) : undefined}
       />
       <PublicPageShell badge={item.category} headline={item.title} description={item.description} contentMaxWidth="lg">
@@ -93,10 +103,49 @@ const PortfolioCaseStudy: React.FC = () => {
           )}
         </Box>
 
+        {extraGallery.length > 0 && (
+          <Grid container spacing={1.5} sx={{ mb: 3 }}>
+            {extraGallery.map((url) => {
+              const isVideo = /\.(mp4|webm|ogg|mov|m4v)(\?|#|$)/i.test(url);
+              return (
+                <Grid item xs={6} sm={4} key={url}>
+                  <Box
+                    sx={{
+                      borderRadius: homeUi.innerRadius,
+                      overflow: 'hidden',
+                      border: homeUi.cardBorder,
+                      bgcolor: colors.gray100,
+                      height: { xs: 120, sm: 160 },
+                    }}
+                  >
+                    {isVideo ? (
+                      <Box
+                        component="video"
+                        src={resolveMediaUrl(url)}
+                        controls
+                        playsInline
+                        sx={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                      />
+                    ) : (
+                      <Box
+                        component="img"
+                        src={resolveMediaUrl(url)}
+                        alt=""
+                        sx={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                      />
+                    )}
+                  </Box>
+                </Grid>
+              );
+            })}
+          </Grid>
+        )}
+
         <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap sx={{ mb: 3 }}>
           <Chip label={item.location} size="small" sx={{ bgcolor: colors.blueBlack, color: 'white' }} />
           <Chip label={item.category} size="small" variant="outlined" />
           {item.systemSize && <Chip label={item.systemSize} size="small" sx={{ bgcolor: colors.greenLight, color: colors.blueBlack }} />}
+          {item.featured && <Chip label="Featured" size="small" color="primary" variant="outlined" />}
         </Stack>
 
         {(item.projectType || item.savingsNote) && (
@@ -116,9 +165,14 @@ const PortfolioCaseStudy: React.FC = () => {
           </Grid>
         )}
 
-        <Typography sx={{ ...homeUi.body, ...publicUi.mutedText, mb: 4, maxWidth: 640 }}>
-          {item.description} Energy Precisions delivers turnkey design, installation, and lifecycle support for projects like this across Ghana.
-        </Typography>
+        <Box sx={{ mb: 4, maxWidth: 640 }}>
+          <PortfolioBodyView
+            body={item.body}
+            fallback={fallbackBody}
+            paragraphSx={{ ...homeUi.body, ...publicUi.mutedText }}
+            headingSx={{ ...homeUi.headingSm, color: colors.blueBlack }}
+          />
+        </Box>
 
         <Button
           component={RouterLink}
@@ -143,7 +197,7 @@ const PortfolioCaseStudy: React.FC = () => {
                 <Grid item xs={12} sm={4} key={rel.id}>
                   <Button
                     component={RouterLink}
-                    to={`/portfolio/${rel.id}`}
+                    to={getPortfolioItemPath(rel)}
                     fullWidth
                     variant="outlined"
                     sx={{ ...publicUi.secondaryButton, py: 1.5, justifyContent: 'flex-start', textAlign: 'left' }}

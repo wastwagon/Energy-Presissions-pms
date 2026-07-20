@@ -98,6 +98,14 @@ export interface CmsPortfolioGalleryItem {
   project_type?: string;
   savings_note?: string;
   published?: boolean;
+  /** URL path segment; falls back to numeric id when empty */
+  slug?: string;
+  /** Longer case-study copy (paragraphs separated by blank lines) */
+  body?: string;
+  /** Extra image/video URLs for the case-study gallery */
+  gallery_images?: string[];
+  /** Pin to top of /portfolio and use on home teaser when set */
+  featured?: boolean;
 }
 
 export interface CmsProcessStep {

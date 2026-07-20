@@ -15,6 +15,10 @@ export type PortfolioPageItem = {
   systemSize?: string;
   projectType?: string;
   savingsNote?: string;
+  slug?: string;
+  body?: string;
+  galleryImages?: string[];
+  featured?: boolean;
 };
 
 const installGallery: PortfolioPageItem[] = [
@@ -209,6 +213,11 @@ export function getPortfolioCategories(): string[] {
 }
 
 export function getPortfolioItemById(id: string | undefined): PortfolioPageItem | undefined {
+  if (!id) return undefined;
+  const bySlug = portfolioPageItems.find(
+    (p) => (p.slug || p.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')) === id,
+  );
+  if (bySlug) return bySlug;
   const num = Number(id);
   if (!Number.isFinite(num)) return undefined;
   return portfolioPageItems.find((p) => p.id === num);
