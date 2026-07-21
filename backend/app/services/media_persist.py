@@ -9,6 +9,25 @@ from sqlalchemy.orm import Session
 from app.models import MediaItem
 
 
+IMAGE_EXTENSIONS = frozenset({".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg"})
+VIDEO_EXTENSIONS = frozenset({".mp4", ".webm", ".ogg", ".mov", ".m4v"})
+DOCUMENT_EXTENSIONS = frozenset({".pdf"})
+ALLOWED_MEDIA_EXTENSIONS = IMAGE_EXTENSIONS | VIDEO_EXTENSIONS | DOCUMENT_EXTENSIONS
+MAX_FILE_SIZE = 10 * 1024 * 1024
+MAX_VIDEO_FILE_SIZE = 100 * 1024 * 1024
+
+
+def media_extension(original_name: Optional[str]) -> str:
+    """Return a normalized extension only when the media type is supported."""
+    ext = Path(original_name or "").suffix.lower()
+    return ext if ext in ALLOWED_MEDIA_EXTENSIONS else ""
+
+
+def max_upload_size_for_extension(ext: str) -> int:
+    """Return the upload ceiling for an already-normalized media extension."""
+    return MAX_VIDEO_FILE_SIZE if ext.lower() in VIDEO_EXTENSIONS else MAX_FILE_SIZE
+
+
 def _sanitize_base_name(name: str) -> str:
     base = Path(name or "upload").name
     base = re.sub(r"[^a-zA-Z0-9._-]", "_", base).strip("._") or "upload"
@@ -38,9 +57,7 @@ def create_db_backed_media_item(
     title: Optional[str] = None,
     alt_text: Optional[str] = None,
 ) -> MediaItem:
-    ext = Path(original_name or "").suffix.lower()
-    if ext not in {".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg", ".pdf"}:
-        ext = ".bin"
+    ext = media_extension(original_name) or ".bin"
     safe_original = _sanitize_base_name(original_name or f"upload{ext}")
     if not safe_original.lower().endswith(ext.lower()):
         safe_original = f"{Path(safe_original).stem}{ext}"

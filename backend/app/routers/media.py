@@ -1,4 +1,3 @@
-from pathlib import Path
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Form
@@ -11,13 +10,17 @@ from app.auth import get_current_active_user, require_role
 from app.models import User, MediaItem
 from app.schemas_media import MediaItemResponse
 from app.storage import get_static_root
-from app.services.media_persist import create_db_backed_media_item
+from app.services.media_persist import (
+    ALLOWED_MEDIA_EXTENSIONS,
+    VIDEO_EXTENSIONS,
+    create_db_backed_media_item,
+    max_upload_size_for_extension,
+    media_extension,
+)
 
 router = APIRouter(prefix="/media", tags=["media"])
 
 MEDIA_DIR = get_static_root() / "media"
-ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg", ".pdf"}
-MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
 
 
 @router.get("/public/{item_id}")
@@ -75,18 +78,23 @@ async def upload_media(
     db: Session = Depends(get_db),
     current_user: User = Depends(require_role(["admin", "website_admin"])),
 ):
-    """Upload a file (admin only). Stores bytes in DB so URLs keep working after redeploy."""
-    contents = await file.read()
-    if len(contents) > MAX_FILE_SIZE:
+    """Upload supported media. Stores bytes in DB so URLs survive redeploys."""
+    ext = media_extension(file.filename)
+    if not ext:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"File size must be less than {MAX_FILE_SIZE // (1024 * 1024)}MB",
+            detail=f"Allowed extensions: {', '.join(sorted(ALLOWED_MEDIA_EXTENSIONS))}",
         )
-    ext = Path(file.filename or "").suffix.lower()
-    if ext not in ALLOWED_EXTENSIONS:
+
+    max_size = max_upload_size_for_extension(ext)
+    # Read at most one byte beyond the limit instead of loading an arbitrarily
+    # large rejected upload into application memory.
+    contents = await file.read(max_size + 1)
+    if len(contents) > max_size:
+        media_kind = "Video" if ext in VIDEO_EXTENSIONS else "File"
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Allowed extensions: {', '.join(sorted(ALLOWED_EXTENSIONS))}",
+            detail=f"{media_kind} size must be less than {max_size // (1024 * 1024)}MB",
         )
     mime_type = file.content_type or "application/octet-stream"
     return create_db_backed_media_item(
