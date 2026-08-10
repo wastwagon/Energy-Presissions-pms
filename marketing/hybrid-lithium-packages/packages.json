@@ -31,7 +31,7 @@
         "6.5 kW hybrid inverter (1)",
         "16 kWh LiFePO₄ lithium battery (1)",
         "Battery management / monitoring (1)",
-        "570W tier-1 solar panels (15)",
+        "570W tier-1 solar panels (8)",
         "DC protection, changeover & AC distribution",
         "Mounting structure (roof)",
         "Cables, MC4, earthing & commissioning"
@@ -39,14 +39,14 @@
       "appliances": "Fridge, TV, standing fans, router, 15–20 LED lights, phone and laptop charging, blender or kettle (one at a time). No air conditioning — add a higher tier for AC.",
       "inverter_kw": 6.5,
       "target_storage_kwh": 16.0,
-      "panel_count": 15,
-      "panel_dc_kw": 8.55,
+      "panel_count": 8,
+      "panel_dc_kw": 4.6,
       "battery_count": 1,
       "battery_kwh": 16.0,
       "load_kva": 6.5,
       "load_ceiling_help": "Continuous planning figure (~0.85 power factor). Stagger heavy loads — do not exceed this together.",
-      "customer_note": "6.5 KVA tier with a matching 6.5 kW inverter. Fifteen panels are sized for this load — no air conditioning in this tier; upgrade if you need AC.",
-      "brochure_note": "6.5 KVA tier · matching 6.5 kW inverter · 15 panels · no AC in this tier."
+      "customer_note": "6.5 KVA tier with a matching 6.5 kW inverter. Eight panels (4.6 kWp) are sized for this load — no air conditioning in this tier; upgrade if you need AC.",
+      "brochure_note": "6.5 KVA tier · matching 6.5 kW inverter · 8 panels (4.6 kWp) · no AC in this tier."
     },
     {
       "id": "ep-8kva",
@@ -62,7 +62,7 @@
         "10 kW hybrid inverter (1)",
         "16 kWh LiFePO₄ lithium batteries (2)",
         "Battery management / monitoring (1)",
-        "570W tier-1 solar panels (19)",
+        "570W tier-1 solar panels (10)",
         "DC protection, changeover & AC distribution",
         "Mounting structure (roof)",
         "Cables, MC4, earthing & commissioning"
@@ -70,16 +70,16 @@
       "appliances": "Fridge, rice cooker, blender, iron (staggered), 1 split AC (1–1.5 hp), 25 LED bulbs, 4–5 fans, 2 TVs, home Wi‑Fi, 2–3 laptops or computers, printer.",
       "inverter_kw": 10.0,
       "target_storage_kwh": 32.0,
-      "panel_count": 19,
-      "panel_dc_kw": 10.83,
+      "panel_count": 10,
+      "panel_dc_kw": 5.7,
       "battery_count": 2,
       "battery_kwh": 32.0,
       "load_kva": 8.0,
       "inverter_cost_ghs": 11000.0,
       "load_ceiling_help": "Continuous planning figure (~0.85 power factor). Stagger heavy loads — do not exceed this together.",
-      "customer_note": "Badge is 8 KVA (~6,800 W planned use). We install one 10 kW inverter (stocked) for AC starts — still plan within ~6,800 W continuous. Nineteen panels match the 8 KVA tier, not 10 kW maximum.",
+      "customer_note": "Badge is 8 KVA (~6,800 W planned use). We install one 10 kW inverter (stocked) for AC starts — still plan within ~6,800 W continuous. Ten panels (5.7 kWp) match the 8 KVA tier, not 10 kW maximum.",
       "inverter_headroom": "+25% inverter headroom · AC motor starts",
-      "brochure_note": "8 KVA (~6,800 W). 10 kW inverter for AC starts · 19 panels sized for 8 KVA load."
+      "brochure_note": "8 KVA (~6,800 W). 10 kW inverter for AC starts · 10 panels (5.7 kWp) for 8 KVA load."
     },
     {
       "id": "ep-10kva",
@@ -95,7 +95,7 @@
         "10 kW hybrid inverter (1)",
         "16 kWh LiFePO₄ lithium batteries (3)",
         "Battery management / monitoring (1)",
-        "570W tier-1 solar panels (23)",
+        "570W tier-1 solar panels (15)",
         "DC protection, changeover & AC distribution",
         "Mounting structure (roof)",
         "Cables, MC4, earthing & commissioning"
@@ -103,14 +103,14 @@
       "appliances": "2 fridges or fridge + freezer, rice cooker or microwave, blender, iron (staggered), up to 2 split AC (1–1.5 hp, not together on full cool), 30 LED bulbs, 4–5 fans, 2 TVs, small office (PCs, printer, router).",
       "inverter_kw": 10.0,
       "target_storage_kwh": 48.0,
-      "panel_count": 23,
-      "panel_dc_kw": 13.11,
+      "panel_count": 15,
+      "panel_dc_kw": 8.6,
       "battery_count": 3,
       "battery_kwh": 48.0,
       "load_kva": 10.0,
       "load_ceiling_help": "Continuous planning figure (~0.85 power factor). Stagger heavy loads — do not exceed this together.",
-      "customer_note": "10 KVA tier with one 10 kW inverter — aligned. Run up to ~8,500 W continuous; do not run two split AC units on full cool at the same time.",
-      "brochure_note": "10 KVA / 10 kW aligned · ~8,500 W continuous · stagger two AC units."
+      "customer_note": "10 KVA tier with one 10 kW inverter — aligned. Fifteen panels (8.6 kWp). Run up to ~8,500 W continuous; do not run two split AC units on full cool at the same time.",
+      "brochure_note": "10 KVA / 10 kW aligned · 15 panels (8.6 kWp) · stagger two AC units."
     },
     {
       "id": "ep-12kva",
@@ -126,7 +126,7 @@
         "6.5 kW hybrid inverters (2, synchronized)",
         "16 kWh LiFePO₄ lithium batteries (4)",
         "Battery management / monitoring (1)",
-        "570W Jinko / Longi solar panels (28)",
+        "570W Jinko / Longi solar panels (18)",
         "DC protection, dual MPPT where required, changeover",
         "Mounting structure (roof)",
         "Cables, MC4, earthing & commissioning"
@@ -134,16 +134,16 @@
       "appliances": "2 fridges/freezers, kitchen blender, rice cooker, iron and heater (staggered), 2–3 split AC (1–1.5 hp — alternate with kitchen peaks, not all on full cool), 30+ LED bulbs, 4–5 fans, 2–3 TVs, home office or shop POS and computers.",
       "inverter_kw": 13.0,
       "target_storage_kwh": 64.0,
-      "panel_count": 28,
-      "panel_dc_kw": 15.96,
+      "panel_count": 18,
+      "panel_dc_kw": 10.3,
       "battery_count": 4,
       "battery_kwh": 64.0,
       "load_kva": 12.0,
       "inverter_cost_ghs": 13000.0,
       "load_ceiling_help": "Continuous planning figure (~0.85 power factor). Stagger heavy loads — do not exceed this together.",
-      "customer_note": "12 KVA tier (~10,200 W planned use). Two 6.5 kW inverters work together (~13 kW available). Twenty-eight panels are sized for 12 KVA load, not 13 kW inverter maximum.",
+      "customer_note": "12 KVA tier (~10,200 W planned use). Two 6.5 kW inverters work together (~13 kW available). Eighteen panels (10.3 kWp) are sized for 12 KVA load, not 13 kW inverter maximum.",
       "inverter_headroom": "+8% inverter headroom · dual 6.5 kW sync",
-      "brochure_note": "12 KVA (~10,200 W) · dual 6.5 kW (~13 kW) · 28 panels for 12 KVA load."
+      "brochure_note": "12 KVA (~10,200 W) · dual 6.5 kW (~13 kW) · 18 panels (10.3 kWp) for 12 KVA load."
     },
     {
       "id": "ep-15kva",
@@ -159,7 +159,7 @@
         "10 kW hybrid inverters (2, synchronized)",
         "16 kWh LiFePO₄ lithium batteries (5)",
         "Battery management / monitoring (1)",
-        "570W tier-1 solar panels (35)",
+        "570W tier-1 solar panels (24)",
         "AC/DC distribution boards & changeover",
         "Mounting structure (roof)",
         "Cables, MC4, earthing & commissioning"
@@ -167,16 +167,16 @@
       "appliances": "Several guest rooms, commercial fridge, kitchen appliances (staggered), up to 4 split AC (1–1.5 hp) with load management, sound system, reception PCs, security and corridor lighting, small water pump or booster (if within survey load).",
       "inverter_kw": 20.0,
       "target_storage_kwh": 80.0,
-      "panel_count": 35,
-      "panel_dc_kw": 19.95,
+      "panel_count": 24,
+      "panel_dc_kw": 13.7,
       "battery_count": 5,
       "battery_kwh": 80.0,
       "load_kva": 15.0,
       "inverter_cost_ghs": 22000.0,
       "load_ceiling_help": "Continuous planning figure (~0.85 power factor). Stagger heavy loads — do not exceed this together.",
-      "customer_note": "15 KVA tier (~12,800 W planned use). Two 10 kW inverters (synchronized, stocked) handle peaks; thirty-five panels are sized for 15 KVA — less solar than the 20 KVA tier on the same inverter pair.",
+      "customer_note": "15 KVA tier (~12,800 W planned use). Two 10 kW inverters (synchronized, stocked) handle peaks; twenty-four panels (13.7 kWp) are sized for 15 KVA — less solar than the 20 KVA tier on the same inverter pair.",
       "inverter_headroom": "+33% inverter headroom · dual 10 kW sync",
-      "brochure_note": "15 KVA (~12,800 W) · dual 10 kW sync · 35 panels (less than 20 KVA tier)."
+      "brochure_note": "15 KVA (~12,800 W) · dual 10 kW sync · 24 panels (13.7 kWp)."
     },
     {
       "id": "ep-20kva",
@@ -192,7 +192,7 @@
         "10 kW hybrid inverters (2, synchronized)",
         "16 kWh LiFePO₄ lithium batteries (6)",
         "Battery management / monitoring (1)",
-        "570W tier-1 solar panels (46)",
+        "570W tier-1 solar panels (36)",
         "AC/DC distribution boards & changeover",
         "Mounting structure (roof)",
         "Cables, MC4, earthing & commissioning"
@@ -200,14 +200,14 @@
       "appliances": "Multiple guest-room AC (1–1.5 hp, staggered across rooms), commercial kitchen peaks, laundry alternated with AC, fridges, IT/server room on dedicated circuit, event or hall lighting — engineered load schedule on survey.",
       "inverter_kw": 20.0,
       "target_storage_kwh": 96.0,
-      "panel_count": 46,
-      "panel_dc_kw": 26.22,
+      "panel_count": 36,
+      "panel_dc_kw": 19.3,
       "battery_count": 6,
       "battery_kwh": 96.0,
       "load_kva": 20.0,
       "load_ceiling_help": "Continuous planning figure (~0.85 power factor). Stagger heavy loads — do not exceed this together.",
-      "customer_note": "20 KVA tier (~17,000 W planned use) with two 10 kW inverters. Forty-six panels match this load; guest-house and hotel loads need a written load schedule on survey.",
-      "brochure_note": "20 KVA (~17,000 W) · dual 10 kW · 46 panels · load schedule on survey."
+      "customer_note": "20 KVA tier (~17,000 W planned use) with two 10 kW inverters. Thirty-six panels (19.3 kWp) match this load; guest-house and hotel loads need a written load schedule on survey.",
+      "brochure_note": "20 KVA (~17,000 W) · dual 10 kW · 36 panels (19.3 kWp) · load schedule on survey."
     }
   ],
   "footer_bullets": [

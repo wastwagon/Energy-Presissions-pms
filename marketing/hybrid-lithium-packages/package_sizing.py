@@ -1,10 +1,8 @@
 """
 Marketing package sizing.
 
-Panels: sized to the package **load tier** (load_kva), not inverter nameplate — avoids
-oversizing PV when the stocked inverter is larger than the tier (e.g. 10 kW inv on 8 KVA Home).
-
-  panel_count = ceil(load_kva × max_dc_ac_ratio × 1000 / panel_wattage)
+Panels / PV size: on-site package BOM (not inverter nameplate) — avoids oversizing PV
+when the stocked inverter is larger than the tier (e.g. 10 kW inv on 8 KVA Home).
 
 Inverter lines come from TIER_INVERTER_COMPONENT (stocked SKUs). Battery: 16 kWh modules.
 """
@@ -17,6 +15,34 @@ PANEL_WATTAGE = 570
 PANEL_BRAND_LABEL = "570W tier-1"
 MAX_DC_AC_RATIO = 1.3
 BATTERY_MODULE_KWH = 16.0
+
+# On-site solar package corrections (panel count + published PV kWp).
+TIER_PANEL_COUNT: dict[str, int] = {
+    "ep-6.5kva": 8,
+    "ep-8kva": 10,
+    "ep-10kva": 15,
+    "ep-12kva": 18,
+    "ep-15kva": 24,
+    "ep-20kva": 36,
+}
+
+TIER_PANEL_DC_KW: dict[str, float] = {
+    "ep-6.5kva": 4.6,
+    "ep-8kva": 5.7,
+    "ep-10kva": 8.6,
+    "ep-12kva": 10.3,
+    "ep-15kva": 13.7,
+    "ep-20kva": 19.3,
+}
+
+LOAD_KVA_TO_TIER_ID: dict[float, str] = {
+    6.5: "ep-6.5kva",
+    8.0: "ep-8kva",
+    10.0: "ep-10kva",
+    12.0: "ep-12kva",
+    15.0: "ep-15kva",
+    20.0: "ep-20kva",
+}
 
 # Defaults mirror package_content.TIER_META (imported in enrich_package).
 TIER_TARGET_STORAGE_KWH: dict[str, float] = {
@@ -54,11 +80,18 @@ def panel_count_for_load_tier(
     panel_wattage: int = PANEL_WATTAGE,
     max_dc_ac_ratio: float = MAX_DC_AC_RATIO,
 ) -> int:
-    """PV count sized to package load (kVA), not inverter nameplate."""
-    if load_kva <= 0 or panel_wattage <= 0:
+    """PV count for package load tier (on-site BOM when known)."""
+    del panel_wattage, max_dc_ac_ratio  # kept for call-site compatibility
+    if load_kva <= 0:
         return 0
-    dc_kw = load_kva * max_dc_ac_ratio
-    return math.ceil(dc_kw * 1000 / panel_wattage)
+    tier_id = LOAD_KVA_TO_TIER_ID.get(float(load_kva))
+    if tier_id and tier_id in TIER_PANEL_COUNT:
+        return TIER_PANEL_COUNT[tier_id]
+    return 0
+
+
+def panel_count_for_tier_id(pkg_id: str) -> int:
+    return TIER_PANEL_COUNT.get(pkg_id, 0)
 
 
 def panel_count_for_inverter(
@@ -68,7 +101,9 @@ def panel_count_for_inverter(
     max_dc_ac_ratio: float = MAX_DC_AC_RATIO,
 ) -> int:
     """Legacy helper — prefer panel_count_for_load_tier for marketing packages."""
-    return panel_count_for_load_tier(inverter_kw, panel_wattage=panel_wattage, max_dc_ac_ratio=max_dc_ac_ratio)
+    return panel_count_for_load_tier(
+        inverter_kw, panel_wattage=panel_wattage, max_dc_ac_ratio=max_dc_ac_ratio
+    )
 
 
 def battery_module_count(
@@ -82,7 +117,14 @@ def battery_module_count(
 
 
 def panel_dc_kw(panel_count: int, panel_wattage: int = PANEL_WATTAGE) -> float:
+    """Fallback DC kWp from count × wattage (prefer TIER_PANEL_DC_KW in enrich)."""
     return round(panel_count * panel_wattage / 1000, 2)
+
+
+def panel_dc_kw_for_tier(pkg_id: str, panel_count: int) -> float:
+    if pkg_id in TIER_PANEL_DC_KW:
+        return TIER_PANEL_DC_KW[pkg_id]
+    return panel_dc_kw(panel_count)
 
 
 def _inverter_line(pkg: dict[str, Any]) -> str:
@@ -121,7 +163,7 @@ def enrich_package(pkg: dict[str, Any], *, auto_price: bool = False) -> dict[str
         pkg.get("target_storage_kwh") or TIER_TARGET_STORAGE_KWH.get(pkg_id, BATTERY_MODULE_KWH)
     )
 
-    panel_count = panel_count_for_load_tier(load_kva)
+    panel_count = panel_count_for_tier_id(pkg_id) or panel_count_for_load_tier(load_kva)
     battery_count = battery_module_count(target_kwh)
 
     pkg = dict(pkg)
@@ -129,7 +171,7 @@ def enrich_package(pkg: dict[str, Any], *, auto_price: bool = False) -> dict[str
     pkg["load_kva"] = load_kva
     pkg["target_storage_kwh"] = target_kwh
     pkg["panel_count"] = panel_count
-    pkg["panel_dc_kw"] = panel_dc_kw(panel_count)
+    pkg["panel_dc_kw"] = panel_dc_kw_for_tier(pkg_id, panel_count)
     pkg["battery_count"] = battery_count
     pkg["battery_kwh"] = battery_count * BATTERY_MODULE_KWH
     pkg["load_ceiling_help"] = LOAD_CEILING_HELP

@@ -45,12 +45,15 @@ def test_home_and_pro_use_stocked_inverters():
     commercial = enrich_package({"id": "ep-15kva"})
     assert "10 kW hybrid inverter" in home["components"][0]
     assert home["max_watts"] == "6,800"
-    assert home["panel_count"] == 19
+    assert home["panel_count"] == 10
+    assert home["panel_dc_kw"] == 5.7
     assert "6.5 kW hybrid inverters (2, synchronized)" in pro["components"][0]
     assert pro["max_watts"] == "10,200"
-    assert pro["panel_count"] == 28
+    assert pro["panel_count"] == 18
+    assert pro["panel_dc_kw"] == 10.3
     assert "10 kW hybrid inverters (2, synchronized)" in commercial["components"][0]
-    assert commercial["panel_count"] == 35
+    assert commercial["panel_count"] == 24
+    assert commercial["panel_dc_kw"] == 13.7
 
 
 def test_enrich_12kva_gets_four_batteries():
